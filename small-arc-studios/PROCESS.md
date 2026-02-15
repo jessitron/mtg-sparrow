@@ -160,7 +160,18 @@ An arc is complete when:
 - Acceptance criteria are satisfied.
 - Decisions are recorded.
 
-We demonstrate each completed arc.
+## Demonstration Cadence
+
+**First Arc**: We always demonstrate the completed first arc to the client and wait for approval before proceeding. This establishes alignment and confidence.
+
+**Subsequent Arcs**: After the first arc is approved, we list the upcoming planned arcs and ask the client when they would like us to pause for demonstration. The client may request:
+
+- Checkpoints at specific arcs
+- Pauses after each phase
+- Pauses only when direction changes
+- Continuous delivery with periodic summaries
+
+We continue delivery between checkpoints while maintaining full verification standards for each arc.
 
 ---
 
