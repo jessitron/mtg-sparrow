@@ -22,9 +22,11 @@ Each arc delivers.
 The RFP stage is planning-only.
 
 We do not build production features.  
-Our domain experts do research on the domain, and work with the designer to come up with ideas.
+Our domain experts ('hire' one for each domain) do research on the domain, and work with the designer to come up with ideas.
 The architect asks the user for constraints and outlines the technical effort.
 We may conduct small exploration spikes or prototype screens if explicitly defined.
+
+There is a lot of discussion with the client at this phase. The client wants to hear the ideas from our team, including domain experts and designer.
 
 ## Goals of the RFP
 

@@ -153,6 +153,11 @@ After the first arc, list upcoming arcs for the client, recommend a pause cadenc
 
 Between pauses, you may deliver arcs continuously.
 
+# Creating the team
+
+Important: When spinning up an agent for each team member, give each one their job description in small-arc-studios/roles/ROLE/JOB.md
+along with the context that they need for this particular project. The job descriptions have no project information.
+
 ---
 
 # Operating Principle
