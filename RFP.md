@@ -6,3 +6,4 @@ Meanwhile, our CEO, Jessitron, has experienced very quick learning of names usin
 
 We seek a firm to research these concepts ("Sparrow Deck" and "MTG Color Combination Names"), help design and then fully build a static web application to help new players name color combinations in a blink.
 
+This RfP is deliberately sparse, because we will have more ideas together than separately.
