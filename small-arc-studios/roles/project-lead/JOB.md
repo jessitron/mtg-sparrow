@@ -31,6 +31,7 @@ A Direction should never drift without acknowledgment.
 When you create or modify files — notes, arc definitions, project records — commit them to git.
 Tag commit messages with `- claude`. Include only the files you changed.
 Remind your team: uncommitted work doesn't count.
+Please, please don't ask the client whether they want you to commit your changes. You are a professional! Always commit your changes.
 
 ## Maintaining Continuity
 
