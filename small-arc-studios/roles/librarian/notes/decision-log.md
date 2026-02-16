@@ -225,6 +225,20 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Decided by**: Client (Proposal annotation)
 - **Context**: Client explicitly stated these are not concerns. The app is small and the timing doesn't need to be frame-perfect.
 
+## DEC-028: All Commands Via Scripts Directory
+- **Date**: 2026-02-15
+- **Decision**: All bash commands must be wrapped in shell scripts in `scripts/`. No raw `npx`, `npm`, `grep`, etc. commands run directly. If a script exists, use it; if a new command is needed, create the script first, then run it.
+- **Context**: Team policy to streamline client approval — client approves scripts once rather than each command individually.
+- **Existing scripts**: `scripts/build.sh`, `scripts/dev.sh`, `scripts/serve.sh`, `scripts/typecheck.sh` (created by Architect).
+- **Implications**: All roles must follow this convention. Tester expected to create verification scripts as needed.
+
+## DEC-029: Honeycomb API Key Provided
+- **Date**: 2026-02-15
+- **Decision**: Client provided ingest-only Honeycomb API key. Key is configured in `src/telemetry/init.ts` and embedded in the JS bundle.
+- **Context**: Arc 1 requires a working telemetry pipeline. The key is ingest-only, so exposure in the bundle is the accepted pattern per DEC-008.
+- **Renumbered from**: DEC-028 (DEC-028 now used for scripts policy)
+- **Status**: CLOSED
+
 ---
 
 ## Future Enhancements (from client Proposal annotations)
