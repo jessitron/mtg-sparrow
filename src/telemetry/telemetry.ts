@@ -1,4 +1,4 @@
-import { trace, Span, SpanStatusCode } from '@opentelemetry/api';
+import { trace, context, Span, SpanStatusCode } from '@opentelemetry/api';
 import { init, getProvider } from './init';
 
 let tracer: ReturnType<typeof trace.getTracer>;
@@ -13,6 +13,15 @@ export function startSpan(
   attributes?: Record<string, string | number | boolean>,
 ): Span {
   return tracer.startSpan(name, { attributes });
+}
+
+export function startChildSpan(
+  name: string,
+  parent: Span,
+  attributes?: Record<string, string | number | boolean>,
+): Span {
+  const ctx = trace.setSpan(context.active(), parent);
+  return tracer.startSpan(name, { attributes }, ctx);
 }
 
 export function endSpan(span: Span): void {

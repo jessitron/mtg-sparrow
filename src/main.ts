@@ -1,4 +1,4 @@
-import { initTelemetry, startSpan, endSpan, sendStartupSpan, flushSpans } from './telemetry/telemetry';
+import { initTelemetry, startSpan, startChildSpan, endSpan, sendStartupSpan, flushSpans } from './telemetry/telemetry';
 import { renderCard, revealName } from './ui/render';
 import {
   createSession,
@@ -19,6 +19,7 @@ let cardSpan: Span | null = null;
 let cardShowTime = 0;
 let revealTimer: ReturnType<typeof setTimeout> | null = null;
 let advanceTimer: ReturnType<typeof setTimeout> | null = null;
+
 function clearTimers(): void {
   if (revealTimer !== null) {
     clearTimeout(revealTimer);
@@ -77,15 +78,18 @@ function showCard(): void {
   const combo = currentCard(session);
   cardShowTime = Date.now();
 
-  // Start card span
-  cardSpan = startSpan('card', {
+  // Start card span as child of session span
+  const cardAttrs = {
     'card.combo_id': combo.id,
     'card.combo_name': combo.name,
     'card.colors': combo.colors.join(','),
     'card.tier': combo.tier,
     'card.number': session.currentIndex + 1,
     'app.version': APP_VERSION,
-  });
+  };
+  cardSpan = sessionSpan
+    ? startChildSpan('card', sessionSpan, cardAttrs)
+    : startSpan('card', cardAttrs);
 
   app.innerHTML = '';
   const card = renderCard(combo);
