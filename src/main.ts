@@ -2,7 +2,7 @@ import { initTelemetry, sendStartupSpan } from './telemetry/telemetry';
 import { guilds } from './data/combos';
 import { renderCard } from './ui/render';
 
-export const APP_VERSION = '0.1.0';
+export const APP_VERSION = '0.2.0';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION);
