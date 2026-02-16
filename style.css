@@ -97,3 +97,15 @@ footer {
   color: #666;
   text-align: center;
 }
+
+.trace-link {
+  color: #666;
+  text-decoration: none;
+  border-bottom: 1px dotted #555;
+  transition: color 200ms ease, border-color 200ms ease;
+}
+
+.trace-link:hover {
+  color: #999;
+  border-bottom-color: #888;
+}

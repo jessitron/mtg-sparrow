@@ -1,4 +1,4 @@
-import { initTelemetry, startSpan, startChildSpan, endSpan, addSpanEvent, sendStartupSpan, flushSpans } from './telemetry/telemetry';
+import { initTelemetry, startSpan, startChildSpan, endSpan, addSpanEvent, sendStartupSpan, flushSpans, getTraceId } from './telemetry/telemetry';
 import { renderCard, revealName } from './ui/render';
 import {
   createSession,
@@ -175,6 +175,23 @@ function startSession(): void {
     'session.card_count': session.cardCount,
     'app.version': APP_VERSION,
   });
+
+  // Link the version footer to the Honeycomb trace for this session
+  if (sessionSpan) {
+    const traceId = getTraceId(sessionSpan);
+    const traceUrl = `https://ui.honeycomb.io/modernity/environments/sparrow-deck/trace?trace_id=${traceId}`;
+    const versionEl = document.getElementById('app-version');
+    if (versionEl) {
+      const link = document.createElement('a');
+      link.href = traceUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = versionEl.textContent || `v${APP_VERSION}`;
+      link.classList.add('trace-link');
+      versionEl.textContent = '';
+      versionEl.appendChild(link);
+    }
+  }
 
   showCard();
 }

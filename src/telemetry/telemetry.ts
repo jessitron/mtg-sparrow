@@ -32,6 +32,10 @@ export function addSpanEvent(
   span.addEvent(name, attributes);
 }
 
+export function getTraceId(span: Span): string {
+  return span.spanContext().traceId;
+}
+
 export function endSpan(span: Span): void {
   span.end();
 }
