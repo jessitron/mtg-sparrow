@@ -1,5 +1,6 @@
 import { initTelemetry, startSpan, startChildSpan, endSpan, addSpanEvent, sendStartupSpan, flushSpans, getTraceId } from './telemetry/telemetry';
 import { renderCard, revealName } from './ui/render';
+import { renderPip } from './ui/pips';
 import {
   createSession,
   currentCard,
@@ -102,7 +103,9 @@ function showComboSummary(actualCount: number): void {
 
     const pips = document.createElement('span');
     pips.classList.add('combo-summary-pips');
-    pips.textContent = combo.colors.map(c => colorEmojiMap[c]).join('');
+    for (const color of combo.colors) {
+      pips.appendChild(renderPip(color));
+    }
     li.appendChild(pips);
 
     const name = document.createElement('span');

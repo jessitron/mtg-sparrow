@@ -204,7 +204,14 @@ body {
 
 .combo-summary-pips {
   flex-shrink: 0;
-  min-width: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.combo-summary-pips .mana-pip {
+  width: 28px;
+  height: 28px;
 }
 
 .combo-summary-name {
