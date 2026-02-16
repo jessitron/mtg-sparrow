@@ -1,8 +1,146 @@
-import { initTelemetry, sendStartupSpan } from './telemetry/telemetry';
-import { guilds } from './data/combos';
-import { renderCard } from './ui/render';
+import { initTelemetry, startSpan, endSpan, sendStartupSpan, flushSpans } from './telemetry/telemetry';
+import { renderCard, revealName } from './ui/render';
+import {
+  createSession,
+  currentCard,
+  advanceCard,
+  SessionState,
+  REVEAL_DELAY_MS,
+  ADVANCE_DELAY_MS,
+} from './session';
+import { Span } from '@opentelemetry/api';
 
-export const APP_VERSION = '0.2.0';
+export const APP_VERSION = '0.3.0';
+
+let app: HTMLElement | null = null;
+let session: SessionState | null = null;
+let sessionSpan: Span | null = null;
+let cardSpan: Span | null = null;
+let cardShowTime = 0;
+let revealTimer: ReturnType<typeof setTimeout> | null = null;
+let advanceTimer: ReturnType<typeof setTimeout> | null = null;
+function clearTimers(): void {
+  if (revealTimer !== null) {
+    clearTimeout(revealTimer);
+    revealTimer = null;
+  }
+  if (advanceTimer !== null) {
+    clearTimeout(advanceTimer);
+    advanceTimer = null;
+  }
+}
+
+function endCardSpan(early: boolean): void {
+  if (cardSpan && session) {
+    const dwellTime = Date.now() - cardShowTime;
+    const combo = session.deck[session.currentIndex];
+    cardSpan.setAttribute('card.dwell_time_ms', dwellTime);
+    cardSpan.setAttribute('card.advanced_early', early);
+    endSpan(cardSpan);
+    cardSpan = null;
+  }
+}
+
+function showSessionEnd(): void {
+  if (!app || !session) return;
+
+  // End session span
+  if (sessionSpan) {
+    const duration = Date.now() - session.startTime;
+    sessionSpan.setAttribute('session.card_count', session.cardCount);
+    sessionSpan.setAttribute('session.completed', session.completed);
+    sessionSpan.setAttribute('session.duration_ms', duration);
+    endSpan(sessionSpan);
+    sessionSpan = null;
+  }
+
+  app.innerHTML = '';
+  const endScreen = document.createElement('div');
+  endScreen.classList.add('session-end');
+
+  const countEl = document.createElement('div');
+  countEl.classList.add('session-end-count');
+  countEl.textContent = `${session.cardCount} cards`;
+  endScreen.appendChild(countEl);
+
+  const labelEl = document.createElement('div');
+  labelEl.classList.add('session-end-label');
+  labelEl.textContent = 'Session complete';
+  endScreen.appendChild(labelEl);
+
+  app.appendChild(endScreen);
+}
+
+function showCard(): void {
+  if (!app || !session) return;
+
+  const combo = currentCard(session);
+  cardShowTime = Date.now();
+
+  // Start card span
+  cardSpan = startSpan('card', {
+    'card.combo_id': combo.id,
+    'card.combo_name': combo.name,
+    'card.colors': combo.colors.join(','),
+    'card.tier': combo.tier,
+    'card.number': session.currentIndex + 1,
+    'app.version': APP_VERSION,
+  });
+
+  app.innerHTML = '';
+  const card = renderCard(combo);
+  app.appendChild(card);
+
+  // Progress counter
+  const progress = document.createElement('div');
+  progress.classList.add('progress-counter');
+  progress.textContent = `Card ${session.currentIndex + 1} / ${session.cardCount}`;
+  app.appendChild(progress);
+
+  // Auto-reveal: after REVEAL_DELAY_MS, fade in the name
+  revealTimer = setTimeout(() => {
+    revealTimer = null;
+    revealName(card);
+
+    // Auto-advance: after ADVANCE_DELAY_MS, go to next card
+    advanceTimer = setTimeout(() => {
+      advanceTimer = null;
+      goToNextCard(false);
+    }, ADVANCE_DELAY_MS);
+  }, REVEAL_DELAY_MS);
+}
+
+function goToNextCard(early: boolean): void {
+  clearTimers();
+  endCardSpan(early);
+
+  if (!session) return;
+
+  const hasMore = advanceCard(session);
+  if (hasMore) {
+    showCard();
+  } else {
+    showSessionEnd();
+  }
+}
+
+function handleAdvance(): void {
+  if (!session || session.completed) return;
+  goToNextCard(true);
+}
+
+function startSession(): void {
+  session = createSession();
+
+  // Start session root span
+  sessionSpan = startSpan('session', {
+    'session.tier': 'guild',
+    'session.card_count': session.cardCount,
+    'app.version': APP_VERSION,
+  });
+
+  showCard();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION);
@@ -13,22 +151,38 @@ document.addEventListener('DOMContentLoaded', () => {
     versionEl.textContent = `v${APP_VERSION}`;
   }
 
-  const app = document.getElementById('app');
+  app = document.getElementById('app');
   if (!app) return;
 
-  let currentIndex = Math.floor(Math.random() * guilds.length);
+  // Click/tap to advance early
+  app.addEventListener('click', handleAdvance);
 
-  function showGuild() {
-    if (!app) return;
-    app.innerHTML = '';
-    const card = renderCard(guilds[currentIndex]);
-    card.addEventListener('click', () => {
-      currentIndex = (currentIndex + 1) % guilds.length;
-      showGuild();
-    });
-    card.style.cursor = 'pointer';
-    app.appendChild(card);
-  }
+  // Spacebar to advance early
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      handleAdvance();
+    }
+  });
 
-  showGuild();
+  // Flush spans when page is hidden (captures abandoned sessions)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      // End any in-flight spans before flushing
+      if (cardSpan && session && !session.completed) {
+        endCardSpan(false);
+      }
+      if (sessionSpan && session) {
+        const duration = Date.now() - session.startTime;
+        sessionSpan.setAttribute('session.card_count', session.cardCount);
+        sessionSpan.setAttribute('session.completed', false);
+        sessionSpan.setAttribute('session.duration_ms', duration);
+        endSpan(sessionSpan);
+        sessionSpan = null;
+      }
+      flushSpans();
+    }
+  });
+
+  startSession();
 });

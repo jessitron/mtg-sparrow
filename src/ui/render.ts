@@ -10,8 +10,16 @@ export function renderCard(combo: ColorCombo): HTMLElement {
 
   const name = document.createElement('div');
   name.classList.add('card-name');
+  name.classList.add('card-name-hidden');
   name.textContent = combo.name;
   card.appendChild(name);
 
   return card;
+}
+
+export function revealName(card: HTMLElement): void {
+  const name = card.querySelector('.card-name');
+  if (name) {
+    name.classList.remove('card-name-hidden');
+  }
 }

@@ -1,5 +1,5 @@
 import { trace, Span, SpanStatusCode } from '@opentelemetry/api';
-import { init } from './init';
+import { init, getProvider } from './init';
 
 let tracer: ReturnType<typeof trace.getTracer>;
 
@@ -22,4 +22,11 @@ export function endSpan(span: Span): void {
 export function sendStartupSpan(version: string): void {
   const span = startSpan('app.startup', { 'app.version': version });
   span.end();
+}
+
+export function flushSpans(): void {
+  const provider = getProvider();
+  if (provider) {
+    provider.forceFlush();
+  }
 }

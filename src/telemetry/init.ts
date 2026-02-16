@@ -1,4 +1,5 @@
 import { HoneycombWebSDK } from '@honeycombio/opentelemetry-web';
+import { trace } from '@opentelemetry/api';
 
 let sdk: HoneycombWebSDK | null = null;
 
@@ -17,4 +18,8 @@ export function init(version: string): void {
   });
 
   sdk.start();
+}
+
+export function getProvider() {
+  return trace.getTracerProvider() as any;
 }

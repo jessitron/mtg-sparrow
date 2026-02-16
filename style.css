@@ -23,6 +23,7 @@ body {
 #app {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -40,12 +41,7 @@ body {
   align-items: center;
   gap: 1.5rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  transition: transform 0.15s ease;
   user-select: none;
-}
-
-.card:hover {
-  transform: scale(1.03);
 }
 
 .card-pips {
@@ -62,6 +58,37 @@ body {
   color: #f0f0f0;
   text-align: center;
   letter-spacing: 0.02em;
+  opacity: 1;
+  transition: opacity 250ms ease;
+}
+
+.card-name-hidden {
+  opacity: 0;
+}
+
+.progress-counter {
+  font-size: 0.9rem;
+  color: #888;
+  margin-top: 1rem;
+}
+
+.session-end {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.session-end-count {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f0f0f0;
+}
+
+.session-end-label {
+  font-size: 1rem;
+  color: #888;
 }
 
 footer {
