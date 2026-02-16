@@ -130,7 +130,32 @@ function goToNextCard(early: boolean): void {
 
 function handleAdvance(): void {
   if (!session || session.completed) return;
-  goToNextCard(true);
+
+  if (revealTimer !== null) {
+    // Name not yet revealed — reveal it now, then auto-advance after ADVANCE_DELAY_MS
+    clearTimeout(revealTimer);
+    revealTimer = null;
+
+    // Record dwell time up to this tap
+    if (cardSpan) {
+      const dwellTime = Date.now() - cardShowTime;
+      cardSpan.setAttribute('card.dwell_time_ms', dwellTime);
+      cardSpan.setAttribute('card.advanced_early', true);
+    }
+
+    const card = app?.querySelector('.card') as HTMLElement | null;
+    if (card) {
+      revealName(card);
+    }
+
+    advanceTimer = setTimeout(() => {
+      advanceTimer = null;
+      goToNextCard(true);
+    }, ADVANCE_DELAY_MS);
+  } else if (advanceTimer !== null) {
+    // Name already revealed, advance timer pending — skip ahead immediately
+    goToNextCard(true);
+  }
 }
 
 function startSession(): void {
