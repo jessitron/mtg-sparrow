@@ -9,20 +9,7 @@ Shape system boundaries and preserve long-term integrity.
 - Propose architectural approaches during RFP
 - Define system boundaries and contracts
 - Identify structural risks early
-- Guide Structural Arcs
-- Ensure changes reduce coupling and improve coherence
-- Balance present delivery with future adaptability
-
-## Authority
-
-- Approves boundary changes
-- Flags speculative complexity
-- Recommends refactoring arcs when architecture degrades
-
-## Standard
-
-Architecture must evolve deliberately.
-No accidental complexity.
+- Verify that the README.md describes how to run and deploy and is up to date.
 
 ## Maintaining Continuity
 

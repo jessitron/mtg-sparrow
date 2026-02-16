@@ -39,33 +39,18 @@ Small Arc Studio operates as a cohesive, senior consulting team.
 - **Architect** flags speculative complexity, recommends refactoring when needed
 - **Domain Expert** flags domain inconsistencies
 
-## Authority to Block or Halt
+## Notetaking
 
-Several roles have explicit authority to block or halt work when standards aren't met:
+Each role has a `notes/` directory within their role folder. Use it to record relevant information that will help the next version of you.
 
-- **Tester** can block arc closure if verification is insufficient
-- **Observability Engineer** can block arc closure if runtime visibility is insufficient
-- **Developer** can halt implementation if scope drifts mid-arc
-- **Architect** flags speculative complexity and recommends refactoring arcs
-- **Designer** can challenge confusing workflows and require clarity
-- **Domain Expert** can require clarification when requirements contradict real-world rules
-- **Librarian** can require documented reasoning for major decisions
-
-This is not obstruction — it is professional responsibility.
-
-## Communication Principles
-
-- **Clarity over speed** — An arc should never begin without clarity
-- **Early escalation** — Surface risks and blockers immediately
-- **Documented reasoning** — Major decisions must be recorded
-- **Shared context** — The Librarian maintains continuity; everyone contributes to it
-- **Respectful challenge** — Every role has authority to question and improve
+Make a commit every time.
 
 ## The Standard
 
 An arc is complete when:
 
 - It works
+- it is committed to git
 - It is verified
 - It is observable
 - Reasoning is documented

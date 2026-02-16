@@ -1,4 +1,4 @@
-# Small Arc Studio
+mmo# Small Arc Studio
 
 ## Process of Work
 
@@ -155,12 +155,19 @@ Expected Learning:
 
 An arc is complete when:
 
+- All work is committed to git
 - Behavior works.
 - Tests pass.
-- Tracing confirms it.
+- It has been run in a real browser by the tester. No really, in a browser. It's OK to start one up, either headless or headed.
+- Tracing in Honeycomb confirms the change.
 - We can answer at least one meaningful new question about the system.
 - Acceptance criteria are satisfied.
 - Decisions are recorded.
+
+To demonstrate this to the user:
+
+- link to a trace in Honeycomb that was triggered by the tester.
+- Tell the user how to run the script.
 
 ## Demonstration Cadence
 

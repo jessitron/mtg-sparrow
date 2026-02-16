@@ -8,6 +8,7 @@ Preserve narrative continuity and decision clarity.
 
 - Maintain RFP records
 - Maintain SOW history
+- Create the README.md and make sure it is up to date
 - Record arc definitions and outcomes
 - Document decisions and tradeoffs
 - Track structural version markers
