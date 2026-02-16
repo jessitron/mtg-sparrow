@@ -66,10 +66,34 @@ body {
   opacity: 0;
 }
 
+.progress-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
 .progress-counter {
   font-size: 0.9rem;
   color: #888;
-  margin-top: 1rem;
+}
+
+.stop-button {
+  font-size: 0.75rem;
+  color: #777;
+  background: transparent;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+  transition: color 200ms ease, border-color 200ms ease;
+}
+
+.stop-button:hover {
+  color: #bbb;
+  border-color: #888;
 }
 
 .session-end {

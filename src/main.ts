@@ -42,13 +42,15 @@ function endCardSpan(early: boolean): void {
   }
 }
 
-function showSessionEnd(): void {
+function showSessionEnd(cardsShown?: number): void {
   if (!app || !session) return;
+
+  const actualCount = cardsShown ?? session.cardCount;
 
   // End session span
   if (sessionSpan) {
     const duration = Date.now() - session.startTime;
-    sessionSpan.setAttribute('session.card_count', session.cardCount);
+    sessionSpan.setAttribute('session.card_count', actualCount);
     sessionSpan.setAttribute('session.completed', session.completed);
     sessionSpan.setAttribute('session.duration_ms', duration);
     endSpan(sessionSpan);
@@ -61,15 +63,37 @@ function showSessionEnd(): void {
 
   const countEl = document.createElement('div');
   countEl.classList.add('session-end-count');
-  countEl.textContent = `${session.cardCount} cards`;
+  countEl.textContent = `${actualCount} cards`;
   endScreen.appendChild(countEl);
 
   const labelEl = document.createElement('div');
   labelEl.classList.add('session-end-label');
-  labelEl.textContent = 'Session complete';
+  labelEl.textContent = session.completed ? 'Session complete' : 'Session stopped';
   endScreen.appendChild(labelEl);
 
   app.appendChild(endScreen);
+}
+
+function stopSession(): void {
+  if (!session || session.completed) return;
+
+  clearTimers();
+
+  // End the in-flight card span — this is a session stop, not a card advance
+  if (cardSpan) {
+    const dwellTime = Date.now() - cardShowTime;
+    cardSpan.setAttribute('card.dwell_time_ms', dwellTime);
+    cardSpan.setAttribute('card.advanced_early', false);
+    endSpan(cardSpan);
+    cardSpan = null;
+  }
+
+  // The number of cards the user actually saw: currentIndex is 0-based,
+  // and we're mid-card, so they've seen currentIndex + 1 cards
+  const cardsShown = session.currentIndex + 1;
+  session.completed = false;
+
+  showSessionEnd(cardsShown);
 }
 
 function showCard(): void {
@@ -95,11 +119,25 @@ function showCard(): void {
   const card = renderCard(combo);
   app.appendChild(card);
 
-  // Progress counter
+  // Progress counter and stop button
+  const progressRow = document.createElement('div');
+  progressRow.classList.add('progress-row');
+
   const progress = document.createElement('div');
   progress.classList.add('progress-counter');
   progress.textContent = `Card ${session.currentIndex + 1} / ${session.cardCount}`;
-  app.appendChild(progress);
+  progressRow.appendChild(progress);
+
+  const stopBtn = document.createElement('button');
+  stopBtn.classList.add('stop-button');
+  stopBtn.textContent = 'Stop';
+  stopBtn.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    stopSession();
+  });
+  progressRow.appendChild(stopBtn);
+
+  app.appendChild(progressRow);
 
   // Auto-reveal: after REVEAL_DELAY_MS, fade in the name
   revealTimer = setTimeout(() => {
