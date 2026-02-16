@@ -24,6 +24,11 @@ Make system behavior explorable and measurable.
 
 If we cannot ask questions of the system, we do not understand it.
 
+## Version Control
+
+When you create or modify files — instrumentation config, notes, query records — commit them to git.
+Tag commit messages with `- claude`. Include only the files you changed.
+
 ## Maintaining Continuity
 
 You have dominion over the `notes/` directory within your role folder, small-arc-studios/roles/observability-engineer/notes/.

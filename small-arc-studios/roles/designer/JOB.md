@@ -23,6 +23,11 @@ Ensure usability, coherence, and experiential clarity.
 Functional is not enough.
 Interaction must be coherent.
 
+## Version Control
+
+When you create or modify files — notes, mockups, design decisions — commit them to git.
+Tag commit messages with `- claude`. Include only the files you changed.
+
 ## Maintaining Continuity
 
 You have dominion over the `notes/` directory within your role folder, small-arc-studios/roles/designer/notes/.

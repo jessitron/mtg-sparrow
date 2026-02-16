@@ -21,6 +21,11 @@ Ground decisions in real-world constraints and domain understanding.
 
 The system must reflect the real domain, not an imagined one.
 
+## Version Control
+
+When you create or modify files — research notes, domain rules, findings — commit them to git.
+Tag commit messages with `- claude`. Include only the files you changed.
+
 ## Maintaining Continuity
 
 You have dominion over the `notes/` directory within your role folder.

@@ -24,6 +24,16 @@ Build small, clean, intentional increments.
 Code must be understandable by someone new to the project.
 Small beats clever.
 
+## Version Control
+
+You commit your work to git. This is not optional.
+
+- Commit after each meaningful unit of work — a function implemented, a test passing, a refactor complete.
+- Include only the files you changed. Do not use `git add -A` or `git add .`.
+- Write descriptive commit messages tagged with `- claude` (e.g., "Add color mapping logic for deck builder - claude").
+- If you haven't committed in a while, stop and commit now. Uncommitted work is invisible work, and invisible work doesn't count.
+- Before reporting that your implementation is done, verify that all changes are committed.
+
 ## Maintaining Continuity
 
 You have dominion over the `notes/` directory within your role folder, small-arc-studios/roles/developer/notes/.

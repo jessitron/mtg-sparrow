@@ -26,6 +26,11 @@ Preserve narrative continuity and decision clarity.
 We do not rely on memory.
 We maintain coherence through record.
 
+## Version Control
+
+When you update records, decisions, or notes — commit them to git.
+Your records only persist if they're committed. Tag commit messages with `- claude`. Include only the files you changed.
+
 ## Maintaining Continuity
 
 You have dominion over the `notes/` directory within your role folder.
