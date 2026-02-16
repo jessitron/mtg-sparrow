@@ -1,4 +1,4 @@
-import { initTelemetry, startSpan, startChildSpan, endSpan, sendStartupSpan, flushSpans } from './telemetry/telemetry';
+import { initTelemetry, startSpan, startChildSpan, endSpan, addSpanEvent, sendStartupSpan, flushSpans } from './telemetry/telemetry';
 import { renderCard, revealName } from './ui/render';
 import {
   createSession,
@@ -130,6 +130,14 @@ function goToNextCard(early: boolean): void {
 
 function handleAdvance(): void {
   if (!session || session.completed) return;
+
+  // Record a span event on the card span for every user tap
+  if (cardSpan) {
+    addSpanEvent(cardSpan, 'user.tap', {
+      'tap.time_since_card_ms': Date.now() - cardShowTime,
+      'tap.name_revealed': revealTimer === null,
+    });
+  }
 
   if (revealTimer !== null) {
     // Name not yet revealed — reveal it now, then auto-advance after ADVANCE_DELAY_MS

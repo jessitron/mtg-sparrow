@@ -24,6 +24,14 @@ export function startChildSpan(
   return tracer.startSpan(name, { attributes }, ctx);
 }
 
+export function addSpanEvent(
+  span: Span,
+  name: string,
+  attributes?: Record<string, string | number | boolean>,
+): void {
+  span.addEvent(name, attributes);
+}
+
 export function endSpan(span: Span): void {
   span.end();
 }
