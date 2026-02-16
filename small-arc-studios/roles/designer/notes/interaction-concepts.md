@@ -2,7 +2,7 @@
 
 > Designer: Small Arc Studio
 > Date: 2026-02-15
-> Status: Initial concepts for team review
+> Status: Updated with auto-reveal model (client-confirmed)
 
 ---
 
@@ -19,36 +19,49 @@ The feel should be: **a shuffling deck of cards, not a test.**
 ### The Loop (per card)
 
 ```
-[See mana pips] → [Say name aloud] → [Tap to reveal] → [See name] → [Next card auto-advances]
+[See mana pips] → [Say name aloud] → [~2.5s delay] → [Name appears] → [Auto-advance to next card]
+                                  OR → [Tap to skip ahead early]
 ```
 
-**Timing per card:** ~2-3 seconds target. At this pace, a 3-minute session delivers 60-90 exposures.
+**Timing per card:** ~3-4 seconds typical (2.5s reveal delay + brief name display). At this pace, a 3-minute session delivers ~50-60 exposures. Users who tap early will see more cards.
+
+**The reveal delay (~2.5s default) is a tuning parameter** — designed to be easily adjusted based on observability data. The range is 1.5s–3s.
 
 ### Card States
 
-1. **Face Up — Question Side**
+1. **Pips Showing (Question Phase)**
    - Shows 2-3 colored mana pip symbols, large and centered
    - A subtle "say it" prompt visible but not intrusive (see below)
    - The card background is neutral/dark so pips pop visually
+   - This phase lasts ~2.5s (the reveal delay), giving the learner time to guess
 
-2. **Face Up — Answer Side**
+2. **Name Revealed (Answer Phase)**
    - The combination name appears large and bold (e.g., "Azorius")
    - The mana pips remain visible but shift smaller/secondary
-   - Brief pause (~800ms) then auto-advance to next card
+   - Brief hold (~1s) then auto-advance to next card
 
 3. **Transition**
    - Cards don't "flip" — the name fades/slides in over the pips
    - This keeps the color association visually connected to the name
    - Transition is fast (200-300ms) — no elaborate animations
 
-### Reveal Trigger
+### Early Advance (Tap to Skip)
 
-- **Tap anywhere** on the card (mobile) or **click/spacebar** (desktop)
+- **Tap anywhere** on the card (mobile) or **click/spacebar** (desktop) to advance early
 - The entire card is the tap target — no small buttons
-- After reveal, auto-advance after a brief hold (~800ms)
-- User can also tap again immediately to skip the hold and advance faster
+- Tapping during the question phase skips the delay: the name is briefly revealed (~500ms), then the next card appears
+- Tapping during the answer phase skips directly to the next card
+- This means confident learners move faster — **speed is self-regulating**
 
-**Why auto-advance?** It maintains rhythm. The user's only job is tapping to reveal. This creates a steady beat: see → say → tap → see → tap → see → say → tap...
+### Why Auto-Reveal Instead of Tap-to-Reveal?
+
+The original design required tapping to see the answer. The client corrected this: **the answer should appear automatically after a delay.** This is a better model because:
+
+- It removes the mandatory interaction — the learner can be purely passive if desired
+- It creates a metronomic rhythm (consistent pacing) rather than user-driven pacing
+- Tapping becomes an *accelerator* ("I know this, move on") rather than a gate
+- It provides a natural observability signal: early taps suggest recognition, full waits suggest uncertainty
+- The dwell time before tap (or absence of tap) is meaningful data without being "scoring"
 
 ---
 
@@ -61,7 +74,7 @@ The verbal component is critical to the technique but inherently invisible to th
 - On the question side of each card, show a small speech bubble icon or the text **"say it"** in a muted color near the bottom
 - It should be visible enough to remind, quiet enough to ignore once habitual
 - **Not** a modal, popup, or interstitial — it lives on the card
-- On the very first card of a user's first session, show a slightly larger onboarding hint: "Say your guess out loud before tapping." Then fade to the subtle version.
+- On the very first card of a user's first session, show a slightly larger onboarding hint: "Say your guess out loud before the answer appears." Then fade to the subtle version.
 
 ### Why Not a Microphone?
 
@@ -156,7 +169,7 @@ The prompt is a nudge, not a gate. Trust the learner.
 - Clean, minimal, inviting
 - One primary CTA: Start with Guilds (the natural entry point)
 - "How does this work?" expands an inline explainer (not a separate page):
-  - "You'll see color symbols. Say the name out loud, then tap to check. Go fast — 3 minutes per round. Speed is the point."
+  - "You'll see color symbols. Say the name out loud before the answer appears. Tap to skip ahead if you know it. 3 minutes per round."
   - Keeps it to 2-3 sentences max
 
 ### Returning Visit
@@ -261,7 +274,7 @@ Each pip uses its traditional MTG color:
 
 ### Key Principle
 
-The app should feel like a **single-screen experience**. During a session, the user never navigates, scrolls, or manages anything. They see, they say, they tap. That's it.
+The app should feel like a **single-screen experience**. During a session, the user never navigates, scrolls, or manages anything. They watch, they say, and optionally they tap to go faster. That's it.
 
 ---
 
@@ -303,20 +316,18 @@ The technique's power is in rhythm and repetition, not rewards. But we can still
 - **Satisfying transitions**: Cards should feel tactile. A subtle "thunk" or slide as each card appears.
 - **Visual momentum**: A subtle counter ticking up ("Card 47") gives a sense of flow without judgment
 - **Color richness**: The mana pips are inherently beautiful — lean into the visual appeal of the color combinations
-- **Speed as reward**: Faster tappers see more cards. The card count at the end implicitly rewards pace.
+- **Speed as reward**: Users who tap early see more cards. The card count at the end implicitly rewards pace.
 - **Session brevity**: 3 minutes is short enough that starting feels easy. "Just one more round" is the engagement loop.
 
 ---
 
-## Open Questions for the Client
+## Resolved Questions
 
-1. **Direction of learning**: Should the primary mode be "see colors → guess name" or should we also include "see name → guess colors"? The domain research suggests both are valuable but different skills. We could start with colors→name only and add the reverse as a future feature.
-
-2. **Mana symbol assets**: Do we use official MTG mana symbols (potential trademark issues) or create our own recognizable variants? The symbols need to be instantly recognizable to MTG players.
-
-3. **Sound effects**: Would subtle audio feedback (a soft tap sound on reveal, a gentle chime at session end) enhance the experience, or is it better to keep it silent? Some users will be in public/quiet environments.
-
-4. **"Say it" in different languages**: Is this English-only? The MTG community is global, but the guild/shard/wedge names are proper nouns that don't translate.
+1. **Direction of learning**: Colors→Name only. Reverse deferred to future enhancement. (DEC-016)
+2. **Mana symbol assets**: Standard community mana symbols (Scryfall/Gatherer style). (DEC-017)
+3. **Sound effects**: Silent by default. Audio deferred. (DEC-018)
+4. **Language**: English only. (DEC-019)
+5. **Reveal model**: Auto-reveal after ~2.5s delay (tunable 1.5–3s), not tap-to-reveal. Tap advances early. (Client feedback on Proposal)
 
 ---
 
@@ -325,5 +336,5 @@ The technique's power is in rhythm and repetition, not rewards. But we can still
 1. **Speed over polish** — If a design choice adds friction, cut it
 2. **Rhythm over reward** — The interaction should feel like shuffling cards, not taking a test
 3. **Trust the learner** — Don't gatekeep, don't evaluate, don't patronize
-4. **One action** — During a session, the user does exactly one thing: tap
+4. **Zero required actions** — During a session, the user can be purely passive; tapping is an optional accelerator
 5. **The content is the experience** — Mana pips and names are inherently interesting; the UI should showcase them, not compete with them

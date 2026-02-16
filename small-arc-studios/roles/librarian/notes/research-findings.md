@@ -315,4 +315,43 @@ Instrument to answer questions, not to collect data.
 - Version adoption, browser distribution
 
 ### Bundle Size (updated)
-~35-45KB gzipped for Honeycomb Web SDK (slightly larger than raw OTel assembly due to auto-instrumentation infrastructure). App code ~10KB. Total ~45-55KB. Acceptable. Lazy-load option available if startup time is a concern.
+~35-45KB gzipped for Honeycomb Web SDK (slightly larger than raw OTel assembly due to auto-instrumentation infrastructure). App code ~10KB. Total ~45-55KB. Client says bundle size is not a concern (DEC-027).
+
+---
+
+## RF-006: Arc 2 Breakdown (2a / 2b)
+- **Date**: 2026-02-15
+- **Source**: Architect + Designer
+- **Full report**: `small-arc-studios/roles/architect/notes/arc2-breakdown.md`
+
+### Summary
+Original Arc 2 ("Card Data & Deck Logic") broken into two smaller arcs, each producing observable change.
+
+### Arc 2a: Render a Single Card (User Arc, v0.2.0)
+- Implement guild data model (10 two-color combos, typed for future tiers)
+- Mana pip rendering (SVG/image assets, standard community symbols per DEC-017)
+- Card layout: pips displayed, name fades in
+- **Isolates the hardest visual unknowns**: pip rendering, card layout, data-to-DOM pipeline
+- Telemetry: version marker only (0.2.0), no new spans
+- Observable outcome: a card rendered on screen
+
+### Arc 2b: Cycle Through the Deck (User Arc, v0.3.0)
+- Shuffle logic
+- Auto-advance: pips show ~2.5s, name fades in, then next card (tunable delays per DEC-011)
+- Early-tap acceleration (optional skip-ahead per DEC-012)
+- Sessions run indefinitely (no timer — timer deferred to later arc, card count per DEC-021)
+- **Isolates the interaction loop**: auto-advance timing, shuffle, card cycling
+- Telemetry: card child spans begin (`card.combo_id`, `card.combo_name`, `card.colors`, `card.dwell_time_ms`)
+- Observable outcome: cards cycling with dwell time queryable in Honeycomb
+
+### Why This Boundary
+1. Arc 2a isolates visual risk (pip rendering)
+2. Arc 2b isolates interaction risk (timing, cycling)
+3. Each is independently observable
+4. Timing can be tuned without re-risking rendering
+
+### What Stays Out
+- Timer / fixed card count: later arc
+- Tier filtering/selection: later arc
+- "Say it" prompt: polish phase
+- Shards & Wedges data: later arc (DEC-026)

@@ -91,17 +91,20 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Context**: Designer identified that keeping pips visible during the answer maintains the visual association between colors and name. A flip animation would break this connection and add unnecessary delay.
 - **Rationale**: Serves the perceptual learning model (DEC-003) — the learner sees colors and name simultaneously, reinforcing the association.
 
-## DEC-011: Auto-Advance After Reveal (800ms Hold)
+## DEC-011: Auto-Reveal After Tunable Delay (Amended)
 - **Date**: 2026-02-15
-- **Decision**: After revealing the answer, auto-advance to the next card after ~800ms. User can also tap to skip the hold and advance faster.
-- **Context**: Auto-advance maintains rhythm. The user's only job is tapping to reveal. This creates a steady beat: see → say → tap → see → tap...
-- **Rationale**: Supports rapid-fire pacing (DEC-003). Reduces interaction to a single repeated gesture.
+- **Amended**: 2026-02-15 — Changed from "auto-advance after 800ms" to "auto-reveal after tunable delay"
+- **Further refined**: 2026-02-15 — Client inline feedback: answer appears after ~3s, next card auto-advances. Delays start at ~1.5s, must be easy to change. These are tuning parameters.
+- **Decision**: The card shows mana pips, the user says the name aloud, then the name auto-reveals after a tunable delay (starting ~1.5-3s). After reveal, the next card appears automatically. No tapping required in the default flow. All timing values are tuning parameters, easy to adjust based on observability data.
+- **Context**: The original model required a tap to reveal. The amended model removes even that interaction — the user's only job is to say the name aloud before the answer appears. This creates a pure rhythm: see → say → see answer → see next → say...
+- **Rationale**: Maximizes perceptual learning pacing (DEC-003). Eliminates all interaction friction. The learner focuses entirely on recognition, not on tapping.
 
-## DEC-012: Tap-Anywhere Reveal (Full Card as Tap Target)
+## DEC-012: Tap Skips Ahead Early (Amended)
 - **Date**: 2026-02-15
-- **Decision**: The entire card is the tap/click target. No small buttons. Spacebar/Enter on desktop.
-- **Context**: Mobile-first design. Removing precision requirements supports speed and accessibility.
-- **Rationale**: Minimizes motor friction. One action, zero aiming.
+- **Amended**: 2026-02-15 — Changed from "tap-anywhere to reveal" to "tap skips ahead early"
+- **Decision**: Tap/click/spacebar skips ahead to the next card early, before the auto-reveal timer fires. The entire card remains the tap target. This is optional — the default flow requires no interaction at all.
+- **Context**: With auto-reveal (DEC-011), tap is no longer the primary interaction. It becomes an accelerator for users who want to move faster than the default pace. Client confirmed: early tap gives observability signal about which combos the learner already knows.
+- **Rationale**: Preserves the zero-friction default while giving advanced users control over pacing. Also provides a "tapped early" observability signal.
 
 ## DEC-013: No Scores, Streaks, or Leaderboards
 - **Date**: 2026-02-15
@@ -164,6 +167,73 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
   - If the telemetry backend changes, only one module changes
   - This is an architectural constraint, not just a preference
 - **Amends**: DEC-008 (SDK choice refined)
+
+## DEC-021: Fixed Card Count Per Session, Not Timer
+- **Date**: 2026-02-15
+- **Decision**: Sessions are driven by a fixed card count (~50 cards), not a countdown timer. At ~3.5s per card with auto-advance, this fills roughly 3 minutes. Early tapping shortens the session. No timer UI.
+- **Decided by**: Client (Proposal annotation)
+- **Context**: Original design (DEC-011) assumed a 3-minute timer with cards cycling until time expired. Client prefers a fixed number of cards so that early tapping rewards speed with a shorter session.
+- **Implications**:
+  - No countdown timer in the UI
+  - Session length varies based on user pacing
+  - `session.card_count` is predetermined, not measured at end
+  - `session.duration_ms` becomes more interesting as an observability signal (how long did N cards take?)
+- **Amends**: Supersedes the timer-driven model in DEC-011 and RF-004
+
+## DEC-022: Subgroups Within Guilds
+- **Date**: 2026-02-15
+- **Decision**: Start with a configurable subset of guilds (e.g., 4-5), not all 10. The subset size is an adjustable parameter.
+- **Decided by**: Client (Proposal annotation)
+- **Context**: The Sparrow Deck technique originally distinguishes only 2 things. With 10 guilds, the cognitive load may be too high for a first session. Starting with a smaller subset aligns better with the perceptual learning model.
+- **Rationale**: Progressive exposure — even within the guild tier, start small.
+
+## DEC-023: Tier Structure Updated
+- **Date**: 2026-02-15
+- **Decision**: Updated tier progression: Guild Subgroup → All Guilds → Shards & Wedges → All Core (mixed 20).
+- **Decided by**: Client (Proposal annotation)
+- **Context**: Client clarified that "All Core" is the mixed tier of all 20 combos. The original "All Core" confusion was about naming, not concept. Added a guild subgroup tier at the front.
+- **Amends**: DEC-005, DEC-014 (tier structure)
+- **Previous tiers**: Guilds → Shards & Wedges → All Core
+- **New tiers**: Guild Subgroup → All Guilds → Shards & Wedges → All Core (mixed 20)
+
+## DEC-024: Post-Session Self-Assessment
+- **Date**: 2026-02-15
+- **Decision**: After each session, prompt "How did that feel?" with options like "Still learning / Getting there / Nailing it". This is self-reflection, not scoring. Also captured as an observability signal.
+- **Decided by**: Client (Proposal annotation)
+- **Context**: Client wants user feedback after sessions. This aligns with DEC-003 (not a quiz) because it's subjective self-assessment, not objective accuracy measurement.
+- **Implications**:
+  - New UI element on session end screen
+  - New span attribute: `session.self_assessment` (or similar)
+  - Queryable in Honeycomb: do people feel better over time?
+
+## DEC-025: Settings Page with LocalStorage Reset
+- **Date**: 2026-02-15
+- **Decision**: Provide a visible settings page with the ability to reset tier unlock state (clear localStorage). A proper feature, not a secret URL.
+- **Decided by**: Client (Proposal annotation)
+- **Context**: Client identified this as essential for testing and as a user feature. Users may want to restart their progression.
+- **Rationale**: Necessary for testing; also useful for users who want to practice from scratch.
+
+## DEC-026: Guilds Data Only in Initial Arcs
+- **Date**: 2026-02-15
+- **Decision**: Initial arcs implement guild data only (10 two-color combinations). Shards & Wedges data added in a later arc. Data model should be typed to support future tiers.
+- **Decided by**: Client (Proposal annotation)
+- **Context**: Client requested starting with guilds only. Keeps initial scope tight and allows learning about the interaction before adding more content.
+
+## DEC-027: Bundle Size and Timer Precision Deprioritized
+- **Date**: 2026-02-15
+- **Decision**: Loading performance and timer precision are not concerns. Deprioritized from the risk table.
+- **Decided by**: Client (Proposal annotation)
+- **Context**: Client explicitly stated these are not concerns. The app is small and the timing doesn't need to be frame-perfect.
+
+---
+
+## Future Enhancements (from client Proposal annotations)
+
+Items noted by client but explicitly out of scope for initial delivery:
+
+- **Real card images**: Use different real Magic card images per repetition of a combo (more faithful to original Sparrow Deck technique)
+- **Adaptive pacing**: Increase speed after practice, based on observability data
+- **Page refresh detection**: Use localStorage to notice page refreshes, which could indicate errors (complements Honeycomb Web SDK automatic session ID)
 
 ---
 
