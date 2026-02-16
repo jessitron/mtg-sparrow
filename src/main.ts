@@ -45,13 +45,19 @@ function endCardSpan(early: boolean): void {
   }
 }
 
-function showSessionEnd(cardsShown?: number): void {
-  if (!app || !session) return;
+type AssessmentOption = {
+  label: string;
+  value: string;
+};
 
-  const actualCount = cardsShown ?? session.cardCount;
+const ASSESSMENT_OPTIONS: AssessmentOption[] = [
+  { label: 'Still learning', value: 'still_learning' },
+  { label: 'Getting there', value: 'getting_there' },
+  { label: 'Nailing it', value: 'nailing_it' },
+];
 
-  // End session span
-  if (sessionSpan) {
+function endSessionSpan(actualCount: number): void {
+  if (sessionSpan && session) {
     const duration = Date.now() - session.startTime;
     sessionSpan.setAttribute('session.card_count', actualCount);
     sessionSpan.setAttribute('session.completed', session.completed);
@@ -59,6 +65,62 @@ function showSessionEnd(cardsShown?: number): void {
     endSpan(sessionSpan);
     sessionSpan = null;
   }
+}
+
+function getUniqueCombosFromSession(actualCount: number): import('./data/combos').ColorCombo[] {
+  if (!session) return [];
+  const seen = new Set<string>();
+  const result: import('./data/combos').ColorCombo[] = [];
+  for (const combo of session.deck.slice(0, actualCount)) {
+    if (!seen.has(combo.id)) {
+      seen.add(combo.id);
+      result.push(combo);
+    }
+  }
+  return result;
+}
+
+function showComboSummary(actualCount: number): void {
+  if (!app) return;
+
+  const combos = getUniqueCombosFromSession(actualCount);
+
+  const summarySection = document.createElement('div');
+  summarySection.classList.add('combo-summary');
+
+  const heading = document.createElement('div');
+  heading.classList.add('combo-summary-heading');
+  heading.textContent = 'Combos practiced';
+  summarySection.appendChild(heading);
+
+  const list = document.createElement('ul');
+  list.classList.add('combo-summary-list');
+
+  for (const combo of combos) {
+    const li = document.createElement('li');
+    li.classList.add('combo-summary-item');
+
+    const pips = document.createElement('span');
+    pips.classList.add('combo-summary-pips');
+    pips.textContent = combo.colors.map(c => colorEmojiMap[c]).join('');
+    li.appendChild(pips);
+
+    const name = document.createElement('span');
+    name.classList.add('combo-summary-name');
+    name.textContent = combo.name;
+    li.appendChild(name);
+
+    list.appendChild(li);
+  }
+
+  summarySection.appendChild(list);
+  app.appendChild(summarySection);
+}
+
+function showSessionEnd(cardsShown?: number): void {
+  if (!app || !session) return;
+
+  const actualCount = cardsShown ?? session.cardCount;
 
   app.innerHTML = '';
   const endScreen = document.createElement('div');
@@ -73,6 +135,44 @@ function showSessionEnd(cardsShown?: number): void {
   labelEl.classList.add('session-end-label');
   labelEl.textContent = session.completed ? 'Session complete' : 'Session stopped';
   endScreen.appendChild(labelEl);
+
+  // Self-assessment prompt
+  const assessmentSection = document.createElement('div');
+  assessmentSection.classList.add('self-assessment');
+
+  const prompt = document.createElement('div');
+  prompt.classList.add('self-assessment-prompt');
+  prompt.textContent = 'How did that feel?';
+  assessmentSection.appendChild(prompt);
+
+  const buttonRow = document.createElement('div');
+  buttonRow.classList.add('self-assessment-buttons');
+
+  for (const option of ASSESSMENT_OPTIONS) {
+    const btn = document.createElement('button');
+    btn.classList.add('self-assessment-button');
+    btn.textContent = option.label;
+    btn.addEventListener('click', () => {
+      // Record self-assessment on the session span before ending it
+      if (sessionSpan) {
+        sessionSpan.setAttribute('session.self_assessment', option.value);
+        addSpanEvent(sessionSpan, 'session.self_assessment', {
+          'assessment.value': option.value,
+        });
+      }
+
+      // Now end the session span with all attributes
+      endSessionSpan(actualCount);
+
+      // Remove the assessment UI and show combo summary
+      assessmentSection.remove();
+      showComboSummary(actualCount);
+    });
+    buttonRow.appendChild(btn);
+  }
+
+  assessmentSection.appendChild(buttonRow);
+  endScreen.appendChild(assessmentSection);
 
   app.appendChild(endScreen);
 }

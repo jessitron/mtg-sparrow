@@ -127,6 +127,90 @@ body {
   color: #888;
 }
 
+.self-assessment {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.self-assessment-prompt {
+  font-size: 1.25rem;
+  color: #ccc;
+  font-weight: 500;
+}
+
+.self-assessment-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 280px;
+}
+
+.self-assessment-button {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  background: #2a2a3e;
+  border: 2px solid #444;
+  border-radius: 12px;
+  padding: 0.9rem 1.5rem;
+  cursor: pointer;
+  transition: background 200ms ease, border-color 200ms ease, transform 100ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.self-assessment-button:hover {
+  background: #35355a;
+  border-color: #666;
+}
+
+.self-assessment-button:active {
+  transform: scale(0.97);
+}
+
+.combo-summary {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  animation: cardEnter 250ms ease-out;
+}
+
+.combo-summary-heading {
+  font-size: 1rem;
+  color: #888;
+  font-weight: 500;
+}
+
+.combo-summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  max-width: 260px;
+}
+
+.combo-summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  font-size: 1rem;
+}
+
+.combo-summary-pips {
+  flex-shrink: 0;
+  min-width: 3rem;
+}
+
+.combo-summary-name {
+  color: #ccc;
+}
+
 footer {
   padding: 1rem;
   font-size: 0.75rem;
