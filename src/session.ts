@@ -3,7 +3,7 @@ import { ColorCombo, guilds } from './data/combos';
 // Timing constants (all in milliseconds)
 export const SESSION_CARD_COUNT = 50;
 export const REVEAL_DELAY_MS = 2500;   // Time pips show before name fades in
-export const ADVANCE_DELAY_MS = 1000;  // Time name stays visible before next card
+export const ADVANCE_DELAY_MS = 1500;  // Time name stays visible before next card
 
 /**
  * Shuffle an array in place using Fisher-Yates.
