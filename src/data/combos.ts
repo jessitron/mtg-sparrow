@@ -5,6 +5,14 @@ export type ColorCombo = {
   tier: "guild" | "shard" | "wedge";
 };
 
+export const colorEmojiMap: Record<string, string> = {
+  W: "☀️",
+  U: "💧",
+  B: "💀",
+  R: "🔥",
+  G: "🌿",
+};
+
 export const guilds: ColorCombo[] = [
   // Allied guilds
   { id: "azorius", name: "Azorius", colors: ["W", "U"], tier: "guild" },

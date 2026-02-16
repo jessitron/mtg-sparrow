@@ -8,6 +8,7 @@ import {
   REVEAL_DELAY_MS,
   ADVANCE_DELAY_MS,
 } from './session';
+import { colorEmojiMap } from './data/combos';
 import { Span } from '@opentelemetry/api';
 
 export const APP_VERSION = '0.3.0';
@@ -109,6 +110,7 @@ function showCard(): void {
     'card.combo_id': combo.id,
     'card.combo_name': combo.name,
     'card.colors': combo.colors.join(','),
+    'card.combo_emoji': combo.colors.map(c => colorEmojiMap[c]).join(''),
     'card.tier': combo.tier,
     'card.number': session.currentIndex + 1,
     'app.version': APP_VERSION,
