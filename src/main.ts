@@ -19,6 +19,8 @@ let cardSpan: Span | null = null;
 let cardShowTime = 0;
 let revealTimer: ReturnType<typeof setTimeout> | null = null;
 let advanceTimer: ReturnType<typeof setTimeout> | null = null;
+let paused = false;
+let nameRevealed = false;
 
 function clearTimers(): void {
   if (revealTimer !== null) {
@@ -115,6 +117,9 @@ function showCard(): void {
     ? startChildSpan('card', sessionSpan, cardAttrs)
     : startSpan('card', cardAttrs);
 
+  paused = false;
+  nameRevealed = false;
+
   app.innerHTML = '';
   const card = renderCard(combo);
   app.appendChild(card);
@@ -128,8 +133,53 @@ function showCard(): void {
   progress.textContent = `Card ${session.currentIndex + 1} / ${session.cardCount}`;
   progressRow.appendChild(progress);
 
+  const pauseBtn = document.createElement('button');
+  pauseBtn.classList.add('control-button');
+  pauseBtn.textContent = 'Pause';
+  pauseBtn.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    if (!session) return;
+    if (!paused) {
+      paused = true;
+      clearTimers();
+      pauseBtn.textContent = 'Resume';
+      if (sessionSpan) {
+        addSpanEvent(sessionSpan, 'session.pause', {
+          'pause.card_number': session.currentIndex + 1,
+        });
+      }
+    } else {
+      paused = false;
+      pauseBtn.textContent = 'Pause';
+      if (sessionSpan) {
+        addSpanEvent(sessionSpan, 'session.resume', {
+          'resume.card_number': session.currentIndex + 1,
+        });
+      }
+      // Restart the appropriate timer
+      if (!nameRevealed) {
+        const card = app?.querySelector('.card') as HTMLElement | null;
+        revealTimer = setTimeout(() => {
+          revealTimer = null;
+          nameRevealed = true;
+          if (card) revealName(card);
+          advanceTimer = setTimeout(() => {
+            advanceTimer = null;
+            goToNextCard(false);
+          }, ADVANCE_DELAY_MS);
+        }, REVEAL_DELAY_MS);
+      } else {
+        advanceTimer = setTimeout(() => {
+          advanceTimer = null;
+          goToNextCard(false);
+        }, ADVANCE_DELAY_MS);
+      }
+    }
+  });
+  progressRow.appendChild(pauseBtn);
+
   const stopBtn = document.createElement('button');
-  stopBtn.classList.add('stop-button');
+  stopBtn.classList.add('control-button');
   stopBtn.textContent = 'Stop';
   stopBtn.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
@@ -142,6 +192,7 @@ function showCard(): void {
   // Auto-reveal: after REVEAL_DELAY_MS, fade in the name
   revealTimer = setTimeout(() => {
     revealTimer = null;
+    nameRevealed = true;
     revealName(card);
 
     // Auto-advance: after ADVANCE_DELAY_MS, go to next card
@@ -168,6 +219,7 @@ function goToNextCard(early: boolean): void {
 
 function handleAdvance(): void {
   if (!session || session.completed) return;
+  if (paused) return;
 
   // Record a span event on the card span for every user tap
   if (cardSpan) {
@@ -189,6 +241,7 @@ function handleAdvance(): void {
       cardSpan.setAttribute('card.advanced_early', true);
     }
 
+    nameRevealed = true;
     const card = app?.querySelector('.card') as HTMLElement | null;
     if (card) {
       revealName(card);

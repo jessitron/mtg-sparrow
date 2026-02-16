@@ -92,7 +92,7 @@ body {
   color: #888;
 }
 
-.stop-button {
+.control-button {
   font-size: 0.75rem;
   color: #777;
   background: transparent;
@@ -103,7 +103,7 @@ body {
   transition: color 200ms ease, border-color 200ms ease;
 }
 
-.stop-button:hover {
+.control-button:hover {
   color: #bbb;
   border-color: #888;
 }
