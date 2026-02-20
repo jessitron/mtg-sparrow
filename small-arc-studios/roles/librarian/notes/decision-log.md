@@ -239,6 +239,26 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Renumbered from**: DEC-028 (DEC-028 now used for scripts policy)
 - **Status**: CLOSED
 
+## DEC-030: Welcome Screen Replaces Auto-Start
+- **Date**: 2026-02-19
+- **Decision**: The app now shows a welcome screen on load instead of auto-starting a card session. The session begins only when the user clicks "Learn guild names."
+- **Context**: Arc 5 (Welcome Screen). The previous behavior started a card session immediately on `DOMContentLoaded`. New users had no orientation — no explanation of what the app does, no fallback name to try, no "say it out loud" ritual.
+- **Rationale**: Perceptual learning requires engagement. A user who doesn't know what's expected won't benefit from the first few cards. One screen, one button, no friction — consistent with the app's lean aesthetic (DEC-003).
+- **Implementation**: `showWelcomeScreen()` called at end of `DOMContentLoaded`. Session starts only on button click.
+
+## DEC-031: Welcome Button Styled Like Self-Assessment Buttons
+- **Date**: 2026-02-19
+- **Decision**: The "Learn guild names" button on the welcome screen is styled to match `.self-assessment-button` (prominent, rounded, bordered) rather than `.control-button` (small and muted).
+- **Context**: Designer recommendation. The welcome CTA must feel inviting — it's the first action a new user takes. Using the muted control button style would undersell the entry point.
+- **Rationale**: Visual hierarchy: the most important action should feel most prominent. Self-assessment button style already exists and signals "primary action" in the app's visual language.
+
+## DEC-032: session.started_from Telemetry Attribute
+- **Date**: 2026-02-19
+- **Decision**: Add `session.started_from` attribute to session spans. Current value: `'welcome_screen'`. Also add `session.welcome_dwell_ms` measuring time from welcome screen render to button click.
+- **Context**: With multiple potential session entry points in the future (welcome screen, session end "go again", settings page), knowing how a session was started becomes useful for cohort analysis.
+- **Rationale**: `session.started_from` is forward-looking observability — costs nothing now, enables future segmentation. `session.welcome_dwell_ms` provides a concrete behavioral signal: how long did the user read before clicking?
+- **Attribute values**: `session.started_from = 'welcome_screen'`, `session.welcome_dwell_ms = <integer ms>`
+
 ---
 
 ## Future Enhancements (from client Proposal annotations)
