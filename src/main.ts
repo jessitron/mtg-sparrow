@@ -12,10 +12,11 @@ import {
 import { colorEmojiMap } from './data/combos';
 import { Span } from '@opentelemetry/api';
 
-export const APP_VERSION = '0.4.0';
+export const APP_VERSION = '0.5.0';
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
+let welcomeScreenLoadTime = 0;
 let sessionSpan: Span | null = null;
 let cardSpan: Span | null = null;
 let cardShowTime = 0;
@@ -362,13 +363,52 @@ function handleAdvance(): void {
   }
 }
 
+function showWelcomeScreen(): void {
+  if (!app) return;
+
+  welcomeScreenLoadTime = Date.now();
+
+  app.innerHTML = '';
+
+  const container = document.createElement('div');
+  container.classList.add('welcome');
+
+  const heading = document.createElement('h1');
+  heading.classList.add('welcome-heading');
+  heading.textContent = 'Sparrow Deck';
+  container.appendChild(heading);
+
+  const instructions = document.createElement('p');
+  instructions.classList.add('welcome-instructions');
+  instructions.innerHTML =
+    'See a color combo, guess a name \u2014 any color combo name.<br>In case you don\u2019t know any, try <em>Boros</em>.';
+  container.appendChild(instructions);
+
+  const subtext = document.createElement('p');
+  subtext.classList.add('welcome-subtext');
+  subtext.textContent = 'When the right name appears, say it out loud.';
+  container.appendChild(subtext);
+
+  const btn = document.createElement('button');
+  btn.classList.add('welcome-button');
+  btn.textContent = 'Learn guild names';
+  btn.addEventListener('click', () => startSession());
+  container.appendChild(btn);
+
+  app.appendChild(container);
+}
+
 function startSession(): void {
   session = createSession();
+
+  const welcomeDwellMs = welcomeScreenLoadTime > 0 ? Date.now() - welcomeScreenLoadTime : 0;
 
   // Start session root span
   sessionSpan = startSpan('session', {
     'session.tier': 'guild',
     'session.card_count': session.cardCount,
+    'session.started_from': 'welcome_screen',
+    'session.welcome_dwell_ms': welcomeDwellMs,
     'app.version': APP_VERSION,
   });
 
@@ -404,12 +444,14 @@ document.addEventListener('DOMContentLoaded', () => {
   app = document.getElementById('app');
   if (!app) return;
 
-  // Click/tap to advance early
-  app.addEventListener('click', handleAdvance);
+  // Click/tap to advance early — only fires during a session
+  app.addEventListener('click', () => {
+    if (session) handleAdvance();
+  });
 
-  // Spacebar to advance early
+  // Spacebar to advance early — only fires during a session
   document.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.code === 'Space') {
+    if (e.code === 'Space' && session) {
       e.preventDefault();
       handleAdvance();
     }
@@ -434,5 +476,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  startSession();
+  showWelcomeScreen();
 });
