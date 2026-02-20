@@ -268,6 +268,44 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Structural marker**: `welcome.render_mode = 'static_html'` added to session spans.
 - **Version**: 0.6.0
 
+## DEC-034: Guild Subgroup Split — Allied vs Enemy Color Pairs
+- **Date**: 2026-02-20
+- **Decision**: Split the 10 guilds into two subgroups of 5, using the natural MTG distinction between allied-color pairs and enemy-color pairs.
+  - **Group 1 (Allied)**: Azorius (WU), Dimir (UB), Golgari (BG), Gruul (RG), Boros (RW)
+  - **Group 2 (Enemy)**: Orzhov (WB), Izzet (UR), Simic (GU), Rakdos (BR), Selesnya (GW)
+- **Context**: DEC-022 established that 10 guilds is too many to start with. The allied/enemy split is a natural MTG grouping — allied colors are adjacent on the color wheel, enemy colors are opposite. Starting with 5 is consistent with the Sparrow Deck progressive difficulty model.
+- **Decided by**: Client
+- **Status**: APPROVED — to be implemented in Arc 7
+
+## DEC-035: Card Images to Replace/Augment Mana Pips
+- **Date**: 2026-02-20
+- **Decision**: Replace or augment the mana pip display with real Magic card art. Multiple images per combo so the visual stimulus varies across repetitions within a session.
+- **Context**: Client request. More faithful to the original Sparrow Deck technique, which uses different exemplars of the same category. Prevents learners from memorizing a specific pip arrangement rather than learning color recognition. Noted as a future enhancement since the RFP.
+- **Status**: PLANNED — to be implemented in Arc 8, after guild subgroups
+
+---
+
+## Planned Arcs
+
+### Arc 7: Guild Subgroups (User Arc)
+- **Intention**: Split the 10 guilds into two groups of 5 (allied vs enemy color pairs per DEC-034). The allied group becomes the default starting experience. The enemy group is the next tier.
+- **Scope**:
+  - Update data model to tag guilds as allied or enemy
+  - Session creation filters to the active subgroup
+  - Tier progression: Allied Guilds → Enemy Guilds → All Guilds → Shards & Wedges → All Core
+  - Observability: `session.tier` value reflects subgroup (e.g., `'guild_allied'`, `'guild_enemy'`)
+- **Depends on**: Nothing — ready to start
+
+### Arc 8: Card Images (User Arc)
+- **Intention**: Replace or augment mana pip display with real Magic card images. Each combo has multiple card images; different images shown on each repetition within a session.
+- **Scope**:
+  - Source card images (community assets, Scryfall API, or bundled)
+  - Display design: how card art interacts with the name reveal
+  - Multiple images per combo for varied exemplars
+  - Observability: `card.image_id` or similar attribute on card spans
+- **Depends on**: Arc 7 (guild subgroups should be in place first so card images cover the right set)
+- **Note**: This is a larger arc — may need design and domain expert input on image sourcing and display
+
 ---
 
 ## Future Enhancements (from client Proposal annotations)
