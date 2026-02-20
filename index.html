@@ -7,8 +7,18 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main id="app"></main>
-  <footer id="app-version">v0.5.0</footer>
+  <main id="app">
+    <div class="welcome" id="welcome-screen">
+      <h1 class="welcome-heading">Sparrow Deck</h1>
+      <p class="welcome-instructions">
+        See a color combo, guess a name — any color combo name.<br>
+        In case you don't know any, try <em>Boros</em>.
+      </p>
+      <p class="welcome-subtext">When the right name appears, say it out loud.</p>
+      <button class="welcome-button" id="start-button">Learn guild names</button>
+    </div>
+  </main>
+  <footer id="app-version">v0.6.0</footer>
   <script type="module" src="dist/bundle.js"></script>
 </body>
 </html>

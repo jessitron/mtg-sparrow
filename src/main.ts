@@ -12,7 +12,7 @@ import {
 import { colorEmojiMap } from './data/combos';
 import { Span } from '@opentelemetry/api';
 
-export const APP_VERSION = '0.5.0';
+export const APP_VERSION = '0.6.0';
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
@@ -363,40 +363,6 @@ function handleAdvance(): void {
   }
 }
 
-function showWelcomeScreen(): void {
-  if (!app) return;
-
-  welcomeScreenLoadTime = Date.now();
-
-  app.innerHTML = '';
-
-  const container = document.createElement('div');
-  container.classList.add('welcome');
-
-  const heading = document.createElement('h1');
-  heading.classList.add('welcome-heading');
-  heading.textContent = 'Sparrow Deck';
-  container.appendChild(heading);
-
-  const instructions = document.createElement('p');
-  instructions.classList.add('welcome-instructions');
-  instructions.innerHTML =
-    'See a color combo, guess a name \u2014 any color combo name.<br>In case you don\u2019t know any, try <em>Boros</em>.';
-  container.appendChild(instructions);
-
-  const subtext = document.createElement('p');
-  subtext.classList.add('welcome-subtext');
-  subtext.textContent = 'When the right name appears, say it out loud.';
-  container.appendChild(subtext);
-
-  const btn = document.createElement('button');
-  btn.classList.add('welcome-button');
-  btn.textContent = 'Learn guild names';
-  btn.addEventListener('click', () => startSession());
-  container.appendChild(btn);
-
-  app.appendChild(container);
-}
 
 function startSession(): void {
   session = createSession();
@@ -410,6 +376,7 @@ function startSession(): void {
     'session.started_from': 'welcome_screen',
     'session.welcome_dwell_ms': welcomeDwellMs,
     'app.version': APP_VERSION,
+    'welcome.render_mode': 'static_html',
   });
 
   // Link the version footer to the Honeycomb trace for this session
@@ -476,5 +443,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  showWelcomeScreen();
+  welcomeScreenLoadTime = Date.now();
+  document.getElementById('start-button')?.addEventListener('click', () => startSession());
 });
