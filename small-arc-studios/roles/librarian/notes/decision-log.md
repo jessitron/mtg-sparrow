@@ -259,6 +259,15 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Rationale**: `session.started_from` is forward-looking observability — costs nothing now, enables future segmentation. `session.welcome_dwell_ms` provides a concrete behavioral signal: how long did the user read before clicking?
 - **Attribute values**: `session.started_from = 'welcome_screen'`, `session.welcome_dwell_ms = <integer ms>`
 
+## DEC-033: Welcome Screen Rendered as Static HTML
+- **Date**: 2026-02-20
+- **Decision**: Move welcome screen content from JavaScript DOM construction into static HTML in `index.html`. Delete `showWelcomeScreen()`. JS wires the button click handler only.
+- **Context**: Arc 5 introduced the welcome screen but implemented it by dynamically building DOM elements in JS (`document.createElement`, `appendChild`, `textContent`). Client identified this as architecturally incorrect — static content was being withheld from the browser until JS executed.
+- **Alternatives considered**: Keep JS-built DOM (rejected: wrong boundary, slower first paint, no graceful degradation).
+- **Rationale**: Correct architectural boundary — static content belongs in HTML, dynamic behavior belongs in JS. Faster first meaningful paint. Graceful degradation if JS fails to load. Eliminates ~30 lines of unnecessary DOM manipulation.
+- **Structural marker**: `welcome.render_mode = 'static_html'` added to session spans.
+- **Version**: 0.6.0
+
 ---
 
 ## Future Enhancements (from client Proposal annotations)
