@@ -11,7 +11,7 @@ import {
   ADVANCE_DELAY_MS,
 } from './session';
 import { colorEmojiMap, alliedGuilds, enemyGuilds, ColorCombo } from './data/combos';
-import { isEnemyUnlocked, markEnemyUnlocked } from './progression';
+import { isEnemyUnlocked, markEnemyUnlocked, hasCompletedSubgroup, markSubgroupCompleted } from './progression';
 import { Span } from '@opentelemetry/api';
 
 export const APP_VERSION = '0.8.0';
@@ -281,7 +281,7 @@ function buildAlliedColumn(): HTMLElement {
 
   const btn = document.createElement('button');
   btn.classList.add('next-session-button', 'guild-column-button');
-  btn.textContent = 'Learn allied guilds';
+  btn.textContent = hasCompletedSubgroup('allied') ? 'Practice allied guilds' : 'Learn allied guilds';
   btn.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
     startSession('allied', 'session_end_screen');
@@ -317,7 +317,7 @@ function buildEnemyColumn(unlocked: boolean): HTMLElement {
   if (!unlocked) {
     btn.classList.add('next-session-button--primary');
   }
-  btn.textContent = 'Learn enemy guilds';
+  btn.textContent = hasCompletedSubgroup('enemy') ? 'Practice enemy guilds' : 'Learn enemy guilds';
   btn.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
     startSession('enemy', 'session_end_screen');
@@ -355,6 +355,10 @@ function showSessionEnd(cardsShown?: number): void {
       });
     }
   }
+
+  // Mark subgroup as completed when the session ends (completed or stopped after seeing cards)
+  markSubgroupCompleted(session.subgroup);
+
   const enemyUnlocked = isEnemyUnlocked();
 
   app.innerHTML = '';

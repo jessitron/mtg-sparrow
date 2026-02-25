@@ -355,6 +355,10 @@ body {
   margin-top: auto;
 }
 
+.guild-column--locked .guild-column-button {
+  margin-top: 0;
+}
+
 .guild-column--locked {
   justify-content: center;
   align-items: center;

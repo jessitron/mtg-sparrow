@@ -2,6 +2,7 @@ const STORAGE_KEY = 'sparrow-deck.progression';
 
 type ProgressionState = {
   enemyUnlocked: boolean;
+  completedSubgroups?: string[];  // e.g., ["allied", "enemy"]
 };
 
 function loadProgression(): ProgressionState {
@@ -33,4 +34,17 @@ export function markEnemyUnlocked(): boolean {
     return true;
   }
   return false;
+}
+
+export function hasCompletedSubgroup(subgroup: string): boolean {
+  const state = loadProgression();
+  return (state.completedSubgroups ?? []).includes(subgroup);
+}
+
+export function markSubgroupCompleted(subgroup: string): void {
+  const state = loadProgression();
+  const existing = state.completedSubgroups ?? [];
+  if (!existing.includes(subgroup)) {
+    saveProgression({ ...state, completedSubgroups: [...existing, subgroup] });
+  }
 }
