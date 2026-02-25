@@ -4,7 +4,7 @@ A perceptual learning app for Magic: The Gathering color combination names — b
 
 Online: https://jessitron.github.io/mtg-sparrow/
 
-**Current version:** v0.7.0
+**Current version:** v0.8.0
 
 ---
 
@@ -29,13 +29,14 @@ There is no scoring, no pass/fail, no timer. Say the name aloud — that's the w
 
 - Welcome screen with instructions and the Boros fallback hint
 - Guild subgroups: sessions begin with the 5 allied guilds (Azorius, Dimir, Rakdos, Gruul, Selesnya)
-- Session end screen with one-tap navigation to allied or enemy guild subgroups
+- Two-column educational session end screen: Allied column always visible; Enemy column unlocks after any enemy practice
+- Interactive SVG color wheels: allied pentagon (Arc 8) and enemy star pattern (Arc 9) with bidirectional hover between wheel and guild list
 - 10 guild names (two-color combinations) displayed as standard mana symbols
 - 50-card sessions with auto-reveal (2.5s) and auto-advance (1.5s)
 - Early tap/spacebar to skip ahead
 - Pause and Stop controls
 - Self-assessment prompt after each session ("How did that feel?")
-- Combo summary (mana symbols shown as images) at session end
+- "Learn" vs "Practice" button text adapts based on session history
 - Honeycomb traces for every session and card
 
 ---
@@ -66,13 +67,17 @@ Open `http://localhost:3000` in a browser.
 
 ```bash
 ./scripts/typecheck.sh
+# or:
+npm run typecheck
 ```
 
 ### Run Verification Tests
 
 ```bash
 # Requires server running on :3000
-node scripts/test-v0.7.0.mjs
+npm test
+# or directly:
+node scripts/test-arc9-enemy-wheel.mjs
 ```
 
 ---
@@ -124,7 +129,7 @@ After a session starts, the footer shows a direct link to the session trace in H
 
 Key decisions are recorded in:
 
-- `small-arc-studios/roles/librarian/notes/decision-log.md` — full decision history (DEC-001 through DEC-036)
+- `small-arc-studios/roles/librarian/notes/decision-log.md` — full decision history (DEC-001 through DEC-046)
 - `docs/PROPOSAL.md` — original proposal with client annotations
 - `small-arc-studios/roles/librarian/notes/arc*-record.md` — per-arc records
 
@@ -139,15 +144,18 @@ Notable decisions:
 
 ## Arc History
 
-| Arc | Version | Name                   | Status   |
-| --- | ------- | ---------------------- | -------- |
-| 1   | 0.1.0   | Project Scaffolding    | COMPLETE |
-| 2a  | 0.2.0   | Render a Single Card   | COMPLETE |
-| 2b  | 0.3.0   | Cycle Through a Deck   | COMPLETE |
-| 4   | 0.4.0   | Session End Experience | COMPLETE |
-| 5   | 0.5.0   | Welcome Screen         | COMPLETE |
-| 6   | 0.6.0   | Static Welcome Screen  | COMPLETE |
-| 7   | 0.7.0   | Guild Subgroups        | COMPLETE |
+| Arc | Version | Name                             | Status   |
+| --- | ------- | -------------------------------- | -------- |
+| 1   | 0.1.0   | Project Scaffolding              | COMPLETE |
+| 2a  | 0.2.0   | Render a Single Card             | COMPLETE |
+| 2b  | 0.3.0   | Cycle Through a Deck             | COMPLETE |
+| 4   | 0.4.0   | Session End Experience           | COMPLETE |
+| 5   | 0.5.0   | Welcome Screen                   | COMPLETE |
+| 6   | 0.6.0   | Static Welcome Screen            | COMPLETE |
+| 7   | 0.7.0   | Guild Subgroups                  | COMPLETE |
+| 8   | 0.8.0   | Session End Screen Redesign      | COMPLETE |
+| 8+  | 0.8.0   | Allied Color Wheel               | COMPLETE |
+| 9   | 0.8.0   | Enemy Color Wheel (Star Pattern) | COMPLETE |
 
 ---
 

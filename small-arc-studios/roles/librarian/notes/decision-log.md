@@ -343,6 +343,36 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
   - `ProgressionState.completedSubgroups: string[]` (defaults to `[]`)
 - **Rationale**: Accurate language reduces cognitive friction. "Practice" signals mastery-building; "Learn" signals introduction. Distinguishing them costs little and improves the user experience meaningfully over repeated visits.
 
+## DEC-043: Refactor Allied Wheel Code into Generic Shared Functions
+- **Date**: 2026-02-25
+- **Decision**: Refactor the allied-specific color wheel builder into generic `buildColorWheel(pairs, lineColor)` and `wireColorWheelHover(svg, guildListEl)` functions, shared by both allied and enemy wheels.
+- **Context**: Arc 9 required an enemy wheel with the same interaction model as the allied wheel. Duplicating the allied code would create two near-identical implementations diverging over time.
+- **Alternatives rejected**:
+  - Duplication: fastest in the short term, costliest over subsequent arcs.
+  - Separate helper module: considered but unnecessary; both functions belong in `src/main.ts` alongside the session end screen code that calls them.
+- **Rationale**: Generic functions parameterized on `pairs` and `lineColor` remove duplication entirely. The refactor was small and the combined result is shorter than two separate implementations would have been.
+
+## DEC-044: CSS Custom Properties for Line Colors
+- **Date**: 2026-02-25
+- **Decision**: Introduce `--allied-line-color` and `--enemy-line-color` CSS custom properties. Both currently set to `#c8b88a`; ready for future visual differentiation of the two wheel styles.
+- **Context**: The allied pentagon and enemy star are geometrically distinct, but future arcs may want to reinforce the distinction with color. Plumbing the colors through CSS custom properties costs nothing now and avoids a JavaScript change later.
+- **Rationale**: Zero-cost future seam. One-line CSS change in a future arc enables visual differentiation without touching JavaScript.
+
+## DEC-045: Enemy Column Content Gated on Any Enemy Practice
+- **Date**: 2026-02-25
+- **Decision**: Show enemy column content (wheel + guild list) when `hasCompletedSubgroup('enemy') || isEnemyUnlocked()`. Stopping an enemy session early counts as having practiced; the user need not complete a full session.
+- **Context**: Arc 8's unlock gate required a completed enemy session to preserve progressive disclosure. Arc 9 loosened this because the enemy wheel is an extension of content the user has already been exposed to — stopping early still means the user encountered enemy guild names.
+- **Previous behavior**: `isEnemyUnlocked()` only — required completing a full enemy session.
+- **New behavior**: Either condition unlocks the content.
+- **Rationale**: Stopping early is still meaningful engagement. Requiring completion to see the wheel penalizes users who stop early but have already encountered the content. The progressive disclosure goal is met by the initial encounter, not by completion.
+
+## DEC-046: Build System Stays esbuild
+- **Date**: 2026-02-25
+- **Decision**: The build system remains esbuild. Do not migrate to vite or any other bundler.
+- **Context**: This decision was surfaced explicitly during Arc 9 to prevent drift.
+- **Rationale**: esbuild was chosen for its simplicity (DEC-009). The project has no unmet needs that justify a bundler change. Migrating would add tooling overhead with no user benefit.
+- **Note**: Also recorded in project memory to persist across sessions.
+
 ---
 
 ## Planned Arcs
@@ -370,9 +400,16 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Delivered**: prior to Arc 8
 - **Note**: All 10 guilds available after completing both subgroups.
 
-### Arc 9: Candidates
-- **Card Images** (DEC-035) — replace/augment mana pips with real Magic card art; originally planned as Arc 8, now deferred
+### Arc 9: Enemy Color Wheel (User Arc) — COMPLETE (v0.8.0)
+- **Delivered**: 2026-02-25
+- **Outcome**: Enemy SVG star-pattern color wheel integrated into the enemy guilds column. Generic `buildColorWheel()` and `wireColorWheelHover()` shared by both allied and enemy wheels. Enemy column content visible after any enemy practice (including stopped sessions). CSS custom properties `--allied-line-color` and `--enemy-line-color` introduced. `npm test` and `npm run typecheck` scripts added. 130/130 checks PASS.
+- **Record**: `arc9-record.md`
+- **Decisions**: DEC-043, DEC-044, DEC-045, DEC-046
+
+### Arc 10: Candidates
+- **Card Images** (DEC-035) — replace/augment mana pips with real Magic card art; originally planned as Arc 8, now deferred twice
 - **Settings page** with localStorage reset (DEC-025)
+- **Visual differentiation** of allied vs enemy wheel lines (follow-on to DEC-044)
 
 ---
 
