@@ -636,6 +636,30 @@ footer {
   font-size: 0.85rem;
 }
 
+.settings-github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #888;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.settings-github-link:hover {
+  color: #ccc;
+}
+
+.settings-github-icon {
+  opacity: 0.6;
+  filter: invert(1);
+  flex-shrink: 0;
+}
+
+.settings-github-link:hover .settings-github-icon {
+  opacity: 0.9;
+}
+
 .settings-divider {
   border: none;
   border-top: 1px solid #333;
