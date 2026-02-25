@@ -381,18 +381,6 @@ function wireColorWheelHover(
     });
   }
 
-  // Click anywhere inside this column that isn't a line or guild item:
-  // clears sibling column's selection (via onActivate) and clears this column's selection
-  col.addEventListener('click', (e: Event) => {
-    const target = e.target as Element | null;
-    if (!target) return;
-    // If click landed inside a line group or a [data-guild-id] item, ignore (handled by item listeners)
-    if (target.closest(`.${lineClass}`) || target.closest('[data-guild-id]')) return;
-    // A non-item click in this column: clear sibling, then clear own selection
-    onActivate();
-    clearSelection();
-  });
-
   return clearSelection;
 }
 
@@ -502,10 +490,10 @@ function showSessionEndColumns(enemyUnlocked: boolean): void {
   container.appendChild(alliedCol);
   container.appendChild(enemyCol);
 
-  // Clicking outside any column (on the page background) clears both selections
-  document.addEventListener('click', (e: Event) => {
-    const target = e.target as Element | null;
-    if (target && target.closest('.guild-column')) return;
+  // Clicking anywhere that isn't a line or guild item clears both selections.
+  // Interactive elements (lines, guild items, buttons) already call stopPropagation(),
+  // so they will never reach this listener.
+  document.addEventListener('click', () => {
     clearAllied();
     clearEnemy();
   });
