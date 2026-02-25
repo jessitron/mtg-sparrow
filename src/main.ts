@@ -469,10 +469,6 @@ function buildEnemyColumn(unlocked: boolean): HTMLElement {
 function showSessionEndColumns(enemyUnlocked: boolean): void {
   if (!app) return;
 
-  const divider = document.createElement('div');
-  divider.classList.add('session-next-divider');
-  app.appendChild(divider);
-
   const container = document.createElement('div');
   container.classList.add('guild-columns');
   container.appendChild(buildAlliedColumn());
