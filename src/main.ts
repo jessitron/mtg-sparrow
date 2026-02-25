@@ -13,7 +13,7 @@ import {
 import { colorEmojiMap } from './data/combos';
 import { Span } from '@opentelemetry/api';
 
-export const APP_VERSION = '0.7.0';
+export const APP_VERSION = '0.8.0';
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
