@@ -681,6 +681,11 @@ function handleAdvance(): void {
 
 
 function startSession(subgroup: GuildSubgroup = "allied", startedFrom: string = "welcome_screen"): void {
+  // Hide the mana gas background animation
+  if (typeof (window as any).stopManaGas === 'function') {
+    (window as any).stopManaGas();
+  }
+
   session = createSession(subgroup);
 
   const welcomeDwellMs = startedFrom === 'welcome_screen' && welcomeScreenLoadTime > 0

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mana Gas</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #1a1a2e; overflow: hidden; }
+    canvas { display: block; }
+    .gas-btn {
+      position: fixed;
+      bottom: 30px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      transition: transform 0.3s, background 0.3s;
+      backdrop-filter: blur(4px);
+    }
+    .gas-btn:hover { background: rgba(255,255,255,0.2); }
+    .gas-btn:active { transform: scale(0.9); }
+    #fan-btn { right: 30px; }
+    #stop-btn { right: 110px; }
+    #stop-btn.stopped { border-color: rgba(255,100,100,0.6); background: rgba(255,100,100,0.15); }
+    #fan-btn.spinning svg { animation: spin 0.4s linear; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <canvas id="gas"></canvas>
+  <button id="stop-btn" class="gas-btn" title="Freeze / Unfreeze">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="4" width="4" height="16" rx="1" fill="rgba(255,255,255,0.6)"/>
+      <rect x="14" y="4" width="4" height="16" rx="1" fill="rgba(255,255,255,0.6)"/>
+    </svg>
+  </button>
+  <button id="fan-btn" class="gas-btn" title="Blow them around!">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <!-- fan blades -->
+      <circle cx="12" cy="12" r="2" fill="rgba(255,255,255,0.8)"/>
+      <path d="M12 10C12 10 12 2 7 2C2 2 2 10 12 10Z" fill="rgba(255,255,255,0.6)"/>
+      <path d="M14 12C14 12 22 12 22 7C22 2 14 2 14 12Z" fill="rgba(255,255,255,0.6)"/>
+      <path d="M12 14C12 14 12 22 17 22C22 22 22 14 12 14Z" fill="rgba(255,255,255,0.6)"/>
+      <path d="M10 12C10 12 2 12 2 17C2 22 10 22 10 12Z" fill="rgba(255,255,255,0.6)"/>
+    </svg>
+  </button>
+  <script>
+    const canvas = document.getElementById("gas");
+    const ctx = canvas.getContext("2d");
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const COLORS = ["W", "U", "B", "R", "G"];
+    const SYMBOL_SIZE = 48;
+    const SYMBOL_COUNT = 35;
+    const MAX_SPEED = 0.6;
+    const DAMPING = 0.999;
+    const R = SYMBOL_SIZE / 2;
+    const TRIGGER_DIST = R;          // how close to trigger an encounter
+    const BUBBLE_RADIUS = R * 2;     // radius of the encounter circle
+
+    // Guild combo lookup — maps sorted color pair to name
+    const GUILDS = {
+      "U,W": "Azorius",
+      "B,U": "Dimir",
+      "B,R": "Rakdos",
+      "G,R": "Gruul",
+      "G,W": "Selesnya",
+      "B,W": "Orzhov",
+      "R,U": "Izzet",
+      "B,G": "Golgari",
+      "R,W": "Boros",
+      "G,U": "Simic",
+    };
+
+    function guildName(c1, c2) {
+      if (c1 === c2) return null;
+      const key = [c1, c2].sort().join(",");
+      return GUILDS[key] || null;
+    }
+
+    // Active encounters: { a, b, cx, cy, name }
+    // a, b are references to the two particles
+    // cx, cy is the fixed center of the bubble
+    const encounters = [];
+
+    // Load all SVG images
+    const images = {};
+    let loadedCount = 0;
+    const totalToLoad = COLORS.length;
+
+    COLORS.forEach(c => {
+      const img = new Image();
+      img.src = `images/${c}.svg`;
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === totalToLoad) init();
+      };
+      images[c] = img;
+    });
+
+    const particles = [];
+    let paused = false;
+
+    const stopBtn = document.getElementById("stop-btn");
+    stopBtn.addEventListener("click", () => {
+      paused = !paused;
+      stopBtn.classList.toggle("stopped", paused);
+      // Swap icon: pause bars vs play triangle
+      if (paused) {
+        stopBtn.innerHTML = `<svg width="32" height="32" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)" stroke="none">
+          <polygon points="7,4 20,12 7,20"/>
+        </svg>`;
+      } else {
+        stopBtn.innerHTML = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="4" width="4" height="16" rx="1" fill="rgba(255,255,255,0.6)"/>
+          <rect x="14" y="4" width="4" height="16" rx="1" fill="rgba(255,255,255,0.6)"/>
+        </svg>`;
+      }
+    });
+
+    const fanBtn = document.getElementById("fan-btn");
+    fanBtn.addEventListener("click", () => {
+      // Spin the fan icon
+      const svg = fanBtn.querySelector("svg");
+      svg.classList.remove("spinning");
+      void svg.offsetWidth; // reflow to restart animation
+      svg.classList.add("spinning");
+
+      // Give every particle a random kick
+      for (const p of particles) {
+        p.vx += (Math.random() - 0.5) * 3;
+        p.vy += (Math.random() - 0.5) * 3;
+        p.rotationSpeed = (Math.random() - 0.5) * 0.02;
+      }
+    });
+
+    function init() {
+      for (let i = 0; i < SYMBOL_COUNT; i++) {
+        const r = SYMBOL_SIZE / 2;
+        particles.push({
+          x: r + Math.random() * (canvas.width - SYMBOL_SIZE),
+          y: r + Math.random() * (canvas.height - SYMBOL_SIZE),
+          vx: (Math.random() - 0.5) * MAX_SPEED * 2,
+          vy: (Math.random() - 0.5) * MAX_SPEED * 2,
+          r: r,
+          color: COLORS[i % COLORS.length],
+          rotation: Math.random() * Math.PI * 2,
+          rotationSpeed: (Math.random() - 0.5) * 0.005,
+        });
+      }
+      requestAnimationFrame(loop);
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (!paused) {
+      // Update positions
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rotation += p.rotationSpeed;
+
+        // Damping
+        p.vx *= DAMPING;
+        p.vy *= DAMPING;
+
+        // Wall bounces
+        if (p.x - p.r < 0) { p.x = p.r; p.vx = Math.abs(p.vx); }
+        if (p.x + p.r > canvas.width) { p.x = canvas.width - p.r; p.vx = -Math.abs(p.vx); }
+        if (p.y - p.r < 0) { p.y = p.r; p.vy = Math.abs(p.vy); }
+        if (p.y + p.r > canvas.height) { p.y = canvas.height - p.r; p.vy = -Math.abs(p.vy); }
+      }
+
+      // Particle-particle collisions
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const a = particles[i];
+          const b = particles[j];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const minDist = a.r + b.r;
+
+          if (dist < minDist && dist > 0) {
+            // Normal vector
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+            // Relative velocity along normal
+            const dvx = a.vx - b.vx;
+            const dvy = a.vy - b.vy;
+            const dvn = dvx * nx + dvy * ny;
+
+            // Only resolve if approaching
+            if (dvn > 0) {
+              a.vx -= dvn * nx;
+              a.vy -= dvn * ny;
+              b.vx += dvn * nx;
+              b.vy += dvn * ny;
+            }
+
+            // Separate overlapping particles
+            const overlap = (minDist - dist) / 2;
+            a.x -= overlap * nx;
+            a.y -= overlap * ny;
+            b.x += overlap * nx;
+            b.y += overlap * ny;
+          }
+        }
+      }
+
+      // Detect close pairs and create encounters
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const a = particles[i];
+          const b = particles[j];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < a.r + b.r + TRIGGER_DIST) {
+            const name = guildName(a.color, b.color);
+            if (name) {
+              // Don't create if either particle is already in an encounter
+              const alreadyIn = encounters.some(e => e.a === a || e.b === a || e.a === b || e.b === b);
+              if (!alreadyIn) {
+                encounters.push({
+                  a, b, name,
+                  cx: (a.x + b.x) / 2,
+                  cy: (a.y + b.y) / 2,
+                });
+              }
+            }
+          }
+        }
+      }
+
+      // Update encounter centers, then remove if a particle left or a third color intruded
+      for (let i = encounters.length - 1; i >= 0; i--) {
+        const e = encounters[i];
+        // Drift the center to follow the midpoint of the pair
+        e.cx = (e.a.x + e.b.x) / 2;
+        e.cy = (e.a.y + e.b.y) / 2;
+        const dxA = e.a.x - e.cx;
+        const dyA = e.a.y - e.cy;
+        const dxB = e.b.x - e.cx;
+        const dyB = e.b.y - e.cy;
+        const distA = Math.sqrt(dxA * dxA + dyA * dyA);
+        const distB = Math.sqrt(dxB * dxB + dyB * dyB);
+        if (distA > BUBBLE_RADIUS || distB > BUBBLE_RADIUS) {
+          encounters.splice(i, 1);
+          continue;
+        }
+        // Check for intruders: any particle of a third color inside the bubble
+        const intruder = particles.some(p => {
+          if (p === e.a || p === e.b) return false;
+          if (p.color === e.a.color || p.color === e.b.color) return false;
+          const dx = p.x - e.cx;
+          const dy = p.y - e.cy;
+          return Math.sqrt(dx * dx + dy * dy) < BUBBLE_RADIUS;
+        });
+        if (intruder) {
+          encounters.splice(i, 1);
+        }
+      }
+
+      } // end if (!paused)
+
+      // Draw encounter bubbles and labels
+      for (const e of encounters) {
+        ctx.save();
+        // Draw circle
+        ctx.beginPath();
+        ctx.arc(e.cx, e.cy, BUBBLE_RADIUS, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255,255,255,0.3)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        // Draw name above the circle
+        ctx.font = "bold 18px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#fff";
+        ctx.globalAlpha = 0.9;
+        ctx.shadowColor = "rgba(0,0,0,0.8)";
+        ctx.shadowBlur = 4;
+        ctx.fillText(e.name, e.cx, e.cy - BUBBLE_RADIUS - 8);
+        ctx.restore();
+      }
+
+      // Draw
+      for (const p of particles) {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.globalAlpha = 0.75;
+        ctx.drawImage(images[p.color], -p.r, -p.r, SYMBOL_SIZE, SYMBOL_SIZE);
+        ctx.restore();
+      }
+
+      requestAnimationFrame(loop);
+    }
+  </script>
+</body>
+</html>

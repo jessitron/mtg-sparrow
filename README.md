@@ -2,6 +2,8 @@
 
 A perceptual learning app for Magic: The Gathering color combination names — built with Vanilla TypeScript, esbuild, and Honeycomb observability.
 
+Online: https://jessitron.github.io/mtg-sparrow/
+
 **Current version:** v0.7.0
 
 ---
@@ -13,6 +15,7 @@ Magic: The Gathering uses specific proper nouns for color combinations — names
 This app applies the [Sparrow Deck](https://www.youtube.com/watch?v=...) perceptual learning technique: rapid-fire exposure to many examples in short bursts trains the brain's pattern recognition system rather than analytical memory.
 
 **The interaction is simple:**
+
 1. A welcome screen appears with instructions
 2. Click "Learn guild names" to start a session
 3. See mana pips → say the combo name aloud → the name auto-reveals → next card appears
@@ -93,11 +96,11 @@ scripts/                  # All runnable commands are shell scripts here
 
 ### Key Constants (in `src/session.ts`)
 
-| Constant | Default | Purpose |
-|---|---|---|
-| `SESSION_CARD_COUNT` | 50 | Cards per session |
-| `REVEAL_DELAY_MS` | 2500 | Time before name auto-reveals |
-| `ADVANCE_DELAY_MS` | 1500 | Time after reveal before next card |
+| Constant             | Default | Purpose                            |
+| -------------------- | ------- | ---------------------------------- |
+| `SESSION_CARD_COUNT` | 50      | Cards per session                  |
+| `REVEAL_DELAY_MS`    | 2500    | Time before name auto-reveals      |
+| `ADVANCE_DELAY_MS`   | 1500    | Time after reveal before next card |
 
 These are intentional tuning parameters. Adjust and observe via Honeycomb.
 
@@ -120,11 +123,13 @@ After a session starts, the footer shows a direct link to the session trace in H
 ## Architecture Decisions
 
 Key decisions are recorded in:
+
 - `small-arc-studios/roles/librarian/notes/decision-log.md` — full decision history (DEC-001 through DEC-036)
 - `docs/PROPOSAL.md` — original proposal with client annotations
 - `small-arc-studios/roles/librarian/notes/arc*-record.md` — per-arc records
 
 Notable decisions:
+
 - **No framework** — Vanilla TypeScript + esbuild. The app is a card flipper; a framework adds overhead without solving a real problem.
 - **No scoring** — Perceptual learning is undermined by evaluation anxiety. No scores, no streaks, no leaderboards.
 - **Telemetry wrapper** — `src/telemetry/telemetry.ts` is the only file that imports from `@honeycombio/opentelemetry-web`. All other app code calls domain-meaningful helpers.
@@ -134,15 +139,15 @@ Notable decisions:
 
 ## Arc History
 
-| Arc | Version | Name | Status |
-|-----|---------|------|--------|
-| 1 | 0.1.0 | Project Scaffolding | COMPLETE |
-| 2a | 0.2.0 | Render a Single Card | COMPLETE |
-| 2b | 0.3.0 | Cycle Through a Deck | COMPLETE |
-| 4 | 0.4.0 | Session End Experience | COMPLETE |
-| 5 | 0.5.0 | Welcome Screen | COMPLETE |
-| 6 | 0.6.0 | Static Welcome Screen | COMPLETE |
-| 7 | 0.7.0 | Guild Subgroups | COMPLETE |
+| Arc | Version | Name                   | Status   |
+| --- | ------- | ---------------------- | -------- |
+| 1   | 0.1.0   | Project Scaffolding    | COMPLETE |
+| 2a  | 0.2.0   | Render a Single Card   | COMPLETE |
+| 2b  | 0.3.0   | Cycle Through a Deck   | COMPLETE |
+| 4   | 0.4.0   | Session End Experience | COMPLETE |
+| 5   | 0.5.0   | Welcome Screen         | COMPLETE |
+| 6   | 0.6.0   | Static Welcome Screen  | COMPLETE |
+| 7   | 0.7.0   | Guild Subgroups        | COMPLETE |
 
 ---
 
