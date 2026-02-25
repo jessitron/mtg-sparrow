@@ -100,6 +100,84 @@ function buildGuildList(guilds: ColorCombo[]): HTMLElement {
   return list;
 }
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const XLINK_NS = 'http://www.w3.org/1999/xlink';
+
+interface ColorNode {
+  id: string;
+  cx: number;
+  cy: number;
+  imgX: number;
+  imgY: number;
+  src: string;
+}
+
+const colorNodes: ColorNode[] = [
+  { id: 'white', cx: 200,    cy: 50,     imgX: 166,   imgY: 16,     src: 'images/W.svg' },
+  { id: 'blue',  cx: 342.66, cy: 153.65, imgX: 308.66, imgY: 119.65, src: 'images/U.svg' },
+  { id: 'black', cx: 288.17, cy: 321.35, imgX: 254.17, imgY: 287.35, src: 'images/B.svg' },
+  { id: 'red',   cx: 111.83, cy: 321.35, imgX: 77.83,  imgY: 287.35, src: 'images/R.svg' },
+  { id: 'green', cx: 57.34,  cy: 153.65, imgX: 23.34,  imgY: 119.65, src: 'images/G.svg' },
+];
+
+// Adjacent pairs (pentagon edges) — allied color pairs
+const alliedPairs: [string, string][] = [
+  ['white', 'blue'],
+  ['blue',  'black'],
+  ['black', 'red'],
+  ['red',   'green'],
+  ['green', 'white'],
+];
+
+function buildAlliedColorWheel(): SVGSVGElement {
+  const svg = document.createElementNS(SVG_NS, 'svg') as SVGSVGElement;
+  svg.setAttribute('viewBox', '0 0 400 400');
+  svg.setAttribute('xmlns', SVG_NS);
+  svg.classList.add('allied-color-wheel');
+
+  // Draw lines first (behind nodes)
+  for (const [aId, bId] of alliedPairs) {
+    const a = colorNodes.find(n => n.id === aId)!;
+    const b = colorNodes.find(n => n.id === bId)!;
+
+    const lineLen = Math.hypot(b.cx - a.cx, b.cy - a.cy);
+
+    const line = document.createElementNS(SVG_NS, 'line');
+    line.setAttribute('id', `line-${aId}-${bId}`);
+    line.classList.add('ally-line');
+    line.setAttribute('x1', String(a.cx));
+    line.setAttribute('y1', String(a.cy));
+    line.setAttribute('x2', String(b.cx));
+    line.setAttribute('y2', String(b.cy));
+    line.setAttribute('stroke', '#c8b88a');
+    line.setAttribute('stroke-width', '2');
+    line.setAttribute('opacity', '0.75');
+    line.setAttribute('stroke-dasharray', String(lineLen));
+    line.setAttribute('stroke-dashoffset', '0');
+    svg.appendChild(line);
+  }
+
+  // Draw mana symbol images on top
+  for (const node of colorNodes) {
+    const g = document.createElementNS(SVG_NS, 'g');
+    g.setAttribute('id', `node-${node.id}`);
+    g.classList.add('color-node');
+
+    const img = document.createElementNS(SVG_NS, 'image');
+    img.setAttributeNS(XLINK_NS, 'href', node.src);
+    img.setAttribute('href', node.src);
+    img.setAttribute('x', String(node.imgX));
+    img.setAttribute('y', String(node.imgY));
+    img.setAttribute('width', '68');
+    img.setAttribute('height', '68');
+
+    g.appendChild(img);
+    svg.appendChild(g);
+  }
+
+  return svg;
+}
+
 function buildAlliedColumn(): HTMLElement {
   const col = document.createElement('div');
   col.classList.add('guild-column', 'guild-column--allied');
@@ -113,6 +191,8 @@ function buildAlliedColumn(): HTMLElement {
   explanation.classList.add('guild-column-explanation');
   explanation.textContent = "Magic's five colors form a circle: ☀️ 💧 💀 🔥 🌿. Allied guilds are pairs of neighboring colors — colors that share philosophy and overlap in values. Natural partnerships, built on common ground.";
   col.appendChild(explanation);
+
+  col.appendChild(buildAlliedColorWheel());
 
   col.appendChild(buildGuildList(alliedGuilds));
 

@@ -360,6 +360,19 @@ body {
   text-align: center;
 }
 
+.allied-color-wheel {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.allied-color-wheel .ally-line {
+  stroke: #c8b88a;
+  stroke-width: 2;
+  opacity: 0.75;
+}
+
 .welcome {
   text-align: center;
   display: flex;
