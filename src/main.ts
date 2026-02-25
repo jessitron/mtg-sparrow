@@ -6,13 +6,14 @@ import {
   currentCard,
   advanceCard,
   SessionState,
+  GuildSubgroup,
   REVEAL_DELAY_MS,
   ADVANCE_DELAY_MS,
 } from './session';
 import { colorEmojiMap } from './data/combos';
 import { Span } from '@opentelemetry/api';
 
-export const APP_VERSION = '0.6.0';
+export const APP_VERSION = '0.7.0';
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
@@ -121,6 +122,48 @@ function showComboSummary(actualCount: number): void {
   app.appendChild(summarySection);
 }
 
+function showNextSessionButtons(currentSubgroup: GuildSubgroup): void {
+  if (!app) return;
+
+  // Divider
+  const divider = document.createElement('div');
+  divider.classList.add('session-next-divider');
+  app.appendChild(divider);
+
+  const section = document.createElement('div');
+  section.classList.add('session-next');
+
+  // Contextual label
+  const label = document.createElement('div');
+  label.classList.add('session-next-label');
+  label.textContent = `You practiced ${currentSubgroup} guilds.`;
+  section.appendChild(label);
+
+  // Buttons container
+  const buttonRow = document.createElement('div');
+  buttonRow.classList.add('session-next-buttons');
+
+  const otherSubgroup: GuildSubgroup = currentSubgroup === 'allied' ? 'enemy' : 'allied';
+  const subgroups: GuildSubgroup[] = [otherSubgroup, currentSubgroup]; // primary first
+
+  for (const sg of subgroups) {
+    const btn = document.createElement('button');
+    btn.classList.add('next-session-button');
+    if (sg === otherSubgroup) {
+      btn.classList.add('next-session-button--primary');
+    }
+    btn.textContent = sg === 'allied' ? 'Allied guilds' : 'Enemy guilds';
+    btn.addEventListener('click', (e: MouseEvent) => {
+      e.stopPropagation();
+      startSession(sg, 'session_end_screen');
+    });
+    buttonRow.appendChild(btn);
+  }
+
+  section.appendChild(buttonRow);
+  app.appendChild(section);
+}
+
 function showSessionEnd(cardsShown?: number): void {
   if (!app || !session) return;
 
@@ -157,6 +200,9 @@ function showSessionEnd(cardsShown?: number): void {
     btn.classList.add('self-assessment-button');
     btn.textContent = option.label;
     btn.addEventListener('click', () => {
+      // Capture subgroup before ending session span
+      const currentSubgroup = session?.subgroup ?? 'allied';
+
       // Record self-assessment on the session span before ending it
       if (sessionSpan) {
         sessionSpan.setAttribute('session.self_assessment', option.value);
@@ -171,6 +217,7 @@ function showSessionEnd(cardsShown?: number): void {
       // Remove the assessment UI and show combo summary
       assessmentSection.remove();
       showComboSummary(actualCount);
+      showNextSessionButtons(currentSubgroup);
     });
     buttonRow.appendChild(btn);
   }
@@ -364,16 +411,18 @@ function handleAdvance(): void {
 }
 
 
-function startSession(): void {
-  session = createSession();
+function startSession(subgroup: GuildSubgroup = "allied", startedFrom: string = "welcome_screen"): void {
+  session = createSession(subgroup);
 
-  const welcomeDwellMs = welcomeScreenLoadTime > 0 ? Date.now() - welcomeScreenLoadTime : 0;
+  const welcomeDwellMs = startedFrom === 'welcome_screen' && welcomeScreenLoadTime > 0
+    ? Date.now() - welcomeScreenLoadTime : 0;
 
   // Start session root span
   sessionSpan = startSpan('session', {
-    'session.tier': 'guild',
+    'session.tier': `guild_${subgroup}`,
+    'session.subgroup_size': 5,
     'session.card_count': session.cardCount,
-    'session.started_from': 'welcome_screen',
+    'session.started_from': startedFrom,
     'session.welcome_dwell_ms': welcomeDwellMs,
     'app.version': APP_VERSION,
     'welcome.render_mode': 'static_html',
