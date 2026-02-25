@@ -130,6 +130,15 @@ const alliedPairs: [string, string][] = [
   ['green', 'white'],
 ];
 
+// Skipping pairs (star edges) — enemy color pairs
+const enemyPairs: [string, string][] = [
+  ['white', 'black'],
+  ['blue',  'red'],
+  ['black', 'green'],
+  ['red',   'white'],
+  ['green', 'blue'],
+];
+
 // Maps node color id → color code, used for guild lookup
 const colorNodeToCode: Record<string, string> = {
   white: 'W',
@@ -145,15 +154,35 @@ for (const guild of alliedGuilds) {
   const key = [...guild.colors].sort().join('');
   colorPairToGuildId[key] = guild.id;
 }
+for (const guild of enemyGuilds) {
+  const key = [...guild.colors].sort().join('');
+  colorPairToGuildId[key] = guild.id;
+}
 
-function buildAlliedColorWheel(): SVGSVGElement {
+/**
+ * Build a color wheel SVG.
+ * @param pairs - the color pairs to draw as lines
+ * @param wheelClass - CSS class for the SVG element (e.g. 'allied-color-wheel')
+ * @param lineClass - CSS class for line groups (e.g. 'ally-line')
+ * @param lineVisClass - CSS class for visible line elements (e.g. 'ally-line-vis')
+ * @param lineHitClass - CSS class for hit-area line elements (e.g. 'ally-line-hit')
+ * @param crestId - id attribute for the guild crest image element
+ */
+function buildColorWheel(
+  pairs: [string, string][],
+  wheelClass: string,
+  lineClass: string,
+  lineVisClass: string,
+  lineHitClass: string,
+  crestId: string,
+): SVGSVGElement {
   const svg = document.createElementNS(SVG_NS, 'svg') as SVGSVGElement;
   svg.setAttribute('viewBox', '0 0 400 400');
   svg.setAttribute('xmlns', SVG_NS);
-  svg.classList.add('allied-color-wheel');
+  svg.classList.add(wheelClass);
 
   // Draw lines first (behind nodes)
-  for (const [aId, bId] of alliedPairs) {
+  for (const [aId, bId] of pairs) {
     const a = colorNodes.find(n => n.id === aId)!;
     const b = colorNodes.find(n => n.id === bId)!;
 
@@ -162,11 +191,11 @@ function buildAlliedColorWheel(): SVGSVGElement {
     // Wrap visible line + hit-area line in a group
     const lineGroup = document.createElementNS(SVG_NS, 'g');
     lineGroup.setAttribute('id', `line-${aId}-${bId}`);
-    lineGroup.classList.add('ally-line');
+    lineGroup.classList.add(lineClass);
 
     // Invisible wide hit-area line (rendered first so it's below)
     const hitLine = document.createElementNS(SVG_NS, 'line');
-    hitLine.classList.add('ally-line-hit');
+    hitLine.classList.add(lineHitClass);
     hitLine.setAttribute('x1', String(a.cx));
     hitLine.setAttribute('y1', String(a.cy));
     hitLine.setAttribute('x2', String(b.cx));
@@ -176,14 +205,13 @@ function buildAlliedColorWheel(): SVGSVGElement {
     hitLine.setAttribute('pointer-events', 'stroke');
     lineGroup.appendChild(hitLine);
 
-    // Visible line
+    // Visible line (stroke color set via CSS using lineVisClass)
     const visLine = document.createElementNS(SVG_NS, 'line');
-    visLine.classList.add('ally-line-vis');
+    visLine.classList.add(lineVisClass);
     visLine.setAttribute('x1', String(a.cx));
     visLine.setAttribute('y1', String(a.cy));
     visLine.setAttribute('x2', String(b.cx));
     visLine.setAttribute('y2', String(b.cy));
-    visLine.setAttribute('stroke', '#c8b88a');
     visLine.setAttribute('stroke-width', '8');
     visLine.setAttribute('opacity', '0.75');
     visLine.setAttribute('stroke-dasharray', String(lineLen));
@@ -214,7 +242,7 @@ function buildAlliedColorWheel(): SVGSVGElement {
 
   // Guild crest image — rendered after nodes so it appears on top
   const crestImg = document.createElementNS(SVG_NS, 'image');
-  crestImg.setAttribute('id', 'crest-image');
+  crestImg.setAttribute('id', crestId);
   crestImg.setAttribute('x', '150');
   crestImg.setAttribute('y', '150');
   crestImg.setAttribute('width', '100');
@@ -226,11 +254,33 @@ function buildAlliedColorWheel(): SVGSVGElement {
   return svg;
 }
 
-function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement): void {
+function buildAlliedColorWheel(): SVGSVGElement {
+  return buildColorWheel(alliedPairs, 'allied-color-wheel', 'ally-line', 'ally-line-vis', 'ally-line-hit', 'crest-image');
+}
+
+function buildEnemyColorWheel(): SVGSVGElement {
+  return buildColorWheel(enemyPairs, 'enemy-color-wheel', 'enemy-line', 'enemy-line-vis', 'enemy-line-hit', 'crest-image-enemy');
+}
+
+/**
+ * Wire hover, click, and tap-select behavior for a color wheel.
+ * @param col - the guild column element containing both the SVG and list
+ * @param svg - the color wheel SVG element
+ * @param pairs - the color pairs corresponding to lines in the SVG
+ * @param lineClass - CSS class for line groups (e.g. 'ally-line')
+ * @param crestId - id of the crest image element within the SVG
+ */
+function wireColorWheelHover(
+  col: HTMLElement,
+  svg: SVGSVGElement,
+  pairs: [string, string][],
+  lineClass: string,
+  crestId: string,
+): void {
   // Track tap-selected pair for mobile (null = nothing selected)
   let selectedPair: [string, string] | null = null;
 
-  const crestImg = svg.getElementById('crest-image') as SVGImageElement | null;
+  const crestImg = svg.getElementById(crestId) as SVGImageElement | null;
 
   // Helper: set/clear highlight class on all related elements for a given pair
   function setHighlight(aId: string, bId: string, on: boolean): void {
@@ -281,7 +331,7 @@ function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement): void {
   }
 
   // Wire hover and click on each line group
-  for (const [aId, bId] of alliedPairs) {
+  for (const [aId, bId] of pairs) {
     const lineEl = svg.getElementById(`line-${aId}-${bId}`);
     if (!lineEl) continue;
     lineEl.addEventListener('mouseenter', () => {
@@ -299,7 +349,7 @@ function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement): void {
   }
 
   // Wire hover and click on each guild list item
-  for (const [aId, bId] of alliedPairs) {
+  for (const [aId, bId] of pairs) {
     const guildId = colorPairToGuildId[[colorNodeToCode[aId], colorNodeToCode[bId]].sort().join('')];
     const listItem = col.querySelector<HTMLElement>(`[data-guild-id="${guildId}"]`);
     if (!listItem) continue;
@@ -322,11 +372,19 @@ function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement): void {
     if (!selectedPair) return;
     const target = e.target as Element | null;
     if (!target) return;
-    // If click landed inside an ally-line group or a [data-guild-id] item, ignore (already handled above)
-    if (target.closest('.ally-line') || target.closest('[data-guild-id]')) return;
+    // If click landed inside a line group or a [data-guild-id] item, ignore (already handled above)
+    if (target.closest(`.${lineClass}`) || target.closest('[data-guild-id]')) return;
     setHighlight(selectedPair[0], selectedPair[1], false);
     selectedPair = null;
   });
+}
+
+function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement): void {
+  wireColorWheelHover(col, svg, alliedPairs, 'ally-line', 'crest-image');
+}
+
+function wireEnemyHover(col: HTMLElement, svg: SVGSVGElement): void {
+  wireColorWheelHover(col, svg, enemyPairs, 'enemy-line', 'crest-image-enemy');
 }
 
 function buildAlliedColumn(): HTMLElement {
@@ -381,7 +439,13 @@ function buildEnemyColumn(unlocked: boolean): HTMLElement {
     explanation.textContent = 'Enemy guilds pair colors from opposite sides of the circle — opposites in philosophy, in productive tension. Stranger combinations, harder to remember, but once they click, they stick.';
     col.appendChild(explanation);
 
+    const svg = buildEnemyColorWheel();
+    col.appendChild(svg);
+
     col.appendChild(buildGuildList(enemyGuilds));
+
+    // Wire bidirectional hover after both SVG and list are in the DOM
+    wireEnemyHover(col, svg);
   }
 
   const btn = document.createElement('button');

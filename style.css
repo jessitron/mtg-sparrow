@@ -1,3 +1,8 @@
+:root {
+  --allied-line-color: #c8b88a;
+  --enemy-line-color: #c8b88a;
+}
+
 *,
 *::before,
 *::after {
@@ -380,33 +385,45 @@ body {
   text-align: center;
 }
 
-.allied-color-wheel {
+.allied-color-wheel,
+.enemy-color-wheel {
   width: 100%;
   max-width: 280px;
   height: auto;
   margin: 0 auto;
 }
 
-.allied-color-wheel .ally-line {
+.allied-color-wheel .ally-line,
+.enemy-color-wheel .enemy-line {
   cursor: pointer;
 }
 
-.allied-color-wheel .ally-line-vis {
+/* Stroke colors via CSS custom properties */
+.ally-line-vis {
+  stroke: var(--allied-line-color);
   transition: opacity 0.2s ease, filter 0.2s ease;
 }
 
-.allied-color-wheel .color-node {
+.enemy-line-vis {
+  stroke: var(--enemy-line-color);
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.allied-color-wheel .color-node,
+.enemy-color-wheel .color-node {
   transition: transform 0.2s ease, opacity 0.2s ease;
   transform-box: fill-box;
   transform-origin: center;
 }
 
 /* Dimming when any element is highlighted */
-.guild-column--has-highlight .ally-line:not(.highlight) .ally-line-vis {
+.guild-column--has-highlight .ally-line:not(.highlight) .ally-line-vis,
+.guild-column--has-highlight .enemy-line:not(.highlight) .enemy-line-vis {
   opacity: 0.2;
 }
 
-.guild-column--has-highlight .allied-color-wheel .color-node:not(.highlight) {
+.guild-column--has-highlight .allied-color-wheel .color-node:not(.highlight),
+.guild-column--has-highlight .enemy-color-wheel .color-node:not(.highlight) {
   opacity: 0.3;
 }
 
@@ -415,7 +432,8 @@ body {
 }
 
 /* Highlighted states */
-.ally-line.highlight .ally-line-vis {
+.ally-line.highlight .ally-line-vis,
+.enemy-line.highlight .enemy-line-vis {
   opacity: 1 !important;
   filter: drop-shadow(0 0 4px #e8d8aa);
 }
@@ -438,7 +456,8 @@ body {
 }
 
 /* Guild crest in center of wheel */
-#crest-image {
+#crest-image,
+#crest-image-enemy {
   transition: opacity 150ms ease;
 }
 
