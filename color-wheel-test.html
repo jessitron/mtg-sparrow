@@ -41,31 +41,6 @@
       stroke-width: 2.5;
     }
 
-    .color-white {
-      fill: #F9FAF4;
-      stroke: #aaaaaa;
-    }
-
-    .color-blue {
-      fill: #0E68AB;
-      stroke: #0a4a7a;
-    }
-
-    .color-black {
-      fill: #150B00;
-      stroke: #444444;
-    }
-
-    .color-red {
-      fill: #D3202A;
-      stroke: #991820;
-    }
-
-    .color-green {
-      fill: #00733E;
-      stroke: #004d28;
-    }
-
     /* Line styles */
     .ally-line {
       stroke: #c8b88a;
@@ -80,22 +55,31 @@
       opacity: 0.5;
     }
 
-    /* Labels */
-    .node-label {
-      font-family: 'Georgia', serif;
-      font-size: 11px;
-      font-weight: bold;
-      text-anchor: middle;
-      dominant-baseline: middle;
-      pointer-events: none;
-      letter-spacing: 0.04em;
+    /* Legend */
+    .legend {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      font-size: 0.85rem;
+      color: #aaa;
     }
 
-    .label-white { fill: #333333; }
-    .label-blue  { fill: #e8f0ff; }
-    .label-black { fill: #cccccc; }
-    .label-red   { fill: #ffe8e8; }
-    .label-green { fill: #e8fff0; }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .legend-item img {
+      width: 28px;
+      height: 28px;
+    }
+
+    .legend-item span {
+      font-family: 'Georgia', serif;
+    }
   </style>
 </head>
 <body>
@@ -112,6 +96,8 @@
 
     Allied (pentagon) edges: W-U, U-B, B-R, R-G, G-W
     Enemy  (star)     edges: W-B, W-R, U-R, U-G, B-G
+
+    Image positioning: x = cx - 34, y = cy - 34, width=68, height=68
   -->
 
   <svg
@@ -199,43 +185,56 @@
     <!-- ===== NODES ===== -->
 
     <!-- White — top (12 o'clock) -->
-    <circle id="node-white"
-      class="color-node color-white"
-      cx="200.00" cy="50.00" r="34"
-    />
-    <text class="node-label label-white" x="200.00" y="50.00">WHITE</text>
+    <g id="node-white" class="color-node color-white">
+      <image href="images/W.svg" x="166.00" y="16.00" width="68" height="68" />
+    </g>
 
     <!-- Blue — upper right -->
-    <circle id="node-blue"
-      class="color-node color-blue"
-      cx="342.66" cy="153.65" r="34"
-    />
-    <text class="node-label label-blue" x="342.66" y="153.65">BLUE</text>
+    <g id="node-blue" class="color-node color-blue">
+      <image href="images/U.svg" x="308.66" y="119.65" width="68" height="68" />
+    </g>
 
     <!-- Black — lower right -->
-    <circle id="node-black"
-      class="color-node color-black"
-      cx="288.17" cy="321.35" r="34"
-    />
-    <text class="node-label label-black" x="288.17" y="321.35">BLACK</text>
+    <g id="node-black" class="color-node color-black">
+      <image href="images/B.svg" x="254.17" y="287.35" width="68" height="68" />
+    </g>
 
     <!-- Red — lower left -->
-    <circle id="node-red"
-      class="color-node color-red"
-      cx="111.83" cy="321.35" r="34"
-    />
-    <text class="node-label label-red" x="111.83" y="321.35">RED</text>
+    <g id="node-red" class="color-node color-red">
+      <image href="images/R.svg" x="77.83" y="287.35" width="68" height="68" />
+    </g>
 
     <!-- Green — upper left -->
-    <circle id="node-green"
-      class="color-node color-green"
-      cx="57.34" cy="153.65" r="34"
-    />
-    <text class="node-label label-green" x="57.34" y="153.65">GREEN</text>
+    <g id="node-green" class="color-node color-green">
+      <image href="images/G.svg" x="23.34" y="119.65" width="68" height="68" />
+    </g>
 
   </svg>
 
-  <p style="margin-top: 1.5rem; font-size: 0.8rem; color: #666; font-family: monospace;">
+  <div class="legend">
+    <div class="legend-item">
+      <img src="images/W.svg" alt="White mana symbol" />
+      <span>White</span>
+    </div>
+    <div class="legend-item">
+      <img src="images/U.svg" alt="Blue mana symbol" />
+      <span>Blue</span>
+    </div>
+    <div class="legend-item">
+      <img src="images/B.svg" alt="Black mana symbol" />
+      <span>Black</span>
+    </div>
+    <div class="legend-item">
+      <img src="images/R.svg" alt="Red mana symbol" />
+      <span>Red</span>
+    </div>
+    <div class="legend-item">
+      <img src="images/G.svg" alt="Green mana symbol" />
+      <span>Green</span>
+    </div>
+  </div>
+
+  <p style="margin-top: 1rem; font-size: 0.8rem; color: #666; font-family: monospace;">
     Allied lines: gold solid &nbsp;|&nbsp; Enemy lines: blue dashed
   </p>
 </body>
