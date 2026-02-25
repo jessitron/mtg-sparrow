@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "esbuild src/main.ts --bundle --outfile=dist/bundle.js --minify --sourcemap --format=esm",
-    "dev": "esbuild src/main.ts --bundle --outfile=dist/bundle.js --sourcemap --format=esm --watch"
+    "dev": "esbuild src/main.ts --bundle --outfile=dist/bundle.js --sourcemap --format=esm --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run typecheck"
   },
   "dependencies": {
     "@honeycombio/opentelemetry-web": "^0.10.0",
