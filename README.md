@@ -2,7 +2,7 @@
 
 A perceptual learning app for Magic: The Gathering color combination names — built with Vanilla TypeScript, esbuild, and Honeycomb observability.
 
-**Current version:** v0.5.0
+**Current version:** v0.7.0
 
 ---
 
@@ -25,6 +25,8 @@ There is no scoring, no pass/fail, no timer. Say the name aloud — that's the w
 ## What's Implemented
 
 - Welcome screen with instructions and the Boros fallback hint
+- Guild subgroups: sessions begin with the 5 allied guilds (Azorius, Dimir, Rakdos, Gruul, Selesnya)
+- Session end screen with one-tap navigation to allied or enemy guild subgroups
 - 10 guild names (two-color combinations) displayed as standard mana symbols
 - 50-card sessions with auto-reveal (2.5s) and auto-advance (1.5s)
 - Early tap/spacebar to skip ahead
@@ -67,7 +69,7 @@ Open `http://localhost:3000` in a browser.
 
 ```bash
 # Requires server running on :3000
-node scripts/test-v0.5.0.mjs
+node scripts/test-v0.7.0.mjs
 ```
 
 ---
@@ -105,7 +107,7 @@ These are intentional tuning parameters. Adjust and observe via Honeycomb.
 
 Every session produces a trace in Honeycomb:
 
-- **Session span**: `session.tier`, `session.card_count`, `session.completed`, `session.duration_ms`, `session.self_assessment`, `session.started_from`, `session.welcome_dwell_ms`
+- **Session span**: `session.tier` (`'guild_allied'` or `'guild_enemy'`), `session.subgroup_size`, `session.card_count`, `session.completed`, `session.duration_ms`, `session.self_assessment`, `session.started_from` (`'welcome_screen'` or `'session_end_screen'`), `session.welcome_dwell_ms`
 - **Card spans** (children): `card.combo_id`, `card.combo_name`, `card.colors`, `card.tier`, `card.number`, `card.dwell_time_ms`, `card.advanced_early`
 - **Resource**: `service.name = "sparrow-deck"`, `service.version`, `browser.language`, `browser.platform`
 
@@ -118,7 +120,7 @@ After a session starts, the footer shows a direct link to the session trace in H
 ## Architecture Decisions
 
 Key decisions are recorded in:
-- `small-arc-studios/roles/librarian/notes/decision-log.md` — full decision history (DEC-001 through DEC-032)
+- `small-arc-studios/roles/librarian/notes/decision-log.md` — full decision history (DEC-001 through DEC-036)
 - `docs/PROPOSAL.md` — original proposal with client annotations
 - `small-arc-studios/roles/librarian/notes/arc*-record.md` — per-arc records
 
@@ -139,6 +141,8 @@ Notable decisions:
 | 2b | 0.3.0 | Cycle Through a Deck | COMPLETE |
 | 4 | 0.4.0 | Session End Experience | COMPLETE |
 | 5 | 0.5.0 | Welcome Screen | COMPLETE |
+| 6 | 0.6.0 | Static Welcome Screen | COMPLETE |
+| 7 | 0.7.0 | Guild Subgroups | COMPLETE |
 
 ---
 

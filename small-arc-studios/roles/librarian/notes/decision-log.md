@@ -270,12 +270,21 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 
 ## DEC-034: Guild Subgroup Split — Allied vs Enemy Color Pairs
 - **Date**: 2026-02-20
+- **Implemented**: 2026-02-24
 - **Decision**: Split the 10 guilds into two subgroups of 5, using the natural MTG distinction between allied-color pairs and enemy-color pairs.
-  - **Group 1 (Allied)**: Azorius (WU), Dimir (UB), Golgari (BG), Gruul (RG), Boros (RW)
-  - **Group 2 (Enemy)**: Orzhov (WB), Izzet (UR), Simic (GU), Rakdos (BR), Selesnya (GW)
+  - **Allied** (adjacent on color wheel): Azorius (WU), Dimir (UB), Rakdos (BR), Gruul (RG), Selesnya (GW)
+  - **Enemy** (opposite on color wheel): Orzhov (WB), Izzet (UR), Golgari (BG), Boros (RW), Simic (GU)
 - **Context**: DEC-022 established that 10 guilds is too many to start with. The allied/enemy split is a natural MTG grouping — allied colors are adjacent on the color wheel, enemy colors are opposite. Starting with 5 is consistent with the Sparrow Deck progressive difficulty model.
+- **Note**: The groupings listed at approval time contained errors (Golgari/Boros were listed as allied; Rakdos/Selesnya as enemy). The implementation corrected these to match the standard MTG definition.
 - **Decided by**: Client
-- **Status**: APPROVED — to be implemented in Arc 7
+- **Status**: IMPLEMENTED in Arc 7 (v0.7.0)
+
+## DEC-036: Session End Screen Subgroup Navigation Buttons
+- **Date**: 2026-02-24
+- **Decision**: After the session end screen (self-assessment + combo summary), show a divider and contextual label ("You practiced allied/enemy guilds.") followed by two navigation buttons. The other subgroup is styled as the primary action (purple-blue `#6666aa` accent border). The current subgroup is styled as secondary. Sessions started from the end screen carry `session.started_from = 'session_end_screen'`.
+- **Context**: Arc 7 introduced two subgroups. Users need a clear path to practice the other subgroup or repeat the current one. Placing the other subgroup as primary nudges progression without forcing it.
+- **Rationale**: Consistent with DEC-003 (no friction), DEC-024 (self-assessment context), DEC-032 (session.started_from telemetry). The button styling borrows the existing `.self-assessment-button` pattern for visual consistency.
+- **Telemetry**: `session.started_from = 'session_end_screen'` on any session launched from this screen.
 
 ## DEC-035: Card Images to Replace/Augment Mana Pips
 - **Date**: 2026-02-20
@@ -287,14 +296,9 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 
 ## Planned Arcs
 
-### Arc 7: Guild Subgroups (User Arc)
-- **Intention**: Split the 10 guilds into two groups of 5 (allied vs enemy color pairs per DEC-034). The allied group becomes the default starting experience. The enemy group is the next tier.
-- **Scope**:
-  - Update data model to tag guilds as allied or enemy
-  - Session creation filters to the active subgroup
-  - Tier progression: Allied Guilds → Enemy Guilds → All Guilds → Shards & Wedges → All Core
-  - Observability: `session.tier` value reflects subgroup (e.g., `'guild_allied'`, `'guild_enemy'`)
-- **Depends on**: Nothing — ready to start
+### Arc 7: Guild Subgroups (User Arc) — COMPLETE (v0.7.0)
+- **Delivered**: 2026-02-24
+- **Outcome**: Allied/enemy subgroups implemented. Default start is allied guilds. End screen provides one-tap navigation to the other subgroup. `session.tier` emits `'guild_allied'` or `'guild_enemy'`. 46/46 checks PASS.
 
 ### Arc 8: Card Images (User Arc)
 - **Intention**: Replace or augment mana pip display with real Magic card images. Each combo has multiple card images; different images shown on each repetition within a session.
