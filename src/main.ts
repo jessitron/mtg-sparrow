@@ -504,6 +504,15 @@ function showSessionEnd(cardsShown?: number): void {
   const endScreen = document.createElement('div');
   endScreen.classList.add('session-end');
 
+  // Skip self-assessment if too few cards were shown — no count/label in this case
+  if (actualCount <= SELF_ASSESSMENT_MIN_CARDS) {
+    endSessionSpan(actualCount);
+    endScreen.appendChild(document.createElement('div')); // spacer
+    app.appendChild(endScreen);
+    showSessionEndColumns(enemyUnlocked);
+    return;
+  }
+
   const countEl = document.createElement('div');
   countEl.classList.add('session-end-count');
   countEl.textContent = `${actualCount} cards`;
@@ -513,15 +522,6 @@ function showSessionEnd(cardsShown?: number): void {
   labelEl.classList.add('session-end-label');
   labelEl.textContent = session.completed ? 'Session complete' : 'Session stopped';
   endScreen.appendChild(labelEl);
-
-  // Skip self-assessment if too few cards were shown
-  if (actualCount <= SELF_ASSESSMENT_MIN_CARDS) {
-    endSessionSpan(actualCount);
-    endScreen.appendChild(document.createElement('div')); // spacer
-    app.appendChild(endScreen);
-    showSessionEndColumns(enemyUnlocked);
-    return;
-  }
 
   // Self-assessment prompt
   const assessmentSection = document.createElement('div');
@@ -551,8 +551,10 @@ function showSessionEnd(cardsShown?: number): void {
       // Now end the session span with all attributes
       endSessionSpan(actualCount);
 
-      // Remove the assessment UI and show two-column layout
+      // Remove the assessment UI and count/label, then show two-column layout
       assessmentSection.remove();
+      countEl.remove();
+      labelEl.remove();
       showSessionEndColumns(enemyUnlocked);
     });
     buttonRow.appendChild(btn);
