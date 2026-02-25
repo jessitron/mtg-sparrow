@@ -320,11 +320,17 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Outcome**: Two-column educational layout replaces combo summary and subgroup navigation buttons. Allied column always fully visible. Enemy column locked until first completed enemy session; unlock persists via localStorage. `session.enemy_unlocked` boolean on all session spans; `progression.enemy_unlocked` event on first unlock. 50/50 checks PASS.
 - **Note**: Originally planned as "Card Images" (DEC-035). Redirected by client.
 
+### GitHub Pages Deployment — COMPLETE
+- **Delivered**: prior to Arc 8
+- **Note**: DEC-007 resolved. Deployment is live.
+
+### All Guilds Tier — COMPLETE
+- **Delivered**: prior to Arc 8
+- **Note**: All 10 guilds available after completing both subgroups.
+
 ### Arc 9: Candidates
 - **Card Images** (DEC-035) — replace/augment mana pips with real Magic card art; originally planned as Arc 8, now deferred
-- **All Guilds tier** — unlock all 10 guilds after completing both subgroups (DEC-023)
 - **Settings page** with localStorage reset (DEC-025)
-- **GitHub Pages deployment** (DEC-007)
 
 ---
 
