@@ -444,5 +444,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   welcomeScreenLoadTime = Date.now();
-  document.getElementById('start-button')?.addEventListener('click', () => startSession());
+  document.getElementById('start-button')?.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    startSession();
+  });
 });
