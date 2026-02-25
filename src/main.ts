@@ -172,7 +172,7 @@ function buildAlliedColorWheel(): SVGSVGElement {
     hitLine.setAttribute('x2', String(b.cx));
     hitLine.setAttribute('y2', String(b.cy));
     hitLine.setAttribute('stroke', 'transparent');
-    hitLine.setAttribute('stroke-width', '16');
+    hitLine.setAttribute('stroke-width', '24');
     hitLine.setAttribute('pointer-events', 'stroke');
     lineGroup.appendChild(hitLine);
 
@@ -184,7 +184,7 @@ function buildAlliedColorWheel(): SVGSVGElement {
     visLine.setAttribute('x2', String(b.cx));
     visLine.setAttribute('y2', String(b.cy));
     visLine.setAttribute('stroke', '#c8b88a');
-    visLine.setAttribute('stroke-width', '2');
+    visLine.setAttribute('stroke-width', '8');
     visLine.setAttribute('opacity', '0.75');
     visLine.setAttribute('stroke-dasharray', String(lineLen));
     visLine.setAttribute('stroke-dashoffset', '0');
@@ -310,11 +310,6 @@ function buildEnemyColumn(unlocked: boolean): HTMLElement {
     col.appendChild(explanation);
 
     col.appendChild(buildGuildList(enemyGuilds));
-  } else {
-    const explanation = document.createElement('p');
-    explanation.classList.add('guild-column-explanation');
-    explanation.textContent = 'Five more combinations. Ready when you are.';
-    col.appendChild(explanation);
   }
 
   const btn = document.createElement('button');
