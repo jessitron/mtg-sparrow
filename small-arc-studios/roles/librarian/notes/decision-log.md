@@ -290,7 +290,22 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Date**: 2026-02-20
 - **Decision**: Replace or augment the mana pip display with real Magic card art. Multiple images per combo so the visual stimulus varies across repetitions within a session.
 - **Context**: Client request. More faithful to the original Sparrow Deck technique, which uses different exemplars of the same category. Prevents learners from memorizing a specific pip arrangement rather than learning color recognition. Noted as a future enhancement since the RFP.
-- **Status**: PLANNED — to be implemented in Arc 8, after guild subgroups
+- **Status**: DEFERRED — originally planned as Arc 8, redirected by client to session end screen redesign (DEC-037). Now a future arc candidate.
+
+## DEC-037: Session End Screen Redesign — Two-Column Educational Layout
+- **Date**: 2026-02-25
+- **Decision**: Replace the Arc 7 session end screen (combo summary + subgroup navigation buttons) with a two-column educational layout. Allied column is always fully visible: header, educational explanation of adjacent color wheel pairs, all 5 allied guilds with mana pips, "Learn allied guilds" button. Enemy column is locked until the user completes a full enemy session: locked state shows only teaser text and a primary "Learn enemy guilds" button; unlocked state mirrors the allied column structure.
+- **Context**: Arc 8 was redirected from Card Images (DEC-035) to this redesign at client direction. The two-column layout replaces and extends the combo summary — it teaches the allied/enemy distinction explicitly rather than just enabling navigation.
+- **Rationale**: The end screen becomes an educational moment, not just a navigation utility. The sparse locked column creates effective visual contrast and communicates "more is coming" without revealing it. Consistent with DEC-003 (no friction) and DEC-005 (progressive exposure).
+- **Status**: IMPLEMENTED in Arc 8 (v0.8.0)
+
+## DEC-038: Progressive Disclosure via localStorage — sparrow-deck.progression
+- **Date**: 2026-02-25
+- **Decision**: Store progression state in localStorage under key `sparrow-deck.progression` as a JSON object `{enemyUnlocked: boolean}`. Only a completed (not stopped) enemy session triggers unlock. Encapsulated in `src/progression.ts` — all localStorage access goes through this module.
+- **Context**: Arc 8 introduced the first piece of persistent user state. The enemy column unlock must survive page reloads. Using a structured JSON object under a namespaced key allows future progression fields to be added without key proliferation.
+- **Rationale**: `markEnemyUnlocked()` returns a boolean indicating whether state changed — enabling one-time telemetry emission (`progression.enemy_unlocked` span event) without additional state tracking. try/catch wrapping handles private browsing gracefully (defaults to locked/false).
+- **Telemetry**: `session.enemy_unlocked` boolean on all session spans; `progression.enemy_unlocked` span event on first unlock only.
+- **Status**: IMPLEMENTED in Arc 8 (v0.8.0)
 
 ---
 
@@ -300,15 +315,16 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Delivered**: 2026-02-24
 - **Outcome**: Allied/enemy subgroups implemented. Default start is allied guilds. End screen provides one-tap navigation to the other subgroup. `session.tier` emits `'guild_allied'` or `'guild_enemy'`. 46/46 checks PASS.
 
-### Arc 8: Card Images (User Arc)
-- **Intention**: Replace or augment mana pip display with real Magic card images. Each combo has multiple card images; different images shown on each repetition within a session.
-- **Scope**:
-  - Source card images (community assets, Scryfall API, or bundled)
-  - Display design: how card art interacts with the name reveal
-  - Multiple images per combo for varied exemplars
-  - Observability: `card.image_id` or similar attribute on card spans
-- **Depends on**: Arc 7 (guild subgroups should be in place first so card images cover the right set)
-- **Note**: This is a larger arc — may need design and domain expert input on image sourcing and display
+### Arc 8: Session End Screen Redesign (User Arc) — COMPLETE (v0.8.0)
+- **Delivered**: 2026-02-25
+- **Outcome**: Two-column educational layout replaces combo summary and subgroup navigation buttons. Allied column always fully visible. Enemy column locked until first completed enemy session; unlock persists via localStorage. `session.enemy_unlocked` boolean on all session spans; `progression.enemy_unlocked` event on first unlock. 50/50 checks PASS.
+- **Note**: Originally planned as "Card Images" (DEC-035). Redirected by client.
+
+### Arc 9: Candidates
+- **Card Images** (DEC-035) — replace/augment mana pips with real Magic card art; originally planned as Arc 8, now deferred
+- **All Guilds tier** — unlock all 10 guilds after completing both subgroups (DEC-023)
+- **Settings page** with localStorage reset (DEC-025)
+- **GitHub Pages deployment** (DEC-007)
 
 ---
 
@@ -316,7 +332,7 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 
 Items noted by client but explicitly out of scope for initial delivery:
 
-- **Real card images**: Use different real Magic card images per repetition of a combo (more faithful to original Sparrow Deck technique)
+- **Real card images**: Use different real Magic card images per repetition of a combo (more faithful to original Sparrow Deck technique) — see DEC-035
 - **Adaptive pacing**: Increase speed after practice, based on observability data
 - **Page refresh detection**: Use localStorage to notice page refreshes, which could indicate errors (complements Honeycomb Web SDK automatic session ID)
 
