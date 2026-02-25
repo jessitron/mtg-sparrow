@@ -14,7 +14,7 @@ import { colorEmojiMap, alliedGuilds, enemyGuilds, ColorCombo } from './data/com
 import { isEnemyUnlocked, markEnemyUnlocked, hasCompletedSubgroup, markSubgroupCompleted } from './progression';
 import { Span } from '@opentelemetry/api';
 
-export const APP_VERSION = '0.8.0';
+export const APP_VERSION = '0.9.0';
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
@@ -26,6 +26,7 @@ let revealTimer: ReturnType<typeof setTimeout> | null = null;
 let advanceTimer: ReturnType<typeof setTimeout> | null = null;
 let paused = false;
 let nameRevealed = false;
+let currentTraceUrl: string | null = null;
 
 function clearTimers(): void {
   if (revealTimer !== null) {
@@ -424,11 +425,13 @@ function buildAlliedColumn(): HTMLElement {
 function buildEnemyColumn(unlocked: boolean): HTMLElement {
   const col = document.createElement('div');
   col.classList.add('guild-column', 'guild-column--enemy');
-  if (!unlocked) {
+  // Show full content if the user has practiced enemy guilds at all
+  const showContent = unlocked || hasCompletedSubgroup('enemy');
+  if (!showContent) {
     col.classList.add('guild-column--locked');
   }
 
-  if (unlocked) {
+  if (showContent) {
     const header = document.createElement('h2');
     header.classList.add('guild-column-header');
     header.textContent = 'Enemy Guilds';
@@ -450,7 +453,7 @@ function buildEnemyColumn(unlocked: boolean): HTMLElement {
 
   const btn = document.createElement('button');
   btn.classList.add('next-session-button', 'guild-column-button');
-  if (!unlocked) {
+  if (!showContent) {
     btn.classList.add('next-session-button--primary');
   }
   btn.textContent = hasCompletedSubgroup('enemy') ? 'Practice enemy guilds' : 'Learn enemy guilds';
@@ -768,20 +771,17 @@ function startSession(subgroup: GuildSubgroup = "allied", startedFrom: string = 
     'welcome.render_mode': 'static_html',
   });
 
-  // Link the version footer to the Honeycomb trace for this session
+  // Store trace URL so the settings panel can display it
   if (sessionSpan) {
     const traceId = getTraceId(sessionSpan);
-    const traceUrl = `https://ui.honeycomb.io/modernity/environments/sparrow-deck/trace?trace_id=${traceId}`;
-    const versionEl = document.getElementById('app-version');
-    if (versionEl) {
-      const link = document.createElement('a');
-      link.href = traceUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.textContent = versionEl.textContent || `v${APP_VERSION}`;
-      link.classList.add('trace-link');
-      versionEl.textContent = '';
-      versionEl.appendChild(link);
+    currentTraceUrl = `https://ui.honeycomb.io/modernity/environments/sparrow-deck/trace?trace_id=${traceId}`;
+    const traceContainer = document.getElementById('settings-trace-container');
+    const traceLink = document.getElementById('settings-trace-link') as HTMLAnchorElement | null;
+    if (traceLink) {
+      traceLink.href = currentTraceUrl;
+    }
+    if (traceContainer) {
+      traceContainer.hidden = false;
     }
   }
 
@@ -792,10 +792,56 @@ document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION);
   sendStartupSpan(APP_VERSION);
 
-  const versionEl = document.getElementById('app-version');
-  if (versionEl) {
-    versionEl.textContent = `v${APP_VERSION}`;
+  // Populate version in settings panel
+  const settingsVersionEl = document.getElementById('settings-version');
+  if (settingsVersionEl) {
+    settingsVersionEl.textContent = `v${APP_VERSION}`;
   }
+
+  // Settings panel open/close
+  const gearBtn = document.getElementById('settings-gear-btn');
+  const settingsPanel = document.getElementById('settings-panel');
+  const settingsBackdrop = document.getElementById('settings-backdrop');
+  const settingsCloseBtn = document.getElementById('settings-close-btn');
+
+  function openSettings(): void {
+    if (settingsPanel) settingsPanel.hidden = false;
+    if (settingsBackdrop) settingsBackdrop.hidden = false;
+    if (settingsPanel) settingsPanel.removeAttribute('aria-hidden');
+    if (settingsBackdrop) settingsBackdrop.removeAttribute('aria-hidden');
+  }
+
+  function closeSettings(): void {
+    if (settingsPanel) settingsPanel.hidden = true;
+    if (settingsBackdrop) settingsBackdrop.hidden = true;
+  }
+
+  gearBtn?.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    openSettings();
+  });
+
+  settingsCloseBtn?.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    closeSettings();
+  });
+
+  settingsBackdrop?.addEventListener('click', () => {
+    closeSettings();
+  });
+
+  // Reset progress button
+  const resetBtn = document.getElementById('settings-reset-btn');
+  resetBtn?.addEventListener('click', () => {
+    // Emit telemetry event before clearing
+    if (sessionSpan) {
+      addSpanEvent(sessionSpan, 'settings.reset_progress', {
+        'reset.app_version': APP_VERSION,
+      });
+    }
+    localStorage.removeItem('sparrow-deck.progression');
+    window.location.reload();
+  });
 
   app = document.getElementById('app');
   if (!app) return;
