@@ -1,4 +1,4 @@
-import { ColorCombo, guilds } from './data/combos';
+import { ColorCombo, alliedGuilds, enemyGuilds } from './data/combos';
 
 // Timing constants (all in milliseconds)
 export const SESSION_CARD_COUNT = 50;
@@ -33,21 +33,26 @@ export function buildDeck(combos: ColorCombo[], count: number): ColorCombo[] {
   return deck;
 }
 
+export type GuildSubgroup = "allied" | "enemy";
+
 export type SessionState = {
   deck: ColorCombo[];
   cardCount: number;
   currentIndex: number;
   completed: boolean;
   startTime: number;
+  subgroup: GuildSubgroup;
 };
 
-export function createSession(): SessionState {
+export function createSession(subgroup: GuildSubgroup = "allied"): SessionState {
+  const pool = subgroup === "allied" ? alliedGuilds : enemyGuilds;
   return {
-    deck: buildDeck(guilds, SESSION_CARD_COUNT),
+    deck: buildDeck(pool, SESSION_CARD_COUNT),
     cardCount: SESSION_CARD_COUNT,
     currentIndex: 0,
     completed: false,
     startTime: Date.now(),
+    subgroup,
   };
 }
 
