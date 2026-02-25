@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MTG Color Wheel — Test Page</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      font-family: 'Georgia', serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 2rem;
+      letter-spacing: 0.05em;
+      color: #c8b88a;
+    }
+
+    svg {
+      max-width: 480px;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Node base styles */
+    .color-node {
+      stroke-width: 2.5;
+    }
+
+    .color-white {
+      fill: #F9FAF4;
+      stroke: #aaaaaa;
+    }
+
+    .color-blue {
+      fill: #0E68AB;
+      stroke: #0a4a7a;
+    }
+
+    .color-black {
+      fill: #150B00;
+      stroke: #444444;
+    }
+
+    .color-red {
+      fill: #D3202A;
+      stroke: #991820;
+    }
+
+    .color-green {
+      fill: #00733E;
+      stroke: #004d28;
+    }
+
+    /* Line styles */
+    .ally-line {
+      stroke: #c8b88a;
+      stroke-width: 2;
+      opacity: 0.75;
+    }
+
+    .enemy-line {
+      stroke: #8888cc;
+      stroke-width: 1.5;
+      stroke-dasharray: 6 4;
+      opacity: 0.5;
+    }
+
+    /* Labels */
+    .node-label {
+      font-family: 'Georgia', serif;
+      font-size: 11px;
+      font-weight: bold;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+      letter-spacing: 0.04em;
+    }
+
+    .label-white { fill: #333333; }
+    .label-blue  { fill: #e8f0ff; }
+    .label-black { fill: #cccccc; }
+    .label-red   { fill: #ffe8e8; }
+    .label-green { fill: #e8fff0; }
+  </style>
+</head>
+<body>
+  <h1>MTG Color Wheel — Test Page</h1>
+
+  <!--
+    Layout math (viewBox 0 0 400 400, center 200 200, radius 150, node-radius 34):
+    Colors in clockwise order starting at 12 o'clock (-90°):
+      White (i=0):  angle=-90°  → (200.00,  50.00)
+      Blue  (i=1):  angle=-18°  → (342.66, 153.65)
+      Black (i=2):  angle= 54°  → (288.17, 321.35)
+      Red   (i=3):  angle=126°  → (111.83, 321.35)
+      Green (i=4):  angle=198°  → ( 57.34, 153.65)
+
+    Allied (pentagon) edges: W-U, U-B, B-R, R-G, G-W
+    Enemy  (star)     edges: W-B, W-R, U-R, U-G, B-G
+  -->
+
+  <svg
+    viewBox="0 0 400 400"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-label="MTG Color Wheel"
+    role="img"
+  >
+    <!-- ===== LINES (drawn first, behind nodes) ===== -->
+
+    <!-- Allied lines (pentagon edges) -->
+    <line id="line-white-blue"
+      class="ally-line"
+      x1="200.00" y1="50.00"
+      x2="342.66" y2="153.65"
+      stroke-dasharray="200"
+      stroke-dashoffset="0"
+    />
+    <line id="line-blue-black"
+      class="ally-line"
+      x1="342.66" y1="153.65"
+      x2="288.17" y2="321.35"
+      stroke-dasharray="200"
+      stroke-dashoffset="0"
+    />
+    <line id="line-black-red"
+      class="ally-line"
+      x1="288.17" y1="321.35"
+      x2="111.83" y2="321.35"
+      stroke-dasharray="200"
+      stroke-dashoffset="0"
+    />
+    <line id="line-red-green"
+      class="ally-line"
+      x1="111.83" y1="321.35"
+      x2="57.34"  y2="153.65"
+      stroke-dasharray="200"
+      stroke-dashoffset="0"
+    />
+    <line id="line-green-white"
+      class="ally-line"
+      x1="57.34"  y1="153.65"
+      x2="200.00" y2="50.00"
+      stroke-dasharray="200"
+      stroke-dashoffset="0"
+    />
+
+    <!-- Enemy lines (star / pentagram diagonals) -->
+    <line id="line-white-black"
+      class="enemy-line"
+      x1="200.00" y1="50.00"
+      x2="288.17" y2="321.35"
+      stroke-dasharray="300"
+      stroke-dashoffset="0"
+    />
+    <line id="line-white-red"
+      class="enemy-line"
+      x1="200.00" y1="50.00"
+      x2="111.83" y2="321.35"
+      stroke-dasharray="300"
+      stroke-dashoffset="0"
+    />
+    <line id="line-blue-red"
+      class="enemy-line"
+      x1="342.66" y1="153.65"
+      x2="111.83" y2="321.35"
+      stroke-dasharray="300"
+      stroke-dashoffset="0"
+    />
+    <line id="line-blue-green"
+      class="enemy-line"
+      x1="342.66" y1="153.65"
+      x2="57.34"  y2="153.65"
+      stroke-dasharray="300"
+      stroke-dashoffset="0"
+    />
+    <line id="line-black-green"
+      class="enemy-line"
+      x1="288.17" y1="321.35"
+      x2="57.34"  y2="153.65"
+      stroke-dasharray="300"
+      stroke-dashoffset="0"
+    />
+
+    <!-- ===== NODES ===== -->
+
+    <!-- White — top (12 o'clock) -->
+    <circle id="node-white"
+      class="color-node color-white"
+      cx="200.00" cy="50.00" r="34"
+    />
+    <text class="node-label label-white" x="200.00" y="50.00">WHITE</text>
+
+    <!-- Blue — upper right -->
+    <circle id="node-blue"
+      class="color-node color-blue"
+      cx="342.66" cy="153.65" r="34"
+    />
+    <text class="node-label label-blue" x="342.66" y="153.65">BLUE</text>
+
+    <!-- Black — lower right -->
+    <circle id="node-black"
+      class="color-node color-black"
+      cx="288.17" cy="321.35" r="34"
+    />
+    <text class="node-label label-black" x="288.17" y="321.35">BLACK</text>
+
+    <!-- Red — lower left -->
+    <circle id="node-red"
+      class="color-node color-red"
+      cx="111.83" cy="321.35" r="34"
+    />
+    <text class="node-label label-red" x="111.83" y="321.35">RED</text>
+
+    <!-- Green — upper left -->
+    <circle id="node-green"
+      class="color-node color-green"
+      cx="57.34" cy="153.65" r="34"
+    />
+    <text class="node-label label-green" x="57.34" y="153.65">GREEN</text>
+
+  </svg>
+
+  <p style="margin-top: 1.5rem; font-size: 0.8rem; color: #666; font-family: monospace;">
+    Allied lines: gold solid &nbsp;|&nbsp; Enemy lines: blue dashed
+  </p>
+</body>
+</html>
