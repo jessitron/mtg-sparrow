@@ -307,6 +307,42 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Telemetry**: `session.enemy_unlocked` boolean on all session spans; `progression.enemy_unlocked` span event on first unlock only.
 - **Status**: IMPLEMENTED in Arc 8 (v0.8.0)
 
+## DEC-039: SVG Over Canvas for Color Wheel
+- **Date**: 2026-02-25
+- **Decision**: Implement the MTG color wheel as an SVG, not an HTML5 Canvas.
+- **Context**: The color wheel has ~15 visual elements: 5 mana symbols, 5 allied lines, and 5 hit-area overlays. Each element needs to be individually targetable by JavaScript for bidirectional hover interaction with the HTML guild list.
+- **Alternatives rejected**:
+  - Canvas: would require reimplementing a scene graph and custom hit-testing. No DOM nodes means no `addEventListener` per element and no CSS class toggling.
+- **Rationale**: SVG is the correct choice when elements must be individually addressable DOM nodes. Canvas's advantage (pixels, performance) is irrelevant at this scale. SVG's per-element event model maps directly to the interaction requirement.
+
+## DEC-040: `<image>` Tags for Mana Symbol Reuse in SVG
+- **Date**: 2026-02-25
+- **Decision**: Render mana symbols inside the color wheel SVG using `<image href="images/X.svg">` tags rather than inlining the full SVG paths.
+- **Context**: The five mana symbol SVGs (W, U, B, R, G) already exist in `images/` and are used elsewhere in the app.
+- **Alternatives rejected**:
+  - Inlining SVG paths: more verbose, duplicates asset data, harder to maintain.
+  - Canvas `drawImage()`: would require the Canvas approach, rejected in DEC-039.
+- **Rationale**: Clean reuse of existing assets. Standard SVG embedding pattern. Keeps the wheel-building code short and the mana symbols consistent with their usage elsewhere in the app.
+
+## DEC-041: Bidirectional Hover via JavaScript — SVG/HTML Boundary
+- **Date**: 2026-02-25
+- **Decision**: Implement bidirectional hover between the SVG color wheel and the HTML guild list using JavaScript event listeners that add/remove CSS classes on both sides.
+- **Context**: Hovering a line in the wheel should highlight the line, both endpoint mana symbols, and the matching guild row below. Hovering a guild row should highlight the row and the corresponding line and symbols. Non-highlighted elements should dim.
+- **Constraint**: CSS `:hover` and sibling selectors cannot cross the SVG/HTML DOM boundary. A purely CSS solution is not possible.
+- **Approach**: Wide transparent `<line>` overlays (24px `stroke-width`, `pointer-events: stroke`) act as hit areas. `mouseenter`/`mouseleave` listeners on both hit areas and guild rows add `.highlight` to targets and `.dim` to all others.
+- **Rationale**: JavaScript bridging the SVG/HTML boundary is the standard pattern for this class of interaction. The hit-area overlay approach is well-established for making thin SVG lines interactive without changing their visual appearance.
+
+## DEC-042: "Learn" vs "Practice" Button Text Based on Completion History
+- **Date**: 2026-02-25
+- **Decision**: Session-start buttons on the end screen read "Learn [subgroup] guilds" until the user has completed at least one session of that subgroup type, then switch to "Practice [subgroup] guilds". Tracked via `completedSubgroups: string[]` in `sparrow-deck.progression` localStorage (extending `ProgressionState` in `src/progression.ts`).
+- **Context**: Post-Arc-8 enhancement. The original buttons always said "Learn allied guilds" / "Learn enemy guilds" regardless of history. After practicing, "Learn" becomes semantically incorrect — the user is returning for more repetitions.
+- **Timing**: `markSubgroupCompleted()` is called in `showSessionEnd()` before the button column is rendered, so even the first post-session view shows "Practice" — which is accurate by then.
+- **New `src/progression.ts` API**:
+  - `hasCompletedSubgroup(subgroup: string): boolean`
+  - `markSubgroupCompleted(subgroup: string): void` (idempotent)
+  - `ProgressionState.completedSubgroups: string[]` (defaults to `[]`)
+- **Rationale**: Accurate language reduces cognitive friction. "Practice" signals mastery-building; "Learn" signals introduction. Distinguishing them costs little and improves the user experience meaningfully over repeated visits.
+
 ---
 
 ## Planned Arcs
@@ -319,6 +355,12 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Delivered**: 2026-02-25
 - **Outcome**: Two-column educational layout replaces combo summary and subgroup navigation buttons. Allied column always fully visible. Enemy column locked until first completed enemy session; unlock persists via localStorage. `session.enemy_unlocked` boolean on all session spans; `progression.enemy_unlocked` event on first unlock. 50/50 checks PASS.
 - **Note**: Originally planned as "Card Images" (DEC-035). Redirected by client.
+
+### Arc 8 Post-Enhancements: Color Wheel Integration — COMPLETE (v0.8.0)
+- **Delivered**: 2026-02-25
+- **Outcome**: SVG pentagon color wheel integrated into Allied Guilds column. Bidirectional hover between wheel lines and guild list. "Learn" vs "Practice" button text based on completion history. Locked enemy column simplified to vertically centered button only. Column headers centered.
+- **Record**: `arc8-post-enhancements-record.md`
+- **Decisions**: DEC-039, DEC-040, DEC-041, DEC-042
 
 ### GitHub Pages Deployment — COMPLETE
 - **Delivered**: prior to Arc 8
