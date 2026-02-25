@@ -504,11 +504,9 @@ function showSessionEnd(cardsShown?: number): void {
   const endScreen = document.createElement('div');
   endScreen.classList.add('session-end');
 
-  // Skip self-assessment if too few cards were shown — no count/label in this case
+  // Skip self-assessment if too few cards were shown — go straight to guild columns
   if (actualCount <= SELF_ASSESSMENT_MIN_CARDS) {
     endSessionSpan(actualCount);
-    endScreen.appendChild(document.createElement('div')); // spacer
-    app.appendChild(endScreen);
     showSessionEndColumns(enemyUnlocked);
     return;
   }
