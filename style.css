@@ -282,6 +282,84 @@ body {
   background: #35355a;
 }
 
+/* Two-column guild layout */
+.guild-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  margin-top: 1rem;
+  animation: cardEnter 250ms ease-out;
+}
+
+@media (max-width: 480px) {
+  .guild-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.guild-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.guild-column-header {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f0f0f0;
+}
+
+.guild-column-explanation {
+  font-size: 0.875rem;
+  color: #aaa;
+  line-height: 1.5;
+}
+
+.guild-column--locked .guild-column-explanation {
+  color: #777;
+}
+
+.guild-column-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.guild-column-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  font-size: 1rem;
+}
+
+.guild-column-item .combo-summary-pips {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.guild-column-item .combo-summary-pips .mana-pip {
+  width: 28px;
+  height: 28px;
+}
+
+.guild-column-item .combo-summary-name {
+  color: #ccc;
+}
+
+.guild-column-button {
+  margin-top: auto;
+}
+
+.guild-column--locked {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
 .welcome {
   text-align: center;
   display: flex;

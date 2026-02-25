@@ -10,7 +10,8 @@ import {
   REVEAL_DELAY_MS,
   ADVANCE_DELAY_MS,
 } from './session';
-import { colorEmojiMap } from './data/combos';
+import { colorEmojiMap, alliedGuilds, enemyGuilds, ColorCombo } from './data/combos';
+import { isEnemyUnlocked, markEnemyUnlocked } from './progression';
 import { Span } from '@opentelemetry/api';
 
 export const APP_VERSION = '0.8.0';
@@ -72,104 +73,131 @@ function endSessionSpan(actualCount: number): void {
   }
 }
 
-function getUniqueCombosFromSession(actualCount: number): import('./data/combos').ColorCombo[] {
-  if (!session) return [];
-  const seen = new Set<string>();
-  const result: import('./data/combos').ColorCombo[] = [];
-  for (const combo of session.deck.slice(0, actualCount)) {
-    if (!seen.has(combo.id)) {
-      seen.add(combo.id);
-      result.push(combo);
-    }
-  }
-  return result;
-}
 
-function showComboSummary(actualCount: number): void {
-  if (!app) return;
-
-  const combos = getUniqueCombosFromSession(actualCount);
-
-  const summarySection = document.createElement('div');
-  summarySection.classList.add('combo-summary');
-
-  const heading = document.createElement('div');
-  heading.classList.add('combo-summary-heading');
-  heading.textContent = 'Combos practiced';
-  summarySection.appendChild(heading);
-
+function buildGuildList(guilds: ColorCombo[]): HTMLElement {
   const list = document.createElement('ul');
-  list.classList.add('combo-summary-list');
+  list.classList.add('guild-column-list');
 
-  for (const combo of combos) {
+  for (const guild of guilds) {
     const li = document.createElement('li');
-    li.classList.add('combo-summary-item');
+    li.classList.add('guild-column-item');
 
     const pips = document.createElement('span');
     pips.classList.add('combo-summary-pips');
-    for (const color of combo.colors) {
+    for (const color of guild.colors) {
       pips.appendChild(renderPip(color));
     }
     li.appendChild(pips);
 
     const name = document.createElement('span');
     name.classList.add('combo-summary-name');
-    name.textContent = combo.name;
+    name.textContent = guild.name;
     li.appendChild(name);
 
     list.appendChild(li);
   }
 
-  summarySection.appendChild(list);
-  app.appendChild(summarySection);
+  return list;
 }
 
-function showNextSessionButtons(currentSubgroup: GuildSubgroup): void {
+function buildAlliedColumn(): HTMLElement {
+  const col = document.createElement('div');
+  col.classList.add('guild-column', 'guild-column--allied');
+
+  const header = document.createElement('h2');
+  header.classList.add('guild-column-header');
+  header.textContent = 'Allied Guilds';
+  col.appendChild(header);
+
+  const explanation = document.createElement('p');
+  explanation.classList.add('guild-column-explanation');
+  explanation.textContent = "Magic's five colors form a circle: ☀️ 💧 💀 🔥 🌿. Allied guilds are pairs of neighboring colors — colors that share philosophy and overlap in values. Natural partnerships, built on common ground.";
+  col.appendChild(explanation);
+
+  col.appendChild(buildGuildList(alliedGuilds));
+
+  const btn = document.createElement('button');
+  btn.classList.add('next-session-button', 'guild-column-button');
+  btn.textContent = 'Learn allied guilds';
+  btn.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    startSession('allied', 'session_end_screen');
+  });
+  col.appendChild(btn);
+
+  return col;
+}
+
+function buildEnemyColumn(unlocked: boolean): HTMLElement {
+  const col = document.createElement('div');
+  col.classList.add('guild-column', 'guild-column--enemy');
+  if (!unlocked) {
+    col.classList.add('guild-column--locked');
+  }
+
+  if (unlocked) {
+    const header = document.createElement('h2');
+    header.classList.add('guild-column-header');
+    header.textContent = 'Enemy Guilds';
+    col.appendChild(header);
+
+    const explanation = document.createElement('p');
+    explanation.classList.add('guild-column-explanation');
+    explanation.textContent = 'Enemy guilds pair colors from opposite sides of the circle — opposites in philosophy, in productive tension. Stranger combinations, harder to remember, but once they click, they stick.';
+    col.appendChild(explanation);
+
+    col.appendChild(buildGuildList(enemyGuilds));
+  } else {
+    const explanation = document.createElement('p');
+    explanation.classList.add('guild-column-explanation');
+    explanation.textContent = 'Five more combinations. Ready when you are.';
+    col.appendChild(explanation);
+  }
+
+  const btn = document.createElement('button');
+  btn.classList.add('next-session-button', 'guild-column-button');
+  if (!unlocked) {
+    btn.classList.add('next-session-button--primary');
+  }
+  btn.textContent = 'Learn enemy guilds';
+  btn.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    startSession('enemy', 'session_end_screen');
+  });
+  col.appendChild(btn);
+
+  return col;
+}
+
+function showSessionEndColumns(enemyUnlocked: boolean): void {
   if (!app) return;
 
-  // Divider
   const divider = document.createElement('div');
   divider.classList.add('session-next-divider');
   app.appendChild(divider);
 
-  const section = document.createElement('div');
-  section.classList.add('session-next');
-
-  // Contextual label
-  const label = document.createElement('div');
-  label.classList.add('session-next-label');
-  label.textContent = `You practiced ${currentSubgroup} guilds.`;
-  section.appendChild(label);
-
-  // Buttons container
-  const buttonRow = document.createElement('div');
-  buttonRow.classList.add('session-next-buttons');
-
-  const otherSubgroup: GuildSubgroup = currentSubgroup === 'allied' ? 'enemy' : 'allied';
-  const subgroups: GuildSubgroup[] = [otherSubgroup, currentSubgroup]; // primary first
-
-  for (const sg of subgroups) {
-    const btn = document.createElement('button');
-    btn.classList.add('next-session-button');
-    if (sg === otherSubgroup) {
-      btn.classList.add('next-session-button--primary');
-    }
-    btn.textContent = sg === 'allied' ? 'Allied guilds' : 'Enemy guilds';
-    btn.addEventListener('click', (e: MouseEvent) => {
-      e.stopPropagation();
-      startSession(sg, 'session_end_screen');
-    });
-    buttonRow.appendChild(btn);
-  }
-
-  section.appendChild(buttonRow);
-  app.appendChild(section);
+  const container = document.createElement('div');
+  container.classList.add('guild-columns');
+  container.appendChild(buildAlliedColumn());
+  container.appendChild(buildEnemyColumn(enemyUnlocked));
+  app.appendChild(container);
 }
 
 function showSessionEnd(cardsShown?: number): void {
   if (!app || !session) return;
 
   const actualCount = cardsShown ?? session.cardCount;
+
+  // Mark enemy progression if this was a completed enemy session
+  if (session.subgroup === 'enemy' && session.completed) {
+    const justUnlocked = markEnemyUnlocked();
+    if (justUnlocked && sessionSpan) {
+      addSpanEvent(sessionSpan, 'progression.enemy_unlocked', {
+        'progression.trigger': 'enemy_session_complete',
+      });
+    }
+  }
+  const enemyUnlocked = isEnemyUnlocked();
 
   app.innerHTML = '';
   const endScreen = document.createElement('div');
@@ -185,15 +213,12 @@ function showSessionEnd(cardsShown?: number): void {
   labelEl.textContent = session.completed ? 'Session complete' : 'Session stopped';
   endScreen.appendChild(labelEl);
 
-  const currentSubgroup = session?.subgroup ?? 'allied';
-
   // Skip self-assessment if too few cards were shown
   if (actualCount <= SELF_ASSESSMENT_MIN_CARDS) {
     endSessionSpan(actualCount);
     endScreen.appendChild(document.createElement('div')); // spacer
     app.appendChild(endScreen);
-    showComboSummary(actualCount);
-    showNextSessionButtons(currentSubgroup);
+    showSessionEndColumns(enemyUnlocked);
     return;
   }
 
@@ -225,10 +250,9 @@ function showSessionEnd(cardsShown?: number): void {
       // Now end the session span with all attributes
       endSessionSpan(actualCount);
 
-      // Remove the assessment UI and show combo summary
+      // Remove the assessment UI and show two-column layout
       assessmentSection.remove();
-      showComboSummary(actualCount);
-      showNextSessionButtons(currentSubgroup);
+      showSessionEndColumns(enemyUnlocked);
     });
     buttonRow.appendChild(btn);
   }
@@ -436,6 +460,7 @@ function startSession(subgroup: GuildSubgroup = "allied", startedFrom: string = 
     'session.started_from': startedFrom,
     'session.welcome_dwell_ms': welcomeDwellMs,
     'session.self_assessment_min_cards': SELF_ASSESSMENT_MIN_CARDS,
+    'session.enemy_unlocked': isEnemyUnlocked(),
     'app.version': APP_VERSION,
     'welcome.render_mode': 'static_html',
   });
