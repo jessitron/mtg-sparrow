@@ -11,7 +11,7 @@ import {
   ADVANCE_DELAY_MS,
 } from './session';
 import { colorEmojiMap, alliedGuilds, enemyGuilds, ColorCombo } from './data/combos';
-import { isEnemyUnlocked, markEnemyUnlocked, hasCompletedSubgroup, markSubgroupCompleted } from './progression';
+import { isSubgroupUnlocked, markSubgroupUnlocked, hasCompletedSubgroup, markSubgroupCompleted } from './progression';
 import { Span } from '@opentelemetry/api';
 
 export const APP_VERSION = '0.9.2';
@@ -392,30 +392,42 @@ function wireEnemyHover(col: HTMLElement, svg: SVGSVGElement, onActivate?: () =>
   return wireColorWheelHover(col, svg, enemyPairs, 'enemy-line', 'crest-image-enemy', onActivate);
 }
 
-function buildAlliedColumn(onActivate: () => void): [HTMLElement, () => void] {
+function buildAlliedColumn(unlocked: boolean, onActivate: () => void): [HTMLElement, () => void] {
   const col = document.createElement('div');
   col.classList.add('guild-column', 'guild-column--allied');
 
-  const header = document.createElement('h2');
-  header.classList.add('guild-column-header');
-  header.textContent = 'Allied Guilds';
-  col.appendChild(header);
+  const showContent = unlocked || hasCompletedSubgroup('allied');
+  if (!showContent) {
+    col.classList.add('guild-column--locked');
+  }
 
-  const explanation = document.createElement('p');
-  explanation.classList.add('guild-column-explanation');
-  explanation.textContent = "Magic's five colors form a circle: ☀️ 💧 💀 🔥 🌿. Allied guilds are pairs of neighboring colors — colors that share philosophy and overlap in values. Natural partnerships, built on common ground.";
-  col.appendChild(explanation);
+  let clearSelection = () => {};
 
-  const svg = buildAlliedColorWheel();
-  col.appendChild(svg);
+  if (showContent) {
+    const header = document.createElement('h2');
+    header.classList.add('guild-column-header');
+    header.textContent = 'Allied Guilds';
+    col.appendChild(header);
 
-  col.appendChild(buildGuildList(alliedGuilds));
+    const explanation = document.createElement('p');
+    explanation.classList.add('guild-column-explanation');
+    explanation.textContent = "Magic's five colors form a circle: ☀️ 💧 💀 🔥 🌿. Allied guilds are pairs of neighboring colors — colors that share philosophy and overlap in values. Natural partnerships, built on common ground.";
+    col.appendChild(explanation);
 
-  // Wire bidirectional hover after both SVG and list are in the DOM
-  const clearSelection = wireAlliedHover(col, svg, onActivate);
+    const svg = buildAlliedColorWheel();
+    col.appendChild(svg);
+
+    col.appendChild(buildGuildList(alliedGuilds));
+
+    // Wire bidirectional hover after both SVG and list are in the DOM
+    clearSelection = wireAlliedHover(col, svg, onActivate);
+  }
 
   const btn = document.createElement('button');
   btn.classList.add('next-session-button', 'guild-column-button');
+  if (!showContent) {
+    btn.classList.add('next-session-button--primary');
+  }
   btn.textContent = hasCompletedSubgroup('allied') ? 'Practice allied guilds' : 'Learn allied guilds';
   btn.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
@@ -472,14 +484,14 @@ function buildEnemyColumn(unlocked: boolean, onActivate: () => void): [HTMLEleme
   return [col, clearSelection];
 }
 
-function showSessionEndColumns(enemyUnlocked: boolean): void {
+function showSessionEndColumns(alliedUnlocked: boolean, enemyUnlocked: boolean): void {
   if (!app) return;
 
   // Placeholders for cross-column clear functions; filled in after both columns are built
   let clearAllied = () => {};
   let clearEnemy = () => {};
 
-  const [alliedCol, clearAlliedFn] = buildAlliedColumn(() => clearEnemy());
+  const [alliedCol, clearAlliedFn] = buildAlliedColumn(alliedUnlocked, () => clearEnemy());
   const [enemyCol, clearEnemyFn] = buildEnemyColumn(enemyUnlocked, () => clearAllied());
 
   clearAllied = clearAlliedFn;
@@ -506,12 +518,12 @@ function showSessionEnd(cardsShown?: number): void {
 
   const actualCount = cardsShown ?? session.cardCount;
 
-  // Mark enemy progression if this was a completed enemy session
-  if (session.subgroup === 'enemy' && session.completed) {
-    const justUnlocked = markEnemyUnlocked();
+  // Mark subgroup as unlocked if this was a completed session
+  if (session.completed) {
+    const justUnlocked = markSubgroupUnlocked(session.subgroup);
     if (justUnlocked && sessionSpan) {
-      addSpanEvent(sessionSpan, 'progression.enemy_unlocked', {
-        'progression.trigger': 'enemy_session_complete',
+      addSpanEvent(sessionSpan, 'progression.subgroup_unlocked', {
+        'progression.subgroup': session.subgroup,
       });
     }
   }
@@ -519,7 +531,8 @@ function showSessionEnd(cardsShown?: number): void {
   // Mark subgroup as completed when the session ends (completed or stopped after seeing cards)
   markSubgroupCompleted(session.subgroup);
 
-  const enemyUnlocked = isEnemyUnlocked();
+  const alliedUnlocked = isSubgroupUnlocked('allied');
+  const enemyUnlocked = isSubgroupUnlocked('enemy');
 
   app.innerHTML = '';
   const endScreen = document.createElement('div');
@@ -528,7 +541,7 @@ function showSessionEnd(cardsShown?: number): void {
   // Skip self-assessment if too few cards were shown — go straight to guild columns
   if (actualCount <= SELF_ASSESSMENT_MIN_CARDS) {
     endSessionSpan(actualCount);
-    showSessionEndColumns(enemyUnlocked);
+    showSessionEndColumns(alliedUnlocked, enemyUnlocked);
     return;
   }
 
@@ -574,7 +587,7 @@ function showSessionEnd(cardsShown?: number): void {
       assessmentSection.remove();
       countEl.remove();
       labelEl.remove();
-      showSessionEndColumns(enemyUnlocked);
+      showSessionEndColumns(alliedUnlocked, enemyUnlocked);
     });
     buttonRow.appendChild(btn);
   }
@@ -787,7 +800,7 @@ function startSession(subgroup: GuildSubgroup = "allied", startedFrom: string = 
     'session.started_from': startedFrom,
     'session.welcome_dwell_ms': welcomeDwellMs,
     'session.self_assessment_min_cards': SELF_ASSESSMENT_MIN_CARDS,
-    'session.enemy_unlocked': isEnemyUnlocked(),
+    'session.enemy_unlocked': isSubgroupUnlocked('enemy'),
     'app.version': APP_VERSION,
     'welcome.render_mode': 'static_html',
   });
@@ -906,7 +919,7 @@ document.addEventListener('DOMContentLoaded', () => {
       (window as any).stopManaGas();
     }
     app.innerHTML = '';
-    showSessionEndColumns(isEnemyUnlocked());
+    showSessionEndColumns(isSubgroupUnlocked('allied'), isSubgroupUnlocked('enemy'));
     return;
   }
 
