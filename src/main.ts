@@ -81,6 +81,7 @@ function buildGuildList(guilds: ColorCombo[]): HTMLElement {
   for (const guild of guilds) {
     const li = document.createElement('li');
     li.classList.add('guild-column-item');
+    li.dataset.guildId = guild.id;
 
     const pips = document.createElement('span');
     pips.classList.add('combo-summary-pips');
@@ -129,6 +130,22 @@ const alliedPairs: [string, string][] = [
   ['green', 'white'],
 ];
 
+// Maps node color id → color code, used for guild lookup
+const colorNodeToCode: Record<string, string> = {
+  white: 'W',
+  blue:  'U',
+  black: 'B',
+  red:   'R',
+  green: 'G',
+};
+
+// Maps sorted color-code pair (e.g. "UW") → guild id
+const colorPairToGuildId: Record<string, string> = {};
+for (const guild of alliedGuilds) {
+  const key = [...guild.colors].sort().join('');
+  colorPairToGuildId[key] = guild.id;
+}
+
 function buildAlliedColorWheel(): SVGSVGElement {
   const svg = document.createElementNS(SVG_NS, 'svg') as SVGSVGElement;
   svg.setAttribute('viewBox', '0 0 400 400');
@@ -142,19 +159,39 @@ function buildAlliedColorWheel(): SVGSVGElement {
 
     const lineLen = Math.hypot(b.cx - a.cx, b.cy - a.cy);
 
-    const line = document.createElementNS(SVG_NS, 'line');
-    line.setAttribute('id', `line-${aId}-${bId}`);
-    line.classList.add('ally-line');
-    line.setAttribute('x1', String(a.cx));
-    line.setAttribute('y1', String(a.cy));
-    line.setAttribute('x2', String(b.cx));
-    line.setAttribute('y2', String(b.cy));
-    line.setAttribute('stroke', '#c8b88a');
-    line.setAttribute('stroke-width', '2');
-    line.setAttribute('opacity', '0.75');
-    line.setAttribute('stroke-dasharray', String(lineLen));
-    line.setAttribute('stroke-dashoffset', '0');
-    svg.appendChild(line);
+    // Wrap visible line + hit-area line in a group
+    const lineGroup = document.createElementNS(SVG_NS, 'g');
+    lineGroup.setAttribute('id', `line-${aId}-${bId}`);
+    lineGroup.classList.add('ally-line');
+
+    // Invisible wide hit-area line (rendered first so it's below)
+    const hitLine = document.createElementNS(SVG_NS, 'line');
+    hitLine.classList.add('ally-line-hit');
+    hitLine.setAttribute('x1', String(a.cx));
+    hitLine.setAttribute('y1', String(a.cy));
+    hitLine.setAttribute('x2', String(b.cx));
+    hitLine.setAttribute('y2', String(b.cy));
+    hitLine.setAttribute('stroke', 'transparent');
+    hitLine.setAttribute('stroke-width', '16');
+    hitLine.setAttribute('pointer-events', 'stroke');
+    lineGroup.appendChild(hitLine);
+
+    // Visible line
+    const visLine = document.createElementNS(SVG_NS, 'line');
+    visLine.classList.add('ally-line-vis');
+    visLine.setAttribute('x1', String(a.cx));
+    visLine.setAttribute('y1', String(a.cy));
+    visLine.setAttribute('x2', String(b.cx));
+    visLine.setAttribute('y2', String(b.cy));
+    visLine.setAttribute('stroke', '#c8b88a');
+    visLine.setAttribute('stroke-width', '2');
+    visLine.setAttribute('opacity', '0.75');
+    visLine.setAttribute('stroke-dasharray', String(lineLen));
+    visLine.setAttribute('stroke-dashoffset', '0');
+    visLine.setAttribute('pointer-events', 'none');
+    lineGroup.appendChild(visLine);
+
+    svg.appendChild(lineGroup);
   }
 
   // Draw mana symbol images on top
@@ -178,6 +215,48 @@ function buildAlliedColorWheel(): SVGSVGElement {
   return svg;
 }
 
+function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement): void {
+  // Helper: set/clear highlight class on all related elements for a given pair
+  function setHighlight(aId: string, bId: string, on: boolean): void {
+    const lineEl = svg.getElementById(`line-${aId}-${bId}`);
+    const nodeA  = svg.getElementById(`node-${aId}`);
+    const nodeB  = svg.getElementById(`node-${bId}`);
+    const guildId = colorPairToGuildId[[colorNodeToCode[aId], colorNodeToCode[bId]].sort().join('')];
+    const listItem = col.querySelector<HTMLElement>(`[data-guild-id="${guildId}"]`);
+
+    if (on) {
+      lineEl?.classList.add('highlight');
+      nodeA?.classList.add('highlight');
+      nodeB?.classList.add('highlight');
+      listItem?.classList.add('highlight');
+      col.classList.add('guild-column--has-highlight');
+    } else {
+      lineEl?.classList.remove('highlight');
+      nodeA?.classList.remove('highlight');
+      nodeB?.classList.remove('highlight');
+      listItem?.classList.remove('highlight');
+      col.classList.remove('guild-column--has-highlight');
+    }
+  }
+
+  // Wire hover on each line group
+  for (const [aId, bId] of alliedPairs) {
+    const lineEl = svg.getElementById(`line-${aId}-${bId}`);
+    if (!lineEl) continue;
+    lineEl.addEventListener('mouseenter', () => setHighlight(aId, bId, true));
+    lineEl.addEventListener('mouseleave', () => setHighlight(aId, bId, false));
+  }
+
+  // Wire hover on each guild list item
+  for (const [aId, bId] of alliedPairs) {
+    const guildId = colorPairToGuildId[[colorNodeToCode[aId], colorNodeToCode[bId]].sort().join('')];
+    const listItem = col.querySelector<HTMLElement>(`[data-guild-id="${guildId}"]`);
+    if (!listItem) continue;
+    listItem.addEventListener('mouseenter', () => setHighlight(aId, bId, true));
+    listItem.addEventListener('mouseleave', () => setHighlight(aId, bId, false));
+  }
+}
+
 function buildAlliedColumn(): HTMLElement {
   const col = document.createElement('div');
   col.classList.add('guild-column', 'guild-column--allied');
@@ -192,9 +271,13 @@ function buildAlliedColumn(): HTMLElement {
   explanation.textContent = "Magic's five colors form a circle: ☀️ 💧 💀 🔥 🌿. Allied guilds are pairs of neighboring colors — colors that share philosophy and overlap in values. Natural partnerships, built on common ground.";
   col.appendChild(explanation);
 
-  col.appendChild(buildAlliedColorWheel());
+  const svg = buildAlliedColorWheel();
+  col.appendChild(svg);
 
   col.appendChild(buildGuildList(alliedGuilds));
+
+  // Wire bidirectional hover after both SVG and list are in the DOM
+  wireAlliedHover(col, svg);
 
   const btn = document.createElement('button');
   btn.classList.add('next-session-button', 'guild-column-button');

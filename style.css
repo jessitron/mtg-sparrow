@@ -368,9 +368,53 @@ body {
 }
 
 .allied-color-wheel .ally-line {
-  stroke: #c8b88a;
-  stroke-width: 2;
-  opacity: 0.75;
+  cursor: pointer;
+}
+
+.allied-color-wheel .ally-line-vis {
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.allied-color-wheel .color-node {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Dimming when any element is highlighted */
+.guild-column--has-highlight .ally-line:not(.highlight) .ally-line-vis {
+  opacity: 0.2;
+}
+
+.guild-column--has-highlight .allied-color-wheel .color-node:not(.highlight) {
+  opacity: 0.3;
+}
+
+.guild-column--has-highlight .guild-column-item:not(.highlight) {
+  opacity: 0.35;
+}
+
+/* Highlighted states */
+.ally-line.highlight .ally-line-vis {
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 4px #e8d8aa);
+}
+
+.color-node.highlight {
+  transform: scale(1.15);
+  opacity: 1 !important;
+}
+
+.guild-column-item {
+  transition: background 0.2s ease, opacity 0.2s ease;
+  border-radius: 6px;
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+}
+
+.guild-column-item.highlight {
+  background: rgba(200, 160, 60, 0.18);
+  opacity: 1 !important;
 }
 
 .welcome {
