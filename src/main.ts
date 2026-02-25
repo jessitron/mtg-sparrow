@@ -53,6 +53,8 @@ type AssessmentOption = {
   value: string;
 };
 
+const SELF_ASSESSMENT_MIN_CARDS = 3;
+
 const ASSESSMENT_OPTIONS: AssessmentOption[] = [
   { label: 'Still learning', value: 'still_learning' },
   { label: 'Getting there', value: 'getting_there' },
@@ -185,8 +187,8 @@ function showSessionEnd(cardsShown?: number): void {
 
   const currentSubgroup = session?.subgroup ?? 'allied';
 
-  // Skip self-assessment if 3 or fewer cards were shown
-  if (actualCount <= 3) {
+  // Skip self-assessment if too few cards were shown
+  if (actualCount <= SELF_ASSESSMENT_MIN_CARDS) {
     endSessionSpan(actualCount);
     endScreen.appendChild(document.createElement('div')); // spacer
     app.appendChild(endScreen);
@@ -433,6 +435,7 @@ function startSession(subgroup: GuildSubgroup = "allied", startedFrom: string = 
     'session.card_count': session.cardCount,
     'session.started_from': startedFrom,
     'session.welcome_dwell_ms': welcomeDwellMs,
+    'session.self_assessment_min_cards': SELF_ASSESSMENT_MIN_CARDS,
     'app.version': APP_VERSION,
     'welcome.render_mode': 'static_html',
   });
