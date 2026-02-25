@@ -874,6 +874,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Dev convenience: ?screen=end jumps straight to the session end screen
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('screen') === 'end') {
+    if (typeof (window as any).stopManaGas === 'function') {
+      (window as any).stopManaGas();
+    }
+    app.innerHTML = '';
+    showSessionEndColumns(isEnemyUnlocked());
+    return;
+  }
+
   welcomeScreenLoadTime = Date.now();
   document.getElementById('start-button')?.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
