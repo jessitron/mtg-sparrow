@@ -212,10 +212,26 @@ function buildAlliedColorWheel(): SVGSVGElement {
     svg.appendChild(g);
   }
 
+  // Guild crest image — rendered after nodes so it appears on top
+  const crestImg = document.createElementNS(SVG_NS, 'image');
+  crestImg.setAttribute('id', 'crest-image');
+  crestImg.setAttribute('x', '150');
+  crestImg.setAttribute('y', '150');
+  crestImg.setAttribute('width', '100');
+  crestImg.setAttribute('height', '100');
+  crestImg.setAttribute('opacity', '0');
+  crestImg.setAttribute('pointer-events', 'none');
+  svg.appendChild(crestImg);
+
   return svg;
 }
 
 function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement): void {
+  // Track tap-selected pair for mobile (null = nothing selected)
+  let selectedPair: [string, string] | null = null;
+
+  const crestImg = svg.getElementById('crest-image') as SVGImageElement | null;
+
   // Helper: set/clear highlight class on all related elements for a given pair
   function setHighlight(aId: string, bId: string, on: boolean): void {
     const lineEl = svg.getElementById(`line-${aId}-${bId}`);
@@ -230,31 +246,87 @@ function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement): void {
       nodeB?.classList.add('highlight');
       listItem?.classList.add('highlight');
       col.classList.add('guild-column--has-highlight');
+      if (crestImg) {
+        const src = `images/${guildId}.png`;
+        crestImg.setAttributeNS(XLINK_NS, 'href', src);
+        crestImg.setAttribute('href', src);
+        crestImg.setAttribute('opacity', '1');
+      }
     } else {
       lineEl?.classList.remove('highlight');
       nodeA?.classList.remove('highlight');
       nodeB?.classList.remove('highlight');
       listItem?.classList.remove('highlight');
       col.classList.remove('guild-column--has-highlight');
+      if (crestImg) {
+        crestImg.setAttribute('opacity', '0');
+      }
     }
   }
 
-  // Wire hover on each line group
+  // Helper: handle a click/tap selecting or deselecting a pair
+  function handlePairClick(aId: string, bId: string): void {
+    if (selectedPair && selectedPair[0] === aId && selectedPair[1] === bId) {
+      // Same pair tapped again — deselect
+      selectedPair = null;
+      setHighlight(aId, bId, false);
+    } else {
+      // Deselect previous if any
+      if (selectedPair) {
+        setHighlight(selectedPair[0], selectedPair[1], false);
+      }
+      selectedPair = [aId, bId];
+      setHighlight(aId, bId, true);
+    }
+  }
+
+  // Wire hover and click on each line group
   for (const [aId, bId] of alliedPairs) {
     const lineEl = svg.getElementById(`line-${aId}-${bId}`);
     if (!lineEl) continue;
-    lineEl.addEventListener('mouseenter', () => setHighlight(aId, bId, true));
-    lineEl.addEventListener('mouseleave', () => setHighlight(aId, bId, false));
+    lineEl.addEventListener('mouseenter', () => {
+      if (selectedPair) return; // don't override tap selection
+      setHighlight(aId, bId, true);
+    });
+    lineEl.addEventListener('mouseleave', () => {
+      if (selectedPair) return; // don't clear tap selection
+      setHighlight(aId, bId, false);
+    });
+    lineEl.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      handlePairClick(aId, bId);
+    });
   }
 
-  // Wire hover on each guild list item
+  // Wire hover and click on each guild list item
   for (const [aId, bId] of alliedPairs) {
     const guildId = colorPairToGuildId[[colorNodeToCode[aId], colorNodeToCode[bId]].sort().join('')];
     const listItem = col.querySelector<HTMLElement>(`[data-guild-id="${guildId}"]`);
     if (!listItem) continue;
-    listItem.addEventListener('mouseenter', () => setHighlight(aId, bId, true));
-    listItem.addEventListener('mouseleave', () => setHighlight(aId, bId, false));
+    listItem.addEventListener('mouseenter', () => {
+      if (selectedPair) return;
+      setHighlight(aId, bId, true);
+    });
+    listItem.addEventListener('mouseleave', () => {
+      if (selectedPair) return;
+      setHighlight(aId, bId, false);
+    });
+    listItem.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      handlePairClick(aId, bId);
+    });
   }
+
+  // Click on the column outside a line or guild item deselects
+  col.addEventListener('click', (e: Event) => {
+    if (!selectedPair) return;
+    const target = e.target as Element | null;
+    if (!target) return;
+    // If click landed inside an ally-line group or a [data-guild-id] item, ignore (already handled above)
+    if (target.closest('.ally-line') || target.closest('[data-guild-id]')) return;
+    setHighlight(selectedPair[0], selectedPair[1], false);
+    selectedPair = null;
+  });
 }
 
 function buildAlliedColumn(): HTMLElement {

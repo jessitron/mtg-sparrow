@@ -422,6 +422,11 @@ body {
   opacity: 1 !important;
 }
 
+/* Guild crest in center of wheel */
+#crest-image {
+  transition: opacity 150ms ease;
+}
+
 .welcome {
   text-align: center;
   display: flex;
