@@ -265,11 +265,14 @@ function buildEnemyColorWheel(): SVGSVGElement {
 
 /**
  * Wire hover, click, and tap-select behavior for a color wheel.
+ * Returns a clearSelection function that can be called by the other column to
+ * deselect any active selection (used for cross-column deselect).
  * @param col - the guild column element containing both the SVG and list
  * @param svg - the color wheel SVG element
  * @param pairs - the color pairs corresponding to lines in the SVG
  * @param lineClass - CSS class for line groups (e.g. 'ally-line')
  * @param crestId - id of the crest image element within the SVG
+ * @param onActivate - callback invoked when a selection is made (used to clear the sibling column)
  */
 function wireColorWheelHover(
   col: HTMLElement,
@@ -277,7 +280,8 @@ function wireColorWheelHover(
   pairs: [string, string][],
   lineClass: string,
   crestId: string,
-): void {
+  onActivate: () => void = () => {},
+): () => void {
   // Track tap-selected pair for mobile (null = nothing selected)
   let selectedPair: [string, string] | null = null;
 
@@ -315,6 +319,13 @@ function wireColorWheelHover(
     }
   }
 
+  // Clear any active selection in this wheel — callable externally for cross-column deselect
+  function clearSelection(): void {
+    if (!selectedPair) return;
+    setHighlight(selectedPair[0], selectedPair[1], false);
+    selectedPair = null;
+  }
+
   // Helper: handle a click/tap selecting or deselecting a pair
   function handlePairClick(aId: string, bId: string): void {
     if (selectedPair && selectedPair[0] === aId && selectedPair[1] === bId) {
@@ -322,6 +333,8 @@ function wireColorWheelHover(
       selectedPair = null;
       setHighlight(aId, bId, false);
     } else {
+      // Notify sibling column to clear its selection before we set ours
+      onActivate();
       // Deselect previous if any
       if (selectedPair) {
         setHighlight(selectedPair[0], selectedPair[1], false);
@@ -368,27 +381,30 @@ function wireColorWheelHover(
     });
   }
 
-  // Click on the column outside a line or guild item deselects
+  // Click anywhere inside this column that isn't a line or guild item:
+  // clears sibling column's selection (via onActivate) and clears this column's selection
   col.addEventListener('click', (e: Event) => {
-    if (!selectedPair) return;
     const target = e.target as Element | null;
     if (!target) return;
-    // If click landed inside a line group or a [data-guild-id] item, ignore (already handled above)
+    // If click landed inside a line group or a [data-guild-id] item, ignore (handled by item listeners)
     if (target.closest(`.${lineClass}`) || target.closest('[data-guild-id]')) return;
-    setHighlight(selectedPair[0], selectedPair[1], false);
-    selectedPair = null;
+    // A non-item click in this column: clear sibling, then clear own selection
+    onActivate();
+    clearSelection();
   });
+
+  return clearSelection;
 }
 
-function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement): void {
-  wireColorWheelHover(col, svg, alliedPairs, 'ally-line', 'crest-image');
+function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement, onActivate?: () => void): () => void {
+  return wireColorWheelHover(col, svg, alliedPairs, 'ally-line', 'crest-image', onActivate);
 }
 
-function wireEnemyHover(col: HTMLElement, svg: SVGSVGElement): void {
-  wireColorWheelHover(col, svg, enemyPairs, 'enemy-line', 'crest-image-enemy');
+function wireEnemyHover(col: HTMLElement, svg: SVGSVGElement, onActivate?: () => void): () => void {
+  return wireColorWheelHover(col, svg, enemyPairs, 'enemy-line', 'crest-image-enemy', onActivate);
 }
 
-function buildAlliedColumn(): HTMLElement {
+function buildAlliedColumn(onActivate: () => void): [HTMLElement, () => void] {
   const col = document.createElement('div');
   col.classList.add('guild-column', 'guild-column--allied');
 
@@ -408,7 +424,7 @@ function buildAlliedColumn(): HTMLElement {
   col.appendChild(buildGuildList(alliedGuilds));
 
   // Wire bidirectional hover after both SVG and list are in the DOM
-  wireAlliedHover(col, svg);
+  const clearSelection = wireAlliedHover(col, svg, onActivate);
 
   const btn = document.createElement('button');
   btn.classList.add('next-session-button', 'guild-column-button');
@@ -419,10 +435,10 @@ function buildAlliedColumn(): HTMLElement {
   });
   col.appendChild(btn);
 
-  return col;
+  return [col, clearSelection];
 }
 
-function buildEnemyColumn(unlocked: boolean): HTMLElement {
+function buildEnemyColumn(unlocked: boolean, onActivate: () => void): [HTMLElement, () => void] {
   const col = document.createElement('div');
   col.classList.add('guild-column', 'guild-column--enemy');
   // Show full content if the user has practiced enemy guilds at all
@@ -430,6 +446,8 @@ function buildEnemyColumn(unlocked: boolean): HTMLElement {
   if (!showContent) {
     col.classList.add('guild-column--locked');
   }
+
+  let clearSelection = () => {};
 
   if (showContent) {
     const header = document.createElement('h2');
@@ -448,7 +466,7 @@ function buildEnemyColumn(unlocked: boolean): HTMLElement {
     col.appendChild(buildGuildList(enemyGuilds));
 
     // Wire bidirectional hover after both SVG and list are in the DOM
-    wireEnemyHover(col, svg);
+    clearSelection = wireEnemyHover(col, svg, onActivate);
   }
 
   const btn = document.createElement('button');
@@ -463,16 +481,35 @@ function buildEnemyColumn(unlocked: boolean): HTMLElement {
   });
   col.appendChild(btn);
 
-  return col;
+  return [col, clearSelection];
 }
 
 function showSessionEndColumns(enemyUnlocked: boolean): void {
   if (!app) return;
 
+  // Placeholders for cross-column clear functions; filled in after both columns are built
+  let clearAllied = () => {};
+  let clearEnemy = () => {};
+
+  const [alliedCol, clearAlliedFn] = buildAlliedColumn(() => clearEnemy());
+  const [enemyCol, clearEnemyFn] = buildEnemyColumn(enemyUnlocked, () => clearAllied());
+
+  clearAllied = clearAlliedFn;
+  clearEnemy = clearEnemyFn;
+
   const container = document.createElement('div');
   container.classList.add('guild-columns');
-  container.appendChild(buildAlliedColumn());
-  container.appendChild(buildEnemyColumn(enemyUnlocked));
+  container.appendChild(alliedCol);
+  container.appendChild(enemyCol);
+
+  // Clicking outside any column (on the page background) clears both selections
+  document.addEventListener('click', (e: Event) => {
+    const target = e.target as Element | null;
+    if (target && target.closest('.guild-column')) return;
+    clearAllied();
+    clearEnemy();
+  });
+
   app.appendChild(container);
 }
 
