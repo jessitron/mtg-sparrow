@@ -4,7 +4,7 @@ A perceptual learning app for Magic: The Gathering color combination names — b
 
 Online: https://jessitron.github.io/mtg-sparrow/
 
-**Current version:** v0.8.0
+**Current version:** v0.9.0
 
 ---
 
@@ -31,6 +31,7 @@ There is no scoring, no pass/fail, no timer. Say the name aloud — that's the w
 - Guild subgroups: sessions begin with the 5 allied guilds (Azorius, Dimir, Rakdos, Gruul, Selesnya)
 - Two-column educational session end screen: Allied column always visible; Enemy column unlocks after any enemy practice
 - Interactive SVG color wheels: allied pentagon (Arc 8) and enemy star pattern (Arc 9) with bidirectional hover between wheel and guild list
+- Gear icon settings panel: version display, Honeycomb trace link, and single-tap progress reset
 - 10 guild names (two-color combinations) displayed as standard mana symbols
 - 50-card sessions with auto-reveal (2.5s) and auto-advance (1.5s)
 - Early tap/spacebar to skip ahead
@@ -119,7 +120,7 @@ Every session produces a trace in Honeycomb:
 - **Card spans** (children): `card.combo_id`, `card.combo_name`, `card.colors`, `card.tier`, `card.number`, `card.dwell_time_ms`, `card.advanced_early`
 - **Resource**: `service.name = "sparrow-deck"`, `service.version`, `browser.language`, `browser.platform`
 
-After a session starts, the footer shows a direct link to the session trace in Honeycomb.
+After a session starts, the settings panel (gear icon) shows a direct link to the session trace in Honeycomb.
 
 **Honeycomb environment**: `modernity` / dataset: `sparrow-deck`
 
@@ -129,7 +130,7 @@ After a session starts, the footer shows a direct link to the session trace in H
 
 Key decisions are recorded in:
 
-- `small-arc-studios/roles/librarian/notes/decision-log.md` — full decision history (DEC-001 through DEC-046)
+- `small-arc-studios/roles/librarian/notes/decision-log.md` — full decision history (DEC-001 through DEC-049)
 - `docs/PROPOSAL.md` — original proposal with client annotations
 - `small-arc-studios/roles/librarian/notes/arc*-record.md` — per-arc records
 
@@ -156,6 +157,7 @@ Notable decisions:
 | 8   | 0.8.0   | Session End Screen Redesign      | COMPLETE |
 | 8+  | 0.8.0   | Allied Color Wheel               | COMPLETE |
 | 9   | 0.8.0   | Enemy Color Wheel (Star Pattern) | COMPLETE |
+| 10  | 0.9.0   | Settings (Gear Icon + Panel)     | COMPLETE |
 
 ---
 

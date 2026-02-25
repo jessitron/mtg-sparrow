@@ -373,6 +373,27 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Rationale**: esbuild was chosen for its simplicity (DEC-009). The project has no unmet needs that justify a bundler change. Migrating would add tooling overhead with no user benefit.
 - **Note**: Also recorded in project memory to persist across sessions.
 
+## DEC-047: Gear Icon Replaces Version Footer
+- **Date**: 2026-02-25
+- **Decision**: The `<footer id="app-version">` is removed. A gear icon button (`id="settings-btn"`) takes its place. Version info and the Honeycomb trace link are moved into the settings panel.
+- **Context**: Arc 10 (Settings). The footer had quietly accumulated version display and trace link responsibilities with no clear structure. A dedicated settings panel gives each element appropriate affordance.
+- **Alternatives rejected**: Keeping the footer and adding a settings panel alongside it — would duplicate the trace link and create two places to look for version info.
+- **Rationale**: Single access point for operational metadata. Cleaner UI; no persistent footer cluttering the session view.
+
+## DEC-048: Reset Is Single-Tap, No Confirmation
+- **Date**: 2026-02-25
+- **Decision**: "Reset progress" in the settings panel takes immediate effect on tap. No confirmation dialog.
+- **Context**: The app stores no account data, no cloud state, no irreplaceable user input. The only persistent state is `sparrow-deck.progression` (an unlock flag and a list of completed subgroups). A reset is a deliberate restart.
+- **Alternatives rejected**: Confirmation dialog — adds friction without protecting anything of value. The action is reversible in practice (progress re-accumulates by practicing).
+- **Rationale**: Consistent with DEC-003 (no friction). Deliberate user action; no confirmation needed.
+
+## DEC-049: Settings Panel as Static HTML in index.html
+- **Date**: 2026-02-25
+- **Decision**: The settings panel is authored as static HTML in `index.html` and wired via `DOMContentLoaded`. It is not dynamically constructed in JavaScript.
+- **Context**: Arc 10 (Settings). Following DEC-033 (static content belongs in HTML, dynamic behavior in JS).
+- **Alternatives rejected**: Dynamic DOM construction — introduces the same architectural mistake corrected by DEC-033.
+- **Rationale**: Consistent with established project pattern. Static markup is inspectable, faster to first paint, and keeps JavaScript focused on behavior.
+
 ---
 
 ## Planned Arcs
@@ -406,10 +427,16 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Record**: `arc9-record.md`
 - **Decisions**: DEC-043, DEC-044, DEC-045, DEC-046
 
-### Arc 10: Candidates
-- **Card Images** (DEC-035) — replace/augment mana pips with real Magic card art; originally planned as Arc 8, now deferred twice
-- **Settings page** with localStorage reset (DEC-025)
+### Arc 10: Settings (User Arc) — COMPLETE (v0.9.0)
+- **Delivered**: 2026-02-25
+- **Outcome**: Gear icon replaces version footer. Settings panel overlay provides version display, Honeycomb trace link (session-gated), and single-tap progress reset. `settings.reset_progress` telemetry event on reset. APP_VERSION bumped to 0.9.0. 34/34 checks PASS.
+- **Record**: `arc10-record.md`
+- **Decisions**: DEC-047, DEC-048, DEC-049
+
+### Arc 11: Candidates
+- **Card Images** (DEC-035) — replace/augment mana pips with real Magic card art; originally planned as Arc 8, now deferred to Arc 11+
 - **Visual differentiation** of allied vs enemy wheel lines (follow-on to DEC-044)
+- **Shards & Wedges tier** — three-color combinations (DEC-005)
 
 ---
 
