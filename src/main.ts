@@ -183,6 +183,18 @@ function showSessionEnd(cardsShown?: number): void {
   labelEl.textContent = session.completed ? 'Session complete' : 'Session stopped';
   endScreen.appendChild(labelEl);
 
+  const currentSubgroup = session?.subgroup ?? 'allied';
+
+  // Skip self-assessment if 3 or fewer cards were shown
+  if (actualCount <= 3) {
+    endSessionSpan(actualCount);
+    endScreen.appendChild(document.createElement('div')); // spacer
+    app.appendChild(endScreen);
+    showComboSummary(actualCount);
+    showNextSessionButtons(currentSubgroup);
+    return;
+  }
+
   // Self-assessment prompt
   const assessmentSection = document.createElement('div');
   assessmentSection.classList.add('self-assessment');
@@ -200,9 +212,6 @@ function showSessionEnd(cardsShown?: number): void {
     btn.classList.add('self-assessment-button');
     btn.textContent = option.label;
     btn.addEventListener('click', () => {
-      // Capture subgroup before ending session span
-      const currentSubgroup = session?.subgroup ?? 'allied';
-
       // Record self-assessment on the session span before ending it
       if (sessionSpan) {
         sessionSpan.setAttribute('session.self_assessment', option.value);
