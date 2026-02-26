@@ -15,7 +15,8 @@ fi
 npm run build
 
 # Start serve in background on test port
-npm run serve -- -p "$PORT" &>/tmp/sparrow-test-serve.log &
+# Serve from project root so index.html references dist/bundle.js correctly
+./node_modules/.bin/serve . -p "$PORT" &>/tmp/sparrow-test-serve.log &
 echo $! > "$PID_FILE"
 
 # Wait for server to be ready
