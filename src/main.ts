@@ -519,6 +519,9 @@ function showSessionEnd(cardsShown?: number): void {
   // Leave full-screen quiz mode
   app.classList.remove('app--quiz-active');
 
+  // Remove the floating done-zone (appended to body during session)
+  document.querySelector('.done-zone')?.remove();
+
   const actualCount = cardsShown ?? session.cardCount;
 
   // Mark subgroup as unlocked if this was a completed session
@@ -652,36 +655,74 @@ function showCard(): void {
   paused = false;
   nameRevealed = false;
 
+  // Remove any existing done-zone from a previous card
+  document.querySelector('.done-zone')?.remove();
+
   app.innerHTML = '';
   const card = renderCard(combo);
   app.appendChild(card);
 
-  // Fixed footer bar: card counter on the left, "Done for now" button on the right
-  const footer = document.createElement('div');
-  footer.classList.add('session-footer');
+  // Progress row: pause button and card counter, above the card area
+  const progressRow = document.createElement('div');
+  progressRow.classList.add('progress-row');
 
-  const footerLeft = document.createElement('div');
-  footerLeft.classList.add('footer-left');
+  const pauseBtn = document.createElement('button');
+  pauseBtn.classList.add('control-button');
+  pauseBtn.textContent = 'Pause';
+  pauseBtn.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    paused = !paused;
+    pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+    if (paused) {
+      clearTimers();
+    } else {
+      // Resume: restart reveal if name not shown yet
+      if (!nameRevealed) {
+        revealTimer = setTimeout(() => {
+          revealTimer = null;
+          nameRevealed = true;
+          revealName(card);
+          advanceTimer = setTimeout(() => {
+            advanceTimer = null;
+            goToNextCard(false);
+          }, ADVANCE_DELAY_MS);
+        }, REVEAL_DELAY_MS);
+      } else if (advanceTimer === null) {
+        advanceTimer = setTimeout(() => {
+          advanceTimer = null;
+          goToNextCard(false);
+        }, ADVANCE_DELAY_MS);
+      }
+    }
+  });
+  progressRow.appendChild(pauseBtn);
 
   const progress = document.createElement('span');
   progress.classList.add('progress-counter');
   progress.textContent = `Card ${session.currentIndex + 1} / ${session.cardCount}`;
-  footerLeft.appendChild(progress);
-  footer.appendChild(footerLeft);
+  progressRow.appendChild(progress);
 
-  // "Done for now" button — only shown from card 2 onward
+  app.appendChild(progressRow);
+
+  // Floating "Done for now" zone — fixed at bottom with gradient fade
+  const doneZone = document.createElement('div');
+  doneZone.classList.add('done-zone');
+
+  // "Done for now" button — hidden on card 1, fades in starting on card 2
+  const doneBtn = document.createElement('button');
+  doneBtn.classList.add('done-button');
+  doneBtn.textContent = 'Done for now';
+  doneBtn.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    stopSession();
+  });
+
   if (session.currentIndex >= 1) {
-    const doneBtn = document.createElement('button');
-    doneBtn.classList.add('done-button');
-    doneBtn.textContent = 'Done for now';
-    doneBtn.addEventListener('click', (e: MouseEvent) => {
-      e.stopPropagation();
-      stopSession();
-    });
-    footer.appendChild(doneBtn);
+    doneBtn.classList.add('button-visible');
   }
 
-  app.appendChild(footer);
+  doneZone.appendChild(doneBtn);
+  document.body.appendChild(doneZone);
 
   // Auto-reveal: after REVEAL_DELAY_MS, fade in the name
   revealTimer = setTimeout(() => {

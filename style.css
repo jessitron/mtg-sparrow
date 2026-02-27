@@ -64,10 +64,10 @@ body {
   }
 }
 
-@keyframes doneButtonAppear {
+@keyframes buttonFadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -111,26 +111,16 @@ body {
   opacity: 0;
 }
 
-.session-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 56px;
-  background: rgba(20, 20, 38, 0.95);
-  backdrop-filter: blur(8px);
-  border-top: 1px solid #2a2a44;
+/* Progress row: pause button + card counter, above the card */
+.progress-row {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 1.25rem;
-  z-index: 10;
-}
-
-.footer-left {
-  display: flex;
-  align-items: center;
+  justify-content: flex-start;
   gap: 0.75rem;
+  margin-top: 0.75rem;
+  width: 100%;
+  max-width: 480px;
 }
 
 .progress-counter {
@@ -138,25 +128,64 @@ body {
   color: #888;
 }
 
-.done-button {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #c0b0f0;
-  background: rgba(102, 102, 170, 0.15);
-  border: 1px solid rgba(102, 102, 170, 0.55);
-  border-radius: 8px;
-  padding: 0.45rem 1.1rem;
+.control-button {
+  font-size: 0.75rem;
+  color: #777;
+  background: transparent;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
   cursor: pointer;
+  transition: color 200ms ease, border-color 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.control-button:hover {
+  color: #bbb;
+  border-color: #888;
+}
+
+/* Floating done zone — gradient fade at bottom, centered button */
+.done-zone {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 1.25rem;
+  background: linear-gradient(to top, rgba(15, 15, 30, 0.85) 60%, transparent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.done-button {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #b0a0e0;
+  background: transparent;
+  border: 1px solid rgba(102, 102, 170, 0.6);
+  border-radius: 24px;
+  padding: 0.55rem 1.75rem;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
   transition: background 200ms ease, border-color 200ms ease, color 200ms ease;
   letter-spacing: 0.01em;
   -webkit-tap-highlight-color: transparent;
-  animation: doneButtonAppear 500ms ease forwards;
+}
+
+.done-button.button-visible {
+  animation: buttonFadeIn 600ms ease forwards;
+  pointer-events: auto;
 }
 
 .done-button:hover {
-  background: rgba(102, 102, 170, 0.3);
-  border-color: rgba(150, 150, 210, 0.8);
-  color: #e0d4ff;
+  background: rgba(102, 102, 170, 0.2);
+  border-color: rgba(150, 140, 220, 0.9);
+  color: #d0c4ff;
 }
 
 .done-button:active {
@@ -858,9 +887,9 @@ footer {
   height: clamp(64px, 10vw, 120px);
 }
 
-/* Leave room at the bottom for the fixed session footer */
+/* Leave room at the bottom for the floating done-zone */
 #app.app--quiz-active {
-  padding-bottom: 56px;
+  padding-bottom: 80px;
 }
 
 /* Mobile: stack image above pips/name when screen is narrow */
