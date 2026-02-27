@@ -718,6 +718,11 @@ function showCard(): void {
     });
 
     doneZone.appendChild(doneBtn);
+
+    // Empty spacer to balance the three-column grid and keep Done centered
+    const spacer = document.createElement('div');
+    doneZone.appendChild(spacer);
+
     document.body.appendChild(doneZone);
   } else {
     // Update counter in place on card transitions
