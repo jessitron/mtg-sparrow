@@ -1,4 +1,6 @@
-import { ColorCombo, alliedGuilds, enemyGuilds } from './data/combos';
+import { ColorCombo, CardReference, alliedGuilds, enemyGuilds } from './data/combos';
+
+export type Slide = ColorCombo & { selectedCard?: CardReference };
 
 // Timing constants (all in milliseconds)
 export const SESSION_CARD_COUNT = 50;
@@ -18,16 +20,19 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 /**
- * Build a deck of `count` cards by shuffling the source combos
- * and repeating as needed.
+ * Build a deck of `count` slides by shuffling the source combos
+ * and repeating as needed. Each slide pre-selects a random card image.
  */
-export function buildDeck(combos: ColorCombo[], count: number): ColorCombo[] {
-  const deck: ColorCombo[] = [];
+export function buildDeck(combos: ColorCombo[], count: number): Slide[] {
+  const deck: Slide[] = [];
   while (deck.length < count) {
     const batch = shuffle([...combos]);
-    for (const card of batch) {
+    for (const combo of batch) {
       if (deck.length >= count) break;
-      deck.push(card);
+      const selectedCard = combo.cards && combo.cards.length > 0
+        ? combo.cards[Math.floor(Math.random() * combo.cards.length)]
+        : undefined;
+      deck.push({ ...combo, selectedCard });
     }
   }
   return deck;
@@ -36,7 +41,7 @@ export function buildDeck(combos: ColorCombo[], count: number): ColorCombo[] {
 export type GuildSubgroup = "allied" | "enemy";
 
 export type SessionState = {
-  deck: ColorCombo[];
+  deck: Slide[];
   cardCount: number;
   currentIndex: number;
   completed: boolean;
@@ -56,7 +61,7 @@ export function createSession(subgroup: GuildSubgroup = "allied"): SessionState 
   };
 }
 
-export function currentCard(session: SessionState): ColorCombo {
+export function currentCard(session: SessionState): Slide {
   return session.deck[session.currentIndex];
 }
 
