@@ -516,6 +516,9 @@ function showSessionEndColumns(alliedUnlocked: boolean, enemyUnlocked: boolean):
 function showSessionEnd(cardsShown?: number): void {
   if (!app || !session) return;
 
+  // Leave full-screen quiz mode
+  app.classList.remove('app--quiz-active');
+
   const actualCount = cardsShown ?? session.cardCount;
 
   // Mark subgroup as unlocked if this was a completed session
@@ -622,6 +625,9 @@ function stopSession(): void {
 
 function showCard(): void {
   if (!app || !session) return;
+
+  // Expand to full-screen quiz mode
+  app.classList.add('app--quiz-active');
 
   const combo = currentCard(session);
   cardShowTime = Date.now();

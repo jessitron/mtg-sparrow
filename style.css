@@ -47,6 +47,13 @@ body {
   padding: 1rem;
 }
 
+/* During an active quiz session, the app fills the full viewport width */
+#app.app--quiz-active {
+  max-width: 100%;
+  padding: 1rem;
+  justify-content: flex-start;
+}
+
 @keyframes cardEnter {
   from {
     opacity: 0;
@@ -758,5 +765,103 @@ footer {
   }
   .mtg-card-img {
     width: 140px;
+  }
+}
+
+/* Full-screen quiz layout: card expands to fill the viewport */
+#app.app--quiz-active {
+  gap: 0;
+}
+
+#app.app--quiz-active .card {
+  flex: 1;
+  width: 100%;
+  align-self: stretch;
+  border-radius: 0;
+  padding: 1.5rem;
+  justify-content: center;
+}
+
+/* Full-screen side-by-side layout: image grows, quiz column scales up */
+#app.app--quiz-active .card--with-image {
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
+  height: 100%;
+  align-items: center;
+}
+
+#app.app--quiz-active .card-image-column {
+  height: 100%;
+  justify-content: center;
+}
+
+#app.app--quiz-active .mtg-card-img {
+  width: auto;
+  max-width: min(45vw, 360px);
+  max-height: calc(100vh - 8rem);
+  object-fit: contain;
+}
+
+#app.app--quiz-active .card-quiz-column {
+  gap: 2rem;
+}
+
+#app.app--quiz-active .card-name {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+}
+
+#app.app--quiz-active .card-pips .mana-pip {
+  width: clamp(48px, 7vw, 96px);
+  height: clamp(48px, 7vw, 96px);
+}
+
+/* No-image full-screen: center the pips and name */
+#app.app--quiz-active .card:not(.card--with-image) {
+  gap: 2rem;
+}
+
+#app.app--quiz-active .card:not(.card--with-image) .card-name {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+#app.app--quiz-active .card:not(.card--with-image) .card-pips .mana-pip {
+  width: clamp(64px, 10vw, 120px);
+  height: clamp(64px, 10vw, 120px);
+}
+
+/* Progress row stays at the bottom, compact */
+#app.app--quiz-active .progress-row {
+  margin-top: 0;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  justify-content: center;
+  background: rgba(26, 26, 46, 0.6);
+}
+
+/* Mobile: stack image above pips/name when screen is narrow */
+@media (max-width: 600px) {
+  #app.app--quiz-active .card--with-image {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    align-items: start;
+    gap: 1rem;
+  }
+
+  #app.app--quiz-active .card-image-column {
+    height: auto;
+  }
+
+  #app.app--quiz-active .mtg-card-img {
+    max-width: min(70vw, 240px);
+    max-height: 40vh;
+  }
+
+  #app.app--quiz-active .card-name {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+  }
+
+  #app.app--quiz-active .card-pips .mana-pip {
+    width: clamp(40px, 8vw, 64px);
+    height: clamp(40px, 8vw, 64px);
   }
 }
