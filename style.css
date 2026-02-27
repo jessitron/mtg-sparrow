@@ -43,7 +43,7 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
   padding: 1rem;
 }
 
@@ -721,3 +721,42 @@ footer {
 #gas-stop-btn.stopped { border-color: rgba(255,100,100,0.6); background: rgba(255,100,100,0.15); }
 #gas-fan-btn.spinning svg { animation: gas-spin 0.4s linear; }
 @keyframes gas-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Arc 11: Card image side-by-side layout */
+.card--with-image {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  align-items: center;
+}
+
+.card-image-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mtg-card-img {
+  width: 180px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  display: block;
+}
+
+.card-quiz-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+@media (max-width: 500px) {
+  .card--with-image {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .mtg-card-img {
+    width: 140px;
+  }
+}
