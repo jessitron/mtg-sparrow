@@ -46,7 +46,8 @@ Write a Playwright test script using the standard file editing tools (Edit/Write
 2. **Start the test server**: `./run-test-server` (builds the project and starts serve on port 3847)
 3. **Run the test**: `npm run test:e2e -- tests/your-test.mjs`
 4. **Stop the test server**: `./stop-test-server`
-5. **Commit the test script** to git with a message describing what it tests
+5. **Clean up screenshots**: Delete any `.png` files generated during the test run (in `tests/` or the working directory). Do not commit screenshot artifacts.
+6. **Commit the test script** to git with a message describing what it tests
 
 ### Test script conventions
 
