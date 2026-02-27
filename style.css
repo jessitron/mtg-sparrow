@@ -156,7 +156,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem 1.25rem;
-  background: linear-gradient(to top, rgba(15, 15, 30, 0.85) 60%, transparent);
+  background: linear-gradient(to top, rgba(15, 15, 30, 0.85) 90%, transparent);
   pointer-events: none;
   z-index: 10;
 }
