@@ -627,7 +627,7 @@ function showCard(): void {
   cardShowTime = Date.now();
 
   // Start card span as child of session span
-  const cardAttrs = {
+  const cardAttrs: Record<string, string | number | boolean> = {
     'card.combo_id': combo.id,
     'card.combo_name': combo.name,
     'card.colors': combo.colors.join(','),
@@ -636,6 +636,9 @@ function showCard(): void {
     'card.number': session.currentIndex + 1,
     'app.version': APP_VERSION,
   };
+  if (combo.selectedCard) {
+    cardAttrs['slide.card_name'] = combo.selectedCard.name;
+  }
   cardSpan = sessionSpan
     ? startChildSpan('card', sessionSpan, cardAttrs)
     : startSpan('card', cardAttrs);
