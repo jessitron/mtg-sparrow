@@ -1,6 +1,10 @@
 # Arc 12: Card Images for Enemy Guilds
 
-**Status:** In progress
+**Status:** Complete — verified by Tester, 15/15 checks pass + 13/13 Arc 11 regression
+
+**Version:** 0.11.0
+
+**Completed:** 2026-02-27
 
 **Type:** User Arc
 
