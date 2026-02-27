@@ -64,6 +64,17 @@ body {
   }
 }
 
+@keyframes doneButtonAppear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .card {
   background: #2a2a3e;
   border-radius: 16px;
@@ -139,6 +150,7 @@ body {
   transition: background 200ms ease, border-color 200ms ease, color 200ms ease;
   letter-spacing: 0.01em;
   -webkit-tap-highlight-color: transparent;
+  animation: doneButtonAppear 500ms ease forwards;
 }
 
 .done-button:hover {
