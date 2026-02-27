@@ -659,55 +659,56 @@ function showCard(): void {
   const card = renderCard(combo);
   app.appendChild(card);
 
-  // Progress row: pause button and card counter, above the card area
-  const progressRow = document.createElement('div');
-  progressRow.classList.add('progress-row');
-
-  const pauseBtn = document.createElement('button');
-  pauseBtn.classList.add('control-button');
-  pauseBtn.textContent = 'Pause';
-  pauseBtn.addEventListener('click', (e: MouseEvent) => {
-    e.stopPropagation();
-    paused = !paused;
-    pauseBtn.textContent = paused ? 'Resume' : 'Pause';
-    if (paused) {
-      clearTimers();
-    } else {
-      // Resume: restart reveal if name not shown yet
-      if (!nameRevealed) {
-        revealTimer = setTimeout(() => {
-          revealTimer = null;
-          nameRevealed = true;
-          revealName(card);
-          advanceTimer = setTimeout(() => {
-            advanceTimer = null;
-            goToNextCard(false);
-          }, ADVANCE_DELAY_MS);
-        }, REVEAL_DELAY_MS);
-      } else if (advanceTimer === null) {
-        advanceTimer = setTimeout(() => {
-          advanceTimer = null;
-          goToNextCard(false);
-        }, ADVANCE_DELAY_MS);
-      }
-    }
-  });
-  progressRow.appendChild(pauseBtn);
-
-  const progress = document.createElement('span');
-  progress.classList.add('progress-counter');
-  progress.textContent = `Card ${session.currentIndex + 1} / ${session.cardCount}`;
-  progressRow.appendChild(progress);
-
-  app.appendChild(progressRow);
-
-  // Floating "Done for now" zone — fixed at bottom with gradient fade
-  // Persist across cards so it doesn't flash on card transitions
+  // Floating done-zone — fixed at bottom with gradient fade.
+  // Created once from the first card onward; persists across card transitions.
   let doneZone = document.querySelector('.done-zone') as HTMLElement | null;
   if (!doneZone) {
     doneZone = document.createElement('div');
     doneZone.classList.add('done-zone');
 
+    // Left side: pause button + counter
+    const doneLeft = document.createElement('div');
+    doneLeft.classList.add('done-zone-left');
+
+    const pauseBtn = document.createElement('button');
+    pauseBtn.classList.add('control-button');
+    pauseBtn.textContent = 'Pause';
+    pauseBtn.addEventListener('click', (e: MouseEvent) => {
+      e.stopPropagation();
+      paused = !paused;
+      pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+      if (paused) {
+        clearTimers();
+      } else {
+        // Resume: restart reveal if name not shown yet
+        if (!nameRevealed) {
+          revealTimer = setTimeout(() => {
+            revealTimer = null;
+            nameRevealed = true;
+            revealName(card);
+            advanceTimer = setTimeout(() => {
+              advanceTimer = null;
+              goToNextCard(false);
+            }, ADVANCE_DELAY_MS);
+          }, REVEAL_DELAY_MS);
+        } else if (advanceTimer === null) {
+          advanceTimer = setTimeout(() => {
+            advanceTimer = null;
+            goToNextCard(false);
+          }, ADVANCE_DELAY_MS);
+        }
+      }
+    });
+    doneLeft.appendChild(pauseBtn);
+
+    const progress = document.createElement('span');
+    progress.classList.add('progress-counter');
+    progress.textContent = `${session.currentIndex + 1} / ${session.cardCount}`;
+    doneLeft.appendChild(progress);
+
+    doneZone.appendChild(doneLeft);
+
+    // Right side: "Done for now" button
     const doneBtn = document.createElement('button');
     doneBtn.classList.add('done-button');
     doneBtn.textContent = 'Done for now';
@@ -718,9 +719,15 @@ function showCard(): void {
 
     doneZone.appendChild(doneBtn);
     document.body.appendChild(doneZone);
+  } else {
+    // Update counter in place on card transitions
+    const progress = doneZone.querySelector('.progress-counter') as HTMLElement | null;
+    if (progress) {
+      progress.textContent = `${session.currentIndex + 1} / ${session.cardCount}`;
+    }
   }
 
-  // Show button from card 2 onward (fade-in only triggers once via CSS animation)
+  // Show "Done for now" button from card 2 onward (fade-in only triggers once via CSS animation)
   const doneBtn = doneZone.querySelector('.done-button');
   if (doneBtn && session.currentIndex >= 1) {
     doneBtn.classList.add('button-visible');
