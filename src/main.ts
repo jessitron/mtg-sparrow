@@ -411,7 +411,7 @@ function buildAlliedColumn(unlocked: boolean, onActivate: () => void): [HTMLElem
 
     const explanation = document.createElement('p');
     explanation.classList.add('guild-column-explanation');
-    explanation.textContent = "Magic's five colors form a circle: ☀️ 💧 💀 🔥 🌿. Allied guilds are pairs of neighboring colors — colors that share philosophy and overlap in values. Natural partnerships, built on common ground.";
+    explanation.textContent = "Magic's five colors form a circle: ☀️ 💧 💀 🔥 🌿. Allied guilds are pairs of neighboring colors.";
     col.appendChild(explanation);
 
     const svg = buildAlliedColorWheel();
@@ -457,7 +457,7 @@ function buildEnemyColumn(unlocked: boolean, onActivate: () => void): [HTMLEleme
 
     const explanation = document.createElement('p');
     explanation.classList.add('guild-column-explanation');
-    explanation.textContent = 'Enemy guilds pair colors from opposite sides of the circle — opposites in philosophy, in productive tension. Stranger combinations, harder to remember, but once they click, they stick.';
+    explanation.textContent = 'Enemy guilds pair colors from opposite sides of the circle.';
     col.appendChild(explanation);
 
     const svg = buildEnemyColorWheel();
