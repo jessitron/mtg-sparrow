@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototype 2: Persistent Footer with "Done?" CTA</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      font-family: system-ui, -apple-system, sans-serif;
+      color: #e0e0e0;
+      background-color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ==================== PROTOTYPE LABEL ==================== */
+    .proto-label {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 60, 90, 0.9);
+      color: #80d0ff;
+      font-size: 0.75rem;
+      text-align: center;
+      padding: 0.35rem 1rem;
+      z-index: 100;
+      letter-spacing: 0.04em;
+    }
+
+    /* ==================== APP SHELL ==================== */
+    #app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 100%;
+      padding: 1rem;
+      /* Leave room at top (proto label) and bottom (footer bar) */
+      padding-top: 2.5rem;
+      padding-bottom: 5rem;
+      flex: 1;
+    }
+
+    /* ==================== CARD ==================== */
+    @keyframes cardEnter {
+      from { opacity: 0; transform: scale(0.95); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .card {
+      background: #2a2a3e;
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      user-select: none;
+      animation: cardEnter 250ms ease-out;
+    }
+
+    .card-pips {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+    }
+
+    .pip {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .pip-blue  { background: #0e68ab; color: #c8e8ff; border: 3px solid #3a9fd8; }
+    .pip-black { background: #1a1a1a; color: #ccc;    border: 3px solid #555; }
+
+    .card-name {
+      font-size: clamp(2rem, 8vw, 3rem);
+      font-weight: 700;
+      color: #f0f0f0;
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+
+    .card-description {
+      font-size: 1rem;
+      color: #aaa;
+      text-align: center;
+      max-width: 360px;
+      line-height: 1.55;
+    }
+
+    /* ==================== PERSISTENT FOOTER BAR ==================== */
+    /*
+      Prototype 2 core change: a fixed footer bar at the bottom.
+      Counter on the left. Pause (understated) center-left. "Done?" on right
+      with accent purple ghost-button styling.
+    */
+
+    .session-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: rgba(20, 20, 38, 0.95);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid #2a2a44;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.25rem;
+      z-index: 10;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .progress-counter {
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    /* Pause — understated, stays out of the way */
+    .pause-button {
+      font-size: 0.75rem;
+      color: #666;
+      background: transparent;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 0.2rem 0.55rem;
+      cursor: pointer;
+      transition: color 200ms ease, border-color 200ms ease;
+    }
+
+    .pause-button:hover {
+      color: #aaa;
+      border-color: #666;
+    }
+
+    /* "Done?" — the CTA. Accent purple, ghost fill, reads as action not metadata */
+    .done-button {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #c0b0f0;
+      background: rgba(102, 102, 170, 0.15);
+      border: 1px solid rgba(102, 102, 170, 0.55);
+      border-radius: 8px;
+      padding: 0.45rem 1.1rem;
+      cursor: pointer;
+      transition: background 200ms ease, border-color 200ms ease, color 200ms ease;
+      letter-spacing: 0.01em;
+    }
+
+    .done-button:hover {
+      background: rgba(102, 102, 170, 0.3);
+      border-color: rgba(150, 150, 210, 0.8);
+      color: #e0d4ff;
+    }
+
+    .done-button:active {
+      transform: scale(0.97);
+    }
+
+    /* ==================== OVERLAY (session end mock) ==================== */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 24, 0.92);
+      backdrop-filter: blur(6px);
+      z-index: 50;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      animation: cardEnter 200ms ease-out;
+    }
+
+    .overlay.visible { display: flex; }
+
+    .overlay-count {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #f0f0f0;
+    }
+
+    .overlay-label {
+      font-size: 1.1rem;
+      color: #888;
+    }
+
+    .overlay-prompt {
+      font-size: 1.25rem;
+      color: #ccc;
+      font-weight: 500;
+    }
+
+    .overlay-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .overlay-btn {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e0e0e0;
+      background: #2a2a3e;
+      border: 2px solid #444;
+      border-radius: 12px;
+      padding: 0.9rem 1.5rem;
+      cursor: pointer;
+      transition: background 200ms ease, border-color 200ms ease;
+    }
+
+    .overlay-btn:hover { background: #35355a; border-color: #666; }
+
+    /* ==================== ANNOTATION ==================== */
+    .annotation {
+      position: fixed;
+      top: 2rem;
+      right: 1rem;
+      background: rgba(20, 20, 40, 0.95);
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.78rem;
+      color: #888;
+      max-width: 220px;
+      line-height: 1.5;
+    }
+
+    .annotation strong { color: #80d0ff; }
+
+    @media (max-width: 480px) {
+      .annotation { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="proto-label">
+  PROTOTYPE 2: Persistent Footer with "Done?" CTA &nbsp;|&nbsp; Footer is fixed at bottom — always visible
+</div>
+
+<div id="app">
+  <!-- CARD -->
+  <div class="card">
+    <div class="card-pips">
+      <div class="pip pip-blue">U</div>
+      <div class="pip pip-black">B</div>
+    </div>
+    <div class="card-name">Dimir</div>
+    <div class="card-description">
+      Blue-Black. Secrecy, espionage, and manipulation. Masters of information and misinformation alike.
+    </div>
+  </div>
+</div>
+
+<!-- PERSISTENT FOOTER BAR -->
+<div class="session-footer">
+  <div class="footer-left">
+    <span class="progress-counter">Card 8 / 20</span>
+    <button class="pause-button" onclick="this.textContent = this.textContent === 'Pause' ? 'Resume' : 'Pause'">Pause</button>
+  </div>
+  <button class="done-button" onclick="document.getElementById('end-overlay').classList.add('visible')">Done?</button>
+</div>
+
+<!-- SESSION END OVERLAY -->
+<div id="end-overlay" class="overlay">
+  <div class="overlay-count">8 cards</div>
+  <div class="overlay-label">Session stopped</div>
+  <div class="overlay-prompt">How did that feel?</div>
+  <div class="overlay-buttons">
+    <button class="overlay-btn">Still learning</button>
+    <button class="overlay-btn">Getting there</button>
+    <button class="overlay-btn">Nailing it</button>
+  </div>
+</div>
+
+<div class="annotation">
+  <strong>What changed:</strong> Fixed footer bar, always visible. Counter + Pause left; "Done?" right with accent purple styling. No scroll required to find exit.
+</div>
+
+</body>
+</html>
