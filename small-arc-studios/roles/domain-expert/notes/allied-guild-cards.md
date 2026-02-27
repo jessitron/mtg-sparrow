@@ -32,7 +32,7 @@ Research via Scryfall API. Cards selected for iconicity, Ravnica set origin, mec
 | Thief of Sanity | {1}{U}{B} | Creature — Specter | Steals opponent's cards on attack — the perfect Dimir operative. | https://cards.scryfall.io/normal/front/3/0/307543ca-8e17-433f-9758-4c77da6c0870.jpg?1572893852 |
 | Etrata, the Silencer | {2}{U}{B} | Legendary Creature — Vampire Assassin | Unique alternate win condition; shuffles back in to keep assassinating — noir espionage. | https://cards.scryfall.io/normal/front/f/a/fa36b142-e67e-49da-9080-c5994e275266.jpg?1572893618 |
 | Disinformation Campaign | {1}{U}{B} | Enchantment | Surveil loop that drains opponents' hands; mechanically and flavorfully on-point. | https://cards.scryfall.io/normal/front/6/9/69a79ff3-58ed-4cc2-9ebc-0edbb86cd6fb.jpg?1572893597 |
-| Discovery // Dispersal | {1}{U/B} // {3}{U}{B} | Sorcery // Instant | Split card with surveil and hand disruption; strong Dimir utility. | https://cards.scryfall.io/normal/front/a/c/ace631d1-897a-417e-8628-0170713f03d3.jpg?1572893971 |
+| Whispering Madness | {2}{U}{B} | Sorcery | Forces all players to discard and redraw — cipher keyword means it triggers repeatedly, embodying Dimir's mind-manipulation and information warfare. | https://cards.scryfall.io/normal/front/6/4/64e4b0cc-e611-4a4b-8392-b37bfc3a77e1.jpg?1561829595 |
 | Dimir Charm | {U}{B} | Instant | Modal — counter sorcery, mill 3, or destroy small creatures; versatile and flavorful. | https://cards.scryfall.io/normal/front/f/3/f3f4cfa7-8ee4-4a85-9e6a-65a7541f62c1.jpg?1561852231 |
 | Nightveil Specter | {U/B}{U/B}{U/B} | Creature — Specter | Steals cards from opponents' libraries on hit; an iconic cross-set Dimir creature. | https://cards.scryfall.io/normal/front/e/3/e3754b8c-16d2-41e3-b41b-4b2e70833e82.jpg?1588456579 |
 
@@ -43,15 +43,15 @@ Research via Scryfall API. Cards selected for iconicity, Ravnica set origin, mec
 | Card Name | Mana Cost | Type | Notes | Image |
 |-----------|-----------|------|-------|-------|
 | Rakdos, Lord of Riots | {B}{B}{R}{R} | Legendary Creature — Demon | The guild's namesake demon; lets you cast creatures for free after dealing damage. | https://cards.scryfall.io/normal/front/0/4/04f3db71-802f-488c-b40d-ac90df2d660a.jpg?1562782015 |
-| Rakdos the Defiler | {2}{B}{B}{R}{R} | Legendary Creature — Demon | Original Rakdos from Dissension; sacrifices permanents on attack — pure chaos. | https://cards.scryfall.io/normal/front/5/a/5a4c4be4-06ae-4737-a3b0-818edadaf2e0.jpg?1593273761 |
-| Rakdos, the Showstopper | {4}{B}{R} | Legendary Creature — Demon | Flips coins to destroy non-demons on entry — spectacular and unpredictable. | https://cards.scryfall.io/normal/front/4/e/4e3c30c7-c52e-41a0-b7c2-21d39c05160b.jpg?1584831753 |
 | Judith, the Scourge Diva | {1}{B}{R} | Legendary Creature — Human Shaman | Powers up your creatures and pings enemies when they die — crowd-pleasing spectacle. | https://cards.scryfall.io/normal/front/0/a/0a742125-730d-4082-bfd8-5feb7733def4.jpg?1584831612 |
 | Bedevil | {B}{B}{R} | Instant | Destroys any artifact, creature, or planeswalker — Rakdos's removal of choice. | https://cards.scryfall.io/normal/front/8/1/81e2b96b-ecf2-4dd9-bc9d-3c46ee8c59e6.jpg?1584831400 |
 | Dreadbore | {B}{R} | Sorcery | Efficiently kills creatures or planeswalkers — ruthless and direct. | https://cards.scryfall.io/normal/front/a/8/a83945c6-4dc6-4d9a-9bc2-2d4a264e5422.jpg?1562791208 |
 | Rakdos's Return | {X}{B}{R} | Sorcery | Discards opponent's hand and deals damage — the Rakdos finishing move. | https://cards.scryfall.io/normal/front/d/7/d72981c0-1632-4d64-9341-2a76047d9b36.jpg?1562793869 |
-| Rakdos Charm | {B}{R} | Instant | Modal: exile graveyard, destroy artifact, or punish token swarms — clever utility. | https://cards.scryfall.io/normal/front/0/f/0fcd4394-d22d-4eec-ad73-ffaf10ad60de.jpg?1562782720 |
 | Captive Audience | {5}{B}{R} | Enchantment | Forces opponent to choose their suffering each turn — theatrical Rakdos cruelty. | https://cards.scryfall.io/normal/front/0/6/065f63b2-472e-4148-8294-88ed38a5685f.jpg?1584831422 |
 | Theater of Horrors | {1}{B}{R} | Enchantment | Surveils and lets you cast exiled cards when you deal damage — Rakdos's performance stage. | https://cards.scryfall.io/normal/front/a/d/ad42efd5-79c8-44f9-b3d6-d9058e0cb0f6.jpg?1584831925 |
+| Havoc Festival | {4}{B}{R} | Enchantment | Halves all players' life totals every upkeep and prevents life gain — spectacular festival of destruction representing the guild's anarchic entertainment. | https://cards.scryfall.io/normal/front/0/4/04560623-c768-4273-a40d-7e3f39e832cf.jpg?1562781987 |
+| Lyzolda, the Blood Witch | {1}{B}{R} | Legendary Creature — Human Cleric | Original Ravnica guild leader; sacrifices creatures for damage or card draw — embodies Rakdos's brutal performance-through-sacrifice ethos. | https://cards.scryfall.io/normal/front/1/8/18df285f-4cb9-4998-bd26-eefbe28f80c7.jpg?1593273653 |
+| Pain Magnification | {1}{B}{R} | Enchantment | Forces opponents to discard whenever they take 3+ damage — punishes aggression and amplifies every Rakdos attack into hand destruction. | https://cards.scryfall.io/normal/front/8/4/844801e4-cf37-4f20-9149-b58a57b9276e.jpg?1593273683 |
 
 ---
 
