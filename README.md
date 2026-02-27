@@ -19,7 +19,7 @@ This app applies the [Sparrow Deck](https://www.youtube.com/watch?v=...) percept
 1. A welcome screen appears with instructions
 2. Click "Learn guild names" to start a session
 3. See mana pips → say the combo name aloud → the name auto-reveals → next card appears
-4. After 50 cards, rate how it felt
+4. After 20 cards (or tap "Done for now"), rate how it felt
 
 There is no scoring, no pass/fail, no timer. Say the name aloud — that's the whole technique.
 
@@ -33,9 +33,10 @@ There is no scoring, no pass/fail, no timer. Say the name aloud — that's the w
 - Interactive SVG color wheels: allied pentagon (Arc 8) and enemy star pattern (Arc 9) with bidirectional hover between wheel and guild list
 - Gear icon settings panel: version display, Honeycomb trace link, and single-tap progress reset
 - 10 guild names (two-color combinations) displayed as standard mana symbols
-- 50-card sessions with auto-reveal (2.5s) and auto-advance (1.5s)
+- 20-card sessions with auto-reveal (2.5s) and auto-advance (1.5s)
 - Early tap/spacebar to skip ahead
-- Pause and Stop controls
+- "Done for now" button to end a session early
+- Pause control
 - Self-assessment prompt after each session ("How did that feel?")
 - "Learn" vs "Practice" button text adapts based on session history
 - Honeycomb traces for every session and card
@@ -104,7 +105,7 @@ scripts/                  # All runnable commands are shell scripts here
 
 | Constant             | Default | Purpose                            |
 | -------------------- | ------- | ---------------------------------- |
-| `SESSION_CARD_COUNT` | 50      | Cards per session                  |
+| `SESSION_CARD_COUNT` | 20      | Cards per session                  |
 | `REVEAL_DELAY_MS`    | 2500    | Time before name auto-reveals      |
 | `ADVANCE_DELAY_MS`   | 1500    | Time after reveal before next card |
 
