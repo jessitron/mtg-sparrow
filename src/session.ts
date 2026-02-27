@@ -3,9 +3,9 @@ import { ColorCombo, CardReference, alliedGuilds, enemyGuilds } from './data/com
 export type Slide = ColorCombo & { selectedCard?: CardReference };
 
 // Timing constants (all in milliseconds)
-export const SESSION_CARD_COUNT = 20;
-export const REVEAL_DELAY_MS = 2500;   // Time pips show before name fades in
-export const ADVANCE_DELAY_MS = 1500;  // Time name stays visible before next card
+export const SESSION_CARD_COUNT = 25;
+export const REVEAL_DELAY_MS = 3000;   // Time pips show before name fades in
+export const ADVANCE_DELAY_MS = 2000;  // Time name stays visible before next card
 
 /**
  * Shuffle an array in place using Fisher-Yates.
