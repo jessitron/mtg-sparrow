@@ -1,15 +1,22 @@
 /**
- * Arc 13 verification: Session Polish
+ * Arc 13 Revised verification: Prototype 3 Style
  *
  * Tests:
- * 1. Session capped at 20 cards (counter shows "Card X / 20")
- * 2. "Done for now" button not visible on card 1
- * 3. "Done for now" button appears on card 2 (with fade-in animation)
- * 4. Button is in a fixed footer bar at the bottom
- * 5. Button is styled with accent purple (not old gray)
- * 6. Clicking "Done for now" ends the session and shows session-end screen
- * 7. Old "Stop" and "Pause" buttons are gone
- * 8. Narrow viewport (375px): footer visible and button thumb-reachable
+ * 1. "Done for now" button NOT visible on card 1
+ * 2. "Done for now" button appears (fade-in) on card 2+
+ * 3. Button is centered (inside .done-zone which uses align-items: center)
+ * 4. Button is pill-shaped (border-radius >= 20px)
+ * 5. Button has accent purple styling (color, border)
+ * 6. Button text: "Done for now"
+ * 7. Clicking "Done for now" ends the session (shows session-end screen)
+ * 8. .done-zone has gradient background
+ * 9. Progress row contains Pause button and card counter
+ * 10. Card counter shows "Card X / 20"
+ * 11. Pause button toggles pause state
+ * 12. No .session-footer element
+ * 13. No .footer-left element
+ * 14. Session capped at 20 cards
+ * 15. Mobile viewport (375px): button visible and centered in lower screen area
  *
  * Server must be running at http://localhost:3847 before running this script.
  * Use ./run-test-server to start and ./stop-test-server to tear down.
@@ -33,24 +40,6 @@ function assert(condition, message) {
 }
 
 async function startAlliedSession(page) {
-  // Navigate to home and start an allied guild session
-  await page.goto(`${BASE_URL}/`);
-  await page.waitForLoadState('domcontentloaded');
-  // Clear any existing progression so we start fresh
-  await page.evaluate(() => {
-    localStorage.removeItem('sparrow-deck.progression');
-  });
-  await page.reload();
-  await page.waitForLoadState('domcontentloaded');
-  // Click anywhere on the welcome screen to start
-  await page.waitForSelector('#app', { timeout: 8000 });
-  await page.click('#app');
-  // Wait for session to start (card or guild selection screen)
-  await page.waitForTimeout(500);
-}
-
-async function startSessionDirectly(page) {
-  // Use the end screen to start an allied session
   await page.goto(`${BASE_URL}/?screen=end`);
   await page.waitForLoadState('domcontentloaded');
   await page.waitForSelector('.guild-column--allied .guild-column-button', { timeout: 8000 });
@@ -63,62 +52,93 @@ async function run() {
 
   try {
     // -----------------------------------------------------------------------
-    // PHASE 1: Counter shows "/ 20" and not "/ 50"
+    // PHASE 1: Counter shows "Card X / 20", progress row on card 1
     // -----------------------------------------------------------------------
-    console.log('=== Phase 1: Session cap is 20 cards ===\n');
+    console.log('=== Phase 1: Progress row and counter ===\n');
     {
       const page = await browser.newPage();
-      await page.goto(`${BASE_URL}/?screen=end`);
-      await page.waitForLoadState('domcontentloaded');
-      await page.waitForSelector('.guild-column--allied .guild-column-button', { timeout: 8000 });
-      await page.click('.guild-column--allied .guild-column-button');
-      await page.waitForSelector('.progress-counter', { timeout: 8000 });
+      await startAlliedSession(page);
 
+      // Counter should show "Card 1 / 20"
       const counterText = await page.textContent('.progress-counter');
       console.log(`  Counter text: "${counterText}"`);
       assert(counterText && counterText.includes('/ 20'), 'Counter shows "/ 20"');
       assert(counterText && !counterText.includes('/ 50'), 'Counter does NOT show "/ 50"');
       assert(counterText && counterText.trim().startsWith('Card 1'), 'Counter starts at Card 1');
 
+      // Progress row is present
+      const progressRow = await page.$('.progress-row');
+      assert(progressRow !== null, '.progress-row element is present');
+
+      // Pause button is inside the progress row
+      const pauseBtn = await page.$('.progress-row .control-button');
+      assert(pauseBtn !== null, 'Pause button is in .progress-row');
+
+      const pauseBtnText = await page.textContent('.progress-row .control-button');
+      assert(pauseBtnText && pauseBtnText.trim() === 'Pause', 'Pause button text is "Pause"');
+
       await page.screenshot({ path: 'tests/arc13-card1-counter.png' });
       await page.close();
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 2: "Done for now" absent on card 1, present on card 2
+    // PHASE 2: No old footer elements
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 2: Done for now button visibility ===\n');
+    console.log('\n=== Phase 2: No old footer elements ===\n');
     {
       const page = await browser.newPage();
-      await page.goto(`${BASE_URL}/?screen=end`);
-      await page.waitForLoadState('domcontentloaded');
-      await page.waitForSelector('.guild-column--allied .guild-column-button', { timeout: 8000 });
-      await page.click('.guild-column--allied .guild-column-button');
-      await page.waitForSelector('.card', { timeout: 8000 });
+      await startAlliedSession(page);
 
-      // Card 1: "Done for now" should NOT be visible
-      const doneOnCard1 = await page.$('.done-button');
-      assert(doneOnCard1 === null, '"Done for now" button is absent on card 1');
+      const sessionFooter = await page.$('.session-footer');
+      assert(sessionFooter === null, 'No .session-footer element exists');
 
-      // Old Stop/Pause buttons should not exist
-      const stopBtn = await page.$('button[id="stop-btn"], button.stop-button, button.stop-session');
-      const pauseBtn = await page.$('button[id="pause-btn"], button.pause-button, button.pause-session');
-      assert(stopBtn === null, 'Old "Stop" button is gone');
-      assert(pauseBtn === null, 'Old "Pause" button is gone');
+      const footerLeft = await page.$('.footer-left');
+      assert(footerLeft === null, 'No .footer-left element exists');
 
-      // Advance to card 2 by tapping the card (early advance)
+      await page.close();
+    }
+
+    // -----------------------------------------------------------------------
+    // PHASE 3: "Done for now" button hidden on card 1, visible on card 2
+    // -----------------------------------------------------------------------
+    console.log('\n=== Phase 3: Done for now button visibility ===\n');
+    {
+      const page = await browser.newPage();
+      await startAlliedSession(page);
+
+      // .done-zone should exist (appended to body)
+      const doneZone = await page.$('.done-zone');
+      assert(doneZone !== null, '.done-zone is present in the DOM');
+
+      // On card 1, the button should NOT have .button-visible class
+      const buttonHasVisible = await page.evaluate(() => {
+        const btn = document.querySelector('.done-button');
+        return btn ? btn.classList.contains('button-visible') : null;
+      });
+      assert(buttonHasVisible === false, 'Done button does NOT have .button-visible on card 1');
+
+      // On card 1, the button should be hidden (opacity 0, pointer-events none)
+      const buttonOpacity = await page.locator('.done-button').evaluate(el => {
+        return parseFloat(window.getComputedStyle(el).opacity);
+      });
+      console.log(`  Button opacity on card 1: ${buttonOpacity}`);
+      assert(buttonOpacity < 0.1, `Button is visually hidden on card 1 (opacity=${buttonOpacity})`);
+
+      // Advance to card 2
       await page.click('.card');
-      // Wait for the card to advance to card 2
       await page.waitForFunction(() => {
         const counter = document.querySelector('.progress-counter');
         return counter && counter.textContent && counter.textContent.includes('Card 2');
       }, { timeout: 8000 });
 
-      // Card 2: "Done for now" should appear
-      await page.waitForSelector('.done-button', { timeout: 5000 });
-      const doneOnCard2 = await page.$('.done-button');
-      assert(doneOnCard2 !== null, '"Done for now" button is present on card 2');
+      // On card 2, button should have .button-visible class
+      const buttonVisibleOnCard2 = await page.evaluate(() => {
+        const btn = document.querySelector('.done-button');
+        return btn ? btn.classList.contains('button-visible') : false;
+      });
+      assert(buttonVisibleOnCard2 === true, 'Done button has .button-visible class on card 2');
 
+      // Button text is "Done for now"
       const doneBtnText = await page.textContent('.done-button');
       assert(doneBtnText && doneBtnText.trim() === 'Done for now', 'Button text is "Done for now"');
 
@@ -127,89 +147,173 @@ async function run() {
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 3: Footer is fixed at the bottom of the screen
+    // PHASE 4: Button is pill-shaped (border-radius >= 20px) and centered
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 3: Footer position ===\n');
+    console.log('\n=== Phase 4: Button pill shape and centering ===\n');
     {
       const page = await browser.newPage();
       await page.setViewportSize({ width: 800, height: 600 });
-      await page.goto(`${BASE_URL}/?screen=end`);
-      await page.waitForLoadState('domcontentloaded');
-      await page.waitForSelector('.guild-column--allied .guild-column-button', { timeout: 8000 });
-      await page.click('.guild-column--allied .guild-column-button');
-      await page.waitForSelector('.session-footer', { timeout: 8000 });
+      await startAlliedSession(page);
 
-      const footerBox = await page.locator('.session-footer').boundingBox();
-      assert(footerBox !== null, 'Footer element is present and visible');
-      if (footerBox) {
-        const viewportHeight = 600;
-        const footerBottom = footerBox.y + footerBox.height;
-        // Footer should be at the very bottom of the viewport (within 2px tolerance)
-        assert(Math.abs(footerBottom - viewportHeight) <= 2,
-          `Footer bottom is at viewport bottom (footerBottom=${footerBottom}, viewport=${viewportHeight})`);
-      }
-
-      // Verify footer has position:fixed via CSS
-      const footerPosition = await page.locator('.session-footer').evaluate(el => {
-        return window.getComputedStyle(el).position;
-      });
-      assert(footerPosition === 'fixed', `Footer has position:fixed (got "${footerPosition}")`);
-
-      await page.close();
-    }
-
-    // -----------------------------------------------------------------------
-    // PHASE 4: Button styled with accent purple
-    // -----------------------------------------------------------------------
-    console.log('\n=== Phase 4: Button accent purple styling ===\n');
-    {
-      const page = await browser.newPage();
-      await page.goto(`${BASE_URL}/?screen=end`);
-      await page.waitForLoadState('domcontentloaded');
-      await page.waitForSelector('.guild-column--allied .guild-column-button', { timeout: 8000 });
-      await page.click('.guild-column--allied .guild-column-button');
-      await page.waitForSelector('.card', { timeout: 8000 });
-
-      // Advance to card 2 to see done button
+      // Advance to card 2 to make button visible
       await page.click('.card');
       await page.waitForFunction(() => {
         const counter = document.querySelector('.progress-counter');
         return counter && counter.textContent && counter.textContent.includes('Card 2');
       }, { timeout: 8000 });
-      await page.waitForSelector('.done-button', { timeout: 5000 });
+      // Wait for the animation to begin
+      await page.waitForTimeout(100);
 
-      // Check button color is in purple range (not plain gray)
-      const buttonColor = await page.locator('.done-button').evaluate(el => {
-        return window.getComputedStyle(el).color;
+      // Pill shape: border-radius should be >= 20px
+      const borderRadius = await page.locator('.done-button').evaluate(el => {
+        return window.getComputedStyle(el).borderRadius;
       });
-      console.log(`  Button color: ${buttonColor}`);
-      // Purple accent: c0b0f0 = rgb(192, 176, 240) — blue channel highest
-      // We verify it is NOT a plain gray (where r≈g≈b)
-      const rgbMatch = buttonColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-      if (rgbMatch) {
-        const [, r, g, b] = rgbMatch.map(Number);
-        assert(b > r && b > g, `Button color has blue-purple hue (r=${r}, g=${g}, b=${b})`);
+      console.log(`  Button border-radius: ${borderRadius}`);
+      // Parse border-radius (e.g. "24px") — expect >= 20px
+      const radiusPx = parseFloat(borderRadius);
+      assert(!isNaN(radiusPx) && radiusPx >= 20,
+        `Button is pill-shaped (border-radius=${borderRadius}, should be >= 20px)`);
+
+      // Centering: the .done-zone uses align-items:center and the button should be centered
+      const doneZoneBox = await page.locator('.done-zone').boundingBox();
+      const doneBtnBox = await page.locator('.done-button').boundingBox();
+      if (doneZoneBox && doneBtnBox) {
+        const zoneMidX = doneZoneBox.x + doneZoneBox.width / 2;
+        const btnMidX = doneBtnBox.x + doneBtnBox.width / 2;
+        const offsetX = Math.abs(zoneMidX - btnMidX);
+        console.log(`  Done zone mid-X: ${zoneMidX.toFixed(0)}, Button mid-X: ${btnMidX.toFixed(0)}, offset: ${offsetX.toFixed(1)}px`);
+        assert(offsetX < 10, `Button is horizontally centered within .done-zone (offset=${offsetX.toFixed(1)}px < 10px)`);
       } else {
-        assert(false, `Button color is in expected format (got: ${buttonColor})`);
+        assert(false, 'Could not measure .done-zone and .done-button bounding boxes');
+      }
+
+      // .done-zone should be at the bottom of the viewport
+      if (doneZoneBox) {
+        const viewportHeight = 600;
+        const zoneBottom = doneZoneBox.y + doneZoneBox.height;
+        assert(Math.abs(zoneBottom - viewportHeight) <= 2,
+          `.done-zone is at viewport bottom (bottom=${zoneBottom}, viewport=${viewportHeight})`);
       }
 
       await page.close();
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 5: Clicking "Done for now" ends the session
+    // PHASE 5: Button accent purple styling
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 5: Clicking "Done for now" ends session ===\n');
+    console.log('\n=== Phase 5: Button accent purple styling ===\n');
     {
       const page = await browser.newPage();
-      await page.goto(`${BASE_URL}/?screen=end`);
-      await page.waitForLoadState('domcontentloaded');
-      await page.waitForSelector('.guild-column--allied .guild-column-button', { timeout: 8000 });
-      await page.click('.guild-column--allied .guild-column-button');
-      await page.waitForSelector('.card', { timeout: 8000 });
+      await startAlliedSession(page);
 
-      // Advance through cards until card 4 (so we get self-assessment on stop)
-      // SELF_ASSESSMENT_MIN_CARDS = 3, so stopping after 4 cards shows the full session-end screen
+      // Advance to card 2
+      await page.click('.card');
+      await page.waitForFunction(() => {
+        const counter = document.querySelector('.progress-counter');
+        return counter && counter.textContent && counter.textContent.includes('Card 2');
+      }, { timeout: 8000 });
+
+      // Check button text color is purple (b channel > r and g)
+      const buttonColor = await page.locator('.done-button').evaluate(el => {
+        return window.getComputedStyle(el).color;
+      });
+      console.log(`  Button color: ${buttonColor}`);
+      const rgbMatch = buttonColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (rgbMatch) {
+        const [, r, g, b] = rgbMatch.map(Number);
+        assert(b > r && b > g, `Button has purple/blue hue (r=${r}, g=${g}, b=${b})`);
+      } else {
+        assert(false, `Button color in expected format (got: ${buttonColor})`);
+      }
+
+      // Check border color has purple hue
+      const borderColor = await page.locator('.done-button').evaluate(el => {
+        return window.getComputedStyle(el).borderColor;
+      });
+      console.log(`  Button border-color: ${borderColor}`);
+      // border: 1px solid rgba(102, 102, 170, 0.6) — b=170 > r=102
+      const borderRgb = borderColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (borderRgb) {
+        const [, r, g, b] = borderRgb.map(Number);
+        assert(b >= r, `Button border has blue-purple hue (r=${r}, g=${g}, b=${b})`);
+      } else {
+        assert(false, `Border color in expected format (got: ${borderColor})`);
+      }
+
+      // Background is transparent (not opaque)
+      const bgColor = await page.locator('.done-button').evaluate(el => {
+        return window.getComputedStyle(el).backgroundColor;
+      });
+      console.log(`  Button background: ${bgColor}`);
+      // transparent = rgba(0, 0, 0, 0)
+      const bgAlphaMatch = bgColor.match(/rgba\(\d+,\s*\d+,\s*\d+,\s*([\d.]+)\)/);
+      if (bgAlphaMatch) {
+        const alpha = parseFloat(bgAlphaMatch[1]);
+        assert(alpha < 0.1, `Button background is transparent (alpha=${alpha})`);
+      } else {
+        // rgb() with no alpha = opaque; rgba(0,0,0,0) is transparent
+        assert(bgColor === 'rgba(0, 0, 0, 0)' || bgColor === 'transparent',
+          `Button background is transparent (got: ${bgColor})`);
+      }
+
+      await page.close();
+    }
+
+    // -----------------------------------------------------------------------
+    // PHASE 6: Pause button is functional (toggles state)
+    // -----------------------------------------------------------------------
+    console.log('\n=== Phase 6: Pause button functionality ===\n');
+    {
+      const page = await browser.newPage();
+      await startAlliedSession(page);
+
+      const pauseBtn = await page.$('.progress-row .control-button');
+      assert(pauseBtn !== null, 'Pause button is present in progress-row');
+
+      // Click pause
+      await page.click('.progress-row .control-button');
+      await page.waitForTimeout(100);
+
+      const pausedText = await page.textContent('.progress-row .control-button');
+      assert(pausedText && pausedText.trim() === 'Resume', 'After clicking Pause, button reads "Resume"');
+
+      // Click resume
+      await page.click('.progress-row .control-button');
+      await page.waitForTimeout(100);
+
+      const resumedText = await page.textContent('.progress-row .control-button');
+      assert(resumedText && resumedText.trim() === 'Pause', 'After clicking Resume, button reads "Pause"');
+
+      await page.close();
+    }
+
+    // -----------------------------------------------------------------------
+    // PHASE 7: .done-zone has gradient background
+    // -----------------------------------------------------------------------
+    console.log('\n=== Phase 7: .done-zone gradient background ===\n');
+    {
+      const page = await browser.newPage();
+      await startAlliedSession(page);
+
+      const bgImage = await page.locator('.done-zone').evaluate(el => {
+        return window.getComputedStyle(el).backgroundImage;
+      });
+      console.log(`  .done-zone background-image: ${bgImage}`);
+      assert(bgImage && bgImage.includes('linear-gradient'),
+        '.done-zone has a gradient background (linear-gradient)');
+
+      await page.close();
+    }
+
+    // -----------------------------------------------------------------------
+    // PHASE 8: Clicking "Done for now" ends the session
+    // -----------------------------------------------------------------------
+    console.log('\n=== Phase 8: Clicking "Done for now" ends session ===\n');
+    {
+      const page = await browser.newPage();
+      await startAlliedSession(page);
+
+      // Advance through enough cards to get the self-assessment screen (>= 4 cards)
       for (let targetCard = 2; targetCard <= 4; targetCard++) {
         await page.click('.card');
         await page.waitForFunction((target) => {
@@ -217,47 +321,45 @@ async function run() {
           return counter && counter.textContent && counter.textContent.includes(`Card ${target}`);
         }, targetCard, { timeout: 8000 });
       }
-      await page.waitForSelector('.done-button', { timeout: 5000 });
+
+      // Wait for button to be visible
+      await page.waitForFunction(() => {
+        const btn = document.querySelector('.done-button');
+        return btn && btn.classList.contains('button-visible');
+      }, { timeout: 5000 });
 
       // Click "Done for now"
       await page.click('.done-button');
 
-      // Should show session-end screen with self-assessment (stopped after ≥4 cards)
+      // Should show session-end screen
       await page.waitForSelector('.session-end', { timeout: 5000 });
       const sessionEndVisible = await page.isVisible('.session-end');
       assert(sessionEndVisible, 'Session-end screen is shown after clicking "Done for now"');
 
-      // The card view should be gone
+      // Card view should be gone
       const cardGone = await page.$('.card');
       assert(cardGone === null, 'Card view is gone after clicking "Done for now"');
 
-      // The footer should be gone
-      const footerGone = await page.$('.session-footer');
-      assert(footerGone === null, 'Session footer is gone after clicking "Done for now"');
+      // .done-zone should be gone
+      const doneZoneGone = await page.$('.done-zone');
+      assert(doneZoneGone === null, '.done-zone is removed after clicking "Done for now"');
 
       await page.screenshot({ path: 'tests/arc13-after-done.png' });
       await page.close();
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 6: Session ends after card 20 (not card 50)
-    // Verify by rapidly tapping through all 20 cards: two taps per card
-    // (first tap reveals name early, second tap skips advance delay).
+    // PHASE 9: Session ends after card 20 (not 50)
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 6: Session ends after card 20 ===\n');
+    console.log('\n=== Phase 9: Session ends after card 20 ===\n');
     {
       const page = await browser.newPage();
-      await page.goto(`${BASE_URL}/?screen=end`);
-      await page.waitForLoadState('domcontentloaded');
-      await page.waitForSelector('.guild-column--allied .guild-column-button', { timeout: 8000 });
-      await page.click('.guild-column--allied .guild-column-button');
-      await page.waitForSelector('.card', { timeout: 8000 });
+      await startAlliedSession(page);
 
       let lastCardNumber = 0;
 
       // Tap through all 20 cards — two taps per card (reveal + skip)
       for (let i = 0; i < 22; i++) {
-        // Check if session ended
         const onEnd = await page.$('.session-end');
         if (onEnd) break;
         const onEndColumns = await page.$('.guild-columns');
@@ -271,13 +373,11 @@ async function run() {
           if (match) lastCardNumber = parseInt(match[1], 10);
         }
 
-        // First tap: reveal name (or skip directly if name already revealed)
         const cardEl = await page.$('.card');
         if (!cardEl) break;
         await page.click('.card');
         await page.waitForTimeout(100);
 
-        // Second tap: skip advance delay (advances to next card)
         const cardEl2 = await page.$('.card');
         if (cardEl2) {
           await page.click('.card');
@@ -286,8 +386,6 @@ async function run() {
       }
 
       // After all taps, session should be on end screen
-      // Session completed = all 20 cards done → shows self-assessment (.session-end)
-      // Wait for either session-end (20 cards = complete) or guild-columns (edge case)
       await page.waitForFunction(() => {
         return !!document.querySelector('.session-end') || !!document.querySelector('.guild-columns');
       }, { timeout: 10000 });
@@ -297,7 +395,7 @@ async function run() {
       assert(onSessionEnd !== null || onGuildColumns !== null,
         'Session end or guild columns screen appears after exhausting cards');
       assert(lastCardNumber <= 20,
-        `Last card seen was card ${lastCardNumber} (should be ≤ 20, NOT 50)`);
+        `Last card seen was card ${lastCardNumber} (should be <= 20, NOT 50)`);
       assert(lastCardNumber > 15,
         `Got to near the end — last card was ${lastCardNumber} (should be 18-20)`);
       console.log(`  Last card number before end: ${lastCardNumber}`);
@@ -306,50 +404,51 @@ async function run() {
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 7: Narrow viewport (375px) — footer visible, button thumb-reachable
+    // PHASE 10: Mobile viewport (375px) — button visible and centered
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 7: Narrow viewport (375px) ===\n');
+    console.log('\n=== Phase 10: Mobile viewport (375px) ===\n');
     {
       const page = await browser.newPage();
       await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto(`${BASE_URL}/?screen=end`);
-      await page.waitForLoadState('domcontentloaded');
-      await page.waitForSelector('.guild-column--allied .guild-column-button', { timeout: 8000 });
-      await page.click('.guild-column--allied .guild-column-button');
-      await page.waitForSelector('.session-footer', { timeout: 8000 });
+      await startAlliedSession(page);
 
-      // Check footer is visible at bottom
-      const footerBox = await page.locator('.session-footer').boundingBox();
-      assert(footerBox !== null, 'Footer visible on 375px viewport');
-      if (footerBox) {
+      // .done-zone should be at bottom even on narrow viewport
+      const doneZoneBox = await page.locator('.done-zone').boundingBox();
+      assert(doneZoneBox !== null, '.done-zone present on 375px viewport');
+      if (doneZoneBox) {
         const viewportHeight = 667;
-        const footerBottom = footerBox.y + footerBox.height;
-        assert(Math.abs(footerBottom - viewportHeight) <= 2,
-          `Footer at bottom on narrow viewport (footerBottom=${footerBottom})`);
-        // Footer should be at least 44px tall for thumb reachability
-        assert(footerBox.height >= 44,
-          `Footer height is thumb-reachable (${footerBox.height}px >= 44px)`);
+        const zoneBottom = doneZoneBox.y + doneZoneBox.height;
+        assert(Math.abs(zoneBottom - viewportHeight) <= 2,
+          `.done-zone at bottom on narrow viewport (bottom=${zoneBottom})`);
       }
 
-      // Advance to card 2 to check done button on narrow viewport
+      // Advance to card 2 to show the button
       await page.click('.card');
       await page.waitForFunction(() => {
         const counter = document.querySelector('.progress-counter');
         return counter && counter.textContent && counter.textContent.includes('Card 2');
       }, { timeout: 8000 });
-      await page.waitForSelector('.done-button', { timeout: 5000 });
+      await page.waitForTimeout(100);
 
       const doneBtnBox = await page.locator('.done-button').boundingBox();
       assert(doneBtnBox !== null, '"Done for now" button visible on narrow viewport');
       if (doneBtnBox) {
-        // Button should be within the lower portion of the screen (last 25% — thumb zone)
+        // Button center should be within the lower portion of the screen (thumb zone)
         const viewportHeight = 667;
         const btnMidY = doneBtnBox.y + doneBtnBox.height / 2;
         assert(btnMidY > viewportHeight * 0.7,
           `Button in thumb zone on narrow viewport (midY=${btnMidY.toFixed(0)}, 70% threshold=${(viewportHeight * 0.7).toFixed(0)})`);
-        // Button should be adequately sized for touch (min 30px tall)
+
+        // Button should be adequately sized for touch
         assert(doneBtnBox.height >= 30,
           `Button is adequately tall for touch (${doneBtnBox.height.toFixed(0)}px >= 30px)`);
+
+        // Button should be centered horizontally
+        const viewportWidth = 375;
+        const btnMidX = doneBtnBox.x + doneBtnBox.width / 2;
+        const offsetFromCenter = Math.abs(btnMidX - viewportWidth / 2);
+        console.log(`  Button midX=${btnMidX.toFixed(0)}, viewport center=${(viewportWidth/2).toFixed(0)}, offset=${offsetFromCenter.toFixed(1)}px`);
+        assert(offsetFromCenter < 15, `Button is horizontally centered on narrow viewport (offset=${offsetFromCenter.toFixed(1)}px < 15px)`);
       }
 
       await page.screenshot({ path: 'tests/arc13-narrow-viewport.png' });
@@ -369,10 +468,10 @@ async function run() {
   console.log(`  Total:  ${passes + failures}`);
 
   if (failures > 0) {
-    console.error(`\nArc 13 verification FAILED (${failures} failure(s))`);
+    console.error(`\nArc 13 revised verification FAILED (${failures} failure(s))`);
     process.exit(1);
   } else {
-    console.log(`\nArc 13 verification PASSED (${passes}/${passes + failures})`);
+    console.log(`\nArc 13 revised verification PASSED (${passes}/${passes + failures})`);
   }
 }
 
