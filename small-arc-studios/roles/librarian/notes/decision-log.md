@@ -433,10 +433,27 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Record**: `arc10-record.md`
 - **Decisions**: DEC-047, DEC-048, DEC-049
 
-### Arc 11: Candidates
-- **Card Images** (DEC-035) — replace/augment mana pips with real Magic card art; originally planned as Arc 8, now deferred to Arc 11+
+### Arc 11: Card Images — Allied Guilds (User Arc) — COMPLETE (v0.10.0)
+- **Delivered**: 2026-02-27
+- **Outcome**: Allied guild quiz slides display a random Scryfall card image on the left with pips/name on the right. 50 card references (10 per allied guild). Two-column CSS grid layout, responsive stacking on mobile. `slide.card_name` telemetry attribute on card spans. Enemy guild slides unchanged. 18/18 checks PASS.
+- **Record**: `arc11-card-images.md`
+- **Decisions**: DEC-050, DEC-051, DEC-052
+
+### Arc 12: Card Images — Enemy Guilds (User Arc) — COMPLETE (v0.11.0)
+- **Delivered**: 2026-02-27
+- **Outcome**: Enemy guild card images added — pure data arc, zero code changes. 50 card references (10 per enemy guild). All 10 guilds now have card images. 15/15 checks PASS + 13/13 Arc 11 regression PASS.
+- **Record**: `arc12-enemy-guild-cards.md`
+
+### PIZZA PARTY
+- **Date**: 2026-02-27
+- **Context**: After delivering Arc 11 and Arc 12 back-to-back — card images for all 10 guilds, from research through implementation and verification — the client declared the team earned a pizza party.
+- **Status**: CELEBRATED
+
+### Arc 13: Candidates
 - **Visual differentiation** of allied vs enemy wheel lines (follow-on to DEC-044)
 - **Shards & Wedges tier** — three-color combinations (DEC-005)
+- **Loading/skeleton states** for card images (slow connections)
+- **Answer buttons / interactive quiz mode**
 
 ---
 
@@ -447,6 +464,26 @@ Items noted by client but explicitly out of scope for initial delivery:
 - **Real card images**: Use different real Magic card images per repetition of a combo (more faithful to original Sparrow Deck technique) — see DEC-035
 - **Adaptive pacing**: Increase speed after practice, based on observability data
 - **Page refresh detection**: Use localStorage to notice page refreshes, which could indicate errors (complements Honeycomb Web SDK automatic session ID)
+
+---
+
+## DEC-050: Card Image Alt Text Empty
+- **Date**: 2026-02-27
+- **Decision**: Card image `alt` attribute set to empty string (`""`). The card art is supplementary learning material; the card name must not appear as visible text anywhere on the slide.
+- **Context**: Arc 11 (Card Images). The card IS the lesson — showing the name would undermine the perceptual learning model.
+- **Rationale**: Consistent with DEC-003. Accessibility note: the image is decorative in context; the functional content (guild name + mana pips) has its own accessible elements.
+
+## DEC-051: Random Card Selection at Deck-Build Time
+- **Date**: 2026-02-27
+- **Decision**: Random card selection happens at deck-build time (`session.ts:buildDeck`), not at render time. The `Slide` type extends `ColorCombo` with an optional `selectedCard`.
+- **Context**: Arc 11. This means the same slide always shows the same card image across pause/resume within a session.
+- **Rationale**: Deterministic per-session behavior. Avoids confusing visual changes if the user pauses and resumes.
+
+## DEC-052: App Container Width Increase for Card Images
+- **Date**: 2026-02-27
+- **Decision**: `#app` max-width increased from 600px to 700px to accommodate the side-by-side card image layout.
+- **Context**: Arc 11. The original 600px was too narrow for a card image (180px) plus quiz content in a two-column grid.
+- **Note**: Subsequently overridden during quiz sessions by the full-screen flashcard CSS (client-requested enhancement post-Arc 11).
 
 ---
 
