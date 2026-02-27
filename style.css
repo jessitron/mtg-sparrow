@@ -746,7 +746,7 @@ footer {
 
 .mtg-card-img {
   width: 180px;
-  border-radius: 12px;
+  border-radius: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
   display: block;
 }
@@ -775,8 +775,6 @@ footer {
 
 #app.app--quiz-active .card {
   flex: 1;
-  width: 100%;
-  align-self: stretch;
   border-radius: 0;
   padding: 1.5rem;
   justify-content: center;
