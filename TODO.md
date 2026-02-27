@@ -8,3 +8,6 @@
 - add a license file, CC0
 - ask it for general professionalism and cleanup
 - work on look & feel. Can the background look like the back of a magic card? that's the mood I want
+- on mobile, make the opening screen have fewer words
+- pick different fonts
+- make it have a different aesthetic. I want it to look like the back of a MTG card.
