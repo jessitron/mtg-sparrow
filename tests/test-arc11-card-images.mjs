@@ -115,52 +115,8 @@ async function run() {
     await page.screenshot({ path: 'tests/arc11-after-reveal.png', fullPage: false });
     console.log('  Screenshot: tests/arc11-after-reveal.png');
 
-    // =========================================================
-    // Phase 3: Enemy guild session — no card image, original layout
-    // =========================================================
-    console.log('\n--- Phase 3: Enemy guild session — no card image, original layout ---\n');
-
-    // Set up progression so enemy guild button is visible
-    // (allied completed unlocks enemy button)
-    await page.evaluate(() => {
-      localStorage.setItem('sparrow-deck.progression', JSON.stringify({
-        unlockedSubgroups: ['allied'],
-        completedSubgroups: ['allied'],
-      }));
-    });
-
-    // Navigate to end screen, find enemy guild button and click it
-    await page.goto(`${BASE_URL}/?screen=end`);
-    await page.waitForLoadState('domcontentloaded');
-    await page.waitForSelector('.guild-column--enemy .guild-column-button', { timeout: 8000 });
-
-    const enemyBtn = await page.$('.guild-column--enemy .guild-column-button');
-    assert(enemyBtn !== null, 'Enemy guild button is present on end screen');
-    if (enemyBtn) {
-      await enemyBtn.click();
-    }
-
-    // Wait for card
-    await page.waitForSelector('.card', { timeout: 8000 });
-
-    // Check: no .card--with-image (enemy guilds have no cards data)
-    const enemyCardHasImageClass = await page.$('.card.card--with-image');
-    assert(enemyCardHasImageClass === null, 'Enemy guild card does NOT have .card--with-image class');
-
-    // Check: no .mtg-card-img
-    const enemyMtgImg = await page.$('.mtg-card-img');
-    assert(enemyMtgImg === null, 'Enemy guild slide has no .mtg-card-img element');
-
-    // Check: no .card-image-column
-    const enemyImgColumn = await page.$('.card-image-column');
-    assert(enemyImgColumn === null, 'Enemy guild slide has no .card-image-column');
-
-    // Check: card-name-hidden still works (original layout still functional)
-    const enemyNameHidden = await page.$('.card-name.card-name-hidden');
-    assert(enemyNameHidden !== null, 'Enemy guild slide has guild name initially hidden');
-
-    await page.screenshot({ path: 'tests/arc11-enemy-guild.png', fullPage: false });
-    console.log('  Screenshot: tests/arc11-enemy-guild.png');
+    // NOTE: Phase 3 (enemy guild no-image check) was removed in Arc 12.
+    // Arc 12 added card images to enemy guilds. See tests/test-arc12-enemy-card-images.mjs.
 
     // =========================================================
     // Phase 4: Multiple allied slides all have card images
