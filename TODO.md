@@ -1,6 +1,8 @@
 # Client notes
 
-- Make the STOP button way bigger. People don't realize that's how to get to the next screen.
+- on the slides, move or remove the card count. Move the pause button somewhere over next to settings.
+- when paused, make space resume. (Space doesn't pause, because it advances.)
+- make an animation between a slide and the self-assessment. It shrinks or folds or something
 - jess: update the text on allied and enemy guilds
 - on mobile, test it with both guild info sections; then ask for it to scroll to the enemy guilds section after they complete enemy guilds.
 - add markers to Honeycomb on deploy
