@@ -655,9 +655,6 @@ function showCard(): void {
   paused = false;
   nameRevealed = false;
 
-  // Remove any existing done-zone from a previous card
-  document.querySelector('.done-zone')?.remove();
-
   app.innerHTML = '';
   const card = renderCard(combo);
   app.appendChild(card);
@@ -705,24 +702,29 @@ function showCard(): void {
   app.appendChild(progressRow);
 
   // Floating "Done for now" zone — fixed at bottom with gradient fade
-  const doneZone = document.createElement('div');
-  doneZone.classList.add('done-zone');
+  // Persist across cards so it doesn't flash on card transitions
+  let doneZone = document.querySelector('.done-zone') as HTMLElement | null;
+  if (!doneZone) {
+    doneZone = document.createElement('div');
+    doneZone.classList.add('done-zone');
 
-  // "Done for now" button — hidden on card 1, fades in starting on card 2
-  const doneBtn = document.createElement('button');
-  doneBtn.classList.add('done-button');
-  doneBtn.textContent = 'Done for now';
-  doneBtn.addEventListener('click', (e: MouseEvent) => {
-    e.stopPropagation();
-    stopSession();
-  });
+    const doneBtn = document.createElement('button');
+    doneBtn.classList.add('done-button');
+    doneBtn.textContent = 'Done for now';
+    doneBtn.addEventListener('click', (e: MouseEvent) => {
+      e.stopPropagation();
+      stopSession();
+    });
 
-  if (session.currentIndex >= 1) {
-    doneBtn.classList.add('button-visible');
+    doneZone.appendChild(doneBtn);
+    document.body.appendChild(doneZone);
   }
 
-  doneZone.appendChild(doneBtn);
-  document.body.appendChild(doneZone);
+  // Show button from card 2 onward (fade-in only triggers once via CSS animation)
+  const doneBtn = doneZone.querySelector('.done-button');
+  if (doneBtn && session.currentIndex >= 1) {
+    doneBtn.classList.add('button-visible');
+  }
 
   // Auto-reveal: after REVEAL_DELAY_MS, fade in the name
   revealTimer = setTimeout(() => {
