@@ -51,7 +51,6 @@ body {
 #app.app--quiz-active {
   max-width: 100%;
   padding: 1rem;
-  justify-content: flex-start;
 }
 
 @keyframes cardEnter {
@@ -774,7 +773,6 @@ footer {
 }
 
 #app.app--quiz-active .card {
-  flex: 1;
   border-radius: 0;
   padding: 1.5rem;
   justify-content: center;

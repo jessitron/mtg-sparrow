@@ -1,5 +1,6 @@
 # Client notes
 
+- Make the STOP button way bigger. People don't realize that's how to get to the next screen.
 - jess: update the text on allied and enemy guilds
 - on mobile, test it with both guild info sections; then ask for it to scroll to the enemy guilds section after they complete enemy guilds.
 - add markers to Honeycomb on deploy
