@@ -100,13 +100,26 @@ body {
   opacity: 0;
 }
 
-.progress-row {
+.session-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: rgba(20, 20, 38, 0.95);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid #2a2a44;
   display: flex;
-  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  z-index: 10;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
   gap: 0.75rem;
-  margin-top: 1rem;
 }
 
 .progress-counter {
@@ -114,20 +127,28 @@ body {
   color: #888;
 }
 
-.control-button {
-  font-size: 0.75rem;
-  color: #777;
-  background: transparent;
-  border: 1px solid #555;
-  border-radius: 4px;
-  padding: 0.15rem 0.5rem;
+.done-button {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #c0b0f0;
+  background: rgba(102, 102, 170, 0.15);
+  border: 1px solid rgba(102, 102, 170, 0.55);
+  border-radius: 8px;
+  padding: 0.45rem 1.1rem;
   cursor: pointer;
-  transition: color 200ms ease, border-color 200ms ease;
+  transition: background 200ms ease, border-color 200ms ease, color 200ms ease;
+  letter-spacing: 0.01em;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.control-button:hover {
-  color: #bbb;
-  border-color: #888;
+.done-button:hover {
+  background: rgba(102, 102, 170, 0.3);
+  border-color: rgba(150, 150, 210, 0.8);
+  color: #e0d4ff;
+}
+
+.done-button:active {
+  transform: scale(0.97);
 }
 
 .session-end {
@@ -825,13 +846,9 @@ footer {
   height: clamp(64px, 10vw, 120px);
 }
 
-/* Progress row stays at the bottom, compact */
-#app.app--quiz-active .progress-row {
-  margin-top: 0;
-  padding: 0.5rem 1rem;
-  width: 100%;
-  justify-content: center;
-  background: rgba(26, 26, 46, 0.6);
+/* Leave room at the bottom for the fixed session footer */
+#app.app--quiz-active {
+  padding-bottom: 56px;
 }
 
 /* Mobile: stack image above pips/name when screen is narrow */

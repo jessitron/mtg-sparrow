@@ -656,70 +656,32 @@ function showCard(): void {
   const card = renderCard(combo);
   app.appendChild(card);
 
-  // Progress counter and stop button
-  const progressRow = document.createElement('div');
-  progressRow.classList.add('progress-row');
+  // Fixed footer bar: card counter on the left, "Done for now" button on the right
+  const footer = document.createElement('div');
+  footer.classList.add('session-footer');
 
-  const progress = document.createElement('div');
+  const footerLeft = document.createElement('div');
+  footerLeft.classList.add('footer-left');
+
+  const progress = document.createElement('span');
   progress.classList.add('progress-counter');
   progress.textContent = `Card ${session.currentIndex + 1} / ${session.cardCount}`;
-  progressRow.appendChild(progress);
+  footerLeft.appendChild(progress);
+  footer.appendChild(footerLeft);
 
-  const pauseBtn = document.createElement('button');
-  pauseBtn.classList.add('control-button');
-  pauseBtn.textContent = 'Pause';
-  pauseBtn.addEventListener('click', (e: MouseEvent) => {
-    e.stopPropagation();
-    if (!session) return;
-    if (!paused) {
-      paused = true;
-      clearTimers();
-      pauseBtn.textContent = 'Resume';
-      if (sessionSpan) {
-        addSpanEvent(sessionSpan, 'session.pause', {
-          'pause.card_number': session.currentIndex + 1,
-        });
-      }
-    } else {
-      paused = false;
-      pauseBtn.textContent = 'Pause';
-      if (sessionSpan) {
-        addSpanEvent(sessionSpan, 'session.resume', {
-          'resume.card_number': session.currentIndex + 1,
-        });
-      }
-      // Restart the appropriate timer
-      if (!nameRevealed) {
-        const card = app?.querySelector('.card') as HTMLElement | null;
-        revealTimer = setTimeout(() => {
-          revealTimer = null;
-          nameRevealed = true;
-          if (card) revealName(card);
-          advanceTimer = setTimeout(() => {
-            advanceTimer = null;
-            goToNextCard(false);
-          }, ADVANCE_DELAY_MS);
-        }, REVEAL_DELAY_MS);
-      } else {
-        advanceTimer = setTimeout(() => {
-          advanceTimer = null;
-          goToNextCard(false);
-        }, ADVANCE_DELAY_MS);
-      }
-    }
-  });
-  progressRow.appendChild(pauseBtn);
+  // "Done for now" button — only shown from card 2 onward
+  if (session.currentIndex >= 1) {
+    const doneBtn = document.createElement('button');
+    doneBtn.classList.add('done-button');
+    doneBtn.textContent = 'Done for now';
+    doneBtn.addEventListener('click', (e: MouseEvent) => {
+      e.stopPropagation();
+      stopSession();
+    });
+    footer.appendChild(doneBtn);
+  }
 
-  const stopBtn = document.createElement('button');
-  stopBtn.classList.add('control-button');
-  stopBtn.textContent = 'Stop';
-  stopBtn.addEventListener('click', (e: MouseEvent) => {
-    e.stopPropagation();
-    stopSession();
-  });
-  progressRow.appendChild(stopBtn);
-
-  app.appendChild(progressRow);
+  app.appendChild(footer);
 
   // Auto-reveal: after REVEAL_DELAY_MS, fade in the name
   revealTimer = setTimeout(() => {
