@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option C: Card Centered Below Mana Symbols</title>
+  <style>
+    /*
+     * DESIGN RATIONALE
+     * ----------------
+     * A vertically stacked layout: mana symbols at top (the challenge), guild name
+     * revealed in middle, card image below (a reference point), then answer buttons
+     * at the bottom.
+     *
+     * The reading order matches the learning sequence: see the colors -> recognize the
+     * guild -> see an example card. The card image functions as a "memory aid" midway
+     * through the card. It reinforces the correct answer visually.
+     *
+     * This is the most natural extension of the current layout — the card just slots in
+     * between the name and the buttons. The quiz card becomes taller but keeps its
+     * single-column structure. Works cleanly on mobile.
+     *
+     * Tradeoff: The card is visible the whole time (including before the name reveals),
+     * which could be a subtle hint. Also the overall card height increases significantly,
+     * especially on mobile. Could scroll off-screen on very small viewports.
+     */
+
+    :root {
+      --bg: #1a1a2e;
+      --card-bg: #2a2a3e;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --text-bright: #f0f0f0;
+      --border: #444;
+      --border-hover: #666;
+      --gold: #c8b88a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      gap: 2rem;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 25% 25%, rgba(80,60,180,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 75% 75%, rgba(30,100,60,0.12) 0%, transparent 55%);
+      z-index: 0;
+    }
+
+    .label {
+      position: relative;
+      z-index: 1;
+      font-size: 0.75rem;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    .state-note {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    /* Side by side demo */
+    .demo-row {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      width: 100%;
+      max-width: 800px;
+      align-items: start;
+    }
+
+    .demo-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* The quiz card — vertical layout */
+    .quiz-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 2rem 1.75rem;
+      width: 100%;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    /* Mana pips */
+    .pips {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pip {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .pip-W { background: radial-gradient(circle at 35% 35%, #fffde7, #d4c77a); color: #5a4e00; }
+    .pip-U { background: radial-gradient(circle at 35% 35%, #bbdefb, #1976d2); color: white; }
+    .pip-B { background: radial-gradient(circle at 35% 35%, #555, #111); color: #ccc; }
+    .pip-R { background: radial-gradient(circle at 35% 35%, #ffcdd2, #c62828); color: white; }
+    .pip-G { background: radial-gradient(circle at 35% 35%, #c8e6c9, #2e7d32); color: white; }
+
+    .guild-name {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      letter-spacing: 0.02em;
+      text-align: center;
+      transition: opacity 250ms ease;
+    }
+
+    .guild-name--revealed { color: var(--gold); }
+    .guild-name--hidden { opacity: 0; }
+
+    /* Card image — full-width within the quiz card, styled like a display image */
+    .mtg-card-img-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mtg-card-img {
+      width: 160px;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+      display: block;
+    }
+
+    /* Optional: fade in with reveal? For now, always visible */
+    .card-img-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-align: center;
+      margin-top: -0.75rem;
+    }
+
+    .answer-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .answer-btn {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      transition: background 200ms, border-color 200ms;
+      text-align: center;
+    }
+
+    .answer-btn:hover {
+      background: #35355a;
+      border-color: var(--border-hover);
+    }
+
+    .progress-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .control-btn {
+      font-size: 0.75rem;
+      color: #777;
+      background: transparent;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 550px) {
+      .demo-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="label">Option C — Card Centered Below Mana Symbols</div>
+
+<div class="demo-row">
+
+  <!-- STATE: Before reveal -->
+  <div class="demo-col">
+    <div class="state-note">Before answer reveal</div>
+    <div class="quiz-card">
+      <div class="pips">
+        <div class="pip pip-W">W</div>
+        <div class="pip pip-U">U</div>
+      </div>
+      <div class="guild-name guild-name--hidden">Azorius</div>
+      <div class="mtg-card-img-wrapper">
+        <img class="mtg-card-img"
+          src="https://cards.scryfall.io/normal/front/4/e/4e9648f9-7a67-4717-bca1-861d1f7fed43.jpg?1562786100"
+          alt="Supreme Verdict">
+      </div>
+      <div class="card-img-label">Supreme Verdict</div>
+      <div class="answer-buttons">
+        <div class="answer-btn">Dimir</div>
+        <div class="answer-btn">Azorius</div>
+        <div class="answer-btn">Boros</div>
+        <div class="answer-btn">Simic</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATE: After reveal -->
+  <div class="demo-col">
+    <div class="state-note">After answer reveal</div>
+    <div class="quiz-card">
+      <div class="pips">
+        <div class="pip pip-W">W</div>
+        <div class="pip pip-U">U</div>
+      </div>
+      <div class="guild-name guild-name--revealed">Azorius</div>
+      <div class="mtg-card-img-wrapper">
+        <img class="mtg-card-img"
+          src="https://cards.scryfall.io/normal/front/4/e/4e9648f9-7a67-4717-bca1-861d1f7fed43.jpg?1562786100"
+          alt="Supreme Verdict">
+      </div>
+      <div class="card-img-label">Supreme Verdict</div>
+      <div class="answer-buttons">
+        <div class="answer-btn" style="border-color:#4a8a4a;background:rgba(74,138,74,0.15);color:#a8d8a8;">Azorius ✓</div>
+        <div class="answer-btn" style="opacity:0.4;">Dimir</div>
+        <div class="answer-btn" style="opacity:0.4;">Boros</div>
+        <div class="answer-btn" style="opacity:0.4;">Simic</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="progress-row">
+  <span>Card 3 / 10</span>
+  <button class="control-btn">Pause</button>
+  <button class="control-btn">Stop</button>
+</div>
+
+</body>
+</html>

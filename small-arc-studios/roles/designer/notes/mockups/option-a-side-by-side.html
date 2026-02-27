@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option A: Card Left, Quiz Right</title>
+  <style>
+    /*
+     * DESIGN RATIONALE
+     * ----------------
+     * This is the client's initial instinct: card on left, quiz content on right.
+     * The card image gives visual context — you see the spell, then identify its guild.
+     * Works well on desktop where there's horizontal space. On mobile, the two columns
+     * stack vertically: card on top, quiz below. The card serves as a "set the scene"
+     * element before the challenge.
+     *
+     * Tradeoff: The card is always visible, which could make the challenge trivially easy
+     * for players who can already read the mana cost on the card art. That said, Scryfall
+     * normal-size images are readable but the mana symbols are small — unlikely to spoil.
+     * More importantly, the card gives context BEFORE the name is revealed, not after,
+     * which shifts the learning moment slightly.
+     */
+
+    :root {
+      --bg: #1a1a2e;
+      --card-bg: #2a2a3e;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --text-bright: #f0f0f0;
+      --border: #444;
+      --border-hover: #666;
+      --accent: #6666aa;
+      --accent-hover: #8888cc;
+      --gold: #c8b88a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    /* Fake background gradient to suggest the mana-gas canvas */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 30%, rgba(100,80,200,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 70%, rgba(40,120,80,0.12) 0%, transparent 55%),
+                  radial-gradient(ellipse at 60% 20%, rgba(200,80,60,0.10) 0%, transparent 50%);
+      z-index: 0;
+    }
+
+    .scene {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 680px;
+    }
+
+    .label {
+      font-size: 0.75rem;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    /* The main quiz layout: two columns */
+    .quiz-layout {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1.5rem;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      width: 100%;
+      align-items: center;
+    }
+
+    /* Card image column */
+    .card-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mtg-card-img {
+      width: 180px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+      display: block;
+    }
+
+    .card-caption {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    /* Quiz column */
+    .quiz-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    /* Mana pips */
+    .pips {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pip {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .pip-W { background: radial-gradient(circle at 35% 35%, #fffde7, #d4c77a); color: #5a4e00; }
+    .pip-U { background: radial-gradient(circle at 35% 35%, #bbdefb, #1976d2); color: white; }
+    .pip-B { background: radial-gradient(circle at 35% 35%, #555, #111); color: #ccc; }
+    .pip-R { background: radial-gradient(circle at 35% 35%, #ffcdd2, #c62828); color: white; }
+    .pip-G { background: radial-gradient(circle at 35% 35%, #c8e6c9, #2e7d32); color: white; }
+
+    /* Guild name — hidden state */
+    .guild-name {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      letter-spacing: 0.02em;
+      text-align: center;
+    }
+
+    .guild-name--revealed {
+      color: var(--gold);
+    }
+
+    .guild-name--hidden {
+      opacity: 0;
+    }
+
+    /* Answer buttons */
+    .answer-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .answer-btn {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      transition: background 200ms, border-color 200ms;
+      text-align: center;
+    }
+
+    .answer-btn:hover {
+      background: #35355a;
+      border-color: var(--border-hover);
+    }
+
+    /* Progress row */
+    .progress-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .control-btn {
+      font-size: 0.75rem;
+      color: #777;
+      background: transparent;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      cursor: pointer;
+    }
+
+    /* Mobile: stack vertically */
+    @media (max-width: 500px) {
+      .quiz-layout {
+        grid-template-columns: 1fr;
+        justify-items: center;
+      }
+      .mtg-card-img {
+        width: 140px;
+      }
+    }
+
+    /* State toggle for demo */
+    .demo-controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .demo-btn {
+      font-size: 0.75rem;
+      color: #999;
+      background: transparent;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 0.25rem 0.75rem;
+      cursor: pointer;
+    }
+
+    .demo-btn:hover { border-color: #888; color: #ccc; }
+
+    .state-note {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="label">Option A — Card Left, Quiz Right</div>
+
+  <!-- STATE: Before reveal -->
+  <div id="before-state">
+    <div class="state-note">Before answer reveal</div>
+    <div class="quiz-layout" style="margin-top:0.5rem;">
+      <div class="card-column">
+        <img class="mtg-card-img"
+          src="https://cards.scryfall.io/normal/front/4/e/4e9648f9-7a67-4717-bca1-861d1f7fed43.jpg?1562786100"
+          alt="Supreme Verdict">
+        <div class="card-caption">Supreme Verdict</div>
+      </div>
+      <div class="quiz-column">
+        <div class="pips">
+          <div class="pip pip-W">W</div>
+          <div class="pip pip-U">U</div>
+        </div>
+        <div class="guild-name guild-name--hidden">Azorius</div>
+        <div class="answer-buttons">
+          <div class="answer-btn">Dimir</div>
+          <div class="answer-btn">Azorius</div>
+          <div class="answer-btn">Boros</div>
+          <div class="answer-btn">Simic</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATE: After reveal -->
+  <div id="after-state" style="margin-top: 1.5rem;">
+    <div class="state-note">After answer reveal</div>
+    <div class="quiz-layout" style="margin-top:0.5rem;">
+      <div class="card-column">
+        <img class="mtg-card-img"
+          src="https://cards.scryfall.io/normal/front/4/e/4e9648f9-7a67-4717-bca1-861d1f7fed43.jpg?1562786100"
+          alt="Supreme Verdict">
+        <div class="card-caption">Supreme Verdict</div>
+      </div>
+      <div class="quiz-column">
+        <div class="pips">
+          <div class="pip pip-W">W</div>
+          <div class="pip pip-U">U</div>
+        </div>
+        <div class="guild-name guild-name--revealed">Azorius</div>
+        <div class="answer-buttons">
+          <div class="answer-btn" style="border-color:#4a8a4a; background: rgba(74,138,74,0.15); color: #a8d8a8;">Azorius ✓</div>
+          <div class="answer-btn" style="opacity:0.4;">Dimir</div>
+          <div class="answer-btn" style="opacity:0.4;">Boros</div>
+          <div class="answer-btn" style="opacity:0.4;">Simic</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-row">
+    <span>Card 3 / 10</span>
+    <button class="control-btn">Pause</button>
+    <button class="control-btn">Stop</button>
+  </div>
+</div>
+
+</body>
+</html>

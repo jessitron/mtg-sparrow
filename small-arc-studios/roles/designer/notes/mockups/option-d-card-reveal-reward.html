@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option D: Card Slides In as Reveal Reward</title>
+  <style>
+    /*
+     * DESIGN RATIONALE
+     * ----------------
+     * The card image is hidden during the challenge phase. When the answer is revealed,
+     * the card slides in from the right (or fades up) below the guild name. This makes
+     * the card image the REWARD for completing the challenge — a small moment of
+     * delight and payoff.
+     *
+     * The learning sequence is clean: see colors -> think hard -> see guild name AND
+     * see a representative card at the same moment. The card reinforces the name
+     * through concrete example, arriving exactly when the connection is being formed.
+     *
+     * This also solves the "spoiler" problem of other layouts — the card can't hint
+     * at the answer since it only appears after.
+     *
+     * Tradeoff: Slightly more complex to implement (animation, state management).
+     * Also, if a player advances quickly (before fully absorbing the card), they
+     * lose the association. Could address by extending the dwell time after reveal
+     * when a card image is present.
+     */
+
+    :root {
+      --bg: #1a1a2e;
+      --card-bg: #2a2a3e;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --text-bright: #f0f0f0;
+      --border: #444;
+      --border-hover: #666;
+      --gold: #c8b88a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      gap: 2rem;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 15% 40%, rgba(90,60,180,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 85% 60%, rgba(40,100,60,0.12) 0%, transparent 55%);
+      z-index: 0;
+    }
+
+    .label {
+      position: relative;
+      z-index: 1;
+      font-size: 0.75rem;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    .state-note {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    /* Card entrance animation */
+    @keyframes cardSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Side by side comparison */
+    .demo-row {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      width: 100%;
+      max-width: 800px;
+      align-items: start;
+    }
+
+    .demo-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .quiz-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 2rem 1.75rem;
+      width: 100%;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    .pips {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pip {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .pip-W { background: radial-gradient(circle at 35% 35%, #fffde7, #d4c77a); color: #5a4e00; }
+    .pip-U { background: radial-gradient(circle at 35% 35%, #bbdefb, #1976d2); color: white; }
+    .pip-B { background: radial-gradient(circle at 35% 35%, #555, #111); color: #ccc; }
+    .pip-R { background: radial-gradient(circle at 35% 35%, #ffcdd2, #c62828); color: white; }
+    .pip-G { background: radial-gradient(circle at 35% 35%, #c8e6c9, #2e7d32); color: white; }
+
+    .guild-name {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      letter-spacing: 0.02em;
+      text-align: center;
+    }
+
+    .guild-name--revealed { color: var(--gold); }
+    .guild-name--hidden { opacity: 0; }
+
+    /* Card image reveal — only shown after answer */
+    .card-reveal-zone {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Before reveal: empty placeholder space (or hidden) */
+    .card-reveal-zone--hidden {
+      /* Takes no space when hidden */
+      display: none;
+    }
+
+    /* After reveal: animate in */
+    .card-reveal-zone--visible {
+      animation: cardSlideIn 350ms cubic-bezier(0.2, 0, 0.1, 1) both;
+    }
+
+    .mtg-card-img {
+      width: 160px;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+      display: block;
+    }
+
+    .card-caption {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    .answer-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .answer-btn {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      transition: background 200ms, border-color 200ms;
+      text-align: center;
+    }
+
+    .answer-btn:hover {
+      background: #35355a;
+      border-color: var(--border-hover);
+    }
+
+    .progress-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .control-btn {
+      font-size: 0.75rem;
+      color: #777;
+      background: transparent;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      cursor: pointer;
+    }
+
+    /* Interactive demo */
+    .tap-hint {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      opacity: 0.7;
+      text-align: center;
+    }
+
+    @media (max-width: 550px) {
+      .demo-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="label">Option D — Card Slides In After Answer Reveal</div>
+
+<div class="demo-row">
+
+  <!-- STATE: Before reveal -->
+  <div class="demo-col">
+    <div class="state-note">Before answer reveal</div>
+    <div class="tap-hint">Card is hidden — player thinks first</div>
+    <div class="quiz-card">
+      <div class="pips">
+        <div class="pip pip-W">W</div>
+        <div class="pip pip-U">U</div>
+      </div>
+      <div class="guild-name guild-name--hidden">Azorius</div>
+      <!-- Card zone is not present / display:none -->
+      <div class="card-reveal-zone card-reveal-zone--hidden">
+        <img class="mtg-card-img"
+          src="https://cards.scryfall.io/normal/front/4/e/4e9648f9-7a67-4717-bca1-861d1f7fed43.jpg?1562786100"
+          alt="Supreme Verdict">
+        <div class="card-caption">Supreme Verdict</div>
+      </div>
+      <div class="answer-buttons">
+        <div class="answer-btn">Dimir</div>
+        <div class="answer-btn">Azorius</div>
+        <div class="answer-btn">Boros</div>
+        <div class="answer-btn">Simic</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATE: After reveal — card has appeared -->
+  <div class="demo-col">
+    <div class="state-note">After answer reveal — card appears</div>
+    <div class="tap-hint">Card animates in as the reward</div>
+    <div class="quiz-card">
+      <div class="pips">
+        <div class="pip pip-W">W</div>
+        <div class="pip pip-U">U</div>
+      </div>
+      <div class="guild-name guild-name--revealed">Azorius</div>
+      <!-- Card zone is visible and animated in -->
+      <div class="card-reveal-zone card-reveal-zone--visible">
+        <img class="mtg-card-img"
+          src="https://cards.scryfall.io/normal/front/4/e/4e9648f9-7a67-4717-bca1-861d1f7fed43.jpg?1562786100"
+          alt="Supreme Verdict">
+        <div class="card-caption">Supreme Verdict</div>
+      </div>
+      <div class="answer-buttons">
+        <div class="answer-btn" style="border-color:#4a8a4a;background:rgba(74,138,74,0.15);color:#a8d8a8;">Azorius ✓</div>
+        <div class="answer-btn" style="opacity:0.4;">Dimir</div>
+        <div class="answer-btn" style="opacity:0.4;">Boros</div>
+        <div class="answer-btn" style="opacity:0.4;">Simic</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Interactive live demo -->
+<div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:0.75rem;margin-top:1rem;">
+  <div style="font-size:0.8rem;color:#c8b88a;text-align:center;">Live demo — tap the card or press Space to simulate advance</div>
+  <div class="quiz-card" id="live-card" style="max-width:300px;cursor:pointer;" onclick="advanceDemo()">
+    <div class="pips">
+      <div class="pip pip-W">W</div>
+      <div class="pip pip-U">U</div>
+    </div>
+    <div class="guild-name" id="live-name" style="opacity:0;">Azorius</div>
+    <div class="card-reveal-zone card-reveal-zone--hidden" id="live-card-zone">
+      <img class="mtg-card-img"
+        src="https://cards.scryfall.io/normal/front/4/e/4e9648f9-7a67-4717-bca1-861d1f7fed43.jpg?1562786100"
+        alt="Supreme Verdict">
+      <div class="card-caption">Supreme Verdict</div>
+    </div>
+    <div class="answer-buttons">
+      <div class="answer-btn" id="btn-azorius">Azorius</div>
+      <div class="answer-btn" id="btn-dimir">Dimir</div>
+    </div>
+    <div class="tap-hint" id="live-hint">Tap to reveal answer</div>
+  </div>
+</div>
+
+<div class="progress-row">
+  <span>Card 3 / 10</span>
+  <button class="control-btn">Pause</button>
+  <button class="control-btn">Stop</button>
+</div>
+
+<script>
+  let revealed = false;
+
+  function advanceDemo() {
+    if (!revealed) {
+      // Reveal
+      const name = document.getElementById('live-name');
+      name.style.opacity = '1';
+      name.style.color = '#c8b88a';
+
+      const zone = document.getElementById('live-card-zone');
+      zone.classList.remove('card-reveal-zone--hidden');
+      zone.classList.add('card-reveal-zone--visible');
+
+      document.getElementById('btn-azorius').style.cssText =
+        'border-color:#4a8a4a;background:rgba(74,138,74,0.15);color:#a8d8a8;font-size:0.95rem;font-weight:500;border:1px solid #4a8a4a;border-radius:10px;padding:0.6rem 1rem;text-align:center;';
+      document.getElementById('btn-azorius').textContent = 'Azorius ✓';
+      document.getElementById('btn-dimir').style.opacity = '0.4';
+
+      document.getElementById('live-hint').textContent = 'Tap again to reset';
+      revealed = true;
+    } else {
+      // Reset
+      const name = document.getElementById('live-name');
+      name.style.opacity = '0';
+      name.style.color = '';
+
+      const zone = document.getElementById('live-card-zone');
+      zone.classList.add('card-reveal-zone--hidden');
+      zone.classList.remove('card-reveal-zone--visible');
+
+      document.getElementById('btn-azorius').style.cssText = 'font-size:0.95rem;font-weight:500;color:#e0e0e0;background:#1a1a2e;border:1px solid #444;border-radius:10px;padding:0.6rem 1rem;cursor:pointer;text-align:center;';
+      document.getElementById('btn-azorius').textContent = 'Azorius';
+      document.getElementById('btn-dimir').style.opacity = '';
+
+      document.getElementById('live-hint').textContent = 'Tap to reveal answer';
+      revealed = false;
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space') { e.preventDefault(); advanceDemo(); }
+  });
+</script>
+
+</body>
+</html>

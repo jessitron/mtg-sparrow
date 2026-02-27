@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option B: Card as Background Watermark</title>
+  <style>
+    /*
+     * DESIGN RATIONALE
+     * ----------------
+     * The card image acts as a subtle background atmosphere behind the quiz card.
+     * The quiz content is fully legible on top via a semi-transparent overlay.
+     * This approach preserves the existing layout exactly — no restructuring needed.
+     * The card becomes ambient context rather than a prominent element.
+     *
+     * It creates a dreamy, immersive feel — you are IN the card's world while
+     * answering the question. The identity of the card is secondary; the mood is
+     * primary. Works well at any screen size since the content region stays centered.
+     *
+     * Tradeoff: The card art is quite obscured. It reads more as "texture" than
+     * "this specific card." Players who want to study the card in detail can't.
+     * Also, some card arts are darker and some lighter — inconsistent legibility
+     * risk unless the overlay is aggressive enough.
+     */
+
+    :root {
+      --bg: #1a1a2e;
+      --card-bg: #2a2a3e;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --text-bright: #f0f0f0;
+      --border: #444;
+      --border-hover: #666;
+      --accent: #6666aa;
+      --gold: #c8b88a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      gap: 2rem;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 30%, rgba(100,80,200,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 70%, rgba(40,120,80,0.12) 0%, transparent 55%);
+      z-index: 0;
+    }
+
+    .scene {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .label {
+      font-size: 0.75rem;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    .state-note {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    /* The quiz card — now with relative positioning to host the background image */
+    .quiz-card {
+      position: relative;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      overflow: hidden;
+    }
+
+    /* Card image as background — blurred, dark-tinted */
+    .card-bg-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top; /* show the card art, not the text box */
+      opacity: 0.22;
+      filter: blur(2px) saturate(0.7);
+      z-index: 0;
+      transform: scale(1.05); /* prevent blur from showing edges */
+      border-radius: 16px;
+    }
+
+    /* Overlay to ensure contrast */
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(26, 26, 46, 0.55);
+      z-index: 1;
+      border-radius: 16px;
+    }
+
+    /* All quiz content sits above the background */
+    .quiz-card > *:not(.card-bg-img):not(.card-overlay) {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Mana pips */
+    .pips {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pip {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .pip-W { background: radial-gradient(circle at 35% 35%, #fffde7, #d4c77a); color: #5a4e00; }
+    .pip-U { background: radial-gradient(circle at 35% 35%, #bbdefb, #1976d2); color: white; }
+    .pip-B { background: radial-gradient(circle at 35% 35%, #555, #111); color: #ccc; }
+    .pip-R { background: radial-gradient(circle at 35% 35%, #ffcdd2, #c62828); color: white; }
+    .pip-G { background: radial-gradient(circle at 35% 35%, #c8e6c9, #2e7d32); color: white; }
+
+    .guild-name {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      letter-spacing: 0.02em;
+      text-align: center;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    .guild-name--revealed {
+      color: var(--gold);
+      text-shadow: 0 0 20px rgba(200, 184, 138, 0.4), 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    .guild-name--hidden { opacity: 0; }
+
+    .answer-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .answer-btn {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      background: rgba(26,26,46,0.7);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      transition: background 200ms, border-color 200ms;
+      text-align: center;
+    }
+
+    .answer-btn:hover {
+      background: rgba(53,53,90,0.85);
+      border-color: var(--border-hover);
+    }
+
+    .progress-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .control-btn {
+      font-size: 0.75rem;
+      color: #777;
+      background: transparent;
+      border: 1px solid #555;
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      cursor: pointer;
+    }
+
+    .side-by-side {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    @media (max-width: 600px) {
+      .side-by-side {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div style="position:relative;z-index:1;text-align:center;">
+  <div style="font-size:0.75rem;color:#c8b88a;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;opacity:0.8;margin-bottom:1rem;">
+    Option B — Card as Background Watermark
+  </div>
+</div>
+
+<div class="side-by-side" style="position:relative;z-index:1;">
+
+  <!-- STATE: Before reveal -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
+    <div class="state-note">Before answer reveal</div>
+    <div class="quiz-card">
+      <img class="card-bg-img"
+        src="https://cards.scryfall.io/normal/front/4/e/4e9648f9-7a67-4717-bca1-861d1f7fed43.jpg?1562786100"
+        alt="">
+      <div class="card-overlay"></div>
+      <div class="pips">
+        <div class="pip pip-W">W</div>
+        <div class="pip pip-U">U</div>
+      </div>
+      <div class="guild-name guild-name--hidden">Azorius</div>
+      <div class="answer-buttons">
+        <div class="answer-btn">Dimir</div>
+        <div class="answer-btn">Azorius</div>
+        <div class="answer-btn">Boros</div>
+        <div class="answer-btn">Simic</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATE: After reveal -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
+    <div class="state-note">After answer reveal</div>
+    <div class="quiz-card">
+      <img class="card-bg-img"
+        src="https://cards.scryfall.io/normal/front/4/e/4e9648f9-7a67-4717-bca1-861d1f7fed43.jpg?1562786100"
+        alt="">
+      <div class="card-overlay"></div>
+      <div class="pips">
+        <div class="pip pip-W">W</div>
+        <div class="pip pip-U">U</div>
+      </div>
+      <div class="guild-name guild-name--revealed">Azorius</div>
+      <div class="answer-buttons">
+        <div class="answer-btn" style="border-color:#4a8a4a;background:rgba(74,138,74,0.2);color:#a8d8a8;">Azorius ✓</div>
+        <div class="answer-btn" style="opacity:0.4;">Dimir</div>
+        <div class="answer-btn" style="opacity:0.4;">Boros</div>
+        <div class="answer-btn" style="opacity:0.4;">Simic</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="progress-row" style="position:relative;z-index:1;">
+  <span>Card 3 / 10</span>
+  <button class="control-btn">Pause</button>
+  <button class="control-btn">Stop</button>
+</div>
+
+</body>
+</html>
