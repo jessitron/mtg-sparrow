@@ -1,7 +1,33 @@
 # Arc 14 Observability Verification Report
 
 > Date: 2026-03-01
-> Status: BLOCKED — No v0.12.0 spans in Honeycomb
+> Status: PASSED — All Arc 14 criteria confirmed in Honeycomb
+
+## Final Verification (22:37 UTC)
+
+Queried `sparrow-deck` environment, last 2 hours, filtered `app.version = 0.12.0`:
+
+| Criterion | Status | Evidence |
+|-----------|--------|---------|
+| `mtg-sparrow.session.id` on session and card spans | ✅ | Groups correctly; seen on `app.startup`, `session`, `card` spans |
+| `app.navigation = 'single_page'` on startup span | ✅ | Present on all v0.12.0 spans as resource attribute |
+| Visible and queryable in Honeycomb | ✅ | GROUP BY `mtg-sparrow.session.id` works |
+
+**Session IDs seen:**
+- `8102c123d96a166a` — HeadlessChrome / Playwright run
+- `d327664d713c9ed0` — Firefox manual run (had `session` + `card` + `app.startup` spans)
+
+**Grouping confirmed:** `COUNT GROUP BY mtg-sparrow.session.id, name` correctly correlates all span types to the same session ID within a browser session.
+
+## Known Blind Spot (Pre-existing Bug)
+
+`e.forceFlush is not a function` error in the `visibilitychange` handler. Spans still export via the BatchSpanProcessor timer (~5s), but flush-on-page-hide is broken. If a user closes the tab quickly after their last span, those spans may be lost.
+
+- **Predates Arc 14** — not introduced by this arc
+- **Risk:** Systematic under-counting of session-end spans and late card spans
+- **Recommended fix:** Future arc to repair the `forceFlush` call (check correct API for the Honeycomb Web SDK's provider reference)
+
+---
 
 ---
 
