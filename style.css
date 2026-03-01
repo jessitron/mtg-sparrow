@@ -597,8 +597,8 @@ body {
   font-size: 1.1rem;
   font-weight: 600;
   color: #e0e0e0;
-  background: #2a2a3e;
-  border: 2px solid #444;
+  background: color-mix(in srgb, var(--card-back-turquoise) 20%, transparent);
+  border: 2px solid var(--card-back-turquoise);
   border-radius: 12px;
   padding: 0.9rem 2rem;
   cursor: pointer;
@@ -607,8 +607,8 @@ body {
 }
 
 .welcome-button:hover {
-  background: #35355a;
-  border-color: #666;
+  background: color-mix(in srgb, var(--card-back-turquoise) 35%, transparent);
+  border-color: var(--card-back-oval-brighter);
 }
 
 .welcome-button:active {
