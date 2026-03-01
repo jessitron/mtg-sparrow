@@ -557,10 +557,10 @@ body {
   align-items: center;
   gap: 1.5rem;
   animation: cardEnter 250ms ease-out;
-  background: rgba(26, 26, 46, 0.85);
+  background: rgba(42, 22, 8, 0.88);
   backdrop-filter: blur(8px);
-  border-radius: 16px;
-  padding: 2rem;
+  border-radius: 60% / 45%;
+  padding: 3.5rem 3rem;
 }
 
 .welcome-heading {
