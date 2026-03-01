@@ -36,7 +36,7 @@ button, input, select, textarea {
 html {
   font-family: 'Jost', system-ui, sans-serif;
   color: #e0e0e0;
-  background-color: #1a1a2e;
+  background-color: var(--bg-brown-dark);
   min-height: 100vh;
 }
 
@@ -104,7 +104,7 @@ body {
 }
 
 .card {
-  background: #2a2a3e;
+  background: color-mix(in srgb, var(--bg-brown-dark) 88%, transparent);
   border-radius: 16px;
   padding: 2.5rem 2rem;
   min-width: 280px;
@@ -224,7 +224,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  background: rgba(26, 26, 46, 0.85);
+  background: color-mix(in srgb, var(--bg-brown-dark) 85%, transparent);
   backdrop-filter: blur(8px);
   border-radius: 16px;
   padding: 2rem;
@@ -267,8 +267,8 @@ body {
   font-size: 1.1rem;
   font-weight: 600;
   color: #e0e0e0;
-  background: #2a2a3e;
-  border: 2px solid #444;
+  background: color-mix(in srgb, var(--card-back-turquoise) 20%, transparent);
+  border: 2px solid var(--card-back-turquoise);
   border-radius: 12px;
   padding: 0.9rem 1.5rem;
   cursor: pointer;
@@ -277,8 +277,8 @@ body {
 }
 
 .self-assessment-button:hover {
-  background: #35355a;
-  border-color: #666;
+  background: color-mix(in srgb, var(--card-back-turquoise) 35%, transparent);
+  border-color: var(--card-back-oval-brighter);
 }
 
 .self-assessment-button:active {
@@ -368,8 +368,8 @@ body {
   font-size: 1.1rem;
   font-weight: 600;
   color: #e0e0e0;
-  background: #2a2a3e;
-  border: 2px solid #444;
+  background: color-mix(in srgb, var(--card-back-turquoise) 20%, transparent);
+  border: 2px solid var(--card-back-turquoise);
   border-radius: 12px;
   padding: 0.9rem 1.5rem;
   cursor: pointer;
@@ -378,8 +378,8 @@ body {
 }
 
 .next-session-button:hover {
-  background: #35355a;
-  border-color: #666;
+  background: color-mix(in srgb, var(--card-back-turquoise) 35%, transparent);
+  border-color: var(--card-back-oval-brighter);
 }
 
 .next-session-button:active {
@@ -392,8 +392,8 @@ body {
 }
 
 .next-session-button--primary:hover {
-  border-color: #8888cc;
-  background: #35355a;
+  border-color: var(--card-back-oval-brighter);
+  background: color-mix(in srgb, var(--card-back-turquoise) 35%, transparent);
 }
 
 /* Two-column guild layout */
@@ -664,7 +664,7 @@ footer {
   left: 50%;
   transform: translateX(-50%);
   z-index: 11;
-  background: rgba(26, 26, 46, 0.97);
+  background: color-mix(in srgb, var(--bg-brown-dark) 97%, transparent);
   backdrop-filter: blur(12px);
   border: 1px solid #333;
   border-radius: 16px;
