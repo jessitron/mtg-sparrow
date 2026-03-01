@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSS-Only MTG Card Back</title>
+  <link rel="stylesheet" href="card-back.css" />
+</head>
+<body>
+
+  <!--
+    CSS-Only MTG Card Back Recreation
+    No images — pure CSS gradients, shadows, and animations.
+
+    Structure:
+      .card                   ─ outermost black border + tan/brown ornate frame
+        .corner × 4           ─ decorative pip ornaments at each corner
+        .card-inner           ─ dark navy inset area with gold pinstripe border
+          .star-field         ─ scattered star dots in navy region
+          .bloom              ─ subtle ambient light bloom
+          .card-oval          ─ the large dark-blue oval with swirl pattern
+                                  ::before / ::after ─ two counter-rotating swirl arms
+            .card-center      ─ lighter circular element at center
+                                  ::before ─ inner glow pulse
+  -->
+
+  <div class="card">
+
+    <!-- Corner ornament pips -->
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <!-- Dark navy inner area -->
+    <div class="card-inner">
+
+      <!-- Star field in the navy background -->
+      <div class="star-field"></div>
+
+      <!-- Ambient bloom highlight -->
+      <div class="bloom"></div>
+
+      <!-- The main oval with swirling warm pattern -->
+      <div class="card-oval">
+
+        <!-- Central lighter circle (the "lens") -->
+        <div class="card-center"></div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <h1>CSS-Only MTG Card Back</h1>
+
+</body>
+</html>
