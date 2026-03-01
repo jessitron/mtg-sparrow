@@ -31,6 +31,10 @@
   const TRIGGER_DIST = R;
   const BUBBLE_RADIUS = R * 2;
 
+  // Outline drawn behind each mana symbol — tweak color & width to taste
+  const SYMBOL_OUTLINE_COLOR = "rgba(255, 220, 150, 0.55)";
+  const SYMBOL_OUTLINE_WIDTH = 2.5;
+
   const GUILDS = {
     "U,W": "Azorius",
     "B,U": "Dimir",
@@ -248,6 +252,14 @@
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rotation);
       ctx.globalAlpha = 0.75;
+
+      // Outline ring behind the symbol for separation from the background
+      ctx.beginPath();
+      ctx.arc(0, 0, p.r + SYMBOL_OUTLINE_WIDTH / 2, 0, Math.PI * 2);
+      ctx.strokeStyle = SYMBOL_OUTLINE_COLOR;
+      ctx.lineWidth = SYMBOL_OUTLINE_WIDTH;
+      ctx.stroke();
+
       ctx.drawImage(images[p.color], -p.r, -p.r, SYMBOL_SIZE, SYMBOL_SIZE);
       ctx.restore();
     }
