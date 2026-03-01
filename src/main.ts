@@ -14,7 +14,7 @@ import { colorEmojiMap, alliedGuilds, enemyGuilds, ColorCombo } from './data/com
 import { isSubgroupUnlocked, markSubgroupUnlocked, hasCompletedSubgroup, markSubgroupCompleted } from './progression';
 import { Span } from '@opentelemetry/api';
 
-export const APP_VERSION = '0.11.0';
+export const APP_VERSION = '0.12.0';
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
