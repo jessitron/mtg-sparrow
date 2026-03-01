@@ -1,0 +1,227 @@
+.session-end {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background: color-mix(in srgb, var(--bg-brown-dark) 85%, transparent);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.session-end-count {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f0f0f0;
+}
+
+.session-end-label {
+  font-size: 1rem;
+  color: #888;
+}
+
+.combo-summary-pips {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.combo-summary-pips .mana-pip {
+  width: 28px;
+  height: 28px;
+}
+
+.combo-summary-name {
+  color: #ccc;
+}
+
+.next-session-button {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  background: color-mix(in srgb, var(--card-back-turquoise) 20%, transparent);
+  border: 2px solid var(--card-back-turquoise);
+  border-radius: 12px;
+  padding: 0.9rem 1.5rem;
+  cursor: pointer;
+  transition: background 200ms ease, border-color 200ms ease, transform 100ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.next-session-button:hover {
+  background: color-mix(in srgb, var(--card-back-turquoise) 35%, transparent);
+  border-color: var(--card-back-oval-brighter);
+}
+
+.next-session-button:active {
+  transform: scale(0.97);
+}
+
+.next-session-button--primary {
+  border-color: #6666aa;
+  color: #f0f0f0;
+}
+
+.next-session-button--primary:hover {
+  border-color: var(--card-back-oval-brighter);
+  background: color-mix(in srgb, var(--card-back-turquoise) 35%, transparent);
+}
+
+/* Two-column guild layout */
+.guild-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  margin-top: 1rem;
+  animation: cardEnter 250ms ease-out;
+}
+
+@media (max-width: 480px) {
+  .guild-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.guild-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.guild-column-header {
+  font-size: 3rem;
+  font-weight: 700;
+  font-family: 'GoudyMediaeval', Georgia, serif;
+  color: #f0f0f0;
+  text-align: center;
+}
+
+.guild-column-explanation {
+  font-size: 0.875rem;
+  color: #aaa;
+  line-height: 1.5;
+}
+
+.guild-column--locked .guild-column-explanation {
+  color: #777;
+}
+
+.guild-column-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.guild-column-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  font-size: 1rem;
+  transition: background 0.2s ease, opacity 0.2s ease;
+  border-radius: 6px;
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+}
+
+.guild-column-item .combo-summary-pips {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.guild-column-item .combo-summary-pips .mana-pip {
+  width: 28px;
+  height: 28px;
+}
+
+.guild-column-item .combo-summary-name {
+  color: #ccc;
+}
+
+.guild-column-button {
+  margin-top: auto;
+}
+
+.guild-column--locked .guild-column-button {
+  margin-top: 0;
+}
+
+.guild-column--locked {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.allied-color-wheel,
+.enemy-color-wheel {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.allied-color-wheel .ally-line,
+.enemy-color-wheel .enemy-line {
+  cursor: pointer;
+}
+
+/* Stroke colors via CSS custom properties */
+.ally-line-vis {
+  stroke: var(--allied-line-color);
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.enemy-line-vis {
+  stroke: var(--enemy-line-color);
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.allied-color-wheel .color-node,
+.enemy-color-wheel .color-node {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Dimming when any element is highlighted */
+.guild-column--has-highlight .ally-line:not(.highlight) .ally-line-vis,
+.guild-column--has-highlight .enemy-line:not(.highlight) .enemy-line-vis {
+  opacity: 0.2;
+}
+
+.guild-column--has-highlight .allied-color-wheel .color-node:not(.highlight),
+.guild-column--has-highlight .enemy-color-wheel .color-node:not(.highlight) {
+  opacity: 0.3;
+}
+
+.guild-column--has-highlight .guild-column-item:not(.highlight) {
+  opacity: 0.35;
+}
+
+/* Highlighted states */
+.ally-line.highlight .ally-line-vis,
+.enemy-line.highlight .enemy-line-vis {
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 4px #e8d8aa);
+}
+
+.color-node.highlight {
+  transform: scale(1.15);
+  opacity: 1 !important;
+}
+
+.guild-column-item.highlight {
+  background: rgba(200, 160, 60, 0.18);
+  opacity: 1 !important;
+}
+
+/* Guild crest in center of wheel */
+#crest-image,
+#crest-image-enemy {
+  transition: opacity 150ms ease;
+}
