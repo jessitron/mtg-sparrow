@@ -487,4 +487,41 @@ Items noted by client but explicitly out of scope for initial delivery:
 
 ---
 
+## DEC-053: Multi-Page Architecture — SPA to Separate HTML Pages
+- **Date**: 2026-03-01
+- **Decision**: Decompose the single-page app into four separate HTML pages: welcome (`index.html`), slides (`slides.html`), assessment (`assessment.html`), and end (`end.html`). Each page has its own JS entry point and CSS. Navigation is standard browser links. Back button and refresh work naturally.
+- **Context**: The SPA constructs all screens via DOM manipulation in a single `index.html`. Navigation is invisible to the browser. The three screens (welcome, quiz, end) represent genuinely separate concerns with almost no shared runtime state.
+- **Alternatives rejected**: Client-side routing (still one bundle, pushState) — client explicitly wanted true separate pages for separate concerns.
+- **Rationale**: Architecturally honest separation. Each page loads independently. Browser navigation works. `main.ts` (950+ lines) decomposes naturally into focused entry points.
+- **Documents**: `rfp-multipage.md`, `sow-multipage.md`
+
+## DEC-054: Self-Assessment as Separate Page
+- **Date**: 2026-03-01
+- **Decision**: The self-assessment ("How did that feel?") becomes its own page (`assessment.html`) rather than living on the end page. The end page is directly navigable without an assessment prompt blocking the view.
+- **Context**: Client wants `end.html` to be a stable landing page showing guild columns and navigation. The self-assessment is a post-session reflection that belongs between slides and end.
+- **Flow**: Slides → Assessment → End. Assessment passes its result as a URL param to End.
+- **Rationale**: End page should be directly accessible. Self-assessment is a brief transitional moment, not part of the guild exploration experience.
+
+## DEC-055: Per-Page Telemetry with mtg-sparrow.session.id
+- **Date**: 2026-03-01
+- **Decision**: No cross-page trace continuity. Each page creates its own root spans. All spans carry `mtg-sparrow.session.id` (namespaced to avoid collision with auto-instrumentation session IDs) stored in `sessionStorage` for Honeycomb correlation across pages.
+- **Context**: In-memory OTel spans cannot survive page navigations. Attempting to propagate trace context across pages requires low-level OTel plumbing that violates the telemetry abstraction boundary (DEC-020).
+- **What we lose**: Single trace waterfall view of a full session in Honeycomb.
+- **What we keep**: Every aggregation query. All card-level and session-level attributes. Per-page observability.
+- **Rationale**: Architectural honesty. Each page's telemetry reflects what happened in that page's JS context. The questions we care about are answered by aggregation, not trace waterfalls.
+
+## DEC-056: Telemetry First in Arc Sequencing
+- **Date**: 2026-03-01
+- **Decision**: Arc 14 (first arc of the multi-page engagement) adds `mtg-sparrow.session.id` to all spans while the app is still a single page. This precedes any structural changes.
+- **Context**: Client requirement — "I want the telemetry at the beginning so I can check it during development."
+- **Rationale**: Observability-first development. Every subsequent arc is verifiable in Honeycomb from day one.
+
+## DEC-057: CSS Split into Per-Page Stylesheets
+- **Date**: 2026-03-01
+- **Decision**: Split `style.css` into five files: `style.css` (shared), `welcome.css`, `slides.css`, `assessment.css`, `end.css`. Audit for dead CSS and remove it during the split.
+- **Context**: The current CSS has clean natural seams matching the page split. Dead CSS from prototype components likely exists.
+- **Rationale**: Clarity of ownership — when working on a page, all its styles are in one file. Confidence about scope — modifying `end.css` cannot break slides. Dead CSS cleanup is a natural byproduct.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
