@@ -449,6 +449,13 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Context**: After delivering Arc 11 and Arc 12 back-to-back — card images for all 10 guilds, from research through implementation and verification — the client declared the team earned a pizza party.
 - **Status**: CELEBRATED
 
+### Arc 14: Session ID Telemetry (Operator Arc) — COMPLETE (v0.12.0)
+- **Delivered**: 2026-03-01
+- **Outcome**: `mtg-sparrow.session.id` (16-char hex, sessionStorage) added as resource attribute on all spans. `app.navigation = 'single_page'` structural marker on `app.startup` span. APP_VERSION bumped to 0.12.0. Playwright 6/6 PASS; Honeycomb confirmed both attributes on app.startup, session, and card spans.
+- **Pre-existing bug noted**: `flushSpans()` forceFlush error on visibilitychange — spans export via batch timer, not introduced by Arc 14. Must fix before Arc 17-20.
+- **Record**: `arc14-session-id.md`
+- **Decisions**: DEC-055, DEC-056
+
 ### Arc 13: Candidates
 - **Visual differentiation** of allied vs enemy wheel lines (follow-on to DEC-044)
 - **Shards & Wedges tier** — three-color combinations (DEC-005)
