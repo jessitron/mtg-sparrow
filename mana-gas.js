@@ -232,7 +232,7 @@
       ctx.strokeStyle = "rgba(255,255,255,0.3)";
       ctx.lineWidth = 1.5;
       ctx.stroke();
-      ctx.font = "bold 18px sans-serif";
+      ctx.font = "bold 18px 'Goudy Mediaeval', Georgia, serif";
       ctx.textAlign = "center";
       ctx.fillStyle = "#fff";
       ctx.globalAlpha = 0.9;
