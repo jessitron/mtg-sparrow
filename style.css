@@ -23,6 +23,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: radial-gradient(
+        ellipse at center,
+        #8D6137 0%,
+        #7D572D 40%,
+        #272817 100%
+      );
 }
 
 #gas {
