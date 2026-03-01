@@ -2,10 +2,26 @@ import { trace, context, Span, SpanStatusCode } from '@opentelemetry/api';
 import { init, getProvider } from './init';
 
 let tracer: ReturnType<typeof trace.getTracer>;
+let sessionId: string;
+
+function generateSessionId(): string {
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 export function initTelemetry(version: string): void {
-  init(version);
+  const stored = sessionStorage.getItem('mtg-sparrow.session.id');
+  sessionId = stored ?? generateSessionId();
+  if (!stored) {
+    sessionStorage.setItem('mtg-sparrow.session.id', sessionId);
+  }
+  init(version, sessionId);
   tracer = trace.getTracer('sparrow-deck', version);
+}
+
+export function getSessionId(): string {
+  return sessionId;
 }
 
 export function startSpan(
