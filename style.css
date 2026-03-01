@@ -13,6 +13,9 @@
 :root {
   --allied-line-color: #c8b88a;
   --enemy-line-color: #c8b88a;
+  --bg-brown-light: #8D6137;
+  --bg-brown-mid: #7D572D;
+  --bg-brown-dark: #272817;
 }
 
 *,
@@ -41,9 +44,9 @@ body {
   align-items: center;
   background: radial-gradient(
         ellipse at center,
-        #8D6137 0%,
-        #7D572D 40%,
-        #272817 100%
+        var(--bg-brown-light) 0%,
+        var(--bg-brown-mid) 40%,
+        var(--bg-brown-dark) 100%
       );
 }
 
@@ -557,7 +560,7 @@ body {
   align-items: center;
   gap: 1.5rem;
   animation: cardEnter 250ms ease-out;
-  background: rgba(42, 22, 8, 0.88);
+  background: color-mix(in srgb, var(--bg-brown-dark) 88%, transparent);
   backdrop-filter: blur(8px);
   border-radius: 60% / 45%;
   padding: 3.5rem 3rem;
