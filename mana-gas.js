@@ -31,8 +31,9 @@
   const TRIGGER_DIST = R;
   const BUBBLE_RADIUS = R * 2;
 
-  // Outline drawn behind each mana symbol — tweak color & width to taste
-  const SYMBOL_OUTLINE_COLOR = "rgba(255, 220, 150, 0.55)";
+  // Outline drawn behind each mana symbol — set color in :root in style.css
+  const SYMBOL_OUTLINE_COLOR = getComputedStyle(document.documentElement)
+    .getPropertyValue("--symbol-outline-color").trim();
   const SYMBOL_OUTLINE_WIDTH = 2.5;
 
   const GUILDS = {
