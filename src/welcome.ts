@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('start-button')?.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
     const dwellMs = Date.now() - welcomeScreenLoadTime;
-    window.location.href = `slides.html?subgroup=allied&from=welcome&welcome_dwell_ms=${dwellMs}`;
+    window.location.href = `slides?subgroup=allied&from=welcome&welcome_dwell_ms=${dwellMs}`;
   });
 
   // Flush spans when page is hidden (captures abandoned welcome sessions)

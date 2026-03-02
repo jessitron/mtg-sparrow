@@ -80,7 +80,7 @@ async function navigateToAssessment(actualCount: number): Promise<void> {
   await flushSpans();
 
   // Navigate to assessment page
-  window.location.href = `assessment.html?subgroup=${session.subgroup}&cards=${actualCount}&completed=${session.completed}`;
+  window.location.href = `assessment?subgroup=${session.subgroup}&cards=${actualCount}&completed=${session.completed}`;
 }
 
 function stopSession(): void {

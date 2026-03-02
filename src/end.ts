@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     enemyUnlocked,
     (sub: GuildSubgroup, startedFrom: string) => {
       flushSpans();
-      window.location.href = `slides.html?subgroup=${sub}&from=${startedFrom}`;
+      window.location.href = `slides?subgroup=${sub}&from=${startedFrom}`;
     },
   );
 });

@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Await flush before navigating so spans are exported before page unload
     await flushSpans();
-    window.location.href = `end.html?${params.toString()}`;
+    window.location.href = `end?${params.toString()}`;
   }
 
   // Skip assessment if fewer than minimum cards were shown
