@@ -762,4 +762,55 @@ All success criteria from the End Screen Refinements SOW are met:
 
 ---
 
+---
+
+## DEC-086: Arc 24 Reimplemented — Original Reverted by Client
+- **Date**: 2026-03-02
+- **Arc**: 24
+- **Decision**: The original Arc 24 implementation was reverted by the client because it did not match the desired interaction feel. The arc was reimplemented from scratch with clearer requirements. The new implementation uses a header/body/footer pattern.
+- **Context**: The client's revised requirements specified: a fixed header with Up or Home button, a CSS scroll-snap body containing one section at a time, and a fixed footer with Down/Start/Share based on position and unlock state.
+- **Rationale**: Reverting and reimplementing is correct when the initial delivery misses the intent. The small arc model absorbs this — one arc, deliver, check, adapt.
+- **Documents**: `rfp-single-section-nav.md`, `sow-single-section-nav.md`
+
+## DEC-087: Scroll Snap via CSS scroll-snap-type: y mandatory
+- **Date**: 2026-03-02
+- **Arc**: 24
+- **Decision**: Section transitions use CSS `scroll-snap-type: y mandatory` on the body container, with `scroll-snap-align: start` on each section. No JavaScript animation library.
+- **Context**: The desired feel was described as "slot-machine" — sections snap decisively into place. CSS scroll snap provides this natively with zero JS overhead.
+- **Alternatives rejected**: JavaScript-based animation (GSAP or custom) — unnecessary complexity when CSS achieves the same feel.
+- **Rationale**: CSS scroll snap is the right tool: declarative, performant, no dependencies. The body container is the scroll root; sections are the snap targets. Arrow buttons programmatically scroll to target sections via `scrollIntoView`.
+
+## DEC-088: Context-Sensitive Button Labels Based on Position and Unlock State
+- **Date**: 2026-03-02
+- **Arc**: 24
+- **Decision**: Header and footer buttons change label and function based on current section position and whether the next level is locked. Logic: First section → Home in header. Last section → "Start [Level]" in footer if next is locked, "Share" if all done. Middle sections → Up in header, Down in footer.
+- **Context**: The footer serves double duty: navigation (Down) when there are more sections to see, and a call-to-action (Start/Share) when the user reaches the end.
+- **Rationale**: Context-sensitive controls eliminate confusion. Users always have a clear next action without requiring them to understand an abstract navigation metaphor. The footer CTA appearing only at the last section prevents premature "Start" prompts while mid-navigation.
+
+## DEC-089: Empty State Shows Only Home Link When No Levels Unlocked
+- **Date**: 2026-03-02
+- **Arc**: 24
+- **Decision**: When no levels are unlocked (e.g., a fresh session before any practice), the end screen shows only a centered home link — no section content, no navigation arrows.
+- **Context**: The end screen is navigable directly. A user who arrives before completing any levels should see something meaningful, not a broken or empty layout.
+- **Rationale**: A graceful empty state is better than conditional hiding of broken navigation. The home link is always correct — it gives the user somewhere to go. This is the minimum viable state for the page.
+
+---
+
+## SOW Completion Status: Single-Section End Screen Navigation — IN PROGRESS
+- **Start Date**: 2026-03-02
+- **Arc Range**: Arcs 24–26 (3 planned)
+
+### Arc 24: Single-Section End Screen with Snap Navigation — COMPLETE (v0.22.0)
+- **Delivered**: 2026-03-02
+- **Outcome**: End screen transformed from stacked rows (rows_v1) to single-section-at-a-time view (single_section_v1). Header/body/footer pattern. CSS scroll-snap-type: y mandatory. Context-sensitive navigation buttons. Empty state. Navigation telemetry. 34/34 PASS. Honeycomb confirmed.
+- **Record**: `arc24-single-section-nav.md`
+- **Decisions**: DEC-086, DEC-087, DEC-088, DEC-089
+
+### Arc 25: Level Dot Indicator — PLANNED
+### Arc 26: Polish — PLANNED
+
+**Client pause requested after Arc 24 to confirm navigation feel.**
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
