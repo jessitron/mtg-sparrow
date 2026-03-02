@@ -1,7 +1,8 @@
 import { renderPip } from './pips';
 import { alliedGuilds, enemyGuilds, ColorCombo } from '../data/combos';
 import { guildDescriptionMap } from '../data/guild-descriptions';
-import { startSpan, endSpan } from '../telemetry/telemetry';
+import { Span } from '@opentelemetry/api';
+import { startChildSpan, endSpan } from '../telemetry/telemetry';
 import { hasCompletedSubgroup } from '../progression';
 import { GuildSubgroup } from '../session';
 
@@ -76,6 +77,7 @@ for (const guild of [...alliedGuilds, ...enemyGuilds]) {
 function buildFlavorPanel(
   guilds: ColorCombo[],
   subgroup: GuildSubgroup,
+  pageSpan: Span,
   startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
 ): HTMLElement {
   const flavorPanel = document.createElement('div');
@@ -110,7 +112,7 @@ function buildFlavorPanel(
       link.textContent = `More ${guild.name} cards →`;
       link.addEventListener('click', (e: Event) => {
         e.stopPropagation();
-        const span = startSpan('end.scryfall_click', { 'guild.id': guild.id });
+        const span = startChildSpan('end.scryfall_click', pageSpan, { 'guild.id': guild.id });
         endSpan(span);
       });
       entry.appendChild(link);
@@ -281,6 +283,7 @@ function wireColorWheelHover(
   pairs: [string, string][],
   lineClass: string,
   crestId: string,
+  pageSpan: Span,
   onActivate: () => void = () => {},
 ): () => void {
   // Track tap-selected pair for mobile (null = nothing selected)
@@ -313,7 +316,7 @@ function wireColorWheelHover(
       flavorEntries.forEach(entry => {
         entry.classList.toggle('active', entry.dataset.guildId === guildId);
       });
-      const hlSpan = startSpan('end.guild_highlight', { 'guild.id': guildId });
+      const hlSpan = startChildSpan('end.guild_highlight', pageSpan, { 'guild.id': guildId });
       endSpan(hlSpan);
     } else {
       lineEl?.classList.remove('highlight');
@@ -394,17 +397,18 @@ function wireColorWheelHover(
   return clearSelection;
 }
 
-function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement, onActivate?: () => void): () => void {
-  return wireColorWheelHover(col, svg, alliedPairs, 'ally-line', 'crest-image', onActivate);
+function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement, pageSpan: Span, onActivate?: () => void): () => void {
+  return wireColorWheelHover(col, svg, alliedPairs, 'ally-line', 'crest-image', pageSpan, onActivate);
 }
 
-function wireEnemyHover(col: HTMLElement, svg: SVGSVGElement, onActivate?: () => void): () => void {
-  return wireColorWheelHover(col, svg, enemyPairs, 'enemy-line', 'crest-image-enemy', onActivate);
+function wireEnemyHover(col: HTMLElement, svg: SVGSVGElement, pageSpan: Span, onActivate?: () => void): () => void {
+  return wireColorWheelHover(col, svg, enemyPairs, 'enemy-line', 'crest-image-enemy', pageSpan, onActivate);
 }
 
 function buildAlliedColumn(
   unlocked: boolean,
   onActivate: () => void,
+  pageSpan: Span,
   startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
 ): [HTMLElement, () => void] {
   const col = document.createElement('div');
@@ -444,10 +448,10 @@ function buildAlliedColumn(
     col.appendChild(wheelPanel);
 
     // Flavor panel (right): all guild descriptions pre-rendered and stacked
-    col.appendChild(buildFlavorPanel(alliedGuilds, 'allied', startSession));
+    col.appendChild(buildFlavorPanel(alliedGuilds, 'allied', pageSpan, startSession));
 
     // Wire bidirectional hover after all panels are in the DOM
-    clearSelection = wireAlliedHover(col, svg, onActivate);
+    clearSelection = wireAlliedHover(col, svg, pageSpan, onActivate);
   } else {
     const btn = document.createElement('button');
     btn.classList.add('next-session-button', 'level-section-button', 'next-session-button--primary');
@@ -465,6 +469,7 @@ function buildAlliedColumn(
 function buildEnemyColumn(
   unlocked: boolean,
   onActivate: () => void,
+  pageSpan: Span,
   startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
 ): [HTMLElement, () => void] {
   const col = document.createElement('div');
@@ -504,10 +509,10 @@ function buildEnemyColumn(
     col.appendChild(wheelPanel);
 
     // Flavor panel (right): all guild descriptions pre-rendered and stacked
-    col.appendChild(buildFlavorPanel(enemyGuilds, 'enemy', startSession));
+    col.appendChild(buildFlavorPanel(enemyGuilds, 'enemy', pageSpan, startSession));
 
     // Wire bidirectional hover after all panels are in the DOM
-    clearSelection = wireEnemyHover(col, svg, onActivate);
+    clearSelection = wireEnemyHover(col, svg, pageSpan, onActivate);
   } else {
     const btn = document.createElement('button');
     btn.classList.add('next-session-button', 'level-section-button', 'next-session-button--primary');
@@ -563,6 +568,7 @@ async function reelAdvance(
   viewport: HTMLElement,
   sections: HTMLElement[],
   direction: 1 | -1,
+  pageSpan?: Span,
 ) {
   if (reelSpinning) return;
 
@@ -573,6 +579,14 @@ async function reelAdvance(
   await reelSpinTo(reel, viewport, sections, nextIndex);
   reelIndex = nextIndex;
 
+  if (pageSpan) {
+    const navSpan = startChildSpan('end.section_navigate', pageSpan, {
+      'end.section_index': nextIndex,
+      'end.direction': direction > 0 ? 'down' : 'up',
+    });
+    endSpan(navSpan);
+  }
+
   reelSpinning = false;
 }
 
@@ -580,14 +594,15 @@ export function showSessionEndColumns(
   app: HTMLElement,
   alliedUnlocked: boolean,
   enemyUnlocked: boolean,
+  pageSpan: Span,
   startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
 ): void {
   // Placeholders for cross-column clear functions; filled in after both columns are built
   let clearAllied = () => {};
   let clearEnemy = () => {};
 
-  const [alliedCol, clearAlliedFn] = buildAlliedColumn(alliedUnlocked, () => clearEnemy(), startSession);
-  const [enemyCol, clearEnemyFn] = buildEnemyColumn(enemyUnlocked, () => clearAllied(), startSession);
+  const [alliedCol, clearAlliedFn] = buildAlliedColumn(alliedUnlocked, () => clearEnemy(), pageSpan, startSession);
+  const [enemyCol, clearEnemyFn] = buildEnemyColumn(enemyUnlocked, () => clearAllied(), pageSpan, startSession);
 
   clearAllied = clearAlliedFn;
   clearEnemy = clearEnemyFn;
@@ -643,7 +658,7 @@ export function showSessionEndColumns(
       window.location.href = '/';
       return;
     }
-    reelAdvance(reel, viewport, sections, -1).then(updateNavButtons);
+    reelAdvance(reel, viewport, sections, -1, pageSpan).then(updateNavButtons);
   });
 
   bottomBtn.addEventListener('click', (e: MouseEvent) => {
@@ -652,7 +667,7 @@ export function showSessionEndColumns(
       // Share — placeholder for now
       return;
     }
-    reelAdvance(reel, viewport, sections, 1).then(updateNavButtons);
+    reelAdvance(reel, viewport, sections, 1, pageSpan).then(updateNavButtons);
   });
 
   // Clicking anywhere that isn't a line or guild item clears both selections.
@@ -677,7 +692,7 @@ export function showSessionEndColumns(
       reelLastWheelTime = now;
 
       const direction = e.deltaY > 0 ? 1 : -1;
-      reelAdvance(reel, viewport, sections, direction as 1 | -1).then(updateNavButtons);
+      reelAdvance(reel, viewport, sections, direction as 1 | -1, pageSpan).then(updateNavButtons);
     }, { passive: false });
   });
 }
