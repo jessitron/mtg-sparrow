@@ -719,4 +719,47 @@ All success criteria from the Multi-Page Decomposition SOW are met:
 
 ---
 
+---
+
+## DEC-078: Flavor Panel Layout Order
+- **Date**: 2026-03-02
+- **Arc**: 23
+- **Decision**: The flavor panel displays content in this order: guild name → description (3–5 sentences) → "More [Guild] cards →" Scryfall link → Practice button.
+- **Context**: The flavor panel was a placeholder in Arc 22 (guild name only). Arc 23 wires in the full content from `src/data/guild-descriptions.ts`.
+- **Rationale**: Top-to-bottom reading order matches information hierarchy — identify (name), understand (description), explore (Scryfall), practice (action). The Practice button is last because it's an action, not content.
+
+## DEC-079: Guild Interaction Telemetry — end.guild_highlight and end.scryfall_click
+- **Date**: 2026-03-02
+- **Arc**: 23
+- **Decision**: Two telemetry spans track user behavior on the end screen: `end.guild_highlight` (fires when a guild is highlighted) and `end.scryfall_click` (fires when the Scryfall link is clicked), both carrying `guild.id`.
+- **Context**: Arc 23 SOW specified interaction telemetry as an observability goal, with the intent of answering "Which guilds do people explore most on the end screen?"
+- **Rationale**: Lightweight event spans are sufficient for this intent — no page load overhead, just user-initiated interactions. `guild.id` on both spans enables cross-event analysis per guild.
+
+## DEC-080: Iconic Cards Added — Azor, Voice of Resurgence, Savra
+- **Date**: 2026-03-02
+- **Arc**: 23
+- **Decision**: Three iconic cards added to guild card lists: Azor the Lawbringer (Azorius), Voice of Resurgence (Selesnya), Savra, Queen of the Golgari (Golgari). Aurelia, the Warleader was already present in Boros.
+- **Context**: Domain expert identified these as the most iconic missing representatives during Arc 22 research. Arc 23 wired them in alongside the flavor text.
+- **Rationale**: Iconic cards reinforce flavor identity — each guild should have at least one immediately recognizable card that embodies its personality. These three were gaps; others were already covered.
+
+---
+
+## SOW Completion: End Screen Refinements — CLOSED
+- **Date**: 2026-03-02
+- **Final Version**: v0.21.0
+- **Arc Range**: Arcs 22–23 (2 arcs)
+
+All success criteria from the End Screen Refinements SOW are met:
+- End screen renders completed levels as full-width rows with three-part layout
+- Color wheel prominently centered (360px max-width)
+- Guild highlight shows full flavor description, Scryfall link, and Practice button
+- Interaction telemetry (`end.guild_highlight`, `end.scryfall_click`) visible in Honeycomb
+- Works on desktop and mobile
+- `end.layout_version = 'rows_v1'` structural marker present
+
+**Arc 22**: End Screen Row Layout — COMPLETE
+**Arc 23**: Guild Flavor Text & Card Additions — COMPLETE
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
