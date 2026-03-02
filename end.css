@@ -123,50 +123,52 @@
   padding: 1rem 0.5rem;
 }
 
+/* All guild descriptions stacked in the same grid cell — tallest one sets the height */
+.level-section-flavor-stack {
+  display: grid;
+  width: 100%;
+}
+
+.level-section-flavor-stack > .level-section-flavor-entry {
+  grid-row: 1;
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 250ms ease, transform 250ms ease, visibility 0s 250ms;
+}
+
+.level-section-flavor-stack > .level-section-flavor-entry.active {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 250ms ease, transform 250ms ease, visibility 0s 0s;
+}
+
 .level-section-flavor-name {
   font-size: 1.75rem;
   font-weight: 700;
   font-family: 'GoudyMediaeval', Georgia, serif;
   color: #e8d8aa;
-  opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity 250ms ease, transform 250ms ease;
 }
 
 .level-section-flavor-desc {
   font-size: 0.875rem;
   color: #bbb;
   line-height: 1.6;
-  opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity 300ms ease 50ms, transform 300ms ease 50ms;
-  max-height: 0;
-  overflow: hidden;
-  transition: opacity 300ms ease 50ms, transform 300ms ease 50ms, max-height 350ms ease;
 }
 
 .level-section-scryfall-link {
   font-size: 0.875rem;
   color: var(--card-back-turquoise);
   text-decoration: none;
-  opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity 300ms ease 100ms, transform 300ms ease 100ms;
 }
 
 .level-section-scryfall-link:hover {
   text-decoration: underline;
-}
-
-.level-section--has-highlight .level-section-flavor-name,
-.level-section--has-highlight .level-section-flavor-desc,
-.level-section--has-highlight .level-section-scryfall-link {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.level-section--has-highlight .level-section-flavor-desc {
-  max-height: 20em;
 }
 
 .level-section-button {
