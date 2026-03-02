@@ -531,26 +531,46 @@ let reelIndex = 0;
 let reelSpinning = false;
 let reelLastWheelTime = 0;
 
-function reelSpinTo(reel: HTMLElement, index: number, sectionHeight: number): Promise<void> {
+function reelSpinTo(
+  reel: HTMLElement,
+  viewport: HTMLElement,
+  sections: HTMLElement[],
+  index: number,
+): Promise<void> {
   return new Promise((resolve) => {
+    // Calculate Y offset by summing heights of preceding sections
+    let targetY = 0;
+    for (let i = 0; i < index; i++) {
+      targetY += sections[i].offsetHeight;
+    }
+
     reel.style.transition = REEL_TRANSITION;
-    reel.style.transform = `translateY(${-(index * sectionHeight)}px)`;
-    reel.addEventListener('transitionend', function handler() {
+    reel.style.transform = `translateY(${-targetY}px)`;
+
+    // Animate viewport height to match the target section
+    viewport.style.height = `${sections[index].offsetHeight}px`;
+
+    reel.addEventListener('transitionend', function handler(e: TransitionEvent) {
+      if (e.target !== reel) return;
       reel.removeEventListener('transitionend', handler);
       resolve();
     });
   });
 }
 
-async function reelAdvance(reel: HTMLElement, direction: 1 | -1, sectionCount: number, sectionHeight: number) {
+async function reelAdvance(
+  reel: HTMLElement,
+  viewport: HTMLElement,
+  sections: HTMLElement[],
+  direction: 1 | -1,
+) {
   if (reelSpinning) return;
 
   const nextIndex = reelIndex + direction;
-  // Clamp — don't wrap, so a trailing scroll event can't jump back to the start
-  if (nextIndex < 0 || nextIndex >= sectionCount) return;
+  if (nextIndex < 0 || nextIndex >= sections.length) return;
 
   reelSpinning = true;
-  await reelSpinTo(reel, nextIndex, sectionHeight);
+  await reelSpinTo(reel, viewport, sections, nextIndex);
   reelIndex = nextIndex;
 
   reelSpinning = false;
@@ -593,13 +613,10 @@ export function showSessionEndColumns(
 
   app.appendChild(viewport);
 
-  // Measure section height after layout, then size the viewport
+  // Set initial viewport height, then wire scroll navigation
   requestAnimationFrame(() => {
-    const firstSection = sections[0];
-    const sectionHeight = firstSection.offsetHeight;
-    viewport.style.height = `${sectionHeight}px`;
+    viewport.style.height = `${sections[0].offsetHeight}px`;
 
-    // Wheel to navigate between sections
     viewport.addEventListener('wheel', (e: WheelEvent) => {
       e.preventDefault();
       const now = Date.now();
@@ -607,7 +624,7 @@ export function showSessionEndColumns(
       reelLastWheelTime = now;
 
       const direction = e.deltaY > 0 ? 1 : -1;
-      reelAdvance(reel, direction as 1 | -1, sections.length, sectionHeight);
+      reelAdvance(reel, viewport, sections, direction as 1 | -1);
     }, { passive: false });
   });
 }
