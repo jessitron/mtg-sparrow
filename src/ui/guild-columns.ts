@@ -650,9 +650,9 @@ export function showSessionEndColumns(
     const atEnd = reelIndex >= sections.length - 1;
 
     if (atTop) {
-      topBtn.innerHTML = 'Home';
-      topBtn.classList.add('reel-nav-btn--label');
+      topBtn.style.visibility = 'hidden';
     } else {
+      topBtn.style.visibility = '';
       topBtn.innerHTML = UP_ARROW_SVG;
       topBtn.classList.remove('reel-nav-btn--label');
     }
@@ -668,10 +668,7 @@ export function showSessionEndColumns(
 
   topBtn.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
-    if (reelIndex <= 0) {
-      window.location.href = '/';
-      return;
-    }
+    if (reelIndex <= 0) return;
     reelAdvance(reel, viewport, sections, -1, pageSpan, sectionSpanRef).then(updateNavButtons);
   });
 
