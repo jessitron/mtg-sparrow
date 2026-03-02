@@ -9,7 +9,7 @@ const APP_VERSION = '0.19.0';
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'end', 'multi_page');
 
-  wireSettings(APP_VERSION, () => null);
+  wireSettings(APP_VERSION);
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {

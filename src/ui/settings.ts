@@ -1,14 +1,11 @@
-import { Span } from '@opentelemetry/api';
-import { addSpanEvent } from '../telemetry/telemetry';
+import { startSpan, endSpan, flushSpans } from '../telemetry/telemetry';
 
 /**
  * Wire the settings panel: version display, open/close, and reset progress.
  * @param appVersion - the current app version string
- * @param getSessionSpan - returns the current session span (or null if no session active)
  */
 export function wireSettings(
   appVersion: string,
-  getSessionSpan: () => Span | null,
 ): void {
   // Populate version in settings panel
   const settingsVersionEl = document.getElementById('settings-version');
@@ -48,14 +45,13 @@ export function wireSettings(
   });
 
   const resetBtn = document.getElementById('settings-reset-btn');
-  resetBtn?.addEventListener('click', () => {
-    const sessionSpan = getSessionSpan();
-    if (sessionSpan) {
-      addSpanEvent(sessionSpan, 'settings.reset_progress', {
-        'reset.app_version': appVersion,
-      });
-    }
-    localStorage.removeItem('sparrow-deck.progression');
-    window.location.reload();
+  resetBtn?.addEventListener('click', async () => {
+    const span = startSpan('settings.reset_progress', {
+      'reset.app_version': appVersion,
+    });
+    endSpan(span);
+    await flushSpans();
+    localStorage.clear();
+    window.location.href = '/';
   });
 }

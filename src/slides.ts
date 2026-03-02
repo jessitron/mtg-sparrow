@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'slides', 'multi_page');
   // Do NOT call sendStartupSpan — welcome page only
 
-  wireSettings(APP_VERSION, () => sessionSpan);
+  wireSettings(APP_VERSION);
 
   app = document.getElementById('app');
   if (!app) return;

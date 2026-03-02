@@ -3,20 +3,32 @@ import { init, getProvider } from './init';
 
 let tracer: ReturnType<typeof trace.getTracer>;
 let sessionId: string;
+let playerId: string;
 
-function generateSessionId(): string {
+const PLAYER_ID_KEY = 'mtg-sparrow.player.id';
+
+function generateId(): string {
   const bytes = new Uint8Array(8);
   crypto.getRandomValues(bytes);
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 export function initTelemetry(version: string, page?: string, navigation?: string): void {
-  const stored = sessionStorage.getItem('mtg-sparrow.session.id');
-  sessionId = stored ?? generateSessionId();
-  if (!stored) {
+  const storedSession = sessionStorage.getItem('mtg-sparrow.session.id');
+  sessionId = storedSession ?? generateId();
+  if (!storedSession) {
     sessionStorage.setItem('mtg-sparrow.session.id', sessionId);
   }
-  const resourceAttrs: Record<string, string> = {};
+
+  const storedPlayer = localStorage.getItem(PLAYER_ID_KEY);
+  playerId = storedPlayer ?? generateId();
+  if (!storedPlayer) {
+    localStorage.setItem(PLAYER_ID_KEY, playerId);
+  }
+
+  const resourceAttrs: Record<string, string> = {
+    'mtg-sparrow.player.id': playerId,
+  };
   if (page) resourceAttrs['app.page'] = page;
   if (navigation) resourceAttrs['app.navigation'] = navigation;
   init(version, sessionId, resourceAttrs);

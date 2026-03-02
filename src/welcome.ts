@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'welcome', 'multi_page');
   sendStartupSpan(APP_VERSION);
 
-  wireSettings(APP_VERSION, () => null);
+  wireSettings(APP_VERSION);
 
   welcomeScreenLoadTime = Date.now();
 

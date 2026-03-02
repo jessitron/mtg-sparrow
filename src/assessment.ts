@@ -7,7 +7,7 @@ const APP_VERSION = '0.19.0';
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'assessment', 'multi_page');
 
-  wireSettings(APP_VERSION, () => null);
+  wireSettings(APP_VERSION);
 
   // Flush spans when page is hidden
   document.addEventListener('visibilitychange', () => {
