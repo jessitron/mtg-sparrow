@@ -694,4 +694,29 @@ All success criteria from the Multi-Page Decomposition SOW are met:
 
 ---
 
+---
+
+## DEC-075: End Screen Layout Changed to Full-Width Stacked Rows
+- **Date**: 2026-03-02
+- **Arc**: 22
+- **Decision**: End screen layout changed from a two-column grid (allied | enemy) to full-width stacked rows — one row per completed level. Each row has a three-part internal layout: summary section (left), centered color wheel (middle), flavor panel (right).
+- **Context**: The previous two-column layout constrained the color wheel width (280px max) and left no room for descriptive text alongside each guild. The new row layout gives each completed level its own visual presence.
+- **Rationale**: Full-width rows allow the color wheel to breathe (360px max), create space for the flavor panel in Arc 23, and are more extensible to future content (wedges, shards). The three-part layout mirrors the natural structure: what you learned, what it looks like, what it means.
+
+## DEC-076: Flavor Panel Placeholder Shows Guild Name on Highlight
+- **Date**: 2026-03-02
+- **Arc**: 22
+- **Decision**: In Arc 22, the flavor panel shows the highlighted guild's name as a text placeholder. Full descriptions are deferred to Arc 23.
+- **Context**: Arc 22 establishes the visual structure and interaction pattern. The flavor panel DOM exists and responds to hover/tap, but content is not yet authored.
+- **Rationale**: Establishing the layout and interaction in Arc 22 (a client pause point) allows the client to confirm the visual direction before investing in content authoring. The placeholder makes the interaction intent clear without committing to content.
+
+## DEC-077: Guild Flavor Descriptions in Separate Data File
+- **Date**: 2026-03-02
+- **Arc**: 22 (data created in parallel with Arc 22 delivery)
+- **Decision**: Guild flavor descriptions are authored in `src/data/guild-descriptions.ts` as a standalone data structure, separate from `src/data/combos.ts`.
+- **Context**: The domain expert researched and wrote descriptions for all 10 guilds, including Scryfall links and optional iconic card additions. Rather than embedding this in the existing combos data structure, a dedicated file was created.
+- **Rationale**: Separation of concerns — flavor/lore content is distinct from mechanical game data. A separate file makes the descriptions easier to review, extend, and maintain independently. Wiring into the UI is Arc 23's job.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
