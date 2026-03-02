@@ -762,4 +762,74 @@ All success criteria from the End Screen Refinements SOW are met:
 
 ---
 
+## Tangent Session: Slot Machine Exploration + End Screen Reel Overhaul — 2026-03-02
+
+This session was an unplanned exploration outside the formal SOW process. The client and team experimented with slot-machine reel mechanics, first as a standalone prototype, then applied directly to the end screen. The result replaced the stacked-row layout entirely.
+
+---
+
+## DEC-081: Slot Machine Prototype Created as Standalone Exploration Page
+- **Date**: 2026-03-02
+- **Context**: Outside formal SOW. Client wanted to explore a reel/slot-machine navigation pattern to see if it felt right for the end screen.
+- **Decision**: A standalone page at `/slot-machine` was created (`slot-machine.html`, `slot-machine.css`, `src/slot-machine.ts`) with a single reel of five mana symbols, a pull button, and scroll-to-spin. Added as a separate esbuild entry point in `package.json`.
+- **Rationale**: Building the mechanic in isolation allowed fast experimentation with the animation feel without risking the end screen. The prototype confirmed the reel approach was worth applying to the real page.
+- **Alternatives considered**: Prototyping directly in end screen (riskier), or skipping prototype (less confidence in the mechanic).
+
+## DEC-082: Reel Navigation Pattern Chosen for End Screen Sections
+- **Date**: 2026-03-02
+- **Context**: The end screen previously showed completed level sections (Allied, Enemy) as stacked full-width rows (`rows_v1`). The slot machine prototype demonstrated a reel alternative.
+- **Decision**: End screen sections are now faces on a reel — one visible at a time in a clipping viewport. Scroll inside the viewport or top/bottom nav buttons advance sections with a slot-machine animation.
+- **Rationale**: The reel pattern focuses attention on one level at a time, preventing the end screen from feeling like a wall of content. It also sets up the dot indicator arc naturally. The prototype validated the tactile feel before committing.
+- **Alternatives considered**: Scroll-snap (tried and reverted in Arc 24 attempt 1), stacked rows (was the prior state, visually crowded), tabs (not consistent with the app's navigation style).
+
+## DEC-083: Cubic-Bezier(0.2, 0.8, 0.3, 1.05) at 600ms for Slot Machine Feel
+- **Date**: 2026-03-02
+- **Context**: Many easing options were tried. The goal was a "pulls and settles" feeling, not a linear or simple ease-out.
+- **Decision**: `cubic-bezier(0.2, 0.8, 0.3, 1.05)` at 600ms duration is used for all reel transitions — both in the slot machine prototype and in the end screen. The `1.05` overshoot creates a gentle bounce-back.
+- **Rationale**: The overshoot past 1.0 produces a physical "slot machine snap" sensation. 600ms is long enough to feel intentional but short enough not to feel sluggish. This constant is shared between both implementations (`REEL_TRANSITION` in `guild-columns.ts`, same literal in `slot-machine.ts`).
+- **Code reference**: `transform 600ms cubic-bezier(0.2, 0.8, 0.3, 1.05)`
+
+## DEC-084: Trackpad Wheel Cooldown — 700ms Timestamp Gate
+- **Date**: 2026-03-02
+- **Context**: Trackpads emit dozens of `wheel` events per swipe (momentum scrolling). Without throttling, a single swipe would spin through all sections.
+- **Decision**: A timestamp-based gate blocks all wheel events for 700ms after the first event fires. This outlasts both the 600ms transition and typical trackpad inertia trailing events.
+- **Rationale**: A debounce (delay-based) approach would introduce lag. A timestamp gate fires immediately on the first event, then ignores all events for a fixed window — matching the "one gesture = one section" intent. 700ms was determined empirically to absorb inertia without feeling sticky.
+- **Alternatives considered**: `requestAnimationFrame` throttle (too coarse), debounce (adds lag), passive listener without prevention (can't call `preventDefault`).
+- **Code reference**: `WHEEL_COOLDOWN_MS = 700` in both `slot-machine.ts` and `guild-columns.ts`.
+
+## DEC-085: end.page_view Root Span Added — Spans Were Previously Orphaned
+- **Date**: 2026-03-02
+- **Context**: The end screen emitted `session.summary`, `end.guild_highlight`, and `end.scryfall_click` spans, but had no root span. These spans had no parent and appeared as disconnected traces in Honeycomb.
+- **Decision**: A root span `end.page_view` is now started immediately in `end.ts` and stays open until the user leaves the page (via `visibilitychange` or navigation). All other spans on the end screen are children of this span.
+- **Rationale**: A root span establishes a single trace per page visit, enabling Honeycomb to show end-screen activity as a coherent trace rather than isolated orphans. This is consistent with the telemetry pattern used on other pages.
+- **Structural marker**: `end.layout_version` is set on the `end.page_view` span.
+
+## DEC-086: end.section_view Spans for Time-on-Section Observability
+- **Date**: 2026-03-02
+- **Context**: With reel navigation, users land on one section, may dwell, then navigate. There was no way to observe how long users spend on each level's end screen.
+- **Decision**: A child span `end.section_view` is started each time the user arrives at a section (including on page load for section 0). It carries `end.section_index` and `end.section_name` attributes. It is ended when the user navigates away from that section or leaves the page.
+- **Rationale**: Section spans provide time-on-section observability — a key product signal for "which level do users linger on?" They also provide a natural parent for guild interaction events (`end.guild_highlight`, `end.scryfall_click`), which were previously orphaned under page_view.
+- **Replaces**: `end.section_navigate` event spans (removed — the section_view boundaries capture the same information more richly).
+
+## DEC-087: Mutable SpanRef Pattern for Event Handlers Referencing Current Section Span
+- **Date**: 2026-03-02
+- **Context**: Guild hover and Scryfall click handlers are registered once when a section is built. But the current active section span changes as the user navigates. Closure over a stale span reference would attribute all events to the wrong (initial) span.
+- **Decision**: A mutable wrapper object `SpanRef = { current: Span }` is passed to event handlers by reference. When the section changes, `sectionSpanRef.current` is updated to the new section span. Handlers always access `.current`, so they automatically reference the live span.
+- **Rationale**: This is a minimal, zero-overhead solution to the "stale closure" problem. The alternative (re-registering event handlers on every section change) would require teardown logic and is more error-prone.
+- **Type**: `type SpanRef = { current: Span }` defined in `src/ui/guild-columns.ts`.
+
+## DEC-088: Trace Link in Settings Always Visible (Not Gated on Session Arrival)
+- **Date**: 2026-03-02
+- **Context**: Previously, the trace link in the settings panel was conditionally shown only when the user arrived from a session (i.e., `subgroup` URL param was present). Direct visits had no trace link.
+- **Decision**: The trace link is now always shown in settings. It is wired to the `end.page_view` trace ID, which exists on every page load.
+- **Rationale**: With the new `end.page_view` root span, there is always a valid trace to link to. Hiding it from direct visits was an accidental limitation. Operators and developers should always be able to inspect what happened.
+
+## DEC-089: end.layout_version Changed from rows_v1 to reel_v1
+- **Date**: 2026-03-02
+- **Context**: The previous structural marker `end.layout_version = 'rows_v1'` referred to the stacked-row layout from Arc 22. The end screen layout is now fundamentally different.
+- **Decision**: `end.layout_version` is now `'reel_v1'` on all `end.page_view` spans.
+- **Rationale**: Structural markers must change when the architecture changes. `reel_v1` distinguishes this version from both the old column layout (pre-Arc 22) and the rows layout (Arc 22–23). This enables Honeycomb queries to segment by layout version over time.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
