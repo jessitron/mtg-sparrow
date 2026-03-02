@@ -4,7 +4,7 @@
  * Tests:
  * 1. Bundle confirms end.layout_version / rows_v1 and version 0.19.0
  * 2. Three-panel row structure: summary | wheel | flavor per guild row
- * 3. Flavor panel shows guild name on hover (guild-column-flavor-name)
+ * 3. Flavor panel shows guild name on hover (level-section-flavor-name)
  * 4. Color wheel hover still works (highlight + list item)
  * 5. Desktop layout: three-column grid (computed styles)
  * 6. Mobile layout: single-column stacked (narrow viewport)
@@ -80,38 +80,38 @@ async function run() {
       await page.waitForTimeout(300);
 
       // Container: flex column stacking rows
-      const container = await page.$('.guild-columns');
-      assert(container !== null, '.guild-columns container is present');
+      const container = await page.$('.level-sections');
+      assert(container !== null, '.level-sections container is present');
 
       // Allied row: has all three panels
-      const alliedSummary = await page.$('.guild-column--allied .guild-column-summary');
-      assert(alliedSummary !== null, 'Allied row has .guild-column-summary panel');
+      const alliedSummary = await page.$('.level-section--allied .level-section-summary');
+      assert(alliedSummary !== null, 'Allied row has .level-section-summary panel');
 
-      const alliedWheel = await page.$('.guild-column--allied .guild-column-wheel');
-      assert(alliedWheel !== null, 'Allied row has .guild-column-wheel panel');
+      const alliedWheel = await page.$('.level-section--allied .level-section-wheel');
+      assert(alliedWheel !== null, 'Allied row has .level-section-wheel panel');
 
-      const alliedFlavor = await page.$('.guild-column--allied .guild-column-flavor');
-      assert(alliedFlavor !== null, 'Allied row has .guild-column-flavor panel');
+      const alliedFlavor = await page.$('.level-section--allied .level-section-flavor');
+      assert(alliedFlavor !== null, 'Allied row has .level-section-flavor panel');
 
       // Enemy row: has all three panels
-      const enemySummary = await page.$('.guild-column--enemy .guild-column-summary');
-      assert(enemySummary !== null, 'Enemy row has .guild-column-summary panel');
+      const enemySummary = await page.$('.level-section--enemy .level-section-summary');
+      assert(enemySummary !== null, 'Enemy row has .level-section-summary panel');
 
-      const enemyWheel = await page.$('.guild-column--enemy .guild-column-wheel');
-      assert(enemyWheel !== null, 'Enemy row has .guild-column-wheel panel');
+      const enemyWheel = await page.$('.level-section--enemy .level-section-wheel');
+      assert(enemyWheel !== null, 'Enemy row has .level-section-wheel panel');
 
-      const enemyFlavor = await page.$('.guild-column--enemy .guild-column-flavor');
-      assert(enemyFlavor !== null, 'Enemy row has .guild-column-flavor panel');
+      const enemyFlavor = await page.$('.level-section--enemy .level-section-flavor');
+      assert(enemyFlavor !== null, 'Enemy row has .level-section-flavor panel');
 
       // Each column should have exactly 3 direct children when unlocked
       const alliedChildCount = await page.evaluate(() => {
-        const col = document.querySelector('.guild-column--allied');
+        const col = document.querySelector('.level-section--allied');
         return col ? col.children.length : -1;
       });
       assert(alliedChildCount === 3, `Allied row has 3 child panels (got: ${alliedChildCount})`);
 
       const enemyChildCount = await page.evaluate(() => {
-        const col = document.querySelector('.guild-column--enemy');
+        const col = document.querySelector('.level-section--enemy');
         return col ? col.children.length : -1;
       });
       assert(enemyChildCount === 3, `Enemy row has 3 child panels (got: ${enemyChildCount})`);
@@ -139,7 +139,7 @@ async function run() {
       await page.waitForTimeout(300);
 
       const gridInfo = await page.evaluate(() => {
-        const col = document.querySelector('.guild-column--allied');
+        const col = document.querySelector('.level-section--allied');
         if (!col) return null;
         const styles = window.getComputedStyle(col);
         return {
@@ -185,7 +185,7 @@ async function run() {
       await page.waitForTimeout(300);
 
       const mobileGridInfo = await page.evaluate(() => {
-        const col = document.querySelector('.guild-column--allied');
+        const col = document.querySelector('.level-section--allied');
         if (!col) return null;
         const styles = window.getComputedStyle(col);
         return {
@@ -204,9 +204,9 @@ async function run() {
       );
 
       // All three panels should still be present even on mobile
-      const summaryPresent = await page.$('.guild-column--allied .guild-column-summary') !== null;
-      const wheelPresent = await page.$('.guild-column--allied .guild-column-wheel') !== null;
-      const flavorPresent = await page.$('.guild-column--allied .guild-column-flavor') !== null;
+      const summaryPresent = await page.$('.level-section--allied .level-section-summary') !== null;
+      const wheelPresent = await page.$('.level-section--allied .level-section-wheel') !== null;
+      const flavorPresent = await page.$('.level-section--allied .level-section-flavor') !== null;
       assert(summaryPresent && wheelPresent && flavorPresent, 'All three panels present on mobile (just stacked)');
 
       await page.close();
@@ -232,7 +232,7 @@ async function run() {
       await page.waitForSelector('.allied-color-wheel', { timeout: 5000 });
 
       // Flavor name should be empty before hover
-      const flavorNameBefore = await page.textContent('.guild-column--allied .guild-column-flavor-name');
+      const flavorNameBefore = await page.textContent('.level-section--allied .level-section-flavor-name');
       assert(
         flavorNameBefore === '' || flavorNameBefore === null,
         `Flavor name is empty before hover (got: "${flavorNameBefore}")`,
@@ -247,21 +247,21 @@ async function run() {
         await page.waitForTimeout(300);
 
         // Flavor name should now show "Azorius"
-        const flavorNameAfter = await page.textContent('.guild-column--allied .guild-column-flavor-name');
+        const flavorNameAfter = await page.textContent('.level-section--allied .level-section-flavor-name');
         assert(
           flavorNameAfter && flavorNameAfter.includes('Azorius'),
           `Flavor name shows "Azorius" on hover (got: "${flavorNameAfter?.trim()}")`,
         );
 
         // Guild column should have --has-highlight class (which drives opacity)
-        const hasHighlight = await page.$('.guild-column--allied.guild-column--has-highlight');
-        assert(hasHighlight !== null, 'Allied column gains .guild-column--has-highlight class on hover');
+        const hasHighlight = await page.$('.level-section--allied.level-section--has-highlight');
+        assert(hasHighlight !== null, 'Allied column gains .level-section--has-highlight class on hover');
 
         // Move mouse away — flavor name should clear
         await page.mouse.move(0, 0);
         await page.waitForTimeout(300);
 
-        const flavorNameCleared = await page.textContent('.guild-column--allied .guild-column-flavor-name');
+        const flavorNameCleared = await page.textContent('.level-section--allied .level-section-flavor-name');
         assert(
           flavorNameCleared === '' || flavorNameCleared === null,
           `Flavor name clears when mouse leaves (got: "${flavorNameCleared}")`,
@@ -348,14 +348,14 @@ async function run() {
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(300);
 
-      const alliedLocked = await page.$('.guild-column--allied.guild-column--locked');
+      const alliedLocked = await page.$('.level-section--allied.level-section--locked');
       assert(alliedLocked !== null, 'Allied column locked when no localStorage progression');
 
-      const enemyLocked = await page.$('.guild-column--enemy.guild-column--locked');
+      const enemyLocked = await page.$('.level-section--enemy.level-section--locked');
       assert(enemyLocked !== null, 'Enemy column locked when no localStorage progression');
 
       // Locked columns still have buttons
-      const alliedBtn = await page.$('.guild-column--allied .next-session-button');
+      const alliedBtn = await page.$('.level-section--allied .next-session-button');
       assert(alliedBtn !== null, 'Allied locked column still has a navigation button');
 
       await page.close();
