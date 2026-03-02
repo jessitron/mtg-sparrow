@@ -605,21 +605,46 @@ export function showSessionEndColumns(
   viewport.classList.add('level-sections-viewport');
   viewport.appendChild(reel);
 
-  // Bottom button: down-arrow or share depending on position
-  const bottomBtn = document.createElement('button');
-  bottomBtn.classList.add('reel-bottom-btn');
-  bottomBtn.innerHTML = `<svg width="32" height="20" viewBox="0 0 32 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,4 16,16 30,4"/></svg>`;
+  const UP_ARROW_SVG = `<svg width="32" height="20" viewBox="0 0 32 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,16 16,4 30,16"/></svg>`;
+  const DOWN_ARROW_SVG = `<svg width="32" height="20" viewBox="0 0 32 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,4 16,16 30,4"/></svg>`;
 
-  function updateBottomBtn() {
+  // Top button: up-arrow or Home
+  const topBtn = document.createElement('button');
+  topBtn.classList.add('reel-nav-btn', 'reel-nav-btn--top');
+
+  // Bottom button: down-arrow or Share
+  const bottomBtn = document.createElement('button');
+  bottomBtn.classList.add('reel-nav-btn', 'reel-nav-btn--bottom');
+
+  function updateNavButtons() {
+    const atTop = reelIndex <= 0;
     const atEnd = reelIndex >= sections.length - 1;
+
+    if (atTop) {
+      topBtn.innerHTML = 'Home';
+      topBtn.classList.add('reel-nav-btn--label');
+    } else {
+      topBtn.innerHTML = UP_ARROW_SVG;
+      topBtn.classList.remove('reel-nav-btn--label');
+    }
+
     if (atEnd) {
       bottomBtn.innerHTML = 'Share';
-      bottomBtn.classList.add('reel-bottom-btn--share');
+      bottomBtn.classList.add('reel-nav-btn--label');
     } else {
-      bottomBtn.innerHTML = `<svg width="32" height="20" viewBox="0 0 32 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,4 16,16 30,4"/></svg>`;
-      bottomBtn.classList.remove('reel-bottom-btn--share');
+      bottomBtn.innerHTML = DOWN_ARROW_SVG;
+      bottomBtn.classList.remove('reel-nav-btn--label');
     }
   }
+
+  topBtn.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    if (reelIndex <= 0) {
+      window.location.href = '/';
+      return;
+    }
+    reelAdvance(reel, viewport, sections, -1).then(updateNavButtons);
+  });
 
   bottomBtn.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
@@ -627,16 +652,8 @@ export function showSessionEndColumns(
       // Share — placeholder for now
       return;
     }
-    reelAdvance(reel, viewport, sections, 1).then(updateBottomBtn);
+    reelAdvance(reel, viewport, sections, 1).then(updateNavButtons);
   });
-
-  // Also update button after scroll navigation
-  const originalAdvance = reelAdvance;
-  function advanceAndUpdate(
-    r: HTMLElement, v: HTMLElement, s: HTMLElement[], d: 1 | -1,
-  ) {
-    return originalAdvance(r, v, s, d).then(updateBottomBtn);
-  }
 
   // Clicking anywhere that isn't a line or guild item clears both selections.
   document.addEventListener('click', () => {
@@ -644,13 +661,14 @@ export function showSessionEndColumns(
     clearEnemy();
   });
 
+  app.appendChild(topBtn);
   app.appendChild(viewport);
   app.appendChild(bottomBtn);
 
   // Set initial viewport height, then wire scroll navigation
   requestAnimationFrame(() => {
     viewport.style.height = `${sections[0].offsetHeight}px`;
-    updateBottomBtn();
+    updateNavButtons();
 
     viewport.addEventListener('wheel', (e: WheelEvent) => {
       e.preventDefault();
@@ -659,7 +677,7 @@ export function showSessionEndColumns(
       reelLastWheelTime = now;
 
       const direction = e.deltaY > 0 ? 1 : -1;
-      advanceAndUpdate(reel, viewport, sections, direction as 1 | -1);
+      reelAdvance(reel, viewport, sections, direction as 1 | -1).then(updateNavButtons);
     }, { passive: false });
   });
 }
