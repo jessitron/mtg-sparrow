@@ -623,6 +623,41 @@ Items noted by client but explicitly out of scope for initial delivery:
 - **Alternatives rejected**: `esbuild src/main.ts src/slides.ts --outdir=dist --entry-names=[name]` — would produce `dist/main.js` and `dist/slides.js`, requiring `index.html` to be updated from `bundle.js` to `main.js`.
 - **Rationale**: Backward compatibility with existing `index.html` referencing `dist/bundle.js`. Avoids a two-file change (build config + HTML) during Arc 17. When Arc 20 creates `welcome.ts` and deletes `main.ts`, the build can be unified cleanly at that point.
 
+## DEC-068: Assessment Page Skip Logic
+- **Date**: 2026-03-02
+- **Arc**: 18
+- **Decision**: If a session has fewer than 3 cards, skip the self-assessment prompt entirely and navigate directly to `end.html`.
+- **Context**: A very short session (1–2 cards) doesn't provide enough exposure for meaningful self-reflection. Showing "How did that feel?" after 1 card would be premature.
+- **Rationale**: The self-assessment is useful when the user has actually done some learning. The 3-card threshold is a minimal floor; it keeps the feature meaningful without excessive filtering.
+
+## DEC-069: End Page Display Driven by localStorage, Not URL Params
+- **Date**: 2026-03-02
+- **Arc**: 19
+- **Decision**: The end page reads URL params if available (for `session.summary` telemetry) but drives its display state — which guild columns are unlocked — entirely from localStorage.
+- **Context**: The end page must be safely directly navigable (bookmarkable, shareable). If display depended on URL params, direct access would show a broken or empty page.
+- **Rationale**: URL params are session ephemera; localStorage holds persistent progression state. Separating these concerns makes the page resilient. The telemetry gets richer data when params are present; the display is never broken when they aren't.
+
+## DEC-070: Navigation Buttons on End Page Use Page Navigation (slides.html)
+- **Date**: 2026-03-02
+- **Arc**: 19
+- **Decision**: Navigation buttons on the end page link to `slides.html?subgroup=X&from=end` using standard page navigation, not an in-page `startSession()` call.
+- **Context**: With multi-page architecture, each page is self-contained. There is no `startSession()` on the end page — the slides page owns session state. The end page's job is display + navigation only.
+- **Rationale**: Consistent with DEC-053 (multi-page architecture). Keeps the end page's scope narrow. The slides page receives the `from=end` param for telemetry attribution.
+
+## DEC-071: main.ts Deleted, Replaced by welcome.ts
+- **Date**: 2026-03-02
+- **Arc**: 20
+- **Decision**: `src/main.ts` was renamed to `src/welcome.ts` and deleted. The build now has four named entry points: `welcome.js`, `slides.js`, `assessment.js`, `end.js`. The old `bundle.js` no longer exists as a build output.
+- **Context**: Arc 17 introduced `bundle.js` as a backward-compatibility shim (DEC-067). Arc 20 completes the migration — `index.html` updated to reference `welcome.js`, and the build config cleaned up.
+- **Rationale**: The `bundle.js` naming was a temporary bridge. Arc 20 was the right moment to complete the rename — all four pages exist, all four entry points are active. The code now accurately reflects its own structure.
+
+## DEC-072: All Four Pages Emit app.navigation='multi_page' — Structural Marker Complete
+- **Date**: 2026-03-02
+- **Arc**: 20
+- **Decision**: After Arc 20, all four pages (welcome, slides, assessment, end) emit `app.navigation = 'multi_page'` as a resource attribute. The welcome page was the last to be updated (it had been emitting `'single_page'`).
+- **Context**: `app.navigation` was introduced in Arc 14 as the structural marker for the multi-page decomposition (DEC-053). It serves as runtime evidence that all pages are participating in the new architecture.
+- **Rationale**: The structural marker is only meaningful when it's consistent across all pages. Arc 20 closes the loop. Honeycomb queries on `app.navigation = 'multi_page'` now return spans from all four pages.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
