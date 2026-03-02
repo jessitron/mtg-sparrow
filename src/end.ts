@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
       flushSpans();
       window.location.href = `slides?subgroup=${sub}&from=${startedFrom}`;
     },
+    (subgroup as GuildSubgroup) || undefined,
   );
 
   // End section + page spans and flush when the user leaves

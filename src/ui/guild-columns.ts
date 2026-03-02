@@ -607,9 +607,13 @@ export function showSessionEndColumns(
   enemyUnlocked: boolean,
   pageSpan: Span,
   startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
+  initialSubgroup?: GuildSubgroup,
 ): () => void {
+  const initialIndex = initialSubgroup === 'enemy' ? 1 : 0;
+  reelIndex = initialIndex;
+
   // Start the first section span; interactions nest under it
-  const sectionSpanRef: SpanRef = { current: startSectionSpan(pageSpan, 0) };
+  const sectionSpanRef: SpanRef = { current: startSectionSpan(pageSpan, initialIndex) };
 
   // Placeholders for cross-column clear functions; filled in after both columns are built
   let clearAllied = () => {};
@@ -691,9 +695,17 @@ export function showSessionEndColumns(
   app.appendChild(viewport);
   app.appendChild(bottomBtn);
 
-  // Set initial viewport height, then wire scroll navigation
+  // Set initial viewport height and position, then wire scroll navigation
   requestAnimationFrame(() => {
-    viewport.style.height = `${sections[0].offsetHeight}px`;
+    // Position reel at the initial section without animation
+    if (initialIndex > 0) {
+      let targetY = 0;
+      for (let i = 0; i < initialIndex; i++) {
+        targetY += sections[i].offsetHeight;
+      }
+      reel.style.transform = `translateY(${-targetY}px)`;
+    }
+    viewport.style.height = `${sections[initialIndex].offsetHeight}px`;
     updateNavButtons();
 
     viewport.addEventListener('wheel', (e: WheelEvent) => {
