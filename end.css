@@ -113,13 +113,13 @@
   align-items: center;
 }
 
-/* Flavor panel: Practice button always visible; guild name appears on highlight */
+/* Flavor panel: Practice button always visible; description content appears on highlight */
 .level-section-flavor {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 1.25rem;
+  gap: 0.75rem;
   padding: 1rem 0.5rem;
 }
 
@@ -128,13 +128,38 @@
   font-weight: 700;
   font-family: 'GoudyMediaeval', Georgia, serif;
   color: #e8d8aa;
-  text-align: center;
   opacity: 0;
   transition: opacity 200ms ease;
 }
 
-.level-section--has-highlight .level-section-flavor-name {
+.level-section-flavor-desc {
+  font-size: 0.875rem;
+  color: #bbb;
+  line-height: 1.6;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.level-section-scryfall-link {
+  font-size: 0.875rem;
+  color: var(--card-back-turquoise);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.level-section-scryfall-link:hover {
+  text-decoration: underline;
+}
+
+.level-section--has-highlight .level-section-flavor-name,
+.level-section--has-highlight .level-section-flavor-desc,
+.level-section--has-highlight .level-section-scryfall-link {
   opacity: 1;
+}
+
+.level-section-button {
+  align-self: center;
 }
 
 .level-section-header {

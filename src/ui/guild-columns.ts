@@ -1,5 +1,7 @@
 import { renderPip } from './pips';
 import { alliedGuilds, enemyGuilds, ColorCombo } from '../data/combos';
+import { guildDescriptionMap } from '../data/guild-descriptions';
+import { startSpan, endSpan } from '../telemetry/telemetry';
 import { hasCompletedSubgroup } from '../progression';
 import { GuildSubgroup } from '../session';
 
@@ -221,6 +223,8 @@ function wireColorWheelHover(
 
   const crestImg = svg.getElementById(crestId) as SVGImageElement | null;
   const flavorNameEl = col.querySelector<HTMLElement>('.level-section-flavor-name');
+  const flavorDescEl = col.querySelector<HTMLElement>('.level-section-flavor-desc');
+  const scryfallLinkEl = col.querySelector<HTMLAnchorElement>('.level-section-scryfall-link');
 
   // Helper: set/clear highlight class on all related elements for a given pair
   function setHighlight(aId: string, bId: string, on: boolean): void {
@@ -245,6 +249,17 @@ function wireColorWheelHover(
       if (flavorNameEl) {
         flavorNameEl.textContent = guildIdToName[guildId] ?? guildId;
       }
+      const desc = guildDescriptionMap[guildId];
+      if (flavorDescEl) {
+        flavorDescEl.textContent = desc?.description ?? '';
+      }
+      if (scryfallLinkEl) {
+        scryfallLinkEl.href = desc?.scryfallUrl ?? '#';
+        scryfallLinkEl.textContent = `More ${guildIdToName[guildId] ?? guildId} cards →`;
+        scryfallLinkEl.dataset.guildId = guildId;
+      }
+      const hlSpan = startSpan('end.guild_highlight', { 'guild.id': guildId });
+      endSpan(hlSpan);
     } else {
       lineEl?.classList.remove('highlight');
       nodeA?.classList.remove('highlight');
@@ -256,6 +271,14 @@ function wireColorWheelHover(
       }
       if (flavorNameEl) {
         flavorNameEl.textContent = '';
+      }
+      if (flavorDescEl) {
+        flavorDescEl.textContent = '';
+      }
+      if (scryfallLinkEl) {
+        scryfallLinkEl.textContent = '';
+        scryfallLinkEl.removeAttribute('href');
+        delete scryfallLinkEl.dataset.guildId;
       }
     }
   }
@@ -374,12 +397,28 @@ function buildAlliedColumn(
     wheelPanel.appendChild(svg);
     col.appendChild(wheelPanel);
 
-    // Flavor panel (right): Practice button + guild name on highlight
+    // Flavor panel (right): guild name + description + Scryfall link on highlight; Practice button always
     const flavorPanel = document.createElement('div');
     flavorPanel.classList.add('level-section-flavor');
     const flavorName = document.createElement('span');
     flavorName.classList.add('level-section-flavor-name');
     flavorPanel.appendChild(flavorName);
+    const flavorDesc = document.createElement('p');
+    flavorDesc.classList.add('level-section-flavor-desc');
+    flavorPanel.appendChild(flavorDesc);
+    const scryfallLink = document.createElement('a');
+    scryfallLink.classList.add('level-section-scryfall-link');
+    scryfallLink.target = '_blank';
+    scryfallLink.rel = 'noopener noreferrer';
+    scryfallLink.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      const gid = scryfallLink.dataset.guildId;
+      if (gid) {
+        const span = startSpan('end.scryfall_click', { 'guild.id': gid });
+        endSpan(span);
+      }
+    });
+    flavorPanel.appendChild(scryfallLink);
     const btn = document.createElement('button');
     btn.classList.add('next-session-button', 'level-section-button');
     btn.textContent = hasCompletedSubgroup('allied') ? 'Practice' : 'Learn allied guilds';
@@ -447,12 +486,28 @@ function buildEnemyColumn(
     wheelPanel.appendChild(svg);
     col.appendChild(wheelPanel);
 
-    // Flavor panel (right): Practice button + guild name on highlight
+    // Flavor panel (right): guild name + description + Scryfall link on highlight; Practice button always
     const flavorPanel = document.createElement('div');
     flavorPanel.classList.add('level-section-flavor');
     const flavorName = document.createElement('span');
     flavorName.classList.add('level-section-flavor-name');
     flavorPanel.appendChild(flavorName);
+    const flavorDesc = document.createElement('p');
+    flavorDesc.classList.add('level-section-flavor-desc');
+    flavorPanel.appendChild(flavorDesc);
+    const scryfallLink = document.createElement('a');
+    scryfallLink.classList.add('level-section-scryfall-link');
+    scryfallLink.target = '_blank';
+    scryfallLink.rel = 'noopener noreferrer';
+    scryfallLink.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      const gid = scryfallLink.dataset.guildId;
+      if (gid) {
+        const span = startSpan('end.scryfall_click', { 'guild.id': gid });
+        endSpan(span);
+      }
+    });
+    flavorPanel.appendChild(scryfallLink);
     const btn = document.createElement('button');
     btn.classList.add('next-session-button', 'level-section-button');
     btn.textContent = hasCompletedSubgroup('enemy') ? 'Practice' : 'Learn enemy guilds';

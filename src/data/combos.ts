@@ -35,6 +35,7 @@ export const guilds: ColorCombo[] = [
       { name: "Azorius Charm", imageUrl: "https://cards.scryfall.io/normal/front/2/6/26adc211-d089-4102-91e5-225bbeb5f382.jpg?1562783945" },
       { name: "Deputy of Detention", imageUrl: "https://cards.scryfall.io/normal/front/7/e/7e362055-78a1-48fa-a4ef-6cf7e0b21b14.jpg?1584831457" },
       { name: "Dovin, Grand Arbiter", imageUrl: "https://cards.scryfall.io/normal/front/e/6/e6784910-0204-4a39-bb38-50daa03e94c2.jpg?1584831473" },
+      { name: "Azor, the Lawbringer", imageUrl: "https://cards.scryfall.io/normal/front/3/0/30dc237e-b28a-4b65-9790-6b434828bf2e.jpg?1555040794" },
     ],
   },
   {
@@ -95,6 +96,7 @@ export const guilds: ColorCombo[] = [
       { name: "Tolsimir Wolfblood", imageUrl: "https://cards.scryfall.io/normal/front/0/6/069ac859-e0ef-4685-bad3-5c741102b5b9.jpg?1598917578" },
       { name: "Watchwolf", imageUrl: "https://cards.scryfall.io/normal/front/9/5/95e5828a-3e54-4b9c-9e84-21880930f2d5.jpg?1598917628" },
       { name: "Armada Wurm", imageUrl: "https://cards.scryfall.io/normal/front/5/0/50cb4bf3-70d1-4acc-a1fb-49f4ea74ca16.jpg?1562786220" },
+      { name: "Voice of Resurgence", imageUrl: "https://cards.scryfall.io/normal/front/9/9/99d1e843-71c9-4a65-bc36-d23858ef5ead.jpg?1599708569" },
     ],
   },
 
@@ -142,6 +144,7 @@ export const guilds: ColorCombo[] = [
       { name: "Corpsejack Menace", imageUrl: "https://cards.scryfall.io/normal/front/b/3/b35a8efe-2a3e-4060-9134-d4150e4bdf28.jpg?1562791837" },
       { name: "Jarad's Orders", imageUrl: "https://cards.scryfall.io/normal/front/c/5/c59171ce-7dc6-4dd9-a124-3c2c3028d93d.jpg?1562792935" },
       { name: "Glowspore Shaman", imageUrl: "https://cards.scryfall.io/normal/front/0/8/08fe260a-d204-4e75-b3e5-0cd9b4ca7084.jpg?1572893638" },
+      { name: "Savra, Queen of the Golgari", imageUrl: "https://cards.scryfall.io/normal/front/e/1/e189f09e-d637-4631-bae3-a5a583ada429.jpg?1702429705" },
     ],
   },
   {
