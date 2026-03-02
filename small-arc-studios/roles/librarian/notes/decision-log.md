@@ -658,6 +658,40 @@ Items noted by client but explicitly out of scope for initial delivery:
 - **Context**: `app.navigation` was introduced in Arc 14 as the structural marker for the multi-page decomposition (DEC-053). It serves as runtime evidence that all pages are participating in the new architecture.
 - **Rationale**: The structural marker is only meaningful when it's consistent across all pages. Arc 20 closes the loop. Honeycomb queries on `app.navigation = 'multi_page'` now return spans from all four pages.
 
+## DEC-073: flushSpans() Made Async and Awaited Before Navigation
+- **Date**: 2026-03-02
+- **Arc**: 21
+- **Decision**: `flushSpans()` changed from `void` to returning `Promise<void>`. All callers in `slides.ts` and `assessment.ts` now `await flushSpans()` before setting `window.location.href`.
+- **Context**: Arc 21 telemetry verification revealed that spans were being exported fire-and-forget — navigation could fire before the OTel exporter had time to flush over the network. This was a reliability gap, not a correctness bug (spans were queued, just at risk under slow connections).
+- **Rationale**: Awaiting the flush ensures span delivery completes (or times out gracefully) before the page unloads. This improves reliability across all connection speeds. DEC-064 established the pattern; this closes the gap in the implementation.
+
+## DEC-074: Local Serve URL Param Stripping — Known Limitation, No Fix
+- **Date**: 2026-03-02
+- **Arc**: 21
+- **Decision**: The `serve` static file server strips URL params when redirecting `.html` extension URLs (e.g., `/slides.html?subgroup=allied` → `/slides.html`). No fix applied.
+- **Context**: Discovered during Arc 21 testing. The local server's `.html` redirect behavior caused intermittent test failures when using full-extension URLs. GitHub Pages preserves URL params correctly.
+- **Rationale**: This is a local development environment limitation only. Production behavior (GitHub Pages) is correct. Applying a workaround (e.g., configuring the local server differently or removing `.html` from links) would add complexity for a non-production concern. Documented so the team does not re-investigate.
+
+---
+
+## SOW Completion: Multi-Page Decomposition — CLOSED
+- **Date**: 2026-03-02
+- **Final Version**: v0.19.0
+- **Arc Range**: Arcs 14–21 (8 arcs)
+
+All success criteria from the Multi-Page Decomposition SOW are met:
+- Four independent HTML pages: welcome, slides, assessment, end
+- Per-page JS bundles (welcome.js, slides.js, assessment.js, end.js)
+- Per-page CSS files (style.css + welcome/slides/assessment/end)
+- `mtg-sparrow.session.id` correlates all session spans across pages in Honeycomb
+- `app.navigation = 'multi_page'` structural marker on all spans
+- Browser back/forward/refresh work naturally on every page
+- No visual or behavioral regressions
+
+**Phase 1** (Arcs 14–16): Foundations — telemetry ID, CSS split, module extraction — COMPLETE
+**Phase 2** (Arcs 17–20): Page creation — slides, assessment, end, welcome — COMPLETE
+**Phase 3** (Arc 21): Cross-page telemetry verification — COMPLETE
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
