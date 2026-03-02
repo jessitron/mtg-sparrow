@@ -64,9 +64,10 @@ export function sendStartupSpan(version: string): void {
   span.end();
 }
 
-export function flushSpans(): void {
+export function flushSpans(): Promise<void> {
   const provider = getProvider();
   if (provider && typeof provider.forceFlush === 'function') {
-    provider.forceFlush().catch(() => {});
+    return provider.forceFlush().catch(() => {});
   }
+  return Promise.resolve();
 }

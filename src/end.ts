@@ -4,7 +4,7 @@ import { isSubgroupUnlocked, isEnemyUnlocked } from './progression';
 import { wireSettings } from './ui/settings';
 import { GuildSubgroup } from './session';
 
-const APP_VERSION = '0.17.0';
+const APP_VERSION = '0.19.0';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'end', 'multi_page');

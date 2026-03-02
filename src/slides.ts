@@ -14,7 +14,7 @@ import { isSubgroupUnlocked, markSubgroupUnlocked, markSubgroupCompleted } from 
 import { Span } from '@opentelemetry/api';
 import { wireSettings } from './ui/settings';
 
-const APP_VERSION = '0.15.0';
+const APP_VERSION = '0.19.0';
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
@@ -59,7 +59,7 @@ function endSessionSpan(actualCount: number): void {
   }
 }
 
-function navigateToAssessment(actualCount: number): void {
+async function navigateToAssessment(actualCount: number): Promise<void> {
   if (!session) return;
 
   // Record progression while session span is still open
@@ -76,8 +76,8 @@ function navigateToAssessment(actualCount: number): void {
   // End session span (no self_assessment — that belongs to assessment page)
   endSessionSpan(actualCount);
 
-  // Flush spans before navigating (visibilitychange flush is unreliable)
-  flushSpans();
+  // Await flush before navigating so spans are exported before page unload
+  await flushSpans();
 
   // Navigate to assessment page
   window.location.href = `assessment.html?subgroup=${session.subgroup}&cards=${actualCount}&completed=${session.completed}`;

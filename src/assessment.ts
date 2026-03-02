@@ -2,7 +2,7 @@ import { initTelemetry, startSpan, endSpan, flushSpans } from './telemetry/telem
 import { buildSelfAssessment, SELF_ASSESSMENT_MIN_CARDS } from './ui/self-assessment';
 import { wireSettings } from './ui/settings';
 
-const APP_VERSION = '0.16.0';
+const APP_VERSION = '0.19.0';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'assessment', 'multi_page');
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const cards = parseInt(urlParams.get('cards') || '0', 10);
   const completed = urlParams.get('completed') === 'true';
 
-  function navigateToEnd(assessment: string | null): void {
+  async function navigateToEnd(assessment: string | null): Promise<void> {
     const params = new URLSearchParams({
       subgroup,
       cards: String(cards),
@@ -30,7 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (assessment !== null) {
       params.set('assessment', assessment);
     }
-    flushSpans();
+    // Await flush before navigating so spans are exported before page unload
+    await flushSpans();
     window.location.href = `end.html?${params.toString()}`;
   }
 
