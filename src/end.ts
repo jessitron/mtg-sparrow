@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (completedParam !== null) attrs['session.completed'] = completedParam === 'true';
     if (assessment !== null) attrs['session.self_assessment'] = assessment;
 
+    attrs['end.layout_version'] = 'rows_v1';
     const span = startSpan('session.summary', attrs);
     endSpan(span);
   }

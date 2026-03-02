@@ -69,34 +69,77 @@
   background: color-mix(in srgb, var(--card-back-turquoise) 35%, transparent);
 }
 
-/* Two-column guild layout */
+/* Stacked row guild layout */
 .guild-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
   width: 100%;
   margin-top: 1rem;
   animation: cardEnter 250ms ease-out;
 }
 
-@media (max-width: 480px) {
-  .guild-columns {
-    grid-template-columns: 1fr;
-  }
+/* Each guild row: summary | wheel | flavor */
+.guild-column {
+  display: grid;
+  grid-template-columns: 1fr minmax(220px, 320px) 1fr;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.5rem;
+  background: color-mix(in srgb, var(--bg-brown-dark) 60%, transparent);
+  border-radius: 12px;
 }
 
-.guild-column {
+/* Locked row: just a centered button */
+.guild-column--locked {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+}
+
+/* Summary panel: flex column so button pushes to bottom */
+.guild-column-summary {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  align-self: stretch;
+}
+
+/* Wheel panel: centers the SVG */
+.guild-column-wheel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Flavor panel: shows guild name on highlight */
+.guild-column-flavor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+}
+
+.guild-column-flavor-name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-family: 'GoudyMediaeval', Georgia, serif;
+  color: #e8d8aa;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.guild-column--has-highlight .guild-column-flavor-name {
+  opacity: 1;
 }
 
 .guild-column-header {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 700;
   font-family: 'GoudyMediaeval', Georgia, serif;
   color: #f0f0f0;
-  text-align: center;
 }
 
 .guild-column-explanation {
@@ -119,12 +162,10 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.35rem 0;
+  padding: 0.35rem;
   font-size: 1rem;
   transition: background 0.2s ease, opacity 0.2s ease;
   border-radius: 6px;
-  padding-left: 0.35rem;
-  padding-right: 0.35rem;
 }
 
 .guild-column-item .combo-summary-pips {
@@ -147,22 +188,19 @@
   margin-top: auto;
 }
 
-.guild-column--locked .guild-column-button {
-  margin-top: 0;
-}
-
-.guild-column--locked {
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
 .allied-color-wheel,
 .enemy-color-wheel {
   width: 100%;
-  max-width: 280px;
+  max-width: 360px;
   height: auto;
   margin: 0 auto;
+}
+
+/* Mobile: stack the three panels vertically */
+@media (max-width: 700px) {
+  .guild-column {
+    grid-template-columns: 1fr;
+  }
 }
 
 .allied-color-wheel .ally-line,
