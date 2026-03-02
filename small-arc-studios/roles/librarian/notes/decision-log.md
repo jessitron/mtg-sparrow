@@ -571,6 +571,58 @@ Items noted by client but explicitly out of scope for initial delivery:
 - **Verification**: 23/23 Playwright checks PASS. Bundle inspection confirms telemetry markers. Runtime Honeycomb confirmation pending deployment (known flush-timing limitation).
 - **Result**: `main.ts` reduced from 957 to 438 lines. Three focused modules in `src/ui/`. App behavior and tests fully preserved.
 
+## DEC-061: slides.html Navigates to assessment.html (404 Until Arc 18)
+- **Date**: 2026-03-02
+- **Arc**: 17
+- **Decision**: `slides.html` navigates to `assessment.html` on session end, even though `assessment.html` does not exist until Arc 18. Sessions 404 at the end during this arc.
+- **Alternatives rejected**: Temporary workaround (e.g., navigate back to index.html or show an in-page message) — rejected as unnecessary complexity that would need to be undone.
+- **Rationale**: Clean architectural separation over temporary shims. The 404 is expected, temporary, and unambiguous. Arc 18 resolves it.
+
+## DEC-062: No Mana Gas on Slides Page
+- **Date**: 2026-03-02
+- **Arc**: 17
+- **Decision**: The animated mana gas background (`#gas` canvas, `animateGas()`) is welcome-page ambiance only. `slides.html` has no gas animation.
+- **Context**: The gas effect was introduced as a welcome-screen ambient visual. It creates cognitive noise during the card session.
+- **Rationale**: The slides page is focus mode — cards only. Removing distraction improves the learning experience. Each page should include only what it needs.
+
+## DEC-063: welcome_dwell_ms Passed via URL Param
+- **Date**: 2026-03-02
+- **Arc**: 17
+- **Decision**: The `welcome_dwell_ms` value (time user spent on welcome page before starting) is passed from `index.html` → `slides.html` via URL query parameter, not sessionStorage.
+- **Alternatives rejected**: sessionStorage — would work, but URL params make data flow explicit and visible. The value is single-use and ephemeral.
+- **Rationale**: Explicit data flow. URL params are the right mechanism for data that belongs to a single page transition. SessionStorage is reserved for data that persists across the full session (`mtg-sparrow.session.id`).
+
+## DEC-064: flushSpans() Called Before Page Navigation
+- **Date**: 2026-03-02
+- **Arc**: 17
+- **Decision**: `flushSpans()` is called explicitly before each `window.location.href` navigation in `slides.ts`. Cannot rely on the `visibilitychange` handler — page navigation fires before visibility change settles.
+- **Context**: When navigating away, in-memory OTel spans would be lost without an explicit flush attempt.
+- **Rationale**: Best-effort span preservation before navigation. Even if `forceFlush` is not available (see DEC-065), the call structure ensures any future improvement is wired in the right place.
+
+## DEC-065: flushSpans() Bug Fix — typeof Guard + .catch()
+- **Date**: 2026-03-02
+- **Arc**: 17
+- **Decision**: Fixed `flushSpans()` in `src/telemetry/telemetry.ts` to guard against missing `forceFlush` method with `typeof provider.forceFlush === 'function'` before calling, plus `.catch(() => {})` to suppress async errors.
+- **Context**: `trace.getTracerProvider()` returns the OTel global `ProxyTracerProvider`, which only implements `getTracer()` — not `forceFlush()`. Calling it threw a `TypeError` synchronously, silently aborting the calling function (navigation never happened). This was the known bug from project memory: "flushSpans() forceFlush error on visibilitychange."
+- **Symptom**: Clicking "Done for now" had no effect — no navigation, no error visible to user.
+- **Fix**: `if (typeof provider.forceFlush === 'function') { provider.forceFlush().catch(() => {}); }`
+- **Remaining limitation**: Spans still export via 30s OTel batch timer. A proper synchronous flush requires storing the `HoneycombWebSDK` instance and calling `sdk.shutdown()`. Deferred to future arc.
+- **Rationale**: Defensive guard resolves the crash. Navigation now works. Spans reach Honeycomb via batch timer. The bug was blocking multi-page delivery; this fix unblocks Arcs 17–20.
+
+## DEC-066: Assessment and End Screen Logic Excluded from slides.ts
+- **Date**: 2026-03-02
+- **Arc**: 17
+- **Decision**: `showSessionEnd`, `buildSelfAssessment`, and guild column rendering are NOT included in `src/slides.ts`. These become the responsibility of `assessment.html` (Arc 18) and `end.html` (Arc 19) respectively.
+- **Context**: The existing `main.ts` showed all post-session UI in the same JS context. The multi-page architecture assigns each screen to its own page.
+- **Rationale**: Clean separation of concerns. Each page's entry point handles only what that page needs to render and behave. `slides.ts` ends when navigation fires — it does not know what comes next beyond the URL.
+
+## DEC-067: Two Separate esbuild Calls for Multi-Entry Build
+- **Date**: 2026-03-02
+- **Arc**: 17
+- **Decision**: The build uses two separate esbuild calls — one producing `dist/bundle.js` (from `src/main.ts`), one producing `dist/slides.js` (from `src/slides.ts`) — rather than a single esbuild call with `--outdir` and entry name patterns.
+- **Alternatives rejected**: `esbuild src/main.ts src/slides.ts --outdir=dist --entry-names=[name]` — would produce `dist/main.js` and `dist/slides.js`, requiring `index.html` to be updated from `bundle.js` to `main.js`.
+- **Rationale**: Backward compatibility with existing `index.html` referencing `dist/bundle.js`. Avoids a two-file change (build config + HTML) during Arc 17. When Arc 20 creates `welcome.ts` and deletes `main.ts`, the build can be unified cleanly at that point.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
