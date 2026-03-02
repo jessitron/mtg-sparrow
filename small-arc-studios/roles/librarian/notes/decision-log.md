@@ -471,6 +471,12 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Observability note**: Bundle inspection confirms `css.split` attribute is correctly coded. Runtime Honeycomb confirmation pending deployment (known flush-timing limitation with headless browser tests).
 - **Decisions**: DEC-057, DEC-058
 
+### Arc 16: Module Extraction from main.ts (Structural Arc) — COMPLETE (v0.14.0)
+- **Delivered**: 2026-03-02
+- **Outcome**: Three modules extracted from `main.ts` into `src/ui/`: `guild-columns.ts`, `self-assessment.ts`, `settings.ts`. `main.ts` reduced from 957 to 438 lines; now a thin orchestrator. Structural marker `app.module_structure = 'extracted'` on `app.startup` span. 23/23 Playwright checks PASS.
+- **Observability note**: Bundle inspection confirms `app.module_structure = 'extracted'` is correctly coded. Runtime Honeycomb confirmation pending deployment (known flush-timing limitation).
+- **Decisions**: DEC-059, DEC-060
+
 ### Arc 13: Candidates
 - **Visual differentiation** of allied vs enemy wheel lines (follow-on to DEC-044)
 - **Shards & Wedges tier** — three-color combinations (DEC-005)
@@ -550,6 +556,20 @@ Items noted by client but explicitly out of scope for initial delivery:
 - **Context**: These rules were relics of an earlier session-end design that showed combo summaries and "next session" navigation inline. The current end screen uses guild columns instead. No live code references any of these selectors. The Architect cross-checked against all HTML and JS before removal.
 - **Tradeoffs**: Dead CSS removal is permanent; if any rule was misidentified as dead, recovery requires git history. The Architect cross-checked against all HTML and JS before removal.
 - **Rationale**: Dead CSS is noise. The split forced an audit; removing confirmed-dead rules keeps the new per-page files lean.
+
+## DEC-059: Module Extraction Strategy — Three Modules from main.ts
+- **Date**: 2026-03-02
+- **Decision**: Extract three modules from `main.ts` into `src/ui/`: `guild-columns.ts`, `self-assessment.ts`, and `settings.ts`. Use a callback pattern for cross-module dependencies rather than shared mutable state.
+- **Context**: Arc 16. `main.ts` had grown to 957 lines combining guild column logic, self-assessment rendering, settings wiring, and session orchestration. Module extraction is groundwork for per-page decomposition (Arcs 17–20).
+- **Callback pattern**: `startSession` passed as callback to `guild-columns` (for end-screen session buttons); `getSessionSpan` passed as callback to `settings` (for Honeycomb trace URL link).
+- **Alternatives considered**: Shared module exports vs. callbacks. Callbacks chosen to avoid circular import risk and keep modules self-contained.
+- **Rationale**: Each extracted module has a clear single concern. Callbacks keep the dependency direction clean — modules do not reach back into main.ts. `main.ts` becomes a thin orchestrator, which is its role as the single-page entry point.
+
+## DEC-060: Arc 16 Complete — v0.14.0, app.module_structure = 'extracted'
+- **Date**: 2026-03-02
+- **Decision**: Arc 16 declared complete. Version bumped to 0.14.0. Structural marker `app.module_structure = 'extracted'` added to `app.startup` span.
+- **Verification**: 23/23 Playwright checks PASS. Bundle inspection confirms telemetry markers. Runtime Honeycomb confirmation pending deployment (known flush-timing limitation).
+- **Result**: `main.ts` reduced from 957 to 438 lines. Three focused modules in `src/ui/`. App behavior and tests fully preserved.
 
 ---
 
