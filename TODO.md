@@ -35,6 +35,8 @@ At the bottom of the last level is a "share" button, which, um... I don't know w
 
 ## Other
 
+- BUG: I'm not seeing the self-assessment screen
+- BUG: home -> slides -> end -> back: goes to slides but the slideshow doesn't start. It's frozen.
 - on the slides, move or remove the card count.
 - when paused, make space resume. (Space doesn't pause, because it advances when the slideshow is running.)
 - make an animation between a slide and the self-assessment. It shrinks or folds or something
