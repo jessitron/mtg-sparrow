@@ -566,7 +566,7 @@ function reelSpinTo(
   });
 }
 
-const SECTION_LABELS = ['allied', 'enemy'];
+const SECTION_LABELS = ['allied', 'enemy', 'share'];
 
 function startSectionSpan(pageSpan: Span, index: number): Span {
   return startChildSpan('end.section_view', pageSpan, {
@@ -625,8 +625,15 @@ export function showSessionEndColumns(
   clearAllied = clearAlliedFn;
   clearEnemy = clearEnemyFn;
 
+  // Build share section (placeholder — real implementation comes later)
+  const shareSection = document.createElement('div');
+  shareSection.classList.add('level-section', 'level-section--share');
+  const shareHeader = document.createElement('h2');
+  shareHeader.textContent = 'Share';
+  shareSection.appendChild(shareHeader);
+
   // Build reel structure: viewport clips to one section, reel translates
-  const sections = [alliedCol, enemyCol];
+  const sections = [alliedCol, enemyCol, shareSection];
 
   const reel = document.createElement('div');
   reel.classList.add('level-sections-reel');
@@ -662,9 +669,9 @@ export function showSessionEndColumns(
     }
 
     if (atEnd) {
-      bottomBtn.innerHTML = 'Share';
-      bottomBtn.classList.add('reel-nav-btn--label');
+      bottomBtn.style.visibility = 'hidden';
     } else {
+      bottomBtn.style.visibility = '';
       bottomBtn.innerHTML = DOWN_ARROW_SVG;
       bottomBtn.classList.remove('reel-nav-btn--label');
     }
@@ -678,10 +685,6 @@ export function showSessionEndColumns(
 
   bottomBtn.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
-    if (reelIndex >= sections.length - 1) {
-      // Share — placeholder for now
-      return;
-    }
     reelAdvance(reel, viewport, sections, 1, pageSpan, sectionSpanRef).then(updateNavButtons);
   });
 
