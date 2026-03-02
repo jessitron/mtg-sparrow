@@ -47,29 +47,31 @@ document.addEventListener('DOMContentLoaded', () => {
     endSpan(summarySpan);
   }
 
-  // End the page span and flush when the user leaves
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      endSpan(pageSpan);
-      flushSpans();
-    }
-  });
-
   const app = document.getElementById('app');
   if (!app) return;
 
   const alliedUnlocked = isSubgroupUnlocked('allied');
   const enemyUnlocked = isEnemyUnlocked();
 
-  showSessionEndColumns(
+  const endCurrentSection = showSessionEndColumns(
     app,
     alliedUnlocked,
     enemyUnlocked,
     pageSpan,
     (sub: GuildSubgroup, startedFrom: string) => {
+      endCurrentSection();
       endSpan(pageSpan);
       flushSpans();
       window.location.href = `slides?subgroup=${sub}&from=${startedFrom}`;
     },
   );
+
+  // End section + page spans and flush when the user leaves
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      endCurrentSection();
+      endSpan(pageSpan);
+      flushSpans();
+    }
+  });
 });
