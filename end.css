@@ -69,13 +69,34 @@
   background: color-mix(in srgb, var(--card-back-turquoise) 35%, transparent);
 }
 
-/* Stacked row guild layout */
-.level-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+/* Reel viewport: clips to one section at a time */
+.level-sections-viewport {
   width: 100%;
   margin-top: 1rem;
+  overflow: hidden;
+  position: relative;
+  /* Gradient mask: fade at top/bottom edges */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 5%,
+    black 95%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 5%,
+    black 95%,
+    transparent 100%
+  );
+}
+
+/* Reel strip: sections stacked, translated by JS */
+.level-sections-reel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   animation: cardEnter 250ms ease-out;
 }
 

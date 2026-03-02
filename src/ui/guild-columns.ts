@@ -522,6 +522,37 @@ function buildEnemyColumn(
   return [col, clearSelection];
 }
 
+// --- Reel navigation (slot-machine feel) ---
+
+const REEL_TRANSITION = 'transform 600ms cubic-bezier(0.2, 0.8, 0.3, 1.05)';
+const WHEEL_COOLDOWN_MS = 700;
+
+let reelIndex = 0;
+let reelSpinning = false;
+let reelLastWheelTime = 0;
+
+function reelSpinTo(reel: HTMLElement, index: number, sectionHeight: number): Promise<void> {
+  return new Promise((resolve) => {
+    reel.style.transition = REEL_TRANSITION;
+    reel.style.transform = `translateY(${-(index * sectionHeight)}px)`;
+    reel.addEventListener('transitionend', function handler() {
+      reel.removeEventListener('transitionend', handler);
+      resolve();
+    });
+  });
+}
+
+async function reelAdvance(reel: HTMLElement, direction: 1 | -1, sectionCount: number, sectionHeight: number) {
+  if (reelSpinning) return;
+  reelSpinning = true;
+
+  const nextIndex = (reelIndex + direction + sectionCount) % sectionCount;
+  await reelSpinTo(reel, nextIndex, sectionHeight);
+  reelIndex = nextIndex;
+
+  reelSpinning = false;
+}
+
 export function showSessionEndColumns(
   app: HTMLElement,
   alliedUnlocked: boolean,
@@ -538,18 +569,42 @@ export function showSessionEndColumns(
   clearAllied = clearAlliedFn;
   clearEnemy = clearEnemyFn;
 
-  const container = document.createElement('div');
-  container.classList.add('level-sections');
-  container.appendChild(alliedCol);
-  container.appendChild(enemyCol);
+  // Build reel structure: viewport clips to one section, reel translates
+  const sections = [alliedCol, enemyCol];
+
+  const reel = document.createElement('div');
+  reel.classList.add('level-sections-reel');
+  for (const section of sections) {
+    reel.appendChild(section);
+  }
+
+  const viewport = document.createElement('div');
+  viewport.classList.add('level-sections-viewport');
+  viewport.appendChild(reel);
 
   // Clicking anywhere that isn't a line or guild item clears both selections.
-  // Interactive elements (lines, guild items, buttons) already call stopPropagation(),
-  // so they will never reach this listener.
   document.addEventListener('click', () => {
     clearAllied();
     clearEnemy();
   });
 
-  app.appendChild(container);
+  app.appendChild(viewport);
+
+  // Measure section height after layout, then size the viewport
+  requestAnimationFrame(() => {
+    const firstSection = sections[0];
+    const sectionHeight = firstSection.offsetHeight;
+    viewport.style.height = `${sectionHeight}px`;
+
+    // Wheel to navigate between sections
+    viewport.addEventListener('wheel', (e: WheelEvent) => {
+      e.preventDefault();
+      const now = Date.now();
+      if (now - reelLastWheelTime < WHEEL_COOLDOWN_MS) return;
+      reelLastWheelTime = now;
+
+      const direction = e.deltaY > 0 ? 1 : -1;
+      reelAdvance(reel, direction as 1 | -1, sections.length, sectionHeight);
+    }, { passive: false });
+  });
 }
