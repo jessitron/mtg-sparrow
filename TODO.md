@@ -45,7 +45,11 @@ If you hit the end page while nothing is open, then instead it only shows you a 
 
 ## Other
 
-- Where is the librarian hiding notes?
+- move the settings to the upper right on the home screen
+- add a settings gear in the upper right of the slides and the self-assessment
+- BUG: the trace isn't linked in the settings on the home screen.
+- telemetry for the end screen. It isn't making a trace for the overall view
+  x Where is the librarian hiding notes? roles/librarian/notes/
 - move settings to upper right
 - slideshow footer colors
 - when paused, make space resume. (Space doesn't pause, because it advances when the slideshow is running.)
