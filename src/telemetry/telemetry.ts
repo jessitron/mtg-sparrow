@@ -57,7 +57,7 @@ export function endSpan(span: Span): void {
 }
 
 export function sendStartupSpan(version: string): void {
-  const span = startSpan('app.startup', { 'app.version': version, 'css.split': 'true' });
+  const span = startSpan('app.startup', { 'app.version': version, 'css.split': 'true', 'app.module_structure': 'extracted' });
   span.end();
 }
 
