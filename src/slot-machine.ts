@@ -5,7 +5,8 @@ const SYMBOL_SIZE = 120; // px, must match CSS .slot-symbol height
 
 let currentIndex = 0;
 let spinning = false;
-let wheelCooldown = false;
+let lastWheelSpinTime = 0;
+const WHEEL_COOLDOWN_MS = 1000;
 
 function buildReel(reel: HTMLElement) {
   reel.innerHTML = '';
@@ -56,12 +57,14 @@ document.addEventListener('DOMContentLoaded', () => {
   lever.addEventListener('click', () => advance(reel, 1));
 
   // Scroll (wheel) inside the window moves one slot per gesture.
-  // Trackpads fire many wheel events per gesture — cooldown eats the extras.
+  // Trackpads fire dozens of wheel events per swipe — use a timestamp
+  // gate that blocks all events for 1s after firing, which outlasts
+  // both the transition (600ms) and the trailing inertia events.
   slotWindow.addEventListener('wheel', (e: WheelEvent) => {
     e.preventDefault();
-    if (wheelCooldown) return;
-    wheelCooldown = true;
-    setTimeout(() => { wheelCooldown = false; }, 700);
+    const now = Date.now();
+    if (now - lastWheelSpinTime < WHEEL_COOLDOWN_MS) return;
+    lastWheelSpinTime = now;
 
     const direction = e.deltaY > 0 ? 1 : -1;
     advance(reel, direction as 1 | -1);
