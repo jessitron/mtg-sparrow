@@ -6,7 +6,7 @@ const SYMBOL_SIZE = 120; // px, must match CSS .slot-symbol height
 let currentIndex = 0;
 let spinning = false;
 let lastWheelSpinTime = 0;
-const WHEEL_COOLDOWN_MS = 1000;
+const WHEEL_COOLDOWN_MS = 700;
 
 function buildReel(reel: HTMLElement) {
   reel.innerHTML = '';
