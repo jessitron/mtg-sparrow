@@ -2,6 +2,8 @@
 
 ## End screen refinements
 
+(this section is done)
+
 Let's get some terminology. There are four levels in this app: allied guilds, enemy guilds, wedges, and shards.
 On the end screen, I want completed levels to show information sections; and then a "Next Level" button at the bottom that starts the slides for the next level.
 
@@ -25,23 +27,41 @@ Also based on this description, let's make sure the card selection for Boros inc
 
 ### After that
 
-I want only one information section to show at each time. after a slide session, when we land on the end screen, it's the information section for the level just completed.
-Above the information section is a big up arrow button, which slides the screen to the previous level's information section. Below the information section is a big down arrow button, which slides to the next level's information section. Or if they haven't completed the next level, it's a button that starts the slide session for the next level.
+OK, it implemented something I didn't like. Let's try to describe this.
 
-This way the color circle can be fully and satisfyingly centered (on desktop).
+The sections are each good, don't change the appearance of the sections.
 
-At the top of the first level is a "home" button, which takes you to the welcome screen.
-At the bottom of the last level is a "share" button, which, um... I don't know what that does yet, it can be a placeholder unless you have a good idea.
+add a header and a footer to the page. The header has a wide "up" button. The footer has a wide "down" button. (for now, they can say that, we can iterate on that later.)
+
+The main body between those shows one information section. The section height is such that the other ones don't show.
+
+When you push the "down" button, the main body of the page scrolls to the next section. Similarly for "Up", it takes you to the previous section.
+Also when you scroll the main body of the page more than a tiny bit, it kind of clinks to show the next section. Like in a slot machine, the different pictures settle into place.
+
+Now, if you haven't unlocked the next section, then the "down" button changes to "Next level" and it takes you to the slides for that level. If you've unlocked all levels and you're at the last section, the "down" button changes to "Share" which is a placeholder for now.
+If you're in the first section, the "up" button changes to "home" and takes you to the home page.
+
+If you hit the end page while nothing is open, then instead it only shows you a link to home.
 
 ## Other
 
-- BUG: I'm not seeing the self-assessment screen
-- BUG: home -> slides -> end -> back: goes to slides but the slideshow doesn't start. It's frozen.
-- on the slides, move or remove the card count.
+- Where is the librarian hiding notes?
+- move settings to upper right
+- slideshow footer colors
 - when paused, make space resume. (Space doesn't pause, because it advances when the slideshow is running.)
-- make an animation between a slide and the self-assessment. It shrinks or folds or something
 - add markers to Honeycomb on deploy
 - add an 'about' page with acknowledgements
 - add a license file, CC0
 - ask the project lead for general professionalism and cleanup
 - on mobile, make the opening screen have fewer words
+- implement share
+- change consulting process to not have a separate SOW step, it seems like a lot
+
+- implement wedges and shards.
+- tutorial in single colors? with speech bubbles to tell them what to say.
+- silly one for four-color? "not red"
+- silly one for wubrg
+- add a sneaky one for colorless? ... that would be a level above.
+- add a mixed level??? ooh yeah that would be fun. as a bonus level
+
+- audio!
