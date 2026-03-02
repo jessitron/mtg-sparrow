@@ -544,9 +544,12 @@ function reelSpinTo(reel: HTMLElement, index: number, sectionHeight: number): Pr
 
 async function reelAdvance(reel: HTMLElement, direction: 1 | -1, sectionCount: number, sectionHeight: number) {
   if (reelSpinning) return;
-  reelSpinning = true;
 
-  const nextIndex = (reelIndex + direction + sectionCount) % sectionCount;
+  const nextIndex = reelIndex + direction;
+  // Clamp — don't wrap, so a trailing scroll event can't jump back to the start
+  if (nextIndex < 0 || nextIndex >= sectionCount) return;
+
+  reelSpinning = true;
   await reelSpinTo(reel, nextIndex, sectionHeight);
   reelIndex = nextIndex;
 
