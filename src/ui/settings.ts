@@ -52,6 +52,6 @@ export function wireSettings(
     endSpan(span);
     await flushSpans();
     localStorage.clear();
-    window.location.href = '/';
+    window.location.href = '.';
   });
 }
