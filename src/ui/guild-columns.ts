@@ -605,6 +605,39 @@ export function showSessionEndColumns(
   viewport.classList.add('level-sections-viewport');
   viewport.appendChild(reel);
 
+  // Bottom button: down-arrow or share depending on position
+  const bottomBtn = document.createElement('button');
+  bottomBtn.classList.add('reel-bottom-btn');
+  bottomBtn.innerHTML = `<svg width="32" height="20" viewBox="0 0 32 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,4 16,16 30,4"/></svg>`;
+
+  function updateBottomBtn() {
+    const atEnd = reelIndex >= sections.length - 1;
+    if (atEnd) {
+      bottomBtn.innerHTML = 'Share';
+      bottomBtn.classList.add('reel-bottom-btn--share');
+    } else {
+      bottomBtn.innerHTML = `<svg width="32" height="20" viewBox="0 0 32 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,4 16,16 30,4"/></svg>`;
+      bottomBtn.classList.remove('reel-bottom-btn--share');
+    }
+  }
+
+  bottomBtn.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    if (reelIndex >= sections.length - 1) {
+      // Share — placeholder for now
+      return;
+    }
+    reelAdvance(reel, viewport, sections, 1).then(updateBottomBtn);
+  });
+
+  // Also update button after scroll navigation
+  const originalAdvance = reelAdvance;
+  function advanceAndUpdate(
+    r: HTMLElement, v: HTMLElement, s: HTMLElement[], d: 1 | -1,
+  ) {
+    return originalAdvance(r, v, s, d).then(updateBottomBtn);
+  }
+
   // Clicking anywhere that isn't a line or guild item clears both selections.
   document.addEventListener('click', () => {
     clearAllied();
@@ -612,10 +645,12 @@ export function showSessionEndColumns(
   });
 
   app.appendChild(viewport);
+  app.appendChild(bottomBtn);
 
   // Set initial viewport height, then wire scroll navigation
   requestAnimationFrame(() => {
     viewport.style.height = `${sections[0].offsetHeight}px`;
+    updateBottomBtn();
 
     viewport.addEventListener('wheel', (e: WheelEvent) => {
       e.preventDefault();
@@ -624,7 +659,7 @@ export function showSessionEndColumns(
       reelLastWheelTime = now;
 
       const direction = e.deltaY > 0 ? 1 : -1;
-      reelAdvance(reel, viewport, sections, direction as 1 | -1);
+      advanceAndUpdate(reel, viewport, sections, direction as 1 | -1);
     }, { passive: false });
   });
 }
