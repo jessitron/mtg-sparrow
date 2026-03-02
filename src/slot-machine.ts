@@ -34,23 +34,30 @@ function spinTo(reel: HTMLElement, targetIndex: number): Promise<void> {
   });
 }
 
+async function advance(reel: HTMLElement, direction: 1 | -1) {
+  if (spinning) return;
+  spinning = true;
+
+  const nextIndex = (currentIndex + direction + SYMBOLS.length) % SYMBOLS.length;
+  await spinTo(reel, nextIndex);
+  currentIndex = nextIndex;
+
+  spinning = false;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const reel = document.getElementById('reel')!;
   const lever = document.getElementById('lever') as HTMLButtonElement;
+  const slotWindow = document.querySelector('.slot-window') as HTMLElement;
 
   buildReel(reel);
 
-  lever.addEventListener('click', async () => {
-    if (spinning) return;
-    spinning = true;
-    lever.disabled = true;
+  lever.addEventListener('click', () => advance(reel, 1));
 
-    // Move to next symbol (wrapping)
-    const nextIndex = (currentIndex + 1) % SYMBOLS.length;
-    await spinTo(reel, nextIndex);
-    currentIndex = nextIndex;
-
-    spinning = false;
-    lever.disabled = false;
-  });
+  // Scroll (wheel) inside the window moves one slot per tick
+  slotWindow.addEventListener('wheel', (e: WheelEvent) => {
+    e.preventDefault();
+    const direction = e.deltaY > 0 ? 1 : -1;
+    advance(reel, direction as 1 | -1);
+  }, { passive: false });
 });
