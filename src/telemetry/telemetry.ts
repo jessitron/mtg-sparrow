@@ -10,13 +10,16 @@ function generateSessionId(): string {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-export function initTelemetry(version: string): void {
+export function initTelemetry(version: string, page?: string, navigation?: string): void {
   const stored = sessionStorage.getItem('mtg-sparrow.session.id');
   sessionId = stored ?? generateSessionId();
   if (!stored) {
     sessionStorage.setItem('mtg-sparrow.session.id', sessionId);
   }
-  init(version, sessionId);
+  const resourceAttrs: Record<string, string> = {};
+  if (page) resourceAttrs['app.page'] = page;
+  if (navigation) resourceAttrs['app.navigation'] = navigation;
+  init(version, sessionId, resourceAttrs);
   tracer = trace.getTracer('sparrow-deck', version);
 }
 

@@ -6,7 +6,7 @@ export const APP_VERSION = '0.15.0';
 let welcomeScreenLoadTime = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
-  initTelemetry(APP_VERSION);
+  initTelemetry(APP_VERSION, 'welcome', 'single_page');
   sendStartupSpan(APP_VERSION);
 
   wireSettings(APP_VERSION, () => null);

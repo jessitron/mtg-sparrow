@@ -3,7 +3,7 @@ import { trace } from '@opentelemetry/api';
 
 let sdk: HoneycombWebSDK | null = null;
 
-export function init(version: string, sessionId: string): void {
+export function init(version: string, sessionId: string, resourceAttrs?: Record<string, string>): void {
   if (sdk) return;
 
   sdk = new HoneycombWebSDK({
@@ -15,7 +15,7 @@ export function init(version: string, sessionId: string): void {
       'browser.language': navigator.language,
       'browser.platform': navigator.platform,
       'mtg-sparrow.session.id': sessionId,
-      'app.navigation': 'single_page',
+      ...resourceAttrs,
     },
   });
 

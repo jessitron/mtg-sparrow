@@ -293,8 +293,6 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
     'session.welcome_dwell_ms': welcomeDwellMs,
     'session.enemy_unlocked': isSubgroupUnlocked('enemy'),
     'app.version': APP_VERSION,
-    'app.page': 'slides',
-    'app.navigation': 'multi_page',
   });
 
   // Store trace URL so the settings panel can display it
@@ -315,7 +313,7 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initTelemetry(APP_VERSION);
+  initTelemetry(APP_VERSION, 'slides', 'multi_page');
   // Do NOT call sendStartupSpan — welcome page only
 
   wireSettings(APP_VERSION, () => sessionSpan);
