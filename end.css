@@ -112,44 +112,32 @@
 
 /* Reel nav buttons: top (up/Home) and bottom (down/Share) */
 .reel-nav-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 200px;
-  margin: 0.75rem auto;
-  height: 44px;
-  padding: 0 2rem;
-  background: transparent;
-  border: 2px solid rgba(200, 184, 138, 0.3);
-  border-radius: 10px;
+  display: block;
+  width: 120px;
+  height: 52px;
+  margin: 0.5rem auto;
+  padding: 0;
+  background: rgba(200, 184, 138, 0.08);
+  border: none;
   color: rgba(200, 184, 138, 0.6);
   cursor: pointer;
-  transition: color 200ms ease, border-color 200ms ease, transform 120ms ease;
+  transition: background 200ms ease, transform 120ms ease;
+}
+
+.reel-nav-btn--top {
+  clip-path: polygon(0 100%, 50% 0, 100% 100%, 100% 60%, 50% 40%, 0 60%);
+}
+
+.reel-nav-btn--bottom {
+  clip-path: polygon(0 0, 50% 100%, 100% 0, 100% 40%, 50% 60%, 0 40%);
 }
 
 .reel-nav-btn:hover {
-  color: var(--allied-line-color);
-  border-color: rgba(200, 184, 138, 0.5);
+  background: rgba(200, 184, 138, 0.22);
 }
 
 .reel-nav-btn:active {
   transform: scale(0.95);
-}
-
-.reel-nav-btn--label {
-  font-family: 'GoudyMediaeval', Georgia, serif;
-  font-size: 1.1rem;
-}
-
-.reel-nav-btn--bottom.reel-nav-btn--label {
-  color: var(--card-back-turquoise);
-  border-color: rgba(108, 159, 176, 0.4);
-}
-
-.reel-nav-btn--bottom.reel-nav-btn--label:hover {
-  color: #8cc0d4;
-  border-color: rgba(108, 159, 176, 0.6);
 }
 
 /* Reel strip: sections stacked, translated by JS */

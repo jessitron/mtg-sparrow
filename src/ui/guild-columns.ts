@@ -645,16 +645,15 @@ export function showSessionEndColumns(
   viewport.classList.add('level-sections-viewport');
   viewport.appendChild(reel);
 
-  const UP_ARROW_SVG = `<svg width="32" height="20" viewBox="0 0 32 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,16 16,4 30,16"/></svg>`;
-  const DOWN_ARROW_SVG = `<svg width="32" height="20" viewBox="0 0 32 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,4 16,16 30,4"/></svg>`;
-
-  // Top button: up-arrow or Home
+  // Top button: up chevron shape (clip-path in CSS)
   const topBtn = document.createElement('button');
   topBtn.classList.add('reel-nav-btn', 'reel-nav-btn--top');
+  topBtn.setAttribute('aria-label', 'Scroll up');
 
-  // Bottom button: down-arrow or Share
+  // Bottom button: down chevron shape (clip-path in CSS)
   const bottomBtn = document.createElement('button');
   bottomBtn.classList.add('reel-nav-btn', 'reel-nav-btn--bottom');
+  bottomBtn.setAttribute('aria-label', 'Scroll down');
 
   function updateNavButtons() {
     const atTop = reelIndex <= 0;
@@ -664,16 +663,12 @@ export function showSessionEndColumns(
       topBtn.style.visibility = 'hidden';
     } else {
       topBtn.style.visibility = '';
-      topBtn.innerHTML = UP_ARROW_SVG;
-      topBtn.classList.remove('reel-nav-btn--label');
     }
 
     if (atEnd) {
       bottomBtn.style.visibility = 'hidden';
     } else {
       bottomBtn.style.visibility = '';
-      bottomBtn.innerHTML = DOWN_ARROW_SVG;
-      bottomBtn.classList.remove('reel-nav-btn--label');
     }
   }
 
