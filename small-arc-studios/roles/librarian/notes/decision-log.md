@@ -546,8 +546,8 @@ Items noted by client but explicitly out of scope for initial delivery:
 
 ## DEC-058: Dead CSS Cleanup During Arc 15 Split
 - **Date**: 2026-03-01
-- **Decision**: During the Arc 15 CSS split, 8 dead CSS rules were identified and removed: `.session-footer`, `.footer-left`, `.stop-btn`, `.pause-btn`, `.paused-overlay`, `.card-image-container.revealed`, `.card-back`, `.card-back.revealed`.
-- **Context**: These rules were relics of earlier designs (old session footer, the pre-Arc-13 stop/pause buttons, a prototype pause overlay) and one rule for `.card-back` which belongs in `card-back.css` (the mana gas animation file) not `style.css`. No live code references any of these selectors.
+- **Decision**: During the Arc 15 CSS split, 8 dead CSS rules were identified and removed: `.combo-summary`, `.combo-summary-heading`, `.combo-summary-list`, `.combo-summary-item`, `.session-next-divider`, `.session-next`, `.session-next-label`, `.session-next-buttons`. Note: `.combo-summary-pips` and `.combo-summary-name` were kept (used inside guild column items on the end screen).
+- **Context**: These rules were relics of an earlier session-end design that showed combo summaries and "next session" navigation inline. The current end screen uses guild columns instead. No live code references any of these selectors. The Architect cross-checked against all HTML and JS before removal.
 - **Tradeoffs**: Dead CSS removal is permanent; if any rule was misidentified as dead, recovery requires git history. The Architect cross-checked against all HTML and JS before removal.
 - **Rationale**: Dead CSS is noise. The split forced an audit; removing confirmed-dead rules keeps the new per-page files lean.
 

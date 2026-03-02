@@ -44,13 +44,15 @@ Structural marker `css.split = 'true'` on `app.startup` span confirms the new lo
 - `card-back.css` — standalone demo file, left alone
 
 ### Dead CSS Removed (8 rules)
-- `.session-footer` — old footer layout from a previous design
-- `.footer-left` — paired with `.session-footer`
-- `.stop-btn` — removed in the "Done for now" redesign (Arc 13)
-- `.pause-btn` — same
-- `.paused-overlay` — prototype-era pause overlay
-- `.card-image-container.revealed` — unused revealed-state override
-- `.card-back` and `.card-back.revealed` — card-back CSS loaded separately (card-back.css), never went into style.css
+- `.combo-summary` — earlier session-end design, replaced by guild columns
+- `.combo-summary-heading` — same
+- `.combo-summary-list` — same
+- `.combo-summary-item` — same
+- `.session-next-divider` — earlier "next session" navigation block
+- `.session-next` — same
+- `.session-next-label` — same
+- `.session-next-buttons` — same
+- Note: `.combo-summary-pips` and `.combo-summary-name` were kept (used inside guild column items)
 
 ### Consolidation During Split
 - `#app.app--quiz-active`: was 3 separate locations in `style.css` → consolidated into one block in `slides.css`
