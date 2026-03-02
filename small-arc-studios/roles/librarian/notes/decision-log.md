@@ -456,6 +456,21 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 - **Record**: `arc14-session-id.md`
 - **Decisions**: DEC-055, DEC-056
 
+### Arc 15: CSS Split into Per-Page Stylesheets (Structural Arc) — COMPLETE (v0.13.0)
+- **Delivered**: 2026-03-01
+- **Outcome**: `style.css` (948 lines) split into 5 files. Architect analyzed the CSS and produced a split plan. Developer executed in 3 commits. Tester verified 23/23 Playwright assertions PASS. No visual or behavioral regressions.
+- **Split result**:
+  - `style.css` — shared rules only (variables, reset, fonts, body, #app, #gas, footer, settings panel, gas buttons, @keyframes cardEnter)
+  - `welcome.css` — 7 rules for welcome screen
+  - `slides.css` — card/quiz/done-zone rules, @keyframes buttonFadeIn, all `#app.app--quiz-active` overrides (consolidated from 3 separate blocks)
+  - `assessment.css` — 6 self-assessment rules
+  - `end.css` — guild columns, color wheels, session-end, combo-summary-pips/name, next-session-button (consolidated 2× `.guild-column-item` into one block)
+  - `card-back.css` — standalone demo file, left alone
+- **Dead CSS removed** (8 rules): `.combo-summary`, `.combo-summary-heading`, `.combo-summary-list`, `.combo-summary-item`, `.session-next-divider`, `.session-next`, `.session-next-label`, `.session-next-buttons`
+- **Structural marker**: `css.split = true` on `app.startup` span; APP_VERSION bumped to 0.13.0
+- **Observability note**: Bundle inspection confirms `css.split` attribute is correctly coded. Runtime Honeycomb confirmation pending deployment (known flush-timing limitation with headless browser tests).
+- **Decisions**: DEC-057, DEC-058
+
 ### Arc 13: Candidates
 - **Visual differentiation** of allied vs enemy wheel lines (follow-on to DEC-044)
 - **Shards & Wedges tier** — three-color combinations (DEC-005)
@@ -528,6 +543,16 @@ Items noted by client but explicitly out of scope for initial delivery:
 - **Decision**: Split `style.css` into five files: `style.css` (shared), `welcome.css`, `slides.css`, `assessment.css`, `end.css`. Audit for dead CSS and remove it during the split.
 - **Context**: The current CSS has clean natural seams matching the page split. Dead CSS from prototype components likely exists.
 - **Rationale**: Clarity of ownership — when working on a page, all its styles are in one file. Confidence about scope — modifying `end.css` cannot break slides. Dead CSS cleanup is a natural byproduct.
+
+## DEC-058: Arc 15 CSS Split — Page Ownership Boundaries Established
+- **Date**: 2026-03-01
+- **Decision**: CSS page ownership boundaries are now explicit. `slides.css` owns all `#app.app--quiz-active` overrides (previously scattered across 3 separate blocks in `style.css`). `end.css` owns all guild column and color wheel styles. Dead CSS from prototype components is removed permanently.
+- **Context**: During the split, the Architect discovered that several logical rule groups were fragmented across `style.css`. Consolidation was performed during the split (not as a separate pass).
+  - `#app.app--quiz-active` block: was 3 separate locations → consolidated into one block in `slides.css`
+  - `.guild-column-item`: appeared twice → deduplicated in `end.css`
+  - 8 dead rules (`.combo-summary*`, `.session-next*`) had no corresponding DOM elements — removed
+- **Tradeoffs**: Dead CSS removal is permanent; if any rule was misidentified as dead, recovery requires git history. The Architect cross-checked against all HTML and JS before removal.
+- **Rationale**: The split is the right moment for cleanup — the structural seams are visible, the Architect has read all the CSS, and deferring would require a second full audit. Consolidation at split time reduces future confusion about which file governs a given element.
 
 ---
 
