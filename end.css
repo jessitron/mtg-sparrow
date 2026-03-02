@@ -70,7 +70,7 @@
 }
 
 /* Stacked row guild layout */
-.guild-columns {
+.level-sections {
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -80,7 +80,7 @@
 }
 
 /* Each guild row: summary | wheel | flavor */
-.guild-column {
+.level-section {
   display: grid;
   grid-template-columns: 1fr minmax(220px, 320px) 1fr;
   gap: 1.5rem;
@@ -91,7 +91,7 @@
 }
 
 /* Locked row: just a centered button */
-.guild-column--locked {
+.level-section--locked {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -99,7 +99,7 @@
 }
 
 /* Summary panel: flex column so button pushes to bottom */
-.guild-column-summary {
+.level-section-summary {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -107,21 +107,23 @@
 }
 
 /* Wheel panel: centers the SVG */
-.guild-column-wheel {
+.level-section-wheel {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Flavor panel: shows guild name on highlight */
-.guild-column-flavor {
+/* Flavor panel: Practice button always visible; guild name appears on highlight */
+.level-section-flavor {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 3rem;
+  gap: 1.25rem;
+  padding: 1rem 0.5rem;
 }
 
-.guild-column-flavor-name {
+.level-section-flavor-name {
   font-size: 1.75rem;
   font-weight: 700;
   font-family: 'GoudyMediaeval', Georgia, serif;
@@ -131,34 +133,34 @@
   transition: opacity 200ms ease;
 }
 
-.guild-column--has-highlight .guild-column-flavor-name {
+.level-section--has-highlight .level-section-flavor-name {
   opacity: 1;
 }
 
-.guild-column-header {
+.level-section-header {
   font-size: 2.5rem;
   font-weight: 700;
   font-family: 'GoudyMediaeval', Georgia, serif;
   color: #f0f0f0;
 }
 
-.guild-column-explanation {
+.level-section-explanation {
   font-size: 0.875rem;
   color: #aaa;
   line-height: 1.5;
 }
 
-.guild-column--locked .guild-column-explanation {
+.level-section--locked .level-section-explanation {
   color: #777;
 }
 
-.guild-column-list {
+.level-section-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.guild-column-item {
+.level-section-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -168,25 +170,22 @@
   border-radius: 6px;
 }
 
-.guild-column-item .combo-summary-pips {
+.level-section-item .combo-summary-pips {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 0.25rem;
 }
 
-.guild-column-item .combo-summary-pips .mana-pip {
+.level-section-item .combo-summary-pips .mana-pip {
   width: 28px;
   height: 28px;
 }
 
-.guild-column-item .combo-summary-name {
+.level-section-item .combo-summary-name {
   color: #ccc;
 }
 
-.guild-column-button {
-  margin-top: auto;
-}
 
 .allied-color-wheel,
 .enemy-color-wheel {
@@ -198,7 +197,7 @@
 
 /* Mobile: stack the three panels vertically */
 @media (max-width: 700px) {
-  .guild-column {
+  .level-section {
     grid-template-columns: 1fr;
   }
 }
@@ -227,17 +226,17 @@
 }
 
 /* Dimming when any element is highlighted */
-.guild-column--has-highlight .ally-line:not(.highlight) .ally-line-vis,
-.guild-column--has-highlight .enemy-line:not(.highlight) .enemy-line-vis {
+.level-section--has-highlight .ally-line:not(.highlight) .ally-line-vis,
+.level-section--has-highlight .enemy-line:not(.highlight) .enemy-line-vis {
   opacity: 0.2;
 }
 
-.guild-column--has-highlight .allied-color-wheel .color-node:not(.highlight),
-.guild-column--has-highlight .enemy-color-wheel .color-node:not(.highlight) {
+.level-section--has-highlight .allied-color-wheel .color-node:not(.highlight),
+.level-section--has-highlight .enemy-color-wheel .color-node:not(.highlight) {
   opacity: 0.3;
 }
 
-.guild-column--has-highlight .guild-column-item:not(.highlight) {
+.level-section--has-highlight .level-section-item:not(.highlight) {
   opacity: 0.35;
 }
 
@@ -253,7 +252,7 @@
   opacity: 1 !important;
 }
 
-.guild-column-item.highlight {
+.level-section-item.highlight {
   background: rgba(200, 160, 60, 0.18);
   opacity: 1 !important;
 }

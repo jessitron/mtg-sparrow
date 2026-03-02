@@ -69,11 +69,11 @@ for (const guild of [...alliedGuilds, ...enemyGuilds]) {
 
 function buildGuildList(guilds: ColorCombo[]): HTMLElement {
   const list = document.createElement('ul');
-  list.classList.add('guild-column-list');
+  list.classList.add('level-section-list');
 
   for (const guild of guilds) {
     const li = document.createElement('li');
-    li.classList.add('guild-column-item');
+    li.classList.add('level-section-item');
     li.dataset.guildId = guild.id;
 
     const pips = document.createElement('span');
@@ -220,7 +220,7 @@ function wireColorWheelHover(
   let selectedPair: [string, string] | null = null;
 
   const crestImg = svg.getElementById(crestId) as SVGImageElement | null;
-  const flavorNameEl = col.querySelector<HTMLElement>('.guild-column-flavor-name');
+  const flavorNameEl = col.querySelector<HTMLElement>('.level-section-flavor-name');
 
   // Helper: set/clear highlight class on all related elements for a given pair
   function setHighlight(aId: string, bId: string, on: boolean): void {
@@ -235,7 +235,7 @@ function wireColorWheelHover(
       nodeA?.classList.add('highlight');
       nodeB?.classList.add('highlight');
       listItem?.classList.add('highlight');
-      col.classList.add('guild-column--has-highlight');
+      col.classList.add('level-section--has-highlight');
       if (crestImg) {
         const src = `images/${guildId}.png`;
         crestImg.setAttributeNS(XLINK_NS, 'href', src);
@@ -250,7 +250,7 @@ function wireColorWheelHover(
       nodeA?.classList.remove('highlight');
       nodeB?.classList.remove('highlight');
       listItem?.classList.remove('highlight');
-      col.classList.remove('guild-column--has-highlight');
+      col.classList.remove('level-section--has-highlight');
       if (crestImg) {
         crestImg.setAttribute('opacity', '0');
       }
@@ -339,11 +339,11 @@ function buildAlliedColumn(
   startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
 ): [HTMLElement, () => void] {
   const col = document.createElement('div');
-  col.classList.add('guild-column', 'guild-column--allied');
+  col.classList.add('level-section', 'level-section--allied');
 
   const showContent = unlocked || hasCompletedSubgroup('allied');
   if (!showContent) {
-    col.classList.add('guild-column--locked');
+    col.classList.add('level-section--locked');
   }
 
   let clearSelection = () => {};
@@ -351,51 +351,50 @@ function buildAlliedColumn(
   if (showContent) {
     // Summary panel (left): title, description, guild list, button
     const summary = document.createElement('div');
-    summary.classList.add('guild-column-summary');
+    summary.classList.add('level-section-summary');
 
     const header = document.createElement('h2');
-    header.classList.add('guild-column-header');
+    header.classList.add('level-section-header');
     header.textContent = 'Allied Guilds';
     summary.appendChild(header);
 
     const explanation = document.createElement('p');
-    explanation.classList.add('guild-column-explanation');
+    explanation.classList.add('level-section-explanation');
     explanation.textContent = "Magic's five colors form a circle: ☀️ 💧 💀 🔥 🌿. Allied guilds are pairs of neighboring colors.";
     summary.appendChild(explanation);
 
     summary.appendChild(buildGuildList(alliedGuilds));
 
-    const btn = document.createElement('button');
-    btn.classList.add('next-session-button', 'guild-column-button');
-    btn.textContent = hasCompletedSubgroup('allied') ? 'Practice allied guilds' : 'Learn allied guilds';
-    btn.addEventListener('click', (e: MouseEvent) => {
-      e.stopPropagation();
-      startSession('allied', 'session_end_screen');
-    });
-    summary.appendChild(btn);
-
     col.appendChild(summary);
 
     // Wheel panel (center)
     const wheelPanel = document.createElement('div');
-    wheelPanel.classList.add('guild-column-wheel');
+    wheelPanel.classList.add('level-section-wheel');
     const svg = buildAlliedColorWheel();
     wheelPanel.appendChild(svg);
     col.appendChild(wheelPanel);
 
-    // Flavor panel (right): shows guild name on highlight
+    // Flavor panel (right): Practice button + guild name on highlight
     const flavorPanel = document.createElement('div');
-    flavorPanel.classList.add('guild-column-flavor');
+    flavorPanel.classList.add('level-section-flavor');
     const flavorName = document.createElement('span');
-    flavorName.classList.add('guild-column-flavor-name');
+    flavorName.classList.add('level-section-flavor-name');
     flavorPanel.appendChild(flavorName);
+    const btn = document.createElement('button');
+    btn.classList.add('next-session-button', 'level-section-button');
+    btn.textContent = hasCompletedSubgroup('allied') ? 'Practice' : 'Learn allied guilds';
+    btn.addEventListener('click', (e: MouseEvent) => {
+      e.stopPropagation();
+      startSession('allied', 'session_end_screen');
+    });
+    flavorPanel.appendChild(btn);
     col.appendChild(flavorPanel);
 
     // Wire bidirectional hover after all panels are in the DOM
     clearSelection = wireAlliedHover(col, svg, onActivate);
   } else {
     const btn = document.createElement('button');
-    btn.classList.add('next-session-button', 'guild-column-button', 'next-session-button--primary');
+    btn.classList.add('next-session-button', 'level-section-button', 'next-session-button--primary');
     btn.textContent = 'Learn allied guilds';
     btn.addEventListener('click', (e: MouseEvent) => {
       e.stopPropagation();
@@ -413,11 +412,11 @@ function buildEnemyColumn(
   startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
 ): [HTMLElement, () => void] {
   const col = document.createElement('div');
-  col.classList.add('guild-column', 'guild-column--enemy');
+  col.classList.add('level-section', 'level-section--enemy');
   // Show full content if the user has practiced enemy guilds at all
   const showContent = unlocked || hasCompletedSubgroup('enemy');
   if (!showContent) {
-    col.classList.add('guild-column--locked');
+    col.classList.add('level-section--locked');
   }
 
   let clearSelection = () => {};
@@ -425,51 +424,50 @@ function buildEnemyColumn(
   if (showContent) {
     // Summary panel (left): title, description, guild list, button
     const summary = document.createElement('div');
-    summary.classList.add('guild-column-summary');
+    summary.classList.add('level-section-summary');
 
     const header = document.createElement('h2');
-    header.classList.add('guild-column-header');
+    header.classList.add('level-section-header');
     header.textContent = 'Enemy Guilds';
     summary.appendChild(header);
 
     const explanation = document.createElement('p');
-    explanation.classList.add('guild-column-explanation');
+    explanation.classList.add('level-section-explanation');
     explanation.textContent = 'Enemy guilds pair colors from opposite sides of the circle.';
     summary.appendChild(explanation);
 
     summary.appendChild(buildGuildList(enemyGuilds));
 
-    const btn = document.createElement('button');
-    btn.classList.add('next-session-button', 'guild-column-button');
-    btn.textContent = hasCompletedSubgroup('enemy') ? 'Practice enemy guilds' : 'Learn enemy guilds';
-    btn.addEventListener('click', (e: MouseEvent) => {
-      e.stopPropagation();
-      startSession('enemy', 'session_end_screen');
-    });
-    summary.appendChild(btn);
-
     col.appendChild(summary);
 
     // Wheel panel (center)
     const wheelPanel = document.createElement('div');
-    wheelPanel.classList.add('guild-column-wheel');
+    wheelPanel.classList.add('level-section-wheel');
     const svg = buildEnemyColorWheel();
     wheelPanel.appendChild(svg);
     col.appendChild(wheelPanel);
 
-    // Flavor panel (right): shows guild name on highlight
+    // Flavor panel (right): Practice button + guild name on highlight
     const flavorPanel = document.createElement('div');
-    flavorPanel.classList.add('guild-column-flavor');
+    flavorPanel.classList.add('level-section-flavor');
     const flavorName = document.createElement('span');
-    flavorName.classList.add('guild-column-flavor-name');
+    flavorName.classList.add('level-section-flavor-name');
     flavorPanel.appendChild(flavorName);
+    const btn = document.createElement('button');
+    btn.classList.add('next-session-button', 'level-section-button');
+    btn.textContent = hasCompletedSubgroup('enemy') ? 'Practice' : 'Learn enemy guilds';
+    btn.addEventListener('click', (e: MouseEvent) => {
+      e.stopPropagation();
+      startSession('enemy', 'session_end_screen');
+    });
+    flavorPanel.appendChild(btn);
     col.appendChild(flavorPanel);
 
     // Wire bidirectional hover after all panels are in the DOM
     clearSelection = wireEnemyHover(col, svg, onActivate);
   } else {
     const btn = document.createElement('button');
-    btn.classList.add('next-session-button', 'guild-column-button', 'next-session-button--primary');
+    btn.classList.add('next-session-button', 'level-section-button', 'next-session-button--primary');
     btn.textContent = 'Learn enemy guilds';
     btn.addEventListener('click', (e: MouseEvent) => {
       e.stopPropagation();
@@ -498,7 +496,7 @@ export function showSessionEndColumns(
   clearEnemy = clearEnemyFn;
 
   const container = document.createElement('div');
-  container.classList.add('guild-columns');
+  container.classList.add('level-sections');
   container.appendChild(alliedCol);
   container.appendChild(enemyCol);
 
