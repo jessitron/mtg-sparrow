@@ -528,18 +528,6 @@ export function showSessionEndColumns(
   enemyUnlocked: boolean,
   startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
 ): void {
-  const alliedVisible = alliedUnlocked || hasCompletedSubgroup('allied');
-  const enemyVisible = enemyUnlocked || hasCompletedSubgroup('enemy');
-
-  // Empty state: nothing unlocked yet
-  if (!alliedVisible && !enemyVisible) {
-    const link = document.createElement('a');
-    link.href = 'index';
-    link.textContent = 'Return home';
-    app.appendChild(link);
-    return;
-  }
-
   // Placeholders for cross-column clear functions; filled in after both columns are built
   let clearAllied = () => {};
   let clearEnemy = () => {};
@@ -550,100 +538,10 @@ export function showSessionEndColumns(
   clearAllied = clearAlliedFn;
   clearEnemy = clearEnemyFn;
 
-  // Build ordered list of visible sections
-  type SectionEntry = { el: HTMLElement; subgroup: GuildSubgroup };
-  const sectionList: SectionEntry[] = [];
-  if (alliedVisible) sectionList.push({ el: alliedCol, subgroup: 'allied' });
-  if (enemyVisible) sectionList.push({ el: enemyCol, subgroup: 'enemy' });
-
-  // Which subgroup comes next after the last visible section (if locked)
-  const nextLockedSubgroup: GuildSubgroup | null =
-    alliedVisible && !enemyVisible ? 'enemy' : null;
-
-  let currentIndex = 0;
-
-  // Header
-  const header = document.createElement('header');
-  header.classList.add('end-nav-header');
-  const upBtn = document.createElement('button');
-  upBtn.classList.add('end-nav-btn');
-  header.appendChild(upBtn);
-  app.appendChild(header);
-
-  // Scroll body
-  const body = document.createElement('div');
-  body.classList.add('end-nav-body');
-  for (const section of sectionList) {
-    section.el.classList.add('end-nav-section');
-    body.appendChild(section.el);
-  }
-  app.appendChild(body);
-
-  // Footer
-  const footer = document.createElement('footer');
-  footer.classList.add('end-nav-footer');
-  const downBtn = document.createElement('button');
-  downBtn.classList.add('end-nav-btn');
-  footer.appendChild(downBtn);
-  app.appendChild(footer);
-
-  function updateButtons(): void {
-    upBtn.textContent = currentIndex === 0 ? 'Home' : 'Up';
-
-    if (currentIndex < sectionList.length - 1) {
-      downBtn.textContent = 'Down';
-      downBtn.dataset.action = 'navigate';
-    } else if (nextLockedSubgroup) {
-      downBtn.textContent = `Start ${nextLockedSubgroup} guilds`;
-      downBtn.dataset.action = 'start-level';
-      downBtn.dataset.subgroup = nextLockedSubgroup;
-    } else {
-      downBtn.textContent = 'Share';
-      downBtn.dataset.action = 'share';
-    }
-  }
-
-  function scrollToSection(index: number, direction: 'up' | 'down'): void {
-    body.scrollTo({ top: index * body.clientHeight, behavior: 'smooth' });
-    currentIndex = index;
-    updateButtons();
-    const span = startSpan('end.section_navigate', {
-      'navigate.direction': direction,
-      'navigate.target_section': sectionList[index].subgroup,
-    });
-    endSpan(span);
-  }
-
-  upBtn.addEventListener('click', () => {
-    if (currentIndex === 0) {
-      window.location.href = 'index';
-    } else {
-      scrollToSection(currentIndex - 1, 'up');
-    }
-  });
-
-  downBtn.addEventListener('click', () => {
-    const action = downBtn.dataset.action;
-    if (action === 'start-level') {
-      const subgroup = downBtn.dataset.subgroup as GuildSubgroup;
-      const span = startSpan('end.start_level_click', { 'level.subgroup': subgroup });
-      endSpan(span);
-      startSession(subgroup, 'end_screen_next_level');
-    } else if (action === 'share') {
-      // placeholder, no-op for now
-    } else {
-      scrollToSection(currentIndex + 1, 'down');
-    }
-  });
-
-  // Update currentIndex when user manually scrolls and snap settles
-  body.addEventListener('scroll', () => {
-    const newIndex = Math.round(body.scrollTop / body.clientHeight);
-    if (newIndex !== currentIndex && newIndex >= 0 && newIndex < sectionList.length) {
-      currentIndex = newIndex;
-      updateButtons();
-    }
-  });
+  const container = document.createElement('div');
+  container.classList.add('level-sections');
+  container.appendChild(alliedCol);
+  container.appendChild(enemyCol);
 
   // Clicking anywhere that isn't a line or guild item clears both selections.
   // Interactive elements (lines, guild items, buttons) already call stopPropagation(),
@@ -653,5 +551,5 @@ export function showSessionEndColumns(
     clearEnemy();
   });
 
-  updateButtons();
+  app.appendChild(container);
 }

@@ -4,7 +4,7 @@ import { isSubgroupUnlocked, isEnemyUnlocked } from './progression';
 import { wireSettings } from './ui/settings';
 import { GuildSubgroup } from './session';
 
-const APP_VERSION = '0.22.0';
+const APP_VERSION = '0.19.0';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'end', 'multi_page');
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (completedParam !== null) attrs['session.completed'] = completedParam === 'true';
     if (assessment !== null) attrs['session.self_assessment'] = assessment;
 
-    attrs['end.layout_version'] = 'single_section_v1';
+    attrs['end.layout_version'] = 'rows_v1';
     const span = startSpan('session.summary', attrs);
     endSpan(span);
 
