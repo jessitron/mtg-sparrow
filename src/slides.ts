@@ -77,6 +77,9 @@ function navigateToAssessment(actualCount: number): void {
   // End session span (no self_assessment — that belongs to assessment page)
   endSessionSpan(actualCount);
 
+  // Flush spans before navigating (visibilitychange flush is unreliable)
+  flushSpans();
+
   // Navigate to assessment page
   window.location.href = `assessment.html?subgroup=${session.subgroup}&cards=${actualCount}&completed=${session.completed}`;
 }
