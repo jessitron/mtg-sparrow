@@ -1,4 +1,4 @@
-import { initTelemetry, startSpan, endSpan, flushSpans } from './telemetry/telemetry';
+import { initTelemetry, startSpan, endSpan, flushSpans, getTraceId } from './telemetry/telemetry';
 import { showSessionEndColumns } from './ui/guild-columns';
 import { isSubgroupUnlocked, isEnemyUnlocked } from './progression';
 import { wireSettings } from './ui/settings';
@@ -36,6 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
     attrs['end.layout_version'] = 'rows_v1';
     const span = startSpan('session.summary', attrs);
     endSpan(span);
+
+    // Wire trace link in settings panel
+    const traceId = getTraceId(span);
+    const traceLink = document.getElementById('settings-trace-link') as HTMLAnchorElement | null;
+    const traceContainer = document.getElementById('settings-trace-container');
+    if (traceLink) {
+      traceLink.href = `https://ui.honeycomb.io/modernity/environments/sparrow-deck/trace?trace_id=${traceId}`;
+    }
+    if (traceContainer) {
+      traceContainer.hidden = false;
+    }
   }
 
   const app = document.getElementById('app');
