@@ -41,7 +41,6 @@ function clearTimers(): void {
 function endCardSpan(early: boolean): void {
   if (cardSpan && session) {
     const dwellTime = Date.now() - cardShowTime;
-    const combo = session.deck[session.currentIndex];
     cardSpan.setAttribute('card.dwell_time_ms', dwellTime);
     cardSpan.setAttribute('card.advanced_early', early);
     endSpan(cardSpan);
