@@ -466,7 +466,7 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
   - `assessment.css` — 6 self-assessment rules
   - `end.css` — guild columns, color wheels, session-end, combo-summary-pips/name, next-session-button (consolidated 2× `.guild-column-item` into one block)
   - `card-back.css` — standalone demo file, left alone
-- **Dead CSS removed** (8 rules): `.combo-summary`, `.combo-summary-heading`, `.combo-summary-list`, `.combo-summary-item`, `.session-next-divider`, `.session-next`, `.session-next-label`, `.session-next-buttons`
+- **Dead CSS removed** (8 rules): `.session-footer`, `.footer-left`, `.stop-btn`, `.pause-btn`, `.paused-overlay`, `.card-image-container.revealed`, `.card-back`, `.card-back.revealed`
 - **Structural marker**: `css.split = true` on `app.startup` span; APP_VERSION bumped to 0.13.0
 - **Observability note**: Bundle inspection confirms `css.split` attribute is correctly coded. Runtime Honeycomb confirmation pending deployment (known flush-timing limitation with headless browser tests).
 - **Decisions**: DEC-057, DEC-058
@@ -544,15 +544,12 @@ Items noted by client but explicitly out of scope for initial delivery:
 - **Context**: The current CSS has clean natural seams matching the page split. Dead CSS from prototype components likely exists.
 - **Rationale**: Clarity of ownership — when working on a page, all its styles are in one file. Confidence about scope — modifying `end.css` cannot break slides. Dead CSS cleanup is a natural byproduct.
 
-## DEC-058: Arc 15 CSS Split — Page Ownership Boundaries Established
+## DEC-058: Dead CSS Cleanup During Arc 15 Split
 - **Date**: 2026-03-01
-- **Decision**: CSS page ownership boundaries are now explicit. `slides.css` owns all `#app.app--quiz-active` overrides (previously scattered across 3 separate blocks in `style.css`). `end.css` owns all guild column and color wheel styles. Dead CSS from prototype components is removed permanently.
-- **Context**: During the split, the Architect discovered that several logical rule groups were fragmented across `style.css`. Consolidation was performed during the split (not as a separate pass).
-  - `#app.app--quiz-active` block: was 3 separate locations → consolidated into one block in `slides.css`
-  - `.guild-column-item`: appeared twice → deduplicated in `end.css`
-  - 8 dead rules (`.combo-summary*`, `.session-next*`) had no corresponding DOM elements — removed
+- **Decision**: During the Arc 15 CSS split, 8 dead CSS rules were identified and removed: `.session-footer`, `.footer-left`, `.stop-btn`, `.pause-btn`, `.paused-overlay`, `.card-image-container.revealed`, `.card-back`, `.card-back.revealed`.
+- **Context**: These rules were relics of earlier designs (old session footer, the pre-Arc-13 stop/pause buttons, a prototype pause overlay) and one rule for `.card-back` which belongs in `card-back.css` (the mana gas animation file) not `style.css`. No live code references any of these selectors.
 - **Tradeoffs**: Dead CSS removal is permanent; if any rule was misidentified as dead, recovery requires git history. The Architect cross-checked against all HTML and JS before removal.
-- **Rationale**: The split is the right moment for cleanup — the structural seams are visible, the Architect has read all the CSS, and deferring would require a second full audit. Consolidation at split time reduces future confusion about which file governs a given element.
+- **Rationale**: Dead CSS is noise. The split forced an audit; removing confirmed-dead rules keeps the new per-page files lean.
 
 ---
 
