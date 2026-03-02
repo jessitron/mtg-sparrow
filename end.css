@@ -129,7 +129,8 @@
   font-family: 'GoudyMediaeval', Georgia, serif;
   color: #e8d8aa;
   opacity: 0;
-  transition: opacity 200ms ease;
+  transform: translateY(-8px);
+  transition: opacity 250ms ease, transform 250ms ease;
 }
 
 .level-section-flavor-desc {
@@ -137,7 +138,11 @@
   color: #bbb;
   line-height: 1.6;
   opacity: 0;
-  transition: opacity 200ms ease;
+  transform: translateY(-8px);
+  transition: opacity 300ms ease 50ms, transform 300ms ease 50ms;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 300ms ease 50ms, transform 300ms ease 50ms, max-height 350ms ease;
 }
 
 .level-section-scryfall-link {
@@ -145,7 +150,8 @@
   color: var(--card-back-turquoise);
   text-decoration: none;
   opacity: 0;
-  transition: opacity 200ms ease;
+  transform: translateY(-8px);
+  transition: opacity 300ms ease 100ms, transform 300ms ease 100ms;
 }
 
 .level-section-scryfall-link:hover {
@@ -156,6 +162,11 @@
 .level-section--has-highlight .level-section-flavor-desc,
 .level-section--has-highlight .level-section-scryfall-link {
   opacity: 1;
+  transform: translateY(0);
+}
+
+.level-section--has-highlight .level-section-flavor-desc {
+  max-height: 20em;
 }
 
 .level-section-button {
