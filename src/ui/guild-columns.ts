@@ -286,16 +286,7 @@ function wireColorWheelHover(
   // Track tap-selected pair for mobile (null = nothing selected)
   let selectedPair: [string, string] | null = null;
 
-  // Hover-retention state: track whether the mouse is over the flavor panel,
-  // the currently hovered pair (for clearing when leaving the flavor panel),
-  // and a pending-clear timer so we can cancel it if the mouse reaches
-  // the flavor panel before the delay expires.
-  let hoveringFlavor = false;
-  let clearTimer: ReturnType<typeof setTimeout> | null = null;
-  let hoveredPair: [string, string] | null = null;
-
   const crestImg = svg.getElementById(crestId) as SVGImageElement | null;
-  const flavorPanel = col.querySelector<HTMLElement>('.level-section-flavor');
   const flavorEntries = col.querySelectorAll<HTMLElement>('.level-section-flavor-entry');
 
   // Helper: set/clear highlight class on all related elements for a given pair
@@ -340,26 +331,9 @@ function wireColorWheelHover(
 
   // Clear any active selection in this wheel — callable externally for cross-column deselect
   function clearSelection(): void {
-    if (clearTimer !== null) {
-      clearTimeout(clearTimer);
-      clearTimer = null;
-    }
-    hoveringFlavor = false;
     if (!selectedPair) return;
     setHighlight(selectedPair[0], selectedPair[1], false);
     selectedPair = null;
-  }
-
-  // Delayed clear: waits 80ms before clearing so the mouse can reach the flavor panel.
-  // Cancelled if mouse enters the flavor panel within that window.
-  function scheduleClear(aId: string, bId: string): void {
-    if (clearTimer !== null) clearTimeout(clearTimer);
-    clearTimer = setTimeout(() => {
-      clearTimer = null;
-      if (!hoveringFlavor) {
-        setHighlight(aId, bId, false);
-      }
-    }, 1000);
   }
 
   // Helper: handle a click/tap selecting or deselecting a pair
@@ -386,14 +360,11 @@ function wireColorWheelHover(
     if (!lineEl) continue;
     lineEl.addEventListener('mouseenter', () => {
       if (selectedPair) return; // don't override tap selection
-      if (clearTimer !== null) { clearTimeout(clearTimer); clearTimer = null; }
-      hoveredPair = [aId, bId];
       setHighlight(aId, bId, true);
     });
     lineEl.addEventListener('mouseleave', () => {
       if (selectedPair) return; // don't clear tap selection
-      hoveredPair = null;
-      scheduleClear(aId, bId);
+      setHighlight(aId, bId, false);
     });
     lineEl.addEventListener('click', (e: Event) => {
       e.stopPropagation();
@@ -408,46 +379,15 @@ function wireColorWheelHover(
     if (!listItem) continue;
     listItem.addEventListener('mouseenter', () => {
       if (selectedPair) return;
-      if (clearTimer !== null) { clearTimeout(clearTimer); clearTimer = null; }
-      hoveredPair = [aId, bId];
       setHighlight(aId, bId, true);
     });
     listItem.addEventListener('mouseleave', () => {
       if (selectedPair) return;
-      hoveredPair = null;
-      scheduleClear(aId, bId);
+      setHighlight(aId, bId, false);
     });
     listItem.addEventListener('click', (e: Event) => {
       e.stopPropagation();
       handlePairClick(aId, bId);
-    });
-  }
-
-  // Wire flavor panel as a hover-retention zone.
-  // While the mouse is inside the flavor panel, any pending clear is suppressed.
-  // When the mouse leaves the flavor panel (and no trigger is hovered), clear immediately.
-  if (flavorPanel) {
-    flavorPanel.addEventListener('mouseenter', () => {
-      if (selectedPair) return;
-      hoveringFlavor = true;
-      if (clearTimer !== null) { clearTimeout(clearTimer); clearTimer = null; }
-    });
-    flavorPanel.addEventListener('mouseleave', () => {
-      if (selectedPair) return;
-      hoveringFlavor = false;
-      // If no line/list-item is currently hovered, clear the highlight now.
-      if (!hoveredPair) {
-        // Find and clear whatever is highlighted in this column
-        const highlighted = col.querySelector<HTMLElement>('[data-guild-id].highlight');
-        if (highlighted) {
-          const guildId = highlighted.dataset.guildId!;
-          const pair = pairs.find(([a, b]) => {
-            const key = [colorNodeToCode[a], colorNodeToCode[b]].sort().join('');
-            return colorPairToGuildId[key] === guildId;
-          });
-          if (pair) setHighlight(pair[0], pair[1], false);
-        }
-      }
     });
   }
 
