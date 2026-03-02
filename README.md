@@ -4,7 +4,7 @@ A perceptual learning app for Magic: The Gathering color combination names — b
 
 Online: https://jessitron.github.io/mtg-sparrow/
 
-**Current version:** v0.9.0
+**Current version:** v0.15.0
 
 ---
 
@@ -19,7 +19,7 @@ This app applies the [Sparrow Deck](https://www.youtube.com/watch?v=...) percept
 1. A welcome screen appears with instructions
 2. Click "Learn guild names" to start a session
 3. See mana pips → say the combo name aloud → the name auto-reveals → next card appears
-4. After 20 cards (or tap "Done for now"), rate how it felt
+4. After 25 cards (or tap "Done for now"), rate how it felt
 
 There is no scoring, no pass/fail, no timer. Say the name aloud — that's the whole technique.
 
@@ -33,7 +33,7 @@ There is no scoring, no pass/fail, no timer. Say the name aloud — that's the w
 - Interactive SVG color wheels: allied pentagon (Arc 8) and enemy star pattern (Arc 9) with bidirectional hover between wheel and guild list
 - Gear icon settings panel: version display, Honeycomb trace link, and single-tap progress reset
 - 10 guild names (two-color combinations) displayed as standard mana symbols
-- 20-card sessions with auto-reveal (2.5s) and auto-advance (1.5s)
+- 25-card sessions with auto-reveal (3s) and auto-advance (2s)
 - Early tap/spacebar to skip ahead
 - "Done for now" button to end a session early
 - Pause control
@@ -88,15 +88,26 @@ node scripts/test-arc9-enemy-wheel.mjs
 
 ```
 src/
-  main.ts                 # App entry point — session lifecycle, event handlers, welcome screen
+  main.ts                 # Welcome page entry point — telemetry init, start button
+  slides.ts               # Slides page entry point — session lifecycle, card display, event handlers
   session.ts              # Session state, deck building (Fisher-Yates shuffle), timing constants
+  progression.ts          # Subgroup unlock/completion tracking (localStorage)
   data/combos.ts          # All color combination records (guilds + shards + wedges)
-  ui/render.ts            # DOM rendering functions
+  ui/
+    render.ts             # DOM rendering functions
+    settings.ts           # Settings panel wiring
+    guild-columns.ts      # Two-column guild display with color wheels
+    self-assessment.ts    # Self-assessment prompt UI
   telemetry/
     init.ts               # Honeycomb SDK initialization (internal — do not import directly)
     telemetry.ts          # App-facing telemetry API (the only file app code should import from)
-index.html
-style.css
+index.html                # Welcome page
+slides.html               # Slides (session) page
+style.css                 # Shared styles
+welcome.css               # Welcome page styles
+slides.css                # Slides page styles
+assessment.css            # Assessment page styles (future)
+end.css                   # End page styles (future)
 dist/                     # Build output (not committed)
 scripts/                  # All runnable commands are shell scripts here
 ```
@@ -105,9 +116,9 @@ scripts/                  # All runnable commands are shell scripts here
 
 | Constant             | Default | Purpose                            |
 | -------------------- | ------- | ---------------------------------- |
-| `SESSION_CARD_COUNT` | 20      | Cards per session                  |
-| `REVEAL_DELAY_MS`    | 2500    | Time before name auto-reveals      |
-| `ADVANCE_DELAY_MS`   | 1500    | Time after reveal before next card |
+| `SESSION_CARD_COUNT` | 25      | Cards per session                  |
+| `REVEAL_DELAY_MS`    | 3000    | Time before name auto-reveals      |
+| `ADVANCE_DELAY_MS`   | 2000    | Time after reveal before next card |
 
 These are intentional tuning parameters. Adjust and observe via Honeycomb.
 
@@ -131,7 +142,7 @@ After a session starts, the settings panel (gear icon) shows a direct link to th
 
 Key decisions are recorded in:
 
-- `small-arc-studios/roles/librarian/notes/decision-log.md` — full decision history (DEC-001 through DEC-049)
+- `small-arc-studios/roles/librarian/notes/decision-log.md` — full decision history (DEC-001 through DEC-060+)
 - `docs/PROPOSAL.md` — original proposal with client annotations
 - `small-arc-studios/roles/librarian/notes/arc*-record.md` — per-arc records
 
@@ -159,6 +170,13 @@ Notable decisions:
 | 8+  | 0.8.0   | Allied Color Wheel               | COMPLETE |
 | 9   | 0.8.0   | Enemy Color Wheel (Star Pattern) | COMPLETE |
 | 10  | 0.9.0   | Settings (Gear Icon + Panel)     | COMPLETE |
+| 11  | 0.10.0  | Card Art Images                  | COMPLETE |
+| 12  | 0.11.0  | Mana Gas Background Animation    | COMPLETE |
+| 13  | 0.12.0  | Session Timing Tuning            | COMPLETE |
+| 14  | 0.13.0  | Session Telemetry (session.id)   | COMPLETE |
+| 15  | 0.13.0  | CSS Split (5 files)              | COMPLETE |
+| 16  | 0.14.0  | Extract Modules from main.ts     | COMPLETE |
+| 17  | 0.15.0  | Create slides.html + slides.ts   | COMPLETE |
 
 ---
 
