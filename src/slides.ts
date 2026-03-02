@@ -312,6 +312,14 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
   showCard();
 }
 
+// When restored from bfcache (browser back button), force a full reload
+// so DOMContentLoaded fires and the slideshow re-initializes cleanly.
+window.addEventListener('pageshow', (event: PageTransitionEvent) => {
+  if (event.persisted) {
+    window.location.reload();
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'slides', 'multi_page');
   // Do NOT call sendStartupSpan — welcome page only
