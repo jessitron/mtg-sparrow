@@ -1,12 +1,12 @@
 import { initTelemetry, sendStartupSpan, flushSpans } from './telemetry/telemetry';
 import { wireSettings } from './ui/settings';
 
-export const APP_VERSION = '0.15.0';
+export const APP_VERSION = '0.18.0';
 
 let welcomeScreenLoadTime = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
-  initTelemetry(APP_VERSION, 'welcome', 'single_page');
+  initTelemetry(APP_VERSION, 'welcome', 'multi_page');
   sendStartupSpan(APP_VERSION);
 
   wireSettings(APP_VERSION, () => null);
