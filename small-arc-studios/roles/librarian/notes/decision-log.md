@@ -889,4 +889,34 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-097: GuildSubgroup Type Expanded In-Place Rather Than Renamed
+- **Date**: 2026-03-02
+- **Arc**: 29
+- **Decision**: The `GuildSubgroup` type in `src/session.ts` is expanded to `"allied" | "enemy" | "wedges" | "shards"` rather than renamed to something more accurate like `SessionTier`.
+- **Context**: `GuildSubgroup` is technically a misnomer now that it covers wedges and shards (which are three-color, not guild-level). Renaming would require touching many files with no behavioral benefit.
+- **Rationale**: Correctness of naming is a minor concern compared to churn risk at this stage. The `tier` field in combo data provides the meaningful semantic label. This can be cleaned up in a future refactor arc if the naming confusion causes real problems.
+
+## DEC-098: Linear Progression Unlock Chain: allied → enemy → wedges → shards → null
+- **Date**: 2026-03-02
+- **Arc**: 29
+- **Decision**: Session progression uses a simple sequential map: allied → enemy → wedges → shards → null. Completing any tier unlocks the next one. No branching.
+- **Rationale**: Linear progression matches the learning intent — each tier is harder than the last (two-color → three-color). A simple map is easy to reason about, extend, and test. No product requirement exists for non-linear unlocking at this time.
+
+## DEC-099: session.tier Telemetry Uses wedge/shard (Singular), Not guild_wedges
+- **Date**: 2026-03-02
+- **Arc**: 29
+- **Decision**: The `session.tier` attribute on card spans emits `wedge` or `shard` (singular), matching the `tier` field values in combo data (`tier: 'wedge' | 'shard'`).
+- **Alternatives rejected**: `guild_wedges` / `guild_shards` — inconsistent with the combo data model and misleading (wedges/shards are not guilds).
+- **Rationale**: Telemetry attribute values should match the data model directly. `wedge` and `shard` are the canonical tier names in `combos.ts`. Using these values keeps the signal clean and queryable without translation.
+
+---
+
+## Arc 29: Three-Color Sessions — COMPLETE (v0.24.0)
+- **Delivered**: 2026-03-02
+- **Outcome**: Wedge and shard sessions now playable. `GuildSubgroup` type expanded. Progression chain extended. `card.tier = wedge/shard` confirmed in Honeycomb. 24/24 PASS.
+- **Record**: `arc29-three-color-sessions.md`
+- **Decisions**: DEC-097, DEC-098, DEC-099
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
