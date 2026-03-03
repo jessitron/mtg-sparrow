@@ -852,4 +852,41 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-093: Three-Color Combos in Existing guilds Array, Discriminated by tier Field
+- **Date**: 2026-03-02
+- **Arc**: 28
+- **Decision**: The 10 three-color combos (wedges and shards) are appended to the existing `guilds` array in `src/data/combos.ts`. A `tier` field (`'guild' | 'wedge' | 'shard'`) discriminates them. Export helpers `wedges` and `shards` filter by tier.
+- **Alternatives rejected**: A separate `threeColorCombos` array — would require changes to all consumers of the data and adds a naming split that doesn't reflect the unified nature of the data model.
+- **Rationale**: Keeping one array keeps exports, filtering, and iteration simple. The `tier` field is the natural discriminator. Existing code that iterates `guilds` for two-color content can filter by `tier === 'guild'`; future UI code can filter for wedges or shards specifically.
+
+## DEC-094: Card Curation Methodology — EDHREC Popularity + Block Legendaries
+- **Date**: 2026-03-02
+- **Arc**: 28
+- **Decision**: ~10 iconic cards per combo curated using two criteria: (1) EDHREC popularity within the color identity, (2) original block legendaries (Khans of Tarkir for wedges, Shards of Alara for shards). No card appears in more than one combo's list.
+- **Rationale**: EDHREC popularity ensures cards are recognizable to experienced players. Block legendaries anchor the combo to its canonical MTG identity. The ~10 card count matches the established guild card count, keeping data structure consistent. No duplicates across combos prevents confusion.
+
+## DEC-095: Flavor Descriptions Added to Existing guild-descriptions.ts
+- **Date**: 2026-03-02
+- **Arc**: 28
+- **Decision**: Flavor descriptions for all 10 three-color combos are added to the existing `guildDescriptionMap` in `src/data/guild-descriptions.ts`. No new file created.
+- **Alternatives rejected**: A separate `threeColorDescriptions.ts` file — would require changes to all consumers and splits content that serves identical purposes.
+- **Rationale**: The `guildDescriptionMap` is keyed by combo ID string, which works for any combo regardless of tier. Reusing the file keeps the data model consistent and the UI lookup code unchanged.
+
+## DEC-096: Structural Marker data.tier_version = 'three_color_v1' on app.startup
+- **Date**: 2026-03-02
+- **Arc**: 28
+- **Decision**: `data.tier_version = 'three_color_v1'` is added as an attribute on the `app.startup` span, following the same pattern as `app.module_structure = 'extracted'` (DEC-060).
+- **Context**: Arc 28 adds a substantial data layer change (10 new combos). A structural marker makes this version detectable in Honeycomb without code inspection.
+- **Rationale**: Structural markers are how operators know what version of the data model is running. `three_color_v1` clearly signals that three-color combo data is present. Future arcs adding four-color data would emit `four_color_v1`.
+
+---
+
+## Arc 28: Wedge & Shard Data — COMPLETE (v0.23.0)
+- **Delivered**: 2026-03-02
+- **Outcome**: 10 three-color combos (5 wedges, 5 shards) added to data layer. ~100 iconic cards curated across all combos. Flavor descriptions and Scryfall URLs added to guild-descriptions.ts. `data.tier_version = 'three_color_v1'` structural marker confirmed in Honeycomb. 59/59 PASS.
+- **Record**: `arc28-wedge-shard-data.md`
+- **Decisions**: DEC-093, DEC-094, DEC-095, DEC-096
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
