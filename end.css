@@ -141,7 +141,7 @@
 }
 
 .reel-nav-btn--top.reel-nav-btn--hidden::after {
-  transform: translate(-50%, 200%);
+  transform: translate(-50%, 150%);
 }
 
 .reel-nav-btn--bottom.reel-nav-btn--hidden::after {
