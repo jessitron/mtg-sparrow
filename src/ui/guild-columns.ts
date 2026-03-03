@@ -533,11 +533,11 @@ function buildEnemyColumn(
 // --- Reel navigation (slot-machine feel) ---
 
 const REEL_TRANSITION = 'transform 600ms cubic-bezier(0.2, 0.8, 0.3, 1.05)';
-const WHEEL_COOLDOWN_MS = 700;
+const WHEEL_DELTA_THRESHOLD = 1000;
 
 let reelIndex = 0;
 let reelSpinning = false;
-let reelLastWheelTime = 0;
+let reelAccumulatedDelta = 0;
 
 function reelSpinTo(
   reel: HTMLElement,
@@ -723,15 +723,21 @@ export function showSessionEndColumns(
 
     viewport.addEventListener('wheel', (e: WheelEvent) => {
       e.preventDefault();
-      const now = Date.now();
-      const timeSinceLast = reelLastWheelTime === 0 ? 0 : now - reelLastWheelTime;
-      const direction = e.deltaY > 0 ? 1 : -1;
-      const nextIndex = reelIndex + direction;
 
-      const cooldownSuppressed = timeSinceLast > 0 && timeSinceLast < WHEEL_COOLDOWN_MS;
+      // If direction reversed, reset accumulator to start fresh in new direction
+      if ((e.deltaY > 0 && reelAccumulatedDelta < 0) || (e.deltaY < 0 && reelAccumulatedDelta > 0)) {
+        reelAccumulatedDelta = e.deltaY;
+      } else {
+        reelAccumulatedDelta += e.deltaY;
+      }
+
+      const direction = reelAccumulatedDelta > 0 ? 1 : reelAccumulatedDelta < 0 ? -1 : 0;
+      const nextIndex = reelIndex + direction;
+      const thresholdReached = Math.abs(reelAccumulatedDelta) >= WHEEL_DELTA_THRESHOLD;
+
       let action: string;
-      if (cooldownSuppressed) {
-        action = 'suppressed_cooldown';
+      if (!thresholdReached) {
+        action = 'accumulating';
       } else if (reelSpinning) {
         action = 'suppressed_spinning';
       } else if (nextIndex < 0 || nextIndex >= sections.length) {
@@ -741,17 +747,16 @@ export function showSessionEndColumns(
       }
 
       addSpanEvent(sectionSpanRef.current, 'end.wheel_event', {
-        'wheel.time_since_last_ms': timeSinceLast,
-        'wheel.cooldown_suppressed': cooldownSuppressed,
-        'wheel.reel_spinning': reelSpinning,
+        'wheel.deltaY': Math.round(e.deltaY),
+        'wheel.accumulated_deltaY': Math.round(reelAccumulatedDelta),
         'wheel.direction': direction,
         'wheel.current_index': reelIndex,
+        'wheel.reel_spinning': reelSpinning,
         'wheel.action': action,
-        'wheel.deltaY': Math.round(e.deltaY),
       });
 
-      if (cooldownSuppressed) return;
-      reelLastWheelTime = now;
+      if (action !== 'advance') return;
+      reelAccumulatedDelta = 0;
 
       reelAdvance(reel, viewport, sections, direction as 1 | -1, pageSpan, sectionSpanRef, updateNavButtons);
     }, { passive: false });
