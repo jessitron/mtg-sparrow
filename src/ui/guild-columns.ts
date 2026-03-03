@@ -660,15 +660,15 @@ export function showSessionEndColumns(
     const atEnd = reelIndex >= sections.length - 1;
 
     if (atTop) {
-      topBtn.style.visibility = 'hidden';
+      topBtn.classList.add('reel-nav-btn--hidden');
     } else {
-      topBtn.style.visibility = '';
+      topBtn.classList.remove('reel-nav-btn--hidden');
     }
 
     if (atEnd) {
-      bottomBtn.style.visibility = 'hidden';
+      bottomBtn.classList.add('reel-nav-btn--hidden');
     } else {
-      bottomBtn.style.visibility = '';
+      bottomBtn.classList.remove('reel-nav-btn--hidden');
     }
   }
 

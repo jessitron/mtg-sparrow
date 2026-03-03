@@ -121,6 +121,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
+  overflow: hidden;
 }
 
 .reel-nav-btn::after {
@@ -132,7 +133,19 @@
   width: 180px;
   height: 64px;
   background: color-mix(in srgb, var(--card-back-turquoise) 82%, transparent);
-  transition: background 200ms ease, transform 120ms ease;
+  transition: background 200ms ease, transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reel-nav-btn--hidden {
+  pointer-events: none;
+}
+
+.reel-nav-btn--top.reel-nav-btn--hidden::after {
+  transform: translate(-50%, -150%);
+}
+
+.reel-nav-btn--bottom.reel-nav-btn--hidden::after {
+  transform: translate(-50%, 150%);
 }
 
 .reel-nav-btn--top::after {
