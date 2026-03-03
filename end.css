@@ -141,11 +141,11 @@
 }
 
 .reel-nav-btn--top.reel-nav-btn--hidden::after {
-  transform: translate(-50%, 300%);
+  transform: translate(-50%, 150%);
 }
 
 .reel-nav-btn--bottom.reel-nav-btn--hidden::after {
-  transform: translate(-50%, -300%);
+  transform: translate(-50%, -150%);
 }
 
 .reel-nav-btn--top::after {
@@ -395,7 +395,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 200px;
+  min-height: 400px;
 }
 
 .level-section--share h2 {
