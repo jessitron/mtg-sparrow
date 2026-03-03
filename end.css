@@ -131,7 +131,7 @@
   transform: translate(-50%, -50%);
   width: 180px;
   height: 64px;
-  background: color-mix(in srgb, var(--card-back-turquoise) 22%, transparent);
+  background: color-mix(in srgb, var(--card-back-turquoise) 82%, transparent);
   transition: background 200ms ease, transform 120ms ease;
 }
 
@@ -144,7 +144,7 @@
 }
 
 .reel-nav-btn:hover::after {
-  background: color-mix(in srgb, var(--card-back-turquoise) 42%, transparent);
+  background: color-mix(in srgb, var(--card-back-turquoise) 100%, transparent);
 }
 
 .reel-nav-btn:active::after {
