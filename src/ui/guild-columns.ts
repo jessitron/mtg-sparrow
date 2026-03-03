@@ -750,8 +750,8 @@ export function showSessionEndColumns(
         'wheel.deltaY': Math.round(e.deltaY),
       });
 
-      reelLastWheelTime = now;
       if (cooldownSuppressed) return;
+      reelLastWheelTime = now;
 
       reelAdvance(reel, viewport, sections, direction as 1 | -1, pageSpan, sectionSpanRef, updateNavButtons);
     }, { passive: false });
