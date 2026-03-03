@@ -1,103 +1,104 @@
 # Wheel Telemetry Verification (Arc 27)
 
-**Date:** 2026-03-03 (updated same day — wheel handler reworked mid-arc)
+**Date:** 2026-03-03 (updated twice — handler reworked mid-arc, then telemetry volume reduced)
 **Test script:** `tests/wheel-telemetry.mjs`
-**Final result:** 16/16 PASS. Honeycomb confirmed.
+**Final result:** 17/17 PASS. Honeycomb confirmed.
 
 ---
 
-## Arc 27 Final: Accumulated-Delta Wheel Handler
+## Arc 27 Final: Accumulated-Delta Handler + Reduced Telemetry Volume
 
-The wheel handler was reworked from a cooldown-based approach to an accumulated-deltaY approach
-during Arc 27. The test was updated accordingly. The final implementation is what is verified here.
+The wheel handler went through two rounds of changes during Arc 27:
+1. Reworked from cooldown-based to accumulated-deltaY — listener moved to `document`
+2. Reduced telemetry volume — `accumulating` events no longer emitted; `gesture_start` and `direction_change` added
 
-### What changed from the initial approach
-- Old: listener on `.level-sections-viewport`, 700ms cooldown timer between events
-- New: listener on `document`, accumulate `deltaY` until `|accumulated| >= 700`, then advance
+### Evolution summary
+- **v1** (original): listener on `.level-sections-viewport`, 700ms cooldown timer, actions: `advance | suppressed_cooldown | suppressed_spinning | suppressed_bounds`
+- **v2**: listener on `document`, accumulate `deltaY` until `|accumulated| >= 700`, actions: `accumulating | advance | suppressed_spinning | suppressed_bounds`
+- **v3 (final)**: same accumulation, but `accumulating` NOT emitted; added `gesture_start` (wasZero) and `direction_change`; emitted actions: `gesture_start | direction_change | advance | suppressed_spinning | suppressed_bounds`
 
 ---
 
-## What Was Tested (final implementation)
+## What Was Tested (final v3 implementation)
 
-Every wheel event on the document emits an `end.wheel_event` span event on the current
-`end.section_view` span. The attributes are:
+Every wheel event on the document **except `accumulating`** emits an `end.wheel_event` span event
+on the current `end.section_view` span. The attributes are:
 
-| Attribute | Type | Values seen in Honeycomb |
+| Attribute | Type | Values seen in Honeycomb (recent) |
 |---|---|---|
-| `wheel.action` | string | `accumulating`, `advance`, `suppressed_spinning`, `suppressed_bounds` |
-| `wheel.accumulated_deltaY` | integer | e.g. `177`, `752`, `-831` |
-| `wheel.deltaY` | integer | e.g. `64`, `120`, `-35` |
+| `wheel.action` | string | `gesture_start`, `advance`, `suppressed_bounds` (+ `direction_change`, `suppressed_spinning` in code) |
+| `wheel.accumulated_deltaY` | integer | e.g. `100`, `700`, `740` |
+| `wheel.deltaY` | integer | e.g. `100`, `120`, `90` |
 | `wheel.current_index` | integer | `0`, `1`, `2` |
 | `wheel.direction` | integer | `1` (down), `-1` (up) |
 | `wheel.reel_spinning` | boolean | `false`, `true` |
 
-These are **span events**, not standalone spans. In Honeycomb they appear with `meta.annotation_type = 'span_event'`
-and `name = 'end.wheel_event'`, nested under the `end.section_view` span.
+Note: `accumulating` events from earlier test runs (v2) are still present in Honeycomb history —
+this is expected. Only recent events (after final deployment) should show `gesture_start`/`advance`.
+
+These are **span events**, not standalone spans. They appear with `meta.annotation_type = 'span_event'`
+and `name = 'end.wheel_event'`, nested under `end.section_view`.
 
 ---
 
-## Test Phases (16/16 PASS)
+## Test Phases (17/17 PASS)
 
-1. **Bundle check** — confirmed all new attribute keys present in `dist/end.js`, `accumulating` action
-   value present, old `WHEEL_COOLDOWN_MS` constant absent. Used `addEvent` (not `addSpanEvent`) since
-   minification mangles wrapper function names.
+1. **Bundle check** — confirmed all attribute keys, `gesture_start` and `direction_change` values present,
+   old `WHEEL_COOLDOWN_MS` absent. `addEvent` (OTel API) present after minification.
 
-2. **Small wheel does NOT advance** — single `deltaY: 100` event dispatched on `document`.
-   Top button remains hidden (still at section 0). 100 < 700 threshold.
+2. **Small wheel does NOT advance** — single `deltaY: 100` event. Top button stays hidden (section 0).
+   100 < 700 threshold. Also: first event is `gesture_start`, not `advance`, even if large.
 
-3. **Accumulated deltaY >= 700 advances** — 7 × `deltaY: 120` = 840 dispatched via `document.dispatchEvent`.
-   Crosses threshold on 6th event (720). Top button becomes visible (now at section 1).
+3. **Accumulated deltaY >= 700 advances** — 7 × `deltaY: 120` = 840 dispatched in one `evaluate()` call.
+   First event = `gesture_start`, then `accumulating` (silent), threshold crossed → `advance`. Top button visible.
 
-4. **Document-wide listener** — dispatched single `deltaY: 800` on `document.body` (not the viewport).
-   Section advanced. Confirms listener is on `document`, not scoped to `.level-sections-viewport`.
+4. **Document-wide listener** — two events of `deltaY: 800` dispatched on `document.body`.
+   First = `gesture_start` (no advance), second crosses threshold → `advance`. Section advances.
+   **Key insight**: single large event does NOT advance (wasZero → gesture_start, action != advance → return).
 
 5. **Direction change resets accumulator** — 300 + 300 = 600 down, then `-100` up.
-   Accumulator resets to -100. No advance. Still at section 0.
+   Accumulator resets to -100, no advance. Still at section 0.
 
-6. **Advance to section 2** — two separate batches of 7 × 120 (each batch crosses threshold separately,
-   accumulator resets to 0 on advance). Bottom button hides at section 2 (last section).
+6. **Advance to section 2** — two separate batches of 8 × 100. Each batch: gesture_start then advance.
+   Bottom button hides at section 2 (last section).
 
-7. **Span flush** — dispatched accumulating, advance, and suppressed_bounds events,
-   then held page 35s for OTel batch timer.
+7. **Span flush** — dispatched gesture_start, advance, and suppressed_bounds events,
+   held page 35s for OTel batch timer.
 
 ---
 
-## Honeycomb Verification
+## Honeycomb Verification (final run, 2026-03-03 ~01:35–01:37)
 
-Columns confirmed present with recent `LastWritten` timestamps (2026-03-03 01:10–01:23):
+Recent span events (last 1h query) showed only `gesture_start` and `advance` — no `accumulating`.
+Older rows (01:32) still show `accumulating` from the v2 test run — expected historical data.
 
-- `wheel.accumulated_deltaY`: sample values `497, -33, 565, -1236, -423, -1008, 752, -810, 177, -831`
-- `wheel.deltaY`: sample values `64, 11, 7, -35, -34, -96, 96, 80, 17, -6`
-- `wheel.action`: all four values confirmed — `advance`, `suppressed_spinning`, `suppressed_bounds`, `accumulating`
-- `wheel.current_index`: values `0`, `1`, `2`
-- `wheel.direction`: values `-1`, `1`
-- `wheel.reel_spinning`: values `false`, `true`
+Sample from final run:
+- `gesture_start` at `wheel.current_index=0`, `wheel.accumulated_deltaY=100`
+- `advance` at `wheel.current_index=0`, `wheel.accumulated_deltaY=740`
+- `gesture_start` at `wheel.current_index=1`, `wheel.accumulated_deltaY=100`, `wheel.reel_spinning=true`
+- `advance` at `wheel.current_index=1`, `wheel.accumulated_deltaY=700`
 
-Parent span confirmed as `end.section_view` — events nest under section span correctly.
+Parent span: `end.section_view` on all events — correct nesting confirmed.
+
+Query URL: https://ui.honeycomb.io/modernity/environments/sparrow-deck/datasets/sparrow-deck/result/7aGCrT9UDSh
 
 ---
 
 ## Key Lessons
 
 - **Span events vs spans**: `addSpanEvent` / `span.addEvent` emits a span event (annotation), not a child span.
-  In Honeycomb, query by `meta.annotation_type = 'span_event'` and `name = 'end.wheel_event'`.
-  The `get_dataset_columns` tool returns sample values for span event attributes too.
+  In Honeycomb, filter by `meta.annotation_type = 'span_event'` and `name = 'end.wheel_event'`.
 
-- **Minified bundles**: `addSpanEvent` is the project wrapper; after minification, check for `addEvent`
-  (the underlying OTel API method) in the bundle, not the wrapper function name.
+- **Minified bundles**: Check for `addEvent` (the OTel API method), not `addSpanEvent` (wrapper — mangled by minifier).
 
-- **Wheel event dispatch in headless Playwright**: Use `page.evaluate(() => document.dispatchEvent(new WheelEvent(...)))`
-  rather than `element.dispatchEvent` via Playwright's handle — the latter doesn't bubble to `document`
-  the same way. The listener calls `e.preventDefault()` with `{ passive: false }` so events fire correctly.
+- **gesture_start blocks advance**: Even a single `deltaY: 800` event does NOT advance — `wasZero=true` → `gesture_start`, and `if (action !== 'advance') return`. Need a second event to trigger `advance`.
 
-- **Accumulated-delta testing**: Dispatch multiple events in a single `evaluate()` call to ensure
-  they accumulate synchronously before any async rendering kicks in. A single large `deltaY: 800`
-  also works for single-event advance tests.
+- **Dispatch in evaluate()**: Use `page.evaluate(() => document.dispatchEvent(new WheelEvent(...)))` for document-level events. Multiple events in one `evaluate()` call accumulate synchronously.
 
-- **Reel DOM selectors** (reel_v1 structure, current as of Arc 27):
+- **Reel DOM selectors** (reel_v1, current as of Arc 27 final):
   - Viewport: `.level-sections-viewport`
   - Reel: `.level-sections-reel`
-  - Top nav: `.reel-nav-btn--top` (has `reel-nav-btn--hidden` class when at section 0)
-  - Bottom nav: `.reel-nav-btn--bottom` (has `reel-nav-btn--hidden` class when at last section)
+  - Top nav: `.reel-nav-btn--top` (`reel-nav-btn--hidden` when at section 0)
+  - Bottom nav: `.reel-nav-btn--bottom` (`reel-nav-btn--hidden` when at last section)
   - Sections: `.level-section--allied`, `.level-section--enemy`, `.level-section--share`
   - Wheel listener target: `document` (not `.level-sections-viewport`)

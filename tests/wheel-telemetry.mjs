@@ -1,8 +1,8 @@
 /**
- * Wheel telemetry verification test (Arc 27 — accumulated deltaY approach)
+ * Wheel telemetry verification test (Arc 27 — accumulated deltaY approach, reduced telemetry)
  *
  * Tests:
- * 1. Bundle confirms updated wheel telemetry attribute keys
+ * 1. Bundle confirms updated wheel telemetry attribute keys (gesture_start, not just accumulating)
  * 2. Small wheel event (deltaY < 700 threshold) does NOT advance section
  * 3. Accumulated wheel events reaching threshold DO advance section
  * 4. Wheel on document (not just viewport) triggers navigation
@@ -10,12 +10,15 @@
  * 6. Advance to last section — bottom button hides
  * 7. Span flush — hold page alive for OTel batch timer
  *
- * Reel navigation model (reel_v1 with accumulated-delta wheel handler):
+ * Reel navigation model (reel_v1 with accumulated-delta wheel handler, reduced telemetry):
  *   - Listener is on `document`, not the viewport element
  *   - Events accumulate deltaY; advance only when |accumulated| >= 700
  *   - On direction change, accumulator resets to current event's deltaY
  *   - On advance, accumulator resets to 0
  *   - No cooldown timer — threshold is the gate
+ *   - Emitted actions: gesture_start, direction_change, advance, suppressed_spinning, suppressed_bounds
+ *   - 'accumulating' is NOT emitted (skipped to reduce telemetry volume)
+ *   - First event in a gesture (wasZero) → gesture_start, does NOT advance even if >= threshold
  *
  * DOM navigation proxy (headless-safe):
  *   button.reel-nav-btn--top  — hidden (reel-nav-btn--hidden) at section 0, visible at 1+
@@ -69,7 +72,8 @@ async function run() {
       assert(bundleText.includes('wheel.accumulated_deltaY'), 'end.js contains "wheel.accumulated_deltaY" attribute key');
       assert(bundleText.includes('wheel.deltaY'), 'end.js contains "wheel.deltaY" attribute key');
       assert(bundleText.includes('wheel.current_index'), 'end.js contains "wheel.current_index" attribute key');
-      assert(bundleText.includes('accumulating'), 'end.js contains "accumulating" action value');
+      assert(bundleText.includes('gesture_start'), 'end.js contains "gesture_start" action value');
+      assert(bundleText.includes('direction_change'), 'end.js contains "direction_change" action value');
       assert(bundleText.includes('addEvent'), 'end.js contains OTel addEvent API call');
       // Confirm old cooldown approach is gone
       assert(!bundleText.includes('WHEEL_COOLDOWN_MS'), 'end.js does NOT contain old WHEEL_COOLDOWN_MS constant');
@@ -157,13 +161,12 @@ async function run() {
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(500);
 
-      // Fire on body element to confirm listener is document-wide
+      // Fire on body element to confirm listener is document-wide.
+      // First event (wasZero=true) → action='gesture_start', does NOT advance even if >= threshold.
+      // Second event → accumulated=1600, threshold reached → action='advance'.
       await page.evaluate(() => {
-        document.body.dispatchEvent(new WheelEvent('wheel', {
-          deltaY: 800, // single event over threshold
-          bubbles: true,
-          cancelable: true
-        }));
+        document.body.dispatchEvent(new WheelEvent('wheel', { deltaY: 800, bubbles: true, cancelable: true }));
+        document.body.dispatchEvent(new WheelEvent('wheel', { deltaY: 800, bubbles: true, cancelable: true }));
       });
 
       await page.waitForTimeout(900);
@@ -263,33 +266,33 @@ async function run() {
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(500);
 
-      // Generate: accumulating events, then advance, then bounds-suppressed
+      // Generate: gesture_start, accumulating (silent), advance, suppressed_bounds
       await page.evaluate(() => {
-        // Small events → action: 'accumulating' (deltaY=100 each, total 200)
-        document.dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true, cancelable: true }));
-        document.dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true, cancelable: true }));
-        // Continue accumulating to threshold → action: 'advance' at event 6 (total 740)
-        for (let i = 0; i < 6; i++) {
-          document.dispatchEvent(new WheelEvent('wheel', { deltaY: 90, bubbles: true, cancelable: true }));
+        // Event 1: wasZero=true → gesture_start (emitted, no advance)
+        // Events 2-8: accumulating (NOT emitted — telemetry volume reduction)
+        // Event crosses threshold → advance (emitted)
+        for (let i = 0; i < 8; i++) {
+          document.dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true, cancelable: true }));
         }
       });
       await page.waitForTimeout(900);
 
-      // Advance to section 2
+      // Advance to section 2 (gesture_start on first event of new gesture, then advance)
       await page.evaluate(() => {
-        for (let i = 0; i < 7; i++) {
-          document.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
+        for (let i = 0; i < 8; i++) {
+          document.dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true, cancelable: true }));
         }
       });
       await page.waitForTimeout(900);
 
-      // Try to go further down (past bounds) → action: 'suppressed_bounds'
+      // Try to go further down (past bounds) → gesture_start then suppressed_bounds
       await page.evaluate(() => {
+        document.dispatchEvent(new WheelEvent('wheel', { deltaY: 800, bubbles: true, cancelable: true }));
         document.dispatchEvent(new WheelEvent('wheel', { deltaY: 800, bubbles: true, cancelable: true }));
       });
       await page.waitForTimeout(300);
 
-      console.log('  Wheel events dispatched (accumulating, advance, suppressed_bounds). Waiting 35s for OTel batch timer...');
+      console.log('  Wheel events dispatched (gesture_start, advance, suppressed_bounds). Waiting 35s for OTel batch timer...');
       await page.waitForTimeout(35000);
       console.log('  Wait complete — spans including wheel events should be in Honeycomb.');
 
