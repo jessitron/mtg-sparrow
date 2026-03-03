@@ -164,6 +164,18 @@
   transform: translate(-50%, -50%) scale(0.95);
 }
 
+.reel-nav-btn--has-label {
+  font-family: 'GoudyMediaeval', Georgia, serif;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 96px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
 /* Reel strip: sections stacked, translated by JS */
 .level-sections-reel {
   display: flex;

@@ -674,6 +674,17 @@ export function showSessionEndColumns(
     } else {
       bottomBtn.classList.remove('reel-nav-btn--hidden');
     }
+
+    const nextLabel = SECTION_LABELS[reelIndex + 1];
+    const nextIsNewLevel = (nextLabel === 'allied' || nextLabel === 'enemy') && !hasCompletedSubgroup(nextLabel);
+
+    if (!atEnd && nextIsNewLevel) {
+      bottomBtn.textContent = 'Next Level';
+      bottomBtn.classList.add('reel-nav-btn--has-label');
+    } else {
+      bottomBtn.textContent = '';
+      bottomBtn.classList.remove('reel-nav-btn--has-label');
+    }
   }
 
   topBtn.addEventListener('click', (e: MouseEvent) => {
