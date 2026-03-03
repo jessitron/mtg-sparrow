@@ -2,7 +2,7 @@ import { renderPip } from './pips';
 import { alliedGuilds, enemyGuilds, ColorCombo } from '../data/combos';
 import { guildDescriptionMap } from '../data/guild-descriptions';
 import { Span } from '@opentelemetry/api';
-import { startChildSpan, endSpan } from '../telemetry/telemetry';
+import { startChildSpan, endSpan, addSpanEvent } from '../telemetry/telemetry';
 import { hasCompletedSubgroup } from '../progression';
 import { GuildSubgroup } from '../session';
 
@@ -724,10 +724,34 @@ export function showSessionEndColumns(
     viewport.addEventListener('wheel', (e: WheelEvent) => {
       e.preventDefault();
       const now = Date.now();
-      if (now - reelLastWheelTime < WHEEL_COOLDOWN_MS) return;
+      const timeSinceLast = reelLastWheelTime === 0 ? 0 : now - reelLastWheelTime;
+      const direction = e.deltaY > 0 ? 1 : -1;
+      const nextIndex = reelIndex + direction;
+
+      const cooldownSuppressed = timeSinceLast > 0 && timeSinceLast < WHEEL_COOLDOWN_MS;
+      let action: string;
+      if (cooldownSuppressed) {
+        action = 'suppressed_cooldown';
+      } else if (reelSpinning) {
+        action = 'suppressed_spinning';
+      } else if (nextIndex < 0 || nextIndex >= sections.length) {
+        action = 'suppressed_bounds';
+      } else {
+        action = 'advance';
+      }
+
+      addSpanEvent(sectionSpanRef.current, 'end.wheel_event', {
+        'wheel.time_since_last_ms': timeSinceLast,
+        'wheel.cooldown_suppressed': cooldownSuppressed,
+        'wheel.reel_spinning': reelSpinning,
+        'wheel.direction': direction,
+        'wheel.current_index': reelIndex,
+        'wheel.action': action,
+      });
+
+      if (cooldownSuppressed) return;
       reelLastWheelTime = now;
 
-      const direction = e.deltaY > 0 ? 1 : -1;
       reelAdvance(reel, viewport, sections, direction as 1 | -1, pageSpan, sectionSpanRef, updateNavButtons);
     }, { passive: false });
   });
