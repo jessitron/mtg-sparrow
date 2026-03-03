@@ -749,8 +749,8 @@ export function showSessionEndColumns(
         'wheel.action': action,
       });
 
-      if (cooldownSuppressed) return;
       reelLastWheelTime = now;
+      if (cooldownSuppressed) return;
 
       reelAdvance(reel, viewport, sections, direction as 1 | -1, pageSpan, sectionSpanRef, updateNavButtons);
     }, { passive: false });
