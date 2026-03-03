@@ -295,7 +295,6 @@ function buildTriangleWheel(
   triClass: string,
   triVisClass: string,
   triHitClass: string,
-  crestId: string,
 ): SVGSVGElement {
   const svg = document.createElementNS(SVG_NS, 'svg') as SVGSVGElement;
   svg.setAttribute('viewBox', '0 0 400 400');
@@ -352,16 +351,7 @@ function buildTriangleWheel(
     svg.appendChild(g);
   }
 
-  // Crest image in center
-  const crestImg = document.createElementNS(SVG_NS, 'image');
-  crestImg.setAttribute('id', crestId);
-  crestImg.setAttribute('x', '150');
-  crestImg.setAttribute('y', '150');
-  crestImg.setAttribute('width', '100');
-  crestImg.setAttribute('height', '100');
-  crestImg.setAttribute('opacity', '0');
-  crestImg.setAttribute('pointer-events', 'none');
-  svg.appendChild(crestImg);
+  // No crest image for triangle wheels (no wedge/shard symbol PNGs yet)
 
   return svg;
 }
@@ -514,13 +504,11 @@ function wireTriangleWheelHover(
   svg: SVGSVGElement,
   triples: [string, string, string][],
   triClass: string,
-  crestId: string,
   sectionSpanRef: SpanRef,
   onActivate: () => void = () => {},
 ): () => void {
   let selectedTriple: [string, string, string] | null = null;
 
-  const crestImg = svg.getElementById(crestId) as SVGImageElement | null;
   const flavorEntries = col.querySelectorAll<HTMLElement>('.level-section-flavor-entry');
 
   function setHighlight(aId: string, bId: string, cId: string, on: boolean): void {
@@ -540,12 +528,6 @@ function wireTriangleWheelHover(
       nodeC?.classList.add('highlight');
       listItem?.classList.add('highlight');
       col.classList.add('level-section--has-highlight');
-      if (crestImg && comboId) {
-        const src = `images/${comboId}.png`;
-        crestImg.setAttributeNS(XLINK_NS, 'href', src);
-        crestImg.setAttribute('href', src);
-        crestImg.setAttribute('opacity', '1');
-      }
       flavorEntries.forEach(entry => {
         entry.classList.toggle('active', entry.dataset.guildId === comboId);
       });
@@ -560,7 +542,6 @@ function wireTriangleWheelHover(
       nodeC?.classList.remove('highlight');
       listItem?.classList.remove('highlight');
       col.classList.remove('level-section--has-highlight');
-      if (crestImg) crestImg.setAttribute('opacity', '0');
       flavorEntries.forEach(entry => entry.classList.remove('active'));
     }
   }
@@ -787,7 +768,7 @@ function buildWedgeColumn(
     // Wheel panel (center)
     const wheelPanel = document.createElement('div');
     wheelPanel.classList.add('level-section-wheel');
-    const svg = buildTriangleWheel(wedgeTriples, 'wedge-color-wheel', 'wedge-triangle', 'wedge-triangle-vis', 'wedge-triangle-hit', 'crest-image-wedge');
+    const svg = buildTriangleWheel(wedgeTriples, 'wedge-color-wheel', 'wedge-triangle', 'wedge-triangle-vis', 'wedge-triangle-hit');
     wheelPanel.appendChild(svg);
     col.appendChild(wheelPanel);
 
@@ -795,7 +776,7 @@ function buildWedgeColumn(
     col.appendChild(buildFlavorPanel(wedges, 'wedges', sectionSpanRef, startSession));
 
     // Wire hover after all panels are in the DOM
-    clearSelection = wireTriangleWheelHover(col, svg, wedgeTriples, 'wedge-triangle', 'crest-image-wedge', sectionSpanRef, onActivate);
+    clearSelection = wireTriangleWheelHover(col, svg, wedgeTriples, 'wedge-triangle', sectionSpanRef, onActivate);
   } else {
     const btn = document.createElement('button');
     btn.classList.add('next-session-button', 'level-section-button', 'next-session-button--primary');
