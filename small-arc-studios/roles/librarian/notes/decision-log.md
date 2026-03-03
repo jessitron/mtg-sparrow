@@ -955,4 +955,33 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-104: Teal/Cyan Color Theme for Shard Triangles
+- **Date**: 2026-03-02
+- **Arc**: 31
+- **Decision**: Shard triangle polygons use a teal/cyan color theme, distinct from allied (gold), enemy (red-orange), and wedges (purple/violet).
+- **Rationale**: Each end screen section uses a distinct color language. Teal/cyan differentiates shards from wedges and the two-color sections. Shards and wedges are both three-color, so visual distinction is especially important to avoid confusion.
+
+## DEC-105: Reuse Triangle Wheel Pattern from Arc 30 for Shards
+- **Date**: 2026-03-02
+- **Arc**: 31
+- **Decision**: The shard wheel uses the same SVG polygon triangle approach as the wedge wheel (Arc 30), parameterized by color theme via CSS classes.
+- **Alternatives rejected**: A distinct visualization shape for shards — the triangle polygon communicates the three-way color binding equally well for shards. Reuse reduces implementation complexity.
+- **Rationale**: Pattern reuse is appropriate when the underlying data structure is identical. Shards and wedges are both five three-color combos mapped onto pentagon nodes. Only the color theme differs.
+
+## DEC-106: end.layout_version Bumped to 'reel_v2' for 5-Section Layout
+- **Date**: 2026-03-02
+- **Arc**: 31
+- **Decision**: `end.layout_version` bumped from `reel_v1` to `reel_v2` when the shard section is added, making the layout 5 sections: allied, enemy, wedges, shards, share.
+- **Rationale**: The structural marker tracks the number and arrangement of end screen sections. Adding a fifth section changes the layout meaningfully enough to warrant a version bump, enabling Honeycomb queries to distinguish pre- and post-shard sessions.
+
+---
+
+## Arc 31: End Screen — Shard Section — COMPLETE (v0.26.0)
+- **Delivered**: 2026-03-02
+- **Outcome**: Shard section added to end screen reel at index 3. Triangle wheel reuses Arc 30 polygon pattern with teal/cyan theme. 4-column cross-deselect. `end.layout_version = 'reel_v2'`. `end.guild_highlight` spans with shard combo IDs confirmed in Honeycomb.
+- **Record**: `arc31-record.md`
+- **Decisions**: DEC-104, DEC-105, DEC-106
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
