@@ -533,7 +533,7 @@ function buildEnemyColumn(
 // --- Reel navigation (slot-machine feel) ---
 
 const REEL_TRANSITION = 'transform 600ms cubic-bezier(0.2, 0.8, 0.3, 1.05)';
-const WHEEL_DELTA_THRESHOLD = 1000;
+const WHEEL_DELTA_THRESHOLD = 700;
 
 let reelIndex = 0;
 let reelSpinning = false;
