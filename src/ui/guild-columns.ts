@@ -747,6 +747,7 @@ export function showSessionEndColumns(
         'wheel.direction': direction,
         'wheel.current_index': reelIndex,
         'wheel.action': action,
+        'wheel.deltaY': Math.round(e.deltaY),
       });
 
       reelLastWheelTime = now;
