@@ -170,9 +170,8 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: rgba(255, 255, 255, 0.9);
-  line-height: 96px;
   text-align: center;
-  padding-bottom: 1.5rem;
+  padding-bottom: 3rem;
   position: relative;
   z-index: 1;
 }
