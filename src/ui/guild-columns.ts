@@ -724,8 +724,11 @@ export function showSessionEndColumns(
     document.addEventListener('wheel', (e: WheelEvent) => {
       e.preventDefault();
 
+      const wasZero = reelAccumulatedDelta === 0;
+
       // If direction reversed, reset accumulator to start fresh in new direction
-      if ((e.deltaY > 0 && reelAccumulatedDelta < 0) || (e.deltaY < 0 && reelAccumulatedDelta > 0)) {
+      const directionChanged = (e.deltaY > 0 && reelAccumulatedDelta < 0) || (e.deltaY < 0 && reelAccumulatedDelta > 0);
+      if (directionChanged) {
         reelAccumulatedDelta = e.deltaY;
       } else {
         reelAccumulatedDelta += e.deltaY;
@@ -736,7 +739,11 @@ export function showSessionEndColumns(
       const thresholdReached = Math.abs(reelAccumulatedDelta) >= WHEEL_DELTA_THRESHOLD;
 
       let action: string;
-      if (!thresholdReached) {
+      if (wasZero) {
+        action = 'gesture_start';
+      } else if (directionChanged) {
+        action = 'direction_change';
+      } else if (!thresholdReached) {
         action = 'accumulating';
       } else if (reelSpinning) {
         action = 'suppressed_spinning';
@@ -746,14 +753,16 @@ export function showSessionEndColumns(
         action = 'advance';
       }
 
-      addSpanEvent(sectionSpanRef.current, 'end.wheel_event', {
-        'wheel.deltaY': Math.round(e.deltaY),
-        'wheel.accumulated_deltaY': Math.round(reelAccumulatedDelta),
-        'wheel.direction': direction,
-        'wheel.current_index': reelIndex,
-        'wheel.reel_spinning': reelSpinning,
-        'wheel.action': action,
-      });
+      if (action !== 'accumulating') {
+        addSpanEvent(sectionSpanRef.current, 'end.wheel_event', {
+          'wheel.deltaY': Math.round(e.deltaY),
+          'wheel.accumulated_deltaY': Math.round(reelAccumulatedDelta),
+          'wheel.direction': direction,
+          'wheel.current_index': reelIndex,
+          'wheel.reel_spinning': reelSpinning,
+          'wheel.action': action,
+        });
+      }
 
       if (action !== 'advance') return;
       reelAccumulatedDelta = 0;
