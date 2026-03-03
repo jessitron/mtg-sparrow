@@ -1,23 +1,27 @@
 /**
- * Wheel telemetry verification test
+ * Wheel telemetry verification test (Arc 27 — accumulated deltaY approach)
  *
  * Tests:
- * 1. Bundle confirms end.wheel_event in source
- * 2. Wheel down on .level-sections-viewport advances from section 0 to section 1
- *    (verified by top nav button becoming visible — hidden at index 0, visible at index 1)
- * 3. Wait additional cooldown, wheel down again — now at section 2 (share), bottom button hidden
- * 4. Span flush — hold page alive for OTel batch timer
- * 5. Honeycomb verification (via MCP after test completes)
+ * 1. Bundle confirms updated wheel telemetry attribute keys
+ * 2. Small wheel event (deltaY < 700 threshold) does NOT advance section
+ * 3. Accumulated wheel events reaching threshold DO advance section
+ * 4. Wheel on document (not just viewport) triggers navigation
+ * 5. Direction change resets accumulator
+ * 6. Advance to last section — bottom button hides
+ * 7. Span flush — hold page alive for OTel batch timer
  *
- * Relies on reel_v1 DOM structure:
- *   button.reel-nav-btn--top  (hidden when at section 0, visible when reelIndex > 0)
- *   div.level-sections-viewport  (wheel target)
- *   button.reel-nav-btn--bottom  (hidden when at last section)
+ * Reel navigation model (reel_v1 with accumulated-delta wheel handler):
+ *   - Listener is on `document`, not the viewport element
+ *   - Events accumulate deltaY; advance only when |accumulated| >= 700
+ *   - On direction change, accumulator resets to current event's deltaY
+ *   - On advance, accumulator resets to 0
+ *   - No cooldown timer — threshold is the gate
  *
- * Notes:
- * - Use button visibility as navigation proxy (scroll position unreliable in headless mode).
- * - localStorage must have both allied and enemy unlocked so sections render fully.
- * - Server must be running at http://localhost:3847. Use ./run-test-server before running.
+ * DOM navigation proxy (headless-safe):
+ *   button.reel-nav-btn--top  — hidden (reel-nav-btn--hidden) at section 0, visible at 1+
+ *   button.reel-nav-btn--bottom — hidden at last section, visible otherwise
+ *
+ * Server must be running at http://localhost:3847. Use ./run-test-server before running.
  */
 
 import { chromium } from 'playwright';
@@ -38,14 +42,22 @@ function assert(condition, message) {
   }
 }
 
+/** Unlock both subgroups so the reel renders allied + enemy + share sections */
+function progressionScript() {
+  localStorage.setItem('sparrow-deck.progression', JSON.stringify({
+    unlockedSubgroups: ['allied', 'enemy'],
+    completedSubgroups: ['allied', 'enemy'],
+  }));
+}
+
 async function run() {
   const browser = await chromium.launch({ headless: true });
 
   try {
     // -----------------------------------------------------------------------
-    // PHASE 1: Bundle check — end.wheel_event in source
+    // PHASE 1: Bundle check — new wheel telemetry attributes
     // -----------------------------------------------------------------------
-    console.log('=== Phase 1: Bundle confirms end.wheel_event attribute key ===\n');
+    console.log('=== Phase 1: Bundle confirms accumulated-delta wheel telemetry ===\n');
     {
       const page = await browser.newPage();
       const response = await page.request.get(`${BASE_URL}/dist/end.js`);
@@ -54,190 +66,232 @@ async function run() {
       const bundleText = await response.text();
       assert(bundleText.includes('end.wheel_event'), 'end.js contains "end.wheel_event" span event name');
       assert(bundleText.includes('wheel.action'), 'end.js contains "wheel.action" attribute key');
+      assert(bundleText.includes('wheel.accumulated_deltaY'), 'end.js contains "wheel.accumulated_deltaY" attribute key');
+      assert(bundleText.includes('wheel.deltaY'), 'end.js contains "wheel.deltaY" attribute key');
       assert(bundleText.includes('wheel.current_index'), 'end.js contains "wheel.current_index" attribute key');
-      assert(bundleText.includes('wheel.cooldown_suppressed'), 'end.js contains "wheel.cooldown_suppressed" attribute key');
-      assert(bundleText.includes('addEvent'), 'end.js contains "addEvent" (OTel span event API call)');
+      assert(bundleText.includes('accumulating'), 'end.js contains "accumulating" action value');
+      assert(bundleText.includes('addEvent'), 'end.js contains OTel addEvent API call');
+      // Confirm old cooldown approach is gone
+      assert(!bundleText.includes('WHEEL_COOLDOWN_MS'), 'end.js does NOT contain old WHEEL_COOLDOWN_MS constant');
 
       await page.close();
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 2: Wheel navigation — advance from section 0 to section 1
+    // PHASE 2: Small wheel event does NOT advance (below threshold)
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 2: Wheel down advances section 0 → 1 ===\n');
+    console.log('\n=== Phase 2: Small wheel event (deltaY=100) does NOT advance section ===\n');
     {
       const page = await browser.newPage();
-
-      // Unlock both allied and enemy so the reel has two real sections
-      await page.addInitScript(() => {
-        localStorage.setItem('sparrow-deck.progression', JSON.stringify({
-          unlockedSubgroups: ['allied', 'enemy'],
-          completedSubgroups: ['allied', 'enemy'],
-        }));
-      });
+      await page.addInitScript(progressionScript);
 
       await page.goto(END_URL);
       await page.waitForLoadState('domcontentloaded');
-      // Wait for requestAnimationFrame setup (viewport height + wheel listener wired)
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(500); // wait for requestAnimationFrame setup
 
-      // At section 0 (allied): top button should be hidden (reel-nav-btn--hidden class)
-      const topBtnHiddenAtStart = await page.evaluate(() => {
+      // Confirm at section 0 — top button hidden
+      const atSectionZero = await page.evaluate(() => {
         const btn = document.querySelector('.reel-nav-btn--top');
         return btn ? btn.classList.contains('reel-nav-btn--hidden') : null;
       });
-      assert(topBtnHiddenAtStart === true, 'Top nav button is hidden at section 0 (initial state)');
+      assert(atSectionZero === true, 'Top button hidden at section 0 (initial state)');
 
-      const bottomBtnVisibleAtStart = await page.evaluate(() => {
-        const btn = document.querySelector('.reel-nav-btn--bottom');
-        return btn ? !btn.classList.contains('reel-nav-btn--hidden') : null;
+      // Dispatch a small wheel event — deltaY 100, well below 700 threshold
+      await page.evaluate(() => {
+        document.dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true, cancelable: true }));
       });
-      assert(bottomBtnVisibleAtStart === true, 'Bottom nav button is visible at section 0 (sections remain)');
-
-      // Dispatch a wheel-down event on the viewport
-      const viewport = await page.$('.level-sections-viewport');
-      assert(viewport !== null, '.level-sections-viewport exists');
-
-      if (viewport) {
-        await viewport.dispatchEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true });
-      }
-
-      // Wait for the 600ms reel animation to complete
       await page.waitForTimeout(800);
 
-      // At section 1 (enemy): top button should now be VISIBLE
-      const topBtnVisibleAfterScroll = await page.evaluate(() => {
+      // Top button should still be hidden — no advance happened
+      const stillAtZero = await page.evaluate(() => {
+        const btn = document.querySelector('.reel-nav-btn--top');
+        return btn ? btn.classList.contains('reel-nav-btn--hidden') : null;
+      });
+      assert(stillAtZero === true, 'Top button still hidden after small wheel (below threshold, no advance)');
+
+      await page.close();
+    }
+
+    // -----------------------------------------------------------------------
+    // PHASE 3: Accumulated wheel events advance section 0 → 1
+    // -----------------------------------------------------------------------
+    console.log('\n=== Phase 3: Accumulated deltaY >= 700 advances section 0 → 1 ===\n');
+    {
+      const page = await browser.newPage();
+      await page.addInitScript(progressionScript);
+
+      await page.goto(END_URL);
+      await page.waitForLoadState('domcontentloaded');
+      await page.waitForTimeout(500);
+
+      // Dispatch multiple events accumulating to >= 700
+      // 7 × 120 = 840 — crosses threshold on the 6th event (720 >= 700)
+      await page.evaluate(() => {
+        for (let i = 0; i < 7; i++) {
+          document.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
+        }
+      });
+
+      // Wait for reel animation (600ms) + buffer
+      await page.waitForTimeout(900);
+
+      // Top button should now be visible — we advanced to section 1
+      const advancedToOne = await page.evaluate(() => {
         const btn = document.querySelector('.reel-nav-btn--top');
         return btn ? !btn.classList.contains('reel-nav-btn--hidden') : null;
       });
-      assert(topBtnVisibleAfterScroll === true, 'Top nav button becomes visible after wheel-down (now at section 1)');
+      assert(advancedToOne === true, 'Top button visible after accumulating 840 deltaY (section 0 → 1)');
 
       await page.close();
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 3: Cooldown suppression — rapid second wheel ignored
+    // PHASE 4: Wheel listener is on document (not just viewport)
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 3: Rapid wheel suppressed by cooldown ===\n');
+    console.log('\n=== Phase 4: Wheel on document body (outside viewport) also navigates ===\n');
     {
       const page = await browser.newPage();
-
-      await page.addInitScript(() => {
-        localStorage.setItem('sparrow-deck.progression', JSON.stringify({
-          unlockedSubgroups: ['allied', 'enemy'],
-          completedSubgroups: ['allied', 'enemy'],
-        }));
-      });
+      await page.addInitScript(progressionScript);
 
       await page.goto(END_URL);
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(500);
 
-      const viewport = await page.$('.level-sections-viewport');
-      assert(viewport !== null, '.level-sections-viewport exists for cooldown test');
+      // Fire on body element to confirm listener is document-wide
+      await page.evaluate(() => {
+        document.body.dispatchEvent(new WheelEvent('wheel', {
+          deltaY: 800, // single event over threshold
+          bubbles: true,
+          cancelable: true
+        }));
+      });
 
-      if (viewport) {
-        // First wheel — should advance
-        await viewport.dispatchEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true });
-        // Immediately second wheel — within cooldown window, should be suppressed
-        await page.waitForTimeout(100);
-        await viewport.dispatchEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true });
-      }
+      await page.waitForTimeout(900);
 
-      // Wait for animation to complete
-      await page.waitForTimeout(700);
-
-      // Should be at section 1, not section 2 — bottom button still visible
-      const bottomBtnVisible = await page.evaluate(() => {
-        const btn = document.querySelector('.reel-nav-btn--bottom');
+      const advancedFromBody = await page.evaluate(() => {
+        const btn = document.querySelector('.reel-nav-btn--top');
         return btn ? !btn.classList.contains('reel-nav-btn--hidden') : null;
       });
-      assert(bottomBtnVisible === true, 'Bottom nav button still visible after suppressed rapid scroll (stopped at section 1)');
+      assert(advancedFromBody === true, 'Section advances via wheel on document.body (listener is document-wide)');
 
       await page.close();
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 4: Advance to section 2 after cooldown — bottom button hides
+    // PHASE 5: Direction change resets accumulator
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 4: After cooldown, wheel-down to section 2 → bottom button hides ===\n');
+    console.log('\n=== Phase 5: Direction change resets accumulator ===\n');
     {
       const page = await browser.newPage();
-
-      await page.addInitScript(() => {
-        localStorage.setItem('sparrow-deck.progression', JSON.stringify({
-          unlockedSubgroups: ['allied', 'enemy'],
-          completedSubgroups: ['allied', 'enemy'],
-        }));
-      });
+      await page.addInitScript(progressionScript);
 
       await page.goto(END_URL);
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(500);
 
-      const viewport = await page.$('.level-sections-viewport');
+      // Accumulate downward (600), then reverse (up -100) — should reset and not advance
+      await page.evaluate(() => {
+        document.dispatchEvent(new WheelEvent('wheel', { deltaY: 300, bubbles: true, cancelable: true }));
+        document.dispatchEvent(new WheelEvent('wheel', { deltaY: 300, bubbles: true, cancelable: true }));
+        // Direction change: accumulated was 600, now resets to -100
+        document.dispatchEvent(new WheelEvent('wheel', { deltaY: -100, bubbles: true, cancelable: true }));
+      });
+      await page.waitForTimeout(800);
 
-      if (viewport) {
-        // First wheel to section 1
-        await viewport.dispatchEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true });
-        await page.waitForTimeout(1000); // animation + cooldown
-        // Second wheel to section 2 (share)
-        await viewport.dispatchEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true });
-        await page.waitForTimeout(800);
-      }
+      // Should still be at section 0 — the reverse reset the accumulator
+      const stillAtZeroAfterReverse = await page.evaluate(() => {
+        const btn = document.querySelector('.reel-nav-btn--top');
+        return btn ? btn.classList.contains('reel-nav-btn--hidden') : null;
+      });
+      assert(stillAtZeroAfterReverse === true, 'Direction change resets accumulator — section did not advance');
 
-      // At section 2 (last section): bottom button should be hidden
-      const bottomBtnHiddenAtEnd = await page.evaluate(() => {
+      await page.close();
+    }
+
+    // -----------------------------------------------------------------------
+    // PHASE 6: Advance to section 2 then verify at last section
+    // -----------------------------------------------------------------------
+    console.log('\n=== Phase 6: Advance to section 2 (share) — bottom button hides ===\n');
+    {
+      const page = await browser.newPage();
+      await page.addInitScript(progressionScript);
+
+      await page.goto(END_URL);
+      await page.waitForLoadState('domcontentloaded');
+      await page.waitForTimeout(500);
+
+      // First advance: accumulate 840 (7 × 120) → section 1
+      await page.evaluate(() => {
+        for (let i = 0; i < 7; i++) {
+          document.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
+        }
+      });
+      await page.waitForTimeout(900); // animation complete, accumulator reset to 0
+
+      // Second advance: another 840 → section 2
+      await page.evaluate(() => {
+        for (let i = 0; i < 7; i++) {
+          document.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
+        }
+      });
+      await page.waitForTimeout(900);
+
+      const bottomHidden = await page.evaluate(() => {
         const btn = document.querySelector('.reel-nav-btn--bottom');
         return btn ? btn.classList.contains('reel-nav-btn--hidden') : null;
       });
-      assert(bottomBtnHiddenAtEnd === true, 'Bottom nav button hidden after reaching last section (section 2)');
+      assert(bottomHidden === true, 'Bottom button hidden at last section (section 2 — share)');
 
-      // Top button should remain visible
-      const topBtnVisibleAtEnd = await page.evaluate(() => {
+      const topVisible = await page.evaluate(() => {
         const btn = document.querySelector('.reel-nav-btn--top');
         return btn ? !btn.classList.contains('reel-nav-btn--hidden') : null;
       });
-      assert(topBtnVisibleAtEnd === true, 'Top nav button visible at last section (section 2)');
+      assert(topVisible === true, 'Top button visible at last section (section 2)');
 
       await page.close();
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 5: Span flush — load page with URL params, hold for OTel batch timer
+    // PHASE 7: Span flush — generate telemetry data and hold for OTel batch timer
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 5: Span flush (wheel events + section spans → Honeycomb) ===\n');
+    console.log('\n=== Phase 7: Span flush — generate wheel events, wait 35s for OTel ===\n');
     {
       const page = await browser.newPage();
-
-      await page.addInitScript(() => {
-        localStorage.setItem('sparrow-deck.progression', JSON.stringify({
-          unlockedSubgroups: ['allied', 'enemy'],
-          completedSubgroups: ['allied', 'enemy'],
-        }));
-      });
+      await page.addInitScript(progressionScript);
 
       await page.goto(END_URL);
       await page.waitForLoadState('domcontentloaded');
       await page.waitForTimeout(500);
 
-      // Dispatch wheel events to generate telemetry data
-      const viewport = await page.$('.level-sections-viewport');
-      if (viewport) {
-        // Advance to section 1
-        await viewport.dispatchEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true });
-        await page.waitForTimeout(800);
-        // Try rapid scroll (should be suppressed — generates suppressed_cooldown event)
-        await viewport.dispatchEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true });
-        await page.waitForTimeout(200);
-        // Advance to section 2
-        await viewport.dispatchEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true });
-        await page.waitForTimeout(800);
-      }
+      // Generate: accumulating events, then advance, then bounds-suppressed
+      await page.evaluate(() => {
+        // Small events → action: 'accumulating' (deltaY=100 each, total 200)
+        document.dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true, cancelable: true }));
+        document.dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true, cancelable: true }));
+        // Continue accumulating to threshold → action: 'advance' at event 6 (total 740)
+        for (let i = 0; i < 6; i++) {
+          document.dispatchEvent(new WheelEvent('wheel', { deltaY: 90, bubbles: true, cancelable: true }));
+        }
+      });
+      await page.waitForTimeout(900);
 
-      console.log('  Wheel events dispatched. Waiting 35s for OTel batch timer...');
+      // Advance to section 2
+      await page.evaluate(() => {
+        for (let i = 0; i < 7; i++) {
+          document.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
+        }
+      });
+      await page.waitForTimeout(900);
+
+      // Try to go further down (past bounds) → action: 'suppressed_bounds'
+      await page.evaluate(() => {
+        document.dispatchEvent(new WheelEvent('wheel', { deltaY: 800, bubbles: true, cancelable: true }));
+      });
+      await page.waitForTimeout(300);
+
+      console.log('  Wheel events dispatched (accumulating, advance, suppressed_bounds). Waiting 35s for OTel batch timer...');
       await page.waitForTimeout(35000);
-      console.log('  Wait complete — spans including wheel events should be exported to Honeycomb.');
+      console.log('  Wait complete — spans including wheel events should be in Honeycomb.');
 
       await page.close();
     }
