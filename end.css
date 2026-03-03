@@ -327,7 +327,8 @@
 
 
 .allied-color-wheel,
-.enemy-color-wheel {
+.enemy-color-wheel,
+.wedge-color-wheel {
   width: 100%;
   max-width: 360px;
   height: auto;
@@ -342,7 +343,8 @@
 }
 
 .allied-color-wheel .ally-line,
-.enemy-color-wheel .enemy-line {
+.enemy-color-wheel .enemy-line,
+.wedge-color-wheel .wedge-triangle {
   cursor: pointer;
 }
 
@@ -355,6 +357,13 @@
 .enemy-line-vis {
   stroke: var(--enemy-line-color);
   transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+.wedge-triangle-vis {
+  fill: rgba(180, 140, 220, 0.12);
+  stroke: rgba(180, 140, 220, 0.6);
+  stroke-width: 2;
+  transition: opacity 0.2s ease, fill 0.2s ease, filter 0.2s ease;
 }
 
 .allied-color-wheel .color-node,
@@ -370,8 +379,13 @@
   opacity: 0.2;
 }
 
+.level-section--has-highlight .wedge-triangle:not(.highlight) .wedge-triangle-vis {
+  opacity: 0.15;
+}
+
 .level-section--has-highlight .allied-color-wheel .color-node:not(.highlight),
-.level-section--has-highlight .enemy-color-wheel .color-node:not(.highlight) {
+.level-section--has-highlight .enemy-color-wheel .color-node:not(.highlight),
+.level-section--has-highlight .wedge-color-wheel .color-node:not(.highlight) {
   opacity: 0.3;
 }
 
@@ -386,6 +400,13 @@
   filter: drop-shadow(0 0 4px #e8d8aa);
 }
 
+.wedge-triangle.highlight .wedge-triangle-vis {
+  fill: rgba(180, 140, 220, 0.35) !important;
+  stroke: rgba(210, 170, 255, 0.9) !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 6px rgba(180, 140, 220, 0.7));
+}
+
 .color-node.highlight {
   transform: scale(1.15);
   opacity: 1 !important;
@@ -398,7 +419,8 @@
 
 /* Guild crest in center of wheel */
 #crest-image,
-#crest-image-enemy {
+#crest-image-enemy,
+#crest-image-wedge {
   transition: opacity 150ms ease;
 }
 

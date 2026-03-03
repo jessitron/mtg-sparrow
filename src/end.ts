@@ -52,11 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const alliedUnlocked = isSubgroupUnlocked('allied');
   const enemyUnlocked = isEnemyUnlocked();
+  const wedgesUnlocked = isSubgroupUnlocked('wedges');
 
   const endCurrentSection = showSessionEndColumns(
     app,
     alliedUnlocked,
     enemyUnlocked,
+    wedgesUnlocked,
     pageSpan,
     (sub: GuildSubgroup, startedFrom: string) => {
       endCurrentSection();

@@ -1,5 +1,5 @@
 import { renderPip } from './pips';
-import { alliedGuilds, enemyGuilds, ColorCombo } from '../data/combos';
+import { alliedGuilds, enemyGuilds, wedges, ColorCombo } from '../data/combos';
 import { guildDescriptionMap } from '../data/guild-descriptions';
 import { Span } from '@opentelemetry/api';
 import { startChildSpan, endSpan, addSpanEvent } from '../telemetry/telemetry';
@@ -71,6 +71,22 @@ for (const guild of enemyGuilds) {
 const guildIdToName: Record<string, string> = {};
 for (const guild of [...alliedGuilds, ...enemyGuilds]) {
   guildIdToName[guild.id] = guild.name;
+}
+
+// Wedge triples: each is [primary color, enemy1, enemy2]
+const wedgeTriples: [string, string, string][] = [
+  ['white', 'black', 'green'],   // Abzan
+  ['blue',  'red',   'white'],   // Jeskai
+  ['black', 'green', 'blue'],    // Sultai
+  ['red',   'white', 'black'],   // Mardu
+  ['green', 'blue',  'red'],     // Temur
+];
+
+// Maps sorted 3-color code key (e.g. "BGW") → wedge combo id
+const colorTripleToComboId: Record<string, string> = {};
+for (const wedge of wedges) {
+  const key = [...wedge.colors].sort().join('');
+  colorTripleToComboId[key] = wedge.id;
 }
 
 /**
@@ -270,6 +286,87 @@ function buildEnemyColorWheel(): SVGSVGElement {
 }
 
 /**
+ * Build a triangle wheel SVG for wedge combos.
+ * Each triple is rendered as a polygon (triangle) connecting 3 color nodes.
+ */
+function buildTriangleWheel(
+  triples: [string, string, string][],
+  wheelClass: string,
+  triClass: string,
+  triVisClass: string,
+  triHitClass: string,
+  crestId: string,
+): SVGSVGElement {
+  const svg = document.createElementNS(SVG_NS, 'svg') as SVGSVGElement;
+  svg.setAttribute('viewBox', '0 0 400 400');
+  svg.setAttribute('xmlns', SVG_NS);
+  svg.classList.add(wheelClass);
+
+  // Draw triangles first (behind nodes)
+  for (const [aId, bId, cId] of triples) {
+    const a = colorNodes.find(n => n.id === aId)!;
+    const b = colorNodes.find(n => n.id === bId)!;
+    const c = colorNodes.find(n => n.id === cId)!;
+    const points = `${a.cx},${a.cy} ${b.cx},${b.cy} ${c.cx},${c.cy}`;
+    const groupId = `tri-${aId}-${bId}-${cId}`;
+
+    const triGroup = document.createElementNS(SVG_NS, 'g');
+    triGroup.setAttribute('id', groupId);
+    triGroup.classList.add(triClass);
+
+    // Wide transparent hit-area polygon
+    const hitPoly = document.createElementNS(SVG_NS, 'polygon');
+    hitPoly.classList.add(triHitClass);
+    hitPoly.setAttribute('points', points);
+    hitPoly.setAttribute('fill', 'transparent');
+    hitPoly.setAttribute('stroke', 'transparent');
+    hitPoly.setAttribute('stroke-width', '16');
+    hitPoly.setAttribute('pointer-events', 'fill');
+    triGroup.appendChild(hitPoly);
+
+    // Visible polygon
+    const visPoly = document.createElementNS(SVG_NS, 'polygon');
+    visPoly.classList.add(triVisClass);
+    visPoly.setAttribute('points', points);
+    visPoly.setAttribute('pointer-events', 'none');
+    triGroup.appendChild(visPoly);
+
+    svg.appendChild(triGroup);
+  }
+
+  // Draw mana symbol images on top
+  for (const node of colorNodes) {
+    const g = document.createElementNS(SVG_NS, 'g');
+    g.setAttribute('id', `node-${node.id}`);
+    g.classList.add('color-node');
+
+    const img = document.createElementNS(SVG_NS, 'image');
+    img.setAttributeNS(XLINK_NS, 'href', node.src);
+    img.setAttribute('href', node.src);
+    img.setAttribute('x', String(node.imgX));
+    img.setAttribute('y', String(node.imgY));
+    img.setAttribute('width', '68');
+    img.setAttribute('height', '68');
+
+    g.appendChild(img);
+    svg.appendChild(g);
+  }
+
+  // Crest image in center
+  const crestImg = document.createElementNS(SVG_NS, 'image');
+  crestImg.setAttribute('id', crestId);
+  crestImg.setAttribute('x', '150');
+  crestImg.setAttribute('y', '150');
+  crestImg.setAttribute('width', '100');
+  crestImg.setAttribute('height', '100');
+  crestImg.setAttribute('opacity', '0');
+  crestImg.setAttribute('pointer-events', 'none');
+  svg.appendChild(crestImg);
+
+  return svg;
+}
+
+/**
  * Wire hover, click, and tap-select behavior for a color wheel.
  * Returns a clearSelection function that can be called by the other column to
  * deselect any active selection (used for cross-column deselect).
@@ -408,6 +505,128 @@ function wireEnemyHover(col: HTMLElement, svg: SVGSVGElement, sectionSpanRef: Sp
   return wireColorWheelHover(col, svg, enemyPairs, 'enemy-line', 'crest-image-enemy', sectionSpanRef, onActivate);
 }
 
+/**
+ * Wire hover, click, and tap-select for a triangle wheel.
+ * Works like wireColorWheelHover but for triples.
+ */
+function wireTriangleWheelHover(
+  col: HTMLElement,
+  svg: SVGSVGElement,
+  triples: [string, string, string][],
+  triClass: string,
+  crestId: string,
+  sectionSpanRef: SpanRef,
+  onActivate: () => void = () => {},
+): () => void {
+  let selectedTriple: [string, string, string] | null = null;
+
+  const crestImg = svg.getElementById(crestId) as SVGImageElement | null;
+  const flavorEntries = col.querySelectorAll<HTMLElement>('.level-section-flavor-entry');
+
+  function setHighlight(aId: string, bId: string, cId: string, on: boolean): void {
+    const groupId = `tri-${aId}-${bId}-${cId}`;
+    const triEl = svg.getElementById(groupId);
+    const nodeA  = svg.getElementById(`node-${aId}`);
+    const nodeB  = svg.getElementById(`node-${bId}`);
+    const nodeC  = svg.getElementById(`node-${cId}`);
+    const key = [colorNodeToCode[aId], colorNodeToCode[bId], colorNodeToCode[cId]].sort().join('');
+    const comboId = colorTripleToComboId[key];
+    const listItem = col.querySelector<HTMLElement>(`.level-section-item[data-guild-id="${comboId}"]`);
+
+    if (on) {
+      triEl?.classList.add('highlight');
+      nodeA?.classList.add('highlight');
+      nodeB?.classList.add('highlight');
+      nodeC?.classList.add('highlight');
+      listItem?.classList.add('highlight');
+      col.classList.add('level-section--has-highlight');
+      if (crestImg && comboId) {
+        const src = `images/${comboId}.png`;
+        crestImg.setAttributeNS(XLINK_NS, 'href', src);
+        crestImg.setAttribute('href', src);
+        crestImg.setAttribute('opacity', '1');
+      }
+      flavorEntries.forEach(entry => {
+        entry.classList.toggle('active', entry.dataset.guildId === comboId);
+      });
+      if (comboId) {
+        const hlSpan = startChildSpan('end.guild_highlight', sectionSpanRef.current, { 'guild.id': comboId });
+        endSpan(hlSpan);
+      }
+    } else {
+      triEl?.classList.remove('highlight');
+      nodeA?.classList.remove('highlight');
+      nodeB?.classList.remove('highlight');
+      nodeC?.classList.remove('highlight');
+      listItem?.classList.remove('highlight');
+      col.classList.remove('level-section--has-highlight');
+      if (crestImg) crestImg.setAttribute('opacity', '0');
+      flavorEntries.forEach(entry => entry.classList.remove('active'));
+    }
+  }
+
+  function clearSelection(): void {
+    if (!selectedTriple) return;
+    setHighlight(selectedTriple[0], selectedTriple[1], selectedTriple[2], false);
+    selectedTriple = null;
+  }
+
+  function handleTripleClick(aId: string, bId: string, cId: string): void {
+    if (selectedTriple && selectedTriple[0] === aId && selectedTriple[1] === bId && selectedTriple[2] === cId) {
+      selectedTriple = null;
+      setHighlight(aId, bId, cId, false);
+    } else {
+      onActivate();
+      if (selectedTriple) {
+        setHighlight(selectedTriple[0], selectedTriple[1], selectedTriple[2], false);
+      }
+      selectedTriple = [aId, bId, cId];
+      setHighlight(aId, bId, cId, true);
+    }
+  }
+
+  // Wire hover and click on each triangle group
+  for (const [aId, bId, cId] of triples) {
+    const groupId = `tri-${aId}-${bId}-${cId}`;
+    const triEl = svg.getElementById(groupId);
+    if (!triEl) continue;
+    triEl.addEventListener('mouseenter', () => {
+      if (selectedTriple) return;
+      setHighlight(aId, bId, cId, true);
+    });
+    triEl.addEventListener('mouseleave', () => {
+      if (selectedTriple) return;
+      setHighlight(aId, bId, cId, false);
+    });
+    triEl.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      handleTripleClick(aId, bId, cId);
+    });
+  }
+
+  // Wire hover and click on each wedge list item
+  for (const [aId, bId, cId] of triples) {
+    const key = [colorNodeToCode[aId], colorNodeToCode[bId], colorNodeToCode[cId]].sort().join('');
+    const comboId = colorTripleToComboId[key];
+    const listItem = col.querySelector<HTMLElement>(`[data-guild-id="${comboId}"]`);
+    if (!listItem) continue;
+    listItem.addEventListener('mouseenter', () => {
+      if (selectedTriple) return;
+      setHighlight(aId, bId, cId, true);
+    });
+    listItem.addEventListener('mouseleave', () => {
+      if (selectedTriple) return;
+      setHighlight(aId, bId, cId, false);
+    });
+    listItem.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      handleTripleClick(aId, bId, cId);
+    });
+  }
+
+  return clearSelection;
+}
+
 function buildAlliedColumn(
   unlocked: boolean,
   onActivate: () => void,
@@ -530,6 +749,67 @@ function buildEnemyColumn(
   return [col, clearSelection];
 }
 
+function buildWedgeColumn(
+  unlocked: boolean,
+  onActivate: () => void,
+  sectionSpanRef: SpanRef,
+  startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
+): [HTMLElement, () => void] {
+  const col = document.createElement('div');
+  col.classList.add('level-section', 'level-section--wedges');
+
+  const showContent = unlocked || hasCompletedSubgroup('wedges');
+  if (!showContent) {
+    col.classList.add('level-section--locked');
+  }
+
+  let clearSelection = () => {};
+
+  if (showContent) {
+    // Summary panel (left): title, description, combo list
+    const summary = document.createElement('div');
+    summary.classList.add('level-section-summary');
+
+    const header = document.createElement('h2');
+    header.classList.add('level-section-header');
+    header.textContent = 'Wedges';
+    summary.appendChild(header);
+
+    const explanation = document.createElement('p');
+    explanation.classList.add('level-section-explanation');
+    explanation.textContent = "Wedges combine one color with its two enemies — three colors that don't naturally agree.";
+    summary.appendChild(explanation);
+
+    summary.appendChild(buildGuildList(wedges));
+
+    col.appendChild(summary);
+
+    // Wheel panel (center)
+    const wheelPanel = document.createElement('div');
+    wheelPanel.classList.add('level-section-wheel');
+    const svg = buildTriangleWheel(wedgeTriples, 'wedge-color-wheel', 'wedge-triangle', 'wedge-triangle-vis', 'wedge-triangle-hit', 'crest-image-wedge');
+    wheelPanel.appendChild(svg);
+    col.appendChild(wheelPanel);
+
+    // Flavor panel (right)
+    col.appendChild(buildFlavorPanel(wedges, 'wedges', sectionSpanRef, startSession));
+
+    // Wire hover after all panels are in the DOM
+    clearSelection = wireTriangleWheelHover(col, svg, wedgeTriples, 'wedge-triangle', 'crest-image-wedge', sectionSpanRef, onActivate);
+  } else {
+    const btn = document.createElement('button');
+    btn.classList.add('next-session-button', 'level-section-button', 'next-session-button--primary');
+    btn.textContent = 'Learn wedges';
+    btn.addEventListener('click', (e: MouseEvent) => {
+      e.stopPropagation();
+      startSession('wedges', 'session_end_screen');
+    });
+    col.appendChild(btn);
+  }
+
+  return [col, clearSelection];
+}
+
 // --- Reel navigation (slot-machine feel) ---
 
 const REEL_TRANSITION = 'transform 600ms cubic-bezier(0.2, 0.8, 0.3, 1.05)';
@@ -566,7 +846,7 @@ function reelSpinTo(
   });
 }
 
-const SECTION_LABELS = ['allied', 'enemy', 'share'];
+const SECTION_LABELS = ['allied', 'enemy', 'wedges', 'share'];
 
 function startSectionSpan(pageSpan: Span, index: number): Span {
   return startChildSpan('end.section_view', pageSpan, {
@@ -609,25 +889,31 @@ export function showSessionEndColumns(
   app: HTMLElement,
   alliedUnlocked: boolean,
   enemyUnlocked: boolean,
+  wedgesUnlocked: boolean,
   pageSpan: Span,
   startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
   initialSubgroup?: GuildSubgroup,
 ): () => void {
-  const initialIndex = initialSubgroup === 'enemy' ? 1 : 0;
+  const initialIndex = initialSubgroup === 'enemy' ? 1
+    : initialSubgroup === 'wedges' ? 2
+    : 0;
   reelIndex = initialIndex;
 
   // Start the first section span; interactions nest under it
   const sectionSpanRef: SpanRef = { current: startSectionSpan(pageSpan, initialIndex) };
 
-  // Placeholders for cross-column clear functions; filled in after both columns are built
+  // Placeholders for cross-column clear functions; filled in after all columns are built
   let clearAllied = () => {};
   let clearEnemy = () => {};
+  let clearWedge = () => {};
 
-  const [alliedCol, clearAlliedFn] = buildAlliedColumn(alliedUnlocked, () => clearEnemy(), sectionSpanRef, startSession);
-  const [enemyCol, clearEnemyFn] = buildEnemyColumn(enemyUnlocked, () => clearAllied(), sectionSpanRef, startSession);
+  const [alliedCol, clearAlliedFn] = buildAlliedColumn(alliedUnlocked, () => { clearEnemy(); clearWedge(); }, sectionSpanRef, startSession);
+  const [enemyCol, clearEnemyFn] = buildEnemyColumn(enemyUnlocked, () => { clearAllied(); clearWedge(); }, sectionSpanRef, startSession);
+  const [wedgeCol, clearWedgeFn] = buildWedgeColumn(wedgesUnlocked, () => { clearAllied(); clearEnemy(); }, sectionSpanRef, startSession);
 
   clearAllied = clearAlliedFn;
   clearEnemy = clearEnemyFn;
+  clearWedge = clearWedgeFn;
 
   // Build share section (placeholder — real implementation comes later)
   const shareSection = document.createElement('div');
@@ -637,7 +923,7 @@ export function showSessionEndColumns(
   shareSection.appendChild(shareHeader);
 
   // Build reel structure: viewport clips to one section, reel translates
-  const sections = [alliedCol, enemyCol, shareSection];
+  const sections = [alliedCol, enemyCol, wedgeCol, shareSection];
 
   const reel = document.createElement('div');
   reel.classList.add('level-sections-reel');
@@ -676,7 +962,7 @@ export function showSessionEndColumns(
     }
 
     const nextLabel = SECTION_LABELS[reelIndex + 1];
-    const nextIsNewLevel = (nextLabel === 'allied' || nextLabel === 'enemy') && !hasCompletedSubgroup(nextLabel);
+    const nextIsNewLevel = (nextLabel === 'allied' || nextLabel === 'enemy' || nextLabel === 'wedges') && !hasCompletedSubgroup(nextLabel);
 
     if (!atEnd && nextIsNewLevel) {
       bottomBtn.textContent = 'Next Level';
@@ -698,10 +984,11 @@ export function showSessionEndColumns(
     reelAdvance(reel, viewport, sections, 1, pageSpan, sectionSpanRef, updateNavButtons);
   });
 
-  // Clicking anywhere that isn't a line or guild item clears both selections.
+  // Clicking anywhere that isn't a line or guild item clears all selections.
   document.addEventListener('click', () => {
     clearAllied();
     clearEnemy();
+    clearWedge();
   });
 
   app.appendChild(topBtn);
