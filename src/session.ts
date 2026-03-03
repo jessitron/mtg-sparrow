@@ -1,4 +1,4 @@
-import { ColorCombo, CardReference, alliedGuilds, enemyGuilds } from './data/combos';
+import { ColorCombo, CardReference, alliedGuilds, enemyGuilds, wedges, shards } from './data/combos';
 
 export type Slide = ColorCombo & { selectedCard?: CardReference };
 
@@ -38,7 +38,7 @@ export function buildDeck(combos: ColorCombo[], count: number): Slide[] {
   return deck;
 }
 
-export type GuildSubgroup = "allied" | "enemy";
+export type GuildSubgroup = "allied" | "enemy" | "wedges" | "shards";
 
 export type SessionState = {
   deck: Slide[];
@@ -50,7 +50,13 @@ export type SessionState = {
 };
 
 export function createSession(subgroup: GuildSubgroup = "allied"): SessionState {
-  const pool = subgroup === "allied" ? alliedGuilds : enemyGuilds;
+  const poolMap: Record<GuildSubgroup, typeof alliedGuilds> = {
+    allied: alliedGuilds,
+    enemy: enemyGuilds,
+    wedges,
+    shards,
+  };
+  const pool = poolMap[subgroup];
   return {
     deck: buildDeck(pool, SESSION_CARD_COUNT),
     cardCount: SESSION_CARD_COUNT,

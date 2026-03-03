@@ -64,11 +64,20 @@ async function navigateToAssessment(actualCount: number): Promise<void> {
 
   // Record progression while session span is still open
   if (session.completed) {
-    const justUnlocked = markSubgroupUnlocked(session.subgroup);
-    if (justUnlocked && sessionSpan) {
-      addSpanEvent(sessionSpan, 'progression.subgroup_unlocked', {
-        'progression.subgroup': session.subgroup,
-      });
+    const nextSubgroupMap: Record<GuildSubgroup, GuildSubgroup | null> = {
+      allied:  'enemy',
+      enemy:   'wedges',
+      wedges:  'shards',
+      shards:  null,
+    };
+    const nextSubgroup = nextSubgroupMap[session.subgroup];
+    if (nextSubgroup !== null) {
+      const justUnlocked = markSubgroupUnlocked(nextSubgroup);
+      if (justUnlocked && sessionSpan) {
+        addSpanEvent(sessionSpan, 'progression.subgroup_unlocked', {
+          'progression.subgroup': nextSubgroup,
+        });
+      }
     }
   }
   markSubgroupCompleted(session.subgroup);
@@ -285,8 +294,13 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
   session = createSession(subgroup);
 
   // Start session root span
+  const tierLabel =
+    subgroup === 'allied' ? 'guild_allied' :
+    subgroup === 'enemy'  ? 'guild_enemy'  :
+    subgroup === 'wedges' ? 'wedge'        :
+    'shard';
   sessionSpan = startSpan('session', {
-    'session.tier': `guild_${subgroup}`,
+    'session.tier': tierLabel,
     'session.subgroup_size': 5,
     'session.card_count': session.cardCount,
     'session.started_from': startedFrom,
