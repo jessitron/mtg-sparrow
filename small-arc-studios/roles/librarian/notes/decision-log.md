@@ -830,6 +830,26 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Decision**: `end.layout_version` is now `'reel_v1'` on all `end.page_view` spans.
 - **Rationale**: Structural markers must change when the architecture changes. `reel_v1` distinguishes this version from both the old column layout (pre-Arc 22) and the rows layout (Arc 22–23). This enables Honeycomb queries to segment by layout version over time.
 
+## DEC-090: Replace Cooldown-Based Wheel Debounce with Accumulated DeltaY Threshold
+- **Date**: 2026-03-02
+- **Context**: The end screen reel navigation used a 700ms cooldown timer (DEC-084) to prevent double-scrolling from trackpad inertia. Observability data (trace 7a64e014e2b58373ae2176310f67d3bb) revealed the root cause: trackpad inertia outlasts the 700ms cooldown. The animation finishes at 600ms, `reelSpinning` clears, then at 703ms the cooldown expires and an inertia tail event advances the reel again.
+- **Decision**: Replace the cooldown timer entirely with accumulated deltaY threshold. Track a running sum of deltaY across wheel events. Only advance when |accumulated| >= 700. Reset accumulator after advance or on direction change.
+- **Rationale**: Cooldown timers are fundamentally mismatched to trackpad inertia — inertia duration is unpredictable and varies by OS, browser, and device. Accumulated deltaY naturally absorbs inertia: the initial strong gesture clears the threshold quickly, then the inertia tail (deltaY 2–3) does not accumulate enough to trigger again. The threshold of 700 was tuned by the client using real Honeycomb data.
+- **Alternatives considered**: Resetting the cooldown on every event (tested and REVERTED — this blocked all re-scrolling; the more you scroll, the more the cooldown pushes forward).
+- **Note**: Firefox uses line-mode deltaY (small integers 1–25), Chrome uses pixel-mode (larger values). Accumulated deltaY handles both correctly.
+
+## DEC-091: Move Wheel Listener from Viewport Element to Document
+- **Date**: 2026-03-02
+- **Context**: The wheel event listener was registered on the viewport element. As sections shrink or the cursor moves, the listener could miss events when the pointer was outside the viewport element bounds.
+- **Decision**: Register the wheel listener on `document` instead of the viewport element.
+- **Rationale**: Ensures consistent scroll behavior regardless of cursor position. Especially important when section content is smaller than the full page.
+
+## DEC-092: Reduce Wheel Telemetry to Key Events Only
+- **Date**: 2026-03-02
+- **Context**: Initial wheel telemetry instrumentation (added for diagnosis) emitted a span event for every wheel event including `accumulating` events. A single session produced 1000+ events, overwhelming the trace view.
+- **Decision**: Drop `accumulating` span events. Only emit: `gesture_start`, `direction_change`, `advance`, `suppressed_spinning`, `suppressed_bounds`.
+- **Rationale**: Diagnostic signal is fully preserved for the meaningful transitions (gesture start, direction change, advance, suppression reasons). The high-frequency `accumulating` events added noise without diagnostic value. This reduces telemetry from ~1000+ events per session to ~dozen.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
