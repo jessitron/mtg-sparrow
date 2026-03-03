@@ -582,6 +582,7 @@ async function reelAdvance(
   direction: 1 | -1,
   pageSpan: Span,
   sectionSpanRef: SpanRef,
+  onNavigate?: () => void,
 ) {
   if (reelSpinning) return;
 
@@ -589,13 +590,16 @@ async function reelAdvance(
   if (nextIndex < 0 || nextIndex >= sections.length) return;
 
   reelSpinning = true;
+  reelIndex = nextIndex;
+
+  // Update nav buttons immediately so arrows animate alongside the reel
+  onNavigate?.();
 
   // End the current section span, start the new one
   endSpan(sectionSpanRef.current);
   sectionSpanRef.current = startSectionSpan(pageSpan, nextIndex);
 
   await reelSpinTo(reel, viewport, sections, nextIndex);
-  reelIndex = nextIndex;
 
   reelSpinning = false;
 }
@@ -675,12 +679,12 @@ export function showSessionEndColumns(
   topBtn.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
     if (reelIndex <= 0) return;
-    reelAdvance(reel, viewport, sections, -1, pageSpan, sectionSpanRef).then(updateNavButtons);
+    reelAdvance(reel, viewport, sections, -1, pageSpan, sectionSpanRef, updateNavButtons);
   });
 
   bottomBtn.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
-    reelAdvance(reel, viewport, sections, 1, pageSpan, sectionSpanRef).then(updateNavButtons);
+    reelAdvance(reel, viewport, sections, 1, pageSpan, sectionSpanRef, updateNavButtons);
   });
 
   // Clicking anywhere that isn't a line or guild item clears both selections.
@@ -713,7 +717,7 @@ export function showSessionEndColumns(
       reelLastWheelTime = now;
 
       const direction = e.deltaY > 0 ? 1 : -1;
-      reelAdvance(reel, viewport, sections, direction as 1 | -1, pageSpan, sectionSpanRef).then(updateNavButtons);
+      reelAdvance(reel, viewport, sections, direction as 1 | -1, pageSpan, sectionSpanRef, updateNavButtons);
     }, { passive: false });
   });
 
