@@ -721,7 +721,7 @@ export function showSessionEndColumns(
     viewport.style.height = `${sections[initialIndex].offsetHeight}px`;
     updateNavButtons();
 
-    viewport.addEventListener('wheel', (e: WheelEvent) => {
+    document.addEventListener('wheel', (e: WheelEvent) => {
       e.preventDefault();
 
       // If direction reversed, reset accumulator to start fresh in new direction
