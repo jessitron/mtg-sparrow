@@ -919,4 +919,40 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-100: Triangle Wheel Uses SVG Polygon Elements (Not Lines)
+- **Date**: 2026-03-02
+- **Arc**: 30
+- **Decision**: The wedge wheel uses SVG `<polygon>` elements to connect 3 pentagon nodes per wedge, forming a filled triangle shape.
+- **Alternatives rejected**: Line-based approach (as used in guild wheels) — lines suggest pairwise relationships, not a three-way binding. Polygons visually communicate that all three colors belong together.
+- **Rationale**: Visual distinction from guild line-based wheels is intentional. The polygon shape communicates the three-way nature of wedge combos more clearly and differentiates the section at a glance.
+
+## DEC-101: Purple/Violet Color Theme for Wedge Triangles
+- **Date**: 2026-03-02
+- **Arc**: 30
+- **Decision**: Wedge triangle polygons use a purple/violet color theme, distinct from allied (gold) and enemy (red-orange).
+- **Rationale**: Each end screen section uses a distinct color language. Purple/violet is not used elsewhere in the UI and reads as "three-color magic" — appropriately distinct and recognizable.
+
+## DEC-102: Reused end.guild_highlight Telemetry Span Name for Wedge Highlights
+- **Date**: 2026-03-02
+- **Arc**: 30
+- **Decision**: Wedge combo highlights emit `end.guild_highlight` spans (the same span name used for allied and enemy highlights), with the wedge combo ID as `guild.id`.
+- **Alternatives rejected**: A new span type `end.wedge_highlight` — would require updates to dashboards and queries without adding signal value.
+- **Rationale**: The span structure is identical across all combo types. `guild.id` values for wedges (e.g., `mardu`, `temur`) are already distinct. No new span type is needed; filtering by `guild.id` distinguishes them.
+
+## DEC-103: Wedge Section at Reel Index 2
+- **Date**: 2026-03-02
+- **Arc**: 30
+- **Decision**: `SECTION_LABELS = ['allied', 'enemy', 'wedges', 'share']`. Wedge section is at reel index 2, between enemy and share.
+- **Rationale**: Matches the natural progression order (two-color → three-color), and mirrors the session unlock chain (allied → enemy → wedges). Share remains last as it is always the final section.
+
+---
+
+## Arc 30: End Screen — Wedge Section — COMPLETE (v0.25.0)
+- **Delivered**: 2026-03-02
+- **Outcome**: Wedge section added to end screen reel at index 2. Triangle SVG polygon wheel with purple/violet theme. Cross-column deselect for all 3 columns. `end.guild_highlight` spans with wedge combo IDs confirmed in Honeycomb. 39/39 PASS.
+- **Record**: `arc30-wedge-end-screen.md`
+- **Decisions**: DEC-100, DEC-101, DEC-102, DEC-103
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
