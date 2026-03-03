@@ -3,12 +3,14 @@
 - BUG: the "home" link on the end screen doesn't work in production. Can you look at the current URL and remove "/end" from it?
 - BUG: the trace isn't linked in the settings on the home screen.
 - When arriving at the end screen from an Enemy Guilds session, there's a flash of Allied Guilds before it moves to Enemy guilds. What if the section opened (like it's a scroll) after the page loads, which would give some time? so it starts with 0 height and then transitions to open.
+- on the Enemy Guilds info section, move the guild symbols over to the right next to the guild name & description. The middle of the color circle is too crowded.
 - move settings to upper right, everywhere.
   - add a settings gear in the upper right of the slides and the self-assessment
 - slideshow footer colors. it's the old dark blue, needs to be browns
 - when paused, make the space key resume. (Space doesn't pause, because it advances when the slideshow is running.)
+-
 - add markers to Honeycomb on deploy
-- add an 'about' page with acknowledgements
+- add an 'about' page with acknowledgements. Include scryfall, that wiki where we got the mana and guild symbols, that Wizards article where we got the flavorful guild descriptions.
 - add a license file, CC0
 - ask the project lead for general professionalism and cleanup
 - on mobile, make the opening screen have fewer words (client to curate)
