@@ -328,7 +328,8 @@
 
 .allied-color-wheel,
 .enemy-color-wheel,
-.wedge-color-wheel {
+.wedge-color-wheel,
+.shard-color-wheel {
   width: 100%;
   max-width: 360px;
   height: auto;
@@ -344,7 +345,8 @@
 
 .allied-color-wheel .ally-line,
 .enemy-color-wheel .enemy-line,
-.wedge-color-wheel .wedge-triangle {
+.wedge-color-wheel .wedge-triangle,
+.shard-color-wheel .shard-triangle {
   cursor: pointer;
 }
 
@@ -366,6 +368,13 @@
   transition: opacity 0.2s ease, fill 0.2s ease, filter 0.2s ease;
 }
 
+.shard-triangle-vis {
+  fill: rgba(80, 200, 200, 0.12);
+  stroke: rgba(80, 200, 200, 0.6);
+  stroke-width: 2;
+  transition: opacity 0.2s ease, fill 0.2s ease, filter 0.2s ease;
+}
+
 .allied-color-wheel .color-node,
 .enemy-color-wheel .color-node {
   transition: transform 0.2s ease, opacity 0.2s ease;
@@ -383,9 +392,14 @@
   opacity: 0.15;
 }
 
+.level-section--has-highlight .shard-triangle:not(.highlight) .shard-triangle-vis {
+  opacity: 0.15;
+}
+
 .level-section--has-highlight .allied-color-wheel .color-node:not(.highlight),
 .level-section--has-highlight .enemy-color-wheel .color-node:not(.highlight),
-.level-section--has-highlight .wedge-color-wheel .color-node:not(.highlight) {
+.level-section--has-highlight .wedge-color-wheel .color-node:not(.highlight),
+.level-section--has-highlight .shard-color-wheel .color-node:not(.highlight) {
   opacity: 0.3;
 }
 
@@ -405,6 +419,13 @@
   stroke: rgba(210, 170, 255, 0.9) !important;
   opacity: 1 !important;
   filter: drop-shadow(0 0 6px rgba(180, 140, 220, 0.7));
+}
+
+.shard-triangle.highlight .shard-triangle-vis {
+  fill: rgba(80, 200, 200, 0.35) !important;
+  stroke: rgba(100, 230, 230, 0.9) !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 6px rgba(80, 200, 200, 0.7));
 }
 
 .color-node.highlight {

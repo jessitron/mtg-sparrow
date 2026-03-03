@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Root span for the entire end-page visit — stays open until the user leaves
   const pageSpan = startSpan('end.page_view', {
     'app.version': APP_VERSION,
-    'end.layout_version': 'reel_v1',
+    'end.layout_version': 'reel_v2',
   });
 
   // Wire trace link in settings panel
@@ -53,12 +53,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const alliedUnlocked = isSubgroupUnlocked('allied');
   const enemyUnlocked = isEnemyUnlocked();
   const wedgesUnlocked = isSubgroupUnlocked('wedges');
+  const shardsUnlocked = isSubgroupUnlocked('shards');
 
   const endCurrentSection = showSessionEndColumns(
     app,
     alliedUnlocked,
     enemyUnlocked,
     wedgesUnlocked,
+    shardsUnlocked,
     pageSpan,
     (sub: GuildSubgroup, startedFrom: string) => {
       endCurrentSection();

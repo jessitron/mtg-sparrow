@@ -1,5 +1,5 @@
 import { renderPip } from './pips';
-import { alliedGuilds, enemyGuilds, wedges, ColorCombo } from '../data/combos';
+import { alliedGuilds, enemyGuilds, wedges, shards, ColorCombo } from '../data/combos';
 import { guildDescriptionMap } from '../data/guild-descriptions';
 import { Span } from '@opentelemetry/api';
 import { startChildSpan, endSpan, addSpanEvent } from '../telemetry/telemetry';
@@ -82,11 +82,24 @@ const wedgeTriples: [string, string, string][] = [
   ['green', 'blue',  'red'],     // Temur
 ];
 
-// Maps sorted 3-color code key (e.g. "BGW") → wedge combo id
+// Shard triples: each is [one color, ally1, ally2]
+const shardTriples: [string, string, string][] = [
+  ['green', 'white', 'blue'],    // Bant
+  ['white', 'blue',  'black'],   // Esper
+  ['blue',  'black', 'red'],     // Grixis
+  ['black', 'red',   'green'],   // Jund
+  ['red',   'green', 'white'],   // Naya
+];
+
+// Maps sorted 3-color code key (e.g. "BGW") → combo id (wedges and shards)
 const colorTripleToComboId: Record<string, string> = {};
 for (const wedge of wedges) {
   const key = [...wedge.colors].sort().join('');
   colorTripleToComboId[key] = wedge.id;
+}
+for (const shard of shards) {
+  const key = [...shard.colors].sort().join('');
+  colorTripleToComboId[key] = shard.id;
 }
 
 /**
@@ -791,6 +804,67 @@ function buildWedgeColumn(
   return [col, clearSelection];
 }
 
+function buildShardColumn(
+  unlocked: boolean,
+  onActivate: () => void,
+  sectionSpanRef: SpanRef,
+  startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
+): [HTMLElement, () => void] {
+  const col = document.createElement('div');
+  col.classList.add('level-section', 'level-section--shards');
+
+  const showContent = unlocked || hasCompletedSubgroup('shards');
+  if (!showContent) {
+    col.classList.add('level-section--locked');
+  }
+
+  let clearSelection = () => {};
+
+  if (showContent) {
+    // Summary panel (left): title, description, combo list
+    const summary = document.createElement('div');
+    summary.classList.add('level-section-summary');
+
+    const header = document.createElement('h2');
+    header.classList.add('level-section-header');
+    header.textContent = 'Shards';
+    summary.appendChild(header);
+
+    const explanation = document.createElement('p');
+    explanation.classList.add('level-section-explanation');
+    explanation.textContent = 'Shards unite one color with its two allies — three colors that naturally work together.';
+    summary.appendChild(explanation);
+
+    summary.appendChild(buildGuildList(shards));
+
+    col.appendChild(summary);
+
+    // Wheel panel (center)
+    const wheelPanel = document.createElement('div');
+    wheelPanel.classList.add('level-section-wheel');
+    const svg = buildTriangleWheel(shardTriples, 'shard-color-wheel', 'shard-triangle', 'shard-triangle-vis', 'shard-triangle-hit');
+    wheelPanel.appendChild(svg);
+    col.appendChild(wheelPanel);
+
+    // Flavor panel (right)
+    col.appendChild(buildFlavorPanel(shards, 'shards', sectionSpanRef, startSession));
+
+    // Wire hover after all panels are in the DOM
+    clearSelection = wireTriangleWheelHover(col, svg, shardTriples, 'shard-triangle', sectionSpanRef, onActivate);
+  } else {
+    const btn = document.createElement('button');
+    btn.classList.add('next-session-button', 'level-section-button', 'next-session-button--primary');
+    btn.textContent = 'Learn shards';
+    btn.addEventListener('click', (e: MouseEvent) => {
+      e.stopPropagation();
+      startSession('shards', 'session_end_screen');
+    });
+    col.appendChild(btn);
+  }
+
+  return [col, clearSelection];
+}
+
 // --- Reel navigation (slot-machine feel) ---
 
 const REEL_TRANSITION = 'transform 600ms cubic-bezier(0.2, 0.8, 0.3, 1.05)';
@@ -827,7 +901,7 @@ function reelSpinTo(
   });
 }
 
-const SECTION_LABELS = ['allied', 'enemy', 'wedges', 'share'];
+const SECTION_LABELS = ['allied', 'enemy', 'wedges', 'shards', 'share'];
 
 function startSectionSpan(pageSpan: Span, index: number): Span {
   return startChildSpan('end.section_view', pageSpan, {
@@ -871,12 +945,14 @@ export function showSessionEndColumns(
   alliedUnlocked: boolean,
   enemyUnlocked: boolean,
   wedgesUnlocked: boolean,
+  shardsUnlocked: boolean,
   pageSpan: Span,
   startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
   initialSubgroup?: GuildSubgroup,
 ): () => void {
   const initialIndex = initialSubgroup === 'enemy' ? 1
     : initialSubgroup === 'wedges' ? 2
+    : initialSubgroup === 'shards' ? 3
     : 0;
   reelIndex = initialIndex;
 
@@ -887,14 +963,17 @@ export function showSessionEndColumns(
   let clearAllied = () => {};
   let clearEnemy = () => {};
   let clearWedge = () => {};
+  let clearShard = () => {};
 
-  const [alliedCol, clearAlliedFn] = buildAlliedColumn(alliedUnlocked, () => { clearEnemy(); clearWedge(); }, sectionSpanRef, startSession);
-  const [enemyCol, clearEnemyFn] = buildEnemyColumn(enemyUnlocked, () => { clearAllied(); clearWedge(); }, sectionSpanRef, startSession);
-  const [wedgeCol, clearWedgeFn] = buildWedgeColumn(wedgesUnlocked, () => { clearAllied(); clearEnemy(); }, sectionSpanRef, startSession);
+  const [alliedCol, clearAlliedFn] = buildAlliedColumn(alliedUnlocked, () => { clearEnemy(); clearWedge(); clearShard(); }, sectionSpanRef, startSession);
+  const [enemyCol, clearEnemyFn] = buildEnemyColumn(enemyUnlocked, () => { clearAllied(); clearWedge(); clearShard(); }, sectionSpanRef, startSession);
+  const [wedgeCol, clearWedgeFn] = buildWedgeColumn(wedgesUnlocked, () => { clearAllied(); clearEnemy(); clearShard(); }, sectionSpanRef, startSession);
+  const [shardCol, clearShardFn] = buildShardColumn(shardsUnlocked, () => { clearAllied(); clearEnemy(); clearWedge(); }, sectionSpanRef, startSession);
 
   clearAllied = clearAlliedFn;
   clearEnemy = clearEnemyFn;
   clearWedge = clearWedgeFn;
+  clearShard = clearShardFn;
 
   // Build share section (placeholder — real implementation comes later)
   const shareSection = document.createElement('div');
@@ -904,7 +983,7 @@ export function showSessionEndColumns(
   shareSection.appendChild(shareHeader);
 
   // Build reel structure: viewport clips to one section, reel translates
-  const sections = [alliedCol, enemyCol, wedgeCol, shareSection];
+  const sections = [alliedCol, enemyCol, wedgeCol, shardCol, shareSection];
 
   const reel = document.createElement('div');
   reel.classList.add('level-sections-reel');
@@ -970,6 +1049,7 @@ export function showSessionEndColumns(
     clearAllied();
     clearEnemy();
     clearWedge();
+    clearShard();
   });
 
   app.appendChild(topBtn);
