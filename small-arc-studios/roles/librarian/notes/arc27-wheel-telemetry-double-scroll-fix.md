@@ -53,13 +53,16 @@ Reduces from ~1000+ events per session to ~dozen, while preserving all diagnosti
 - [x] Wheel telemetry visible in Honeycomb with correct event types
 - [x] No `accumulating` events in Honeycomb output
 
+## Key Behavioral Note
+`gesture_start` does NOT advance the reel even if deltaY >= threshold — it marks the start of a gesture only. At least two events are required to cross the threshold and advance: one resets the accumulator (gesture_start), and subsequent events accumulate toward 700.
+
 ## Test Results
-- **Test script**: `tests/arc27-wheel-telemetry.mjs`
+- **Test script**: `tests/wheel-telemetry.mjs`
 - **Result**: 17/17 PASS
 
 ## Key Files Changed
-- `src/ui/slot-machine.ts` — wheel handler replaced: cooldown timer → accumulated deltaY; listener moved to `document`; telemetry events updated
-- `tests/arc27-wheel-telemetry.mjs` — new test suite
+- `src/ui/guild-columns.ts` — wheel handler replaced: cooldown timer → accumulated deltaY; listener moved to `document`; telemetry events updated
+- `tests/wheel-telemetry.mjs` — new test suite (updated twice across arc iterations)
 
 ## Observability
 - `end.wheel_event` span events: `gesture_start`, `direction_change`, `advance`, `suppressed_spinning`, `suppressed_bounds`
