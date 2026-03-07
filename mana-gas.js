@@ -34,7 +34,7 @@
   // Outline drawn behind each mana symbol — set color in :root in style.css
   const SYMBOL_OUTLINE_COLOR = getComputedStyle(document.documentElement)
     .getPropertyValue("--symbol-outline-color").trim();
-  const SYMBOL_OUTLINE_WIDTH = 2.5;
+  const SYMBOL_OUTLINE_WIDTH = 1.5;
 
   const GUILDS = {
     "U,W": "Azorius",
