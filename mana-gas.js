@@ -372,7 +372,7 @@
         if (p.color === e.a.color || p.color === e.b.color) return false;
         const dx = p.x - e.cx;
         const dy = p.y - e.cy;
-        return Math.sqrt(dx * dx + dy * dy) < BUBBLE_RADIUS;
+        return Math.sqrt(dx * dx + dy * dy) - p.r < BUBBLE_RADIUS;
       });
       if (intruder) {
         encounters.splice(i, 1);
