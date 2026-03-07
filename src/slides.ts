@@ -74,7 +74,7 @@ async function navigateToAssessment(actualCount: number): Promise<void> {
     if (nextSubgroup !== null) {
       const justUnlocked = markSubgroupUnlocked(nextSubgroup);
       if (justUnlocked) {
-        emitLog('progression.subgroup_unlocked', {
+        emitLog('progression.subgroup_unlocked', sessionSpan ?? undefined, {
           'progression.subgroup': nextSubgroup,
         });
       }
@@ -162,7 +162,7 @@ function showCard(): void {
       e.stopPropagation();
       paused = !paused;
       pauseBtn.textContent = paused ? 'Resume' : 'Pause';
-      emitLog(paused ? 'session.pause' : 'session.resume', {
+      emitLog(paused ? 'session.pause' : 'session.resume', sessionSpan ?? undefined, {
         'session.card_index': session ? session.currentIndex : 0,
       });
       if (paused) {
@@ -259,7 +259,7 @@ function handleAdvance(): void {
   if (paused) return;
 
   // Record a log for every user tap (sent immediately, unlike span events)
-  emitLog('user.tap', {
+  emitLog('user.tap', cardSpan ?? undefined, {
     'tap.time_since_card_ms': Date.now() - cardShowTime,
     'tap.name_revealed': revealTimer === null,
   });

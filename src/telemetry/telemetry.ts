@@ -68,12 +68,15 @@ export function addSpanEvent(
 
 export function emitLog(
   name: string,
+  parentSpan?: Span,
   attributes?: Record<string, string | number | boolean>,
 ): void {
+  const ctx = parentSpan ? trace.setSpan(context.active(), parentSpan) : undefined;
   logger.emit({
     severityNumber: SeverityNumber.INFO,
     body: name,
     attributes,
+    context: ctx,
   });
 }
 

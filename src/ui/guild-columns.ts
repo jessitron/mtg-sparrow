@@ -1102,7 +1102,7 @@ export function showSessionEndColumns(
       }
 
       if (action !== 'accumulating') {
-        emitLog('end.wheel_event', {
+        emitLog('end.wheel_event', sectionSpanRef.current, {
           'wheel.deltaY': Math.round(e.deltaY),
           'wheel.accumulated_deltaY': Math.round(reelAccumulatedDelta),
           'wheel.direction': direction,
