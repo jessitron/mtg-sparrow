@@ -55,6 +55,26 @@
     return GUILDS[key] || null;
   }
 
+  const TRIPLES = {
+    "B,G,W": "Abzan",
+    "R,U,W": "Jeskai",
+    "B,G,U": "Sultai",
+    "B,R,W": "Mardu",
+    "G,R,U": "Temur",
+    "G,U,W": "Bant",
+    "B,U,W": "Esper",
+    "B,R,U": "Grixis",
+    "B,G,R": "Jund",
+    "G,R,W": "Naya",
+  };
+
+  const TRIPLE_BUBBLE_RADIUS = R * 2.8;
+
+  function tripleName(c1, c2, c3) {
+    const key = [c1, c2, c3].sort().join(",");
+    return TRIPLES[key] || null;
+  }
+
   const encounters = [];
   const images = {};
   let loadedCount = 0;
@@ -339,7 +359,7 @@
         if (dist < a.r + b.r + TRIGGER_DIST) {
           const name = guildName(a.color, b.color);
           if (name) {
-            const alreadyIn = encounters.some(e => e.a === a || e.b === a || e.a === b || e.b === b);
+            const alreadyIn = encounters.some(e => e.a === a || e.b === a || e.c === a || e.a === b || e.b === b || e.c === b);
             if (!alreadyIn) {
               encounters.push({
                 a, b, name,
@@ -352,30 +372,101 @@
       }
     }
 
-    // Update encounter centers, remove if particle left or third color intruded
+    // Update encounter centers, handle intruders and triple upgrades/downgrades
     for (let i = encounters.length - 1; i >= 0; i--) {
       const e = encounters[i];
-      e.cx = (e.a.x + e.b.x) / 2;
-      e.cy = (e.a.y + e.b.y) / 2;
-      const dxA = e.a.x - e.cx;
-      const dyA = e.a.y - e.cy;
-      const dxB = e.b.x - e.cx;
-      const dyB = e.b.y - e.cy;
-      const distA = Math.sqrt(dxA * dxA + dyA * dyA);
-      const distB = Math.sqrt(dxB * dxB + dyB * dyB);
-      if (distA > BUBBLE_RADIUS || distB > BUBBLE_RADIUS) {
-        encounters.splice(i, 1);
-        continue;
-      }
-      const intruder = particles.some(p => {
-        if (p === e.a || p === e.b) return false;
-        if (p.color === e.a.color || p.color === e.b.color) return false;
-        const dx = p.x - e.cx;
-        const dy = p.y - e.cy;
-        return Math.sqrt(dx * dx + dy * dy) - p.r < BUBBLE_RADIUS;
-      });
-      if (intruder) {
-        encounters.splice(i, 1);
+
+      if (e.isTriple) {
+        // Three-color encounter: update centroid
+        e.cx = (e.a.x + e.b.x + e.c.x) / 3;
+        e.cy = (e.a.y + e.b.y + e.c.y) / 3;
+
+        // Check if any particle has left the triple bubble
+        const members = [e.a, e.b, e.c];
+        let departed = null;
+        for (const m of members) {
+          const dx = m.x - e.cx;
+          const dy = m.y - e.cy;
+          if (Math.sqrt(dx * dx + dy * dy) > TRIPLE_BUBBLE_RADIUS) {
+            departed = m;
+            break;
+          }
+        }
+
+        if (departed) {
+          // Find the two that remain
+          const remaining = members.filter(m => m !== departed);
+          const ra = remaining[0];
+          const rb = remaining[1];
+          const rdx = rb.x - ra.x;
+          const rdy = rb.y - ra.y;
+          const rDist = Math.sqrt(rdx * rdx + rdy * rdy);
+
+          const pairName = guildName(ra.color, rb.color);
+          if (pairName && rDist < BUBBLE_RADIUS * 2) {
+            // Downgrade to two-color encounter
+            e.a = ra;
+            e.b = rb;
+            e.c = undefined;
+            e.name = pairName;
+            e.isTriple = false;
+            e.cx = (ra.x + rb.x) / 2;
+            e.cy = (ra.y + rb.y) / 2;
+          } else {
+            encounters.splice(i, 1);
+          }
+        }
+      } else {
+        // Two-color encounter: update center
+        e.cx = (e.a.x + e.b.x) / 2;
+        e.cy = (e.a.y + e.b.y) / 2;
+        const dxA = e.a.x - e.cx;
+        const dyA = e.a.y - e.cy;
+        const dxB = e.b.x - e.cx;
+        const dyB = e.b.y - e.cy;
+        const distA = Math.sqrt(dxA * dxA + dyA * dyA);
+        const distB = Math.sqrt(dxB * dxB + dyB * dyB);
+        if (distA > BUBBLE_RADIUS || distB > BUBBLE_RADIUS) {
+          encounters.splice(i, 1);
+          continue;
+        }
+
+        // Check for intruders (different color entering the bubble)
+        let intruderParticle = null;
+        for (const p of particles) {
+          if (p === e.a || p === e.b) continue;
+          if (p.color === e.a.color || p.color === e.b.color) continue;
+          const dx = p.x - e.cx;
+          const dy = p.y - e.cy;
+          if (Math.sqrt(dx * dx + dy * dy) - p.r < BUBBLE_RADIUS) {
+            intruderParticle = p;
+            break;
+          }
+        }
+
+        if (intruderParticle) {
+          const tName = tripleName(e.a.color, e.b.color, intruderParticle.color);
+          if (tName) {
+            // Upgrade to three-color encounter
+            e.c = intruderParticle;
+            e.name = tName;
+            e.isTriple = true;
+            e.cx = (e.a.x + e.b.x + e.c.x) / 3;
+            e.cy = (e.a.y + e.b.y + e.c.y) / 3;
+
+            // Dispatch telemetry event
+            window.dispatchEvent(new CustomEvent("mana-gas-encounter", {
+              detail: {
+                type: "triple",
+                name: tName,
+                colors: [e.a.color, e.b.color, e.c.color].sort(),
+              },
+            }));
+          } else {
+            // Non-matching intruder: pop the encounter
+            encounters.splice(i, 1);
+          }
+        }
       }
     }
 
@@ -383,19 +474,22 @@
 
     // Draw encounter bubbles and labels
     for (const e of encounters) {
+      const bubbleR = e.isTriple ? TRIPLE_BUBBLE_RADIUS : BUBBLE_RADIUS;
       ctx.save();
       ctx.beginPath();
-      ctx.arc(e.cx, e.cy, BUBBLE_RADIUS, 0, Math.PI * 2);
-      ctx.strokeStyle = "rgba(255,255,255,0.3)";
-      ctx.lineWidth = 1.5;
+      ctx.arc(e.cx, e.cy, bubbleR, 0, Math.PI * 2);
+      ctx.strokeStyle = e.isTriple ? "rgba(255,215,0,0.4)" : "rgba(255,255,255,0.3)";
+      ctx.lineWidth = e.isTriple ? 2 : 1.5;
       ctx.stroke();
-      ctx.font = "bold 18px 'GoudyMediaeval', Georgia, serif";
+      ctx.font = e.isTriple
+        ? "bold 22px 'GoudyMediaeval', Georgia, serif"
+        : "bold 18px 'GoudyMediaeval', Georgia, serif";
       ctx.textAlign = "center";
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = e.isTriple ? "#ffd700" : "#fff";
       ctx.globalAlpha = 0.9;
       ctx.shadowColor = "rgba(0,0,0,0.8)";
       ctx.shadowBlur = 4;
-      ctx.fillText(e.name, e.cx, e.cy - BUBBLE_RADIUS - 8);
+      ctx.fillText(e.name, e.cx, e.cy - bubbleR - 8);
       ctx.restore();
     }
 
