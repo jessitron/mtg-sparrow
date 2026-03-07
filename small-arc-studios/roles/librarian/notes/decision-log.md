@@ -984,4 +984,14 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-107: Merge RFP and SOW into Single Plan Document
+- **Date**: 2026-03-07
+- **Decision**: The separate RFP (discovery) and SOW (arc planning) stages are replaced by a single "Plan" stage. One document with two sections — Discovery and Arcs — and one client approval gate.
+- **Context**: After several engagements (multipage, end screen refinements, wedges & shards), the client observed that the RFP and SOW duplicated significant content: goals/objectives, assumptions, non-goals/exclusions, and arc candidates were restated between documents. Two approval gates slowed things down without adding clarity.
+- **Alternatives Considered**: (1) Keep both but make the RFP lighter. Rejected — the overlap is structural, not just verbosity. (2) Keep both documents but combine the approval gate. Rejected — if they're approved together, they should be one document.
+- **Rationale**: The unique value of the RFP was discovery (domain research, risk identification, architectural options). The unique value of the SOW was detailed arc definitions. These compose naturally into one document. Roles, definition of done, and other stable process elements stay in the process docs rather than being restated each time.
+- **Impact**: Updated PROCESS.md, CLAUDE.md, ROLES.md, and all role JOB.md files. Prior RFP and SOW documents in librarian notes are historical records and remain unchanged.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
