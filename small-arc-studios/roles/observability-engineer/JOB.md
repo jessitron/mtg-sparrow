@@ -6,7 +6,7 @@ Make system behavior explorable and measurable.
 
 ## Responsibilities
 
-- Define instrumentation strategy during RFP
+- Define instrumentation strategy during planning
 - Ensure arcs include observability plans
 - Design trace attributes and span structure
 - Use Honeycomb (including MCP and skills) to explore system behavior

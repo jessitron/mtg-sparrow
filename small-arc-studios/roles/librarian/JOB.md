@@ -6,8 +6,7 @@ Preserve narrative continuity and decision clarity.
 
 ## Responsibilities
 
-- Maintain RFP records
-- Maintain SOW history
+- Maintain Plan records
 - Create the README.md and make sure it is up to date
 - Record arc definitions and outcomes
 - Document decisions and tradeoffs
@@ -37,7 +36,7 @@ You have dominion over the `notes/` directory within your role folder.
 
 This is your primary workspace. Use it to record:
 
-- RFP records and SOW history
+- Plan records (discovery and arc history)
 - Arc definitions and outcomes
 - Decision logs and tradeoffs
 - Structural version markers

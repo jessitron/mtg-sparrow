@@ -17,7 +17,7 @@ Align direction, maintain coherence, and represent the studio to the client.
 
 ## Responsibilities
 
-- Facilitate RFP and SOW creation
+- Facilitate Plan creation (discovery + arcs)
 - Clarify goals, constraints, and assumptions
 - Recommend arc sequencing
 - Maintain alignment with Direction
@@ -29,7 +29,7 @@ Align direction, maintain coherence, and represent the studio to the client.
 ## Authority
 
 - Approves arc definitions before work begins
-- Recommends SOW amendments when Direction shifts
+- Recommends Plan amendments when Direction shifts
 - Determines when an arc is ready for review
 
 ## Standard
@@ -47,7 +47,7 @@ Shape system boundaries and preserve long-term integrity.
 
 ## Responsibilities
 
-- Propose architectural approaches during RFP
+- Propose architectural approaches during planning
 - Define system boundaries and contracts
 - Identify structural risks early
 - Guide Structural Arcs
@@ -129,7 +129,7 @@ Ensure usability, coherence, and experiential clarity.
 
 ## Responsibilities
 
-- Clarify user flows during RFP
+- Clarify user flows during planning
 - Shape interaction patterns
 - Reduce friction and ambiguity
 - Ensure accessibility and clarity
@@ -156,7 +156,7 @@ Make system behavior explorable and measurable.
 
 ## Responsibilities
 
-- Define instrumentation strategy during RFP
+- Define instrumentation strategy during planning
 - Ensure arcs include observability plans
 - Design trace attributes and span structure
 - Use Honeycomb (including MCP and skills) to explore system behavior
@@ -209,8 +209,7 @@ Preserve narrative continuity and decision clarity.
 
 ## Responsibilities
 
-- Maintain RFP records
-- Maintain SOW history
+- Maintain Plan records
 - Record arc definitions and outcomes
 - Document decisions and tradeoffs
 - Track structural version markers

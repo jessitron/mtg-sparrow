@@ -6,7 +6,7 @@ Align direction, maintain coherence, and represent the studio to the client.
 
 ## Responsibilities
 
-- Facilitate RFP and SOW creation
+- Facilitate Plan creation (discovery + arcs)
 - Clarify goals, constraints, and assumptions
 - Recommend arc sequencing
 - Maintain alignment with Direction
@@ -18,7 +18,7 @@ Align direction, maintain coherence, and represent the studio to the client.
 ## Authority
 
 - Approves arc definitions before work begins
-- Recommends SOW amendments when Direction shifts
+- Recommends Plan amendments when Direction shifts
 - Determines when an arc is ready for review
 
 ## Standard

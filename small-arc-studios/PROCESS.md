@@ -1,4 +1,4 @@
-mmo# Small Arc Studio
+# Small Arc Studio
 
 ## Process of Work
 
@@ -6,92 +6,56 @@ We practice Graceful Development.
 
 We work in structured stages:
 
-0. RFP (Discovery & Framing)
-1. SOW (Structured Plan of Arcs)
-2. Establish Direction
-3. Deliver Arcs
-4. Reflect and Adapt
+0. Plan (Discovery, Framing & Arc Definition)
+1. Establish Direction
+2. Deliver Arcs
+3. Reflect and Adapt
 
-The larger circle evolves.  
+The larger circle evolves.
 Each arc delivers.
 
 ---
 
-# Stage 0: RFP (Discovery & Framing)
+# Stage 0: Plan
 
-The RFP stage is planning-only.
+The Plan stage combines discovery and structured planning into a single document.
 
-We do not build production features.  
-Our domain experts ('hire' one for each domain) do research on the domain, and work with the designer to come up with ideas.
+We do not build production features during planning.
+Our domain experts research the domain and work with the designer to come up with ideas.
 The architect asks the user for constraints and outlines the technical effort.
 We may conduct small exploration spikes or prototype screens if explicitly defined.
 
 There is a lot of discussion with the client at this phase. The client wants to hear the ideas from our team, including domain experts and designer.
 
-## Goals of the RFP
+## Plan Output
 
-- Clarify the problem space
-- Identify stakeholders and users
-- Surface constraints and assumptions
-- Identify risks and unknowns
-- Explore architectural approaches
-- Assess feasibility
+The Plan produces a single document with two sections:
 
-## RFP Output
+### Section 1: Discovery
 
-The RFP produces a Proposal document including:
-
-- Executive Summary
-- Problem Statement
+- Problem Statement — why are we doing this
 - Goals and Non-Goals
-- Constraints and Assumptions
-- Risks and Unknowns
-- Architectural Options (with tradeoffs)
-- Recommended Approach
-- Observability Plan
-- Testing Strategy
-- Initial Arc Candidates
-- Rough sizing guidance
+- Domain research and exploration
+- Constraints, assumptions, and technical readiness
+- Risks and unknowns
+- Architectural approach (with alternatives considered and rejected)
+- Observability strategy
+- Testing strategy
 
-The RFP does not commit to a delivery sequence. Review this with the client.
+This section is conversational and concise. It captures the creative and exploratory work of the team.
 
----
+### Section 2: Arcs
 
-# Stage 1: SOW (Statement of Work)
-
-The SOW translates the proposal into a structured arc plan.
-
-This is a professional planning artifact suitable for contract approval.
-
-The SOW does not have to encompass the entire project, only the arcs we know enough to tentatively plan.
-
-## The SOW Includes:
-
-- Engagement scope
-- Objectives
-- Success criteria
-- Assumptions and exclusions
-- Roles and responsibilities
-- Communication cadence
-- Deliverables defined as planned arcs
-- Estimated arc groupings (phases)
-- Payment milestones (if applicable)
-- Change management approach - how tasks are tracked
-
----
-
-## Arc Planning in the SOW
-
-The SOW defines a **tentative sequence of arcs**, grouped into phases.
-
-Each planned arc includes:
-
-- Arc Name
-- Type (User / Operator / Structural). See ARC_TYPES.md
-- Intention
-- Observable Outcome
-- Acceptance criteria (high level)
-- Expected risk reduction or learning
+- Planned arc sequence, grouped into phases
+- Each arc includes:
+  - Arc Name
+  - Type (User / Operator / Structural). See ARC_TYPES.md
+  - Intention
+  - Observable Outcome
+  - Acceptance criteria (high level)
+  - Expected risk reduction or learning
+- Communication cadence — when to pause for client review
+- Change management — how we track decisions
 
 These arcs are directional commitments, not rigid feature lock-ins.
 
@@ -101,11 +65,23 @@ We explicitly state:
 - Direction may adjust based on learning.
 - Completed arcs remain complete and valuable even if direction shifts.
 
-The SOW defines structure without freezing discovery.
+The Plan defines structure without freezing discovery.
+
+## What stays in the process docs (not repeated in each Plan)
+
+- Roles and responsibilities (see ROLES.md)
+- Definition of Done (see below)
+- Payment milestones (if applicable, handled separately)
+
+## Client Approval
+
+The Plan requires client approval before delivery begins.
+
+This is one approval gate, not two. Discovery and arc definition are reviewed together.
 
 ---
 
-# Stage 2: Deliver Arcs
+# Stage 1: Deliver Arcs
 
 We define and execute one active arc at a time.
 
@@ -151,7 +127,7 @@ Expected Learning:
 
 ---
 
-# Stage 4: Verify and Demonstrate
+# Stage 2: Verify and Demonstrate
 
 An arc is complete when:
 
@@ -184,7 +160,7 @@ We continue delivery between checkpoints while maintaining full verification sta
 
 ---
 
-# Stage 5: Reflect and Adapt
+# Stage 3: Reflect and Adapt
 
 After each arc:
 
@@ -193,7 +169,7 @@ After each arc:
 - Should Direction shift?
 - Should future arcs be reshaped?
 
-The SOW may be amended if Direction meaningfully changes.
+The Plan may be amended if Direction meaningfully changes.
 
 Amendments are explicit.
 
@@ -205,9 +181,8 @@ We do not drift silently.
 
 The Librarian maintains:
 
-- RFP record
-- Approved SOW
-- Arc history
+- Plan records (discovery and arc history)
+- Arc outcomes
 - Decision log
 - Direction changes
 - Lessons learned
@@ -219,7 +194,7 @@ This preserves coherence across adaptation.
 # Process Principles
 
 - Discovery before commitment.
-- Structured planning before execution.
+- One document, one approval gate.
 - One active arc at a time.
 - No invisible work.
 - No speculative complexity.

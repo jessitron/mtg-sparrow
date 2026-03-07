@@ -6,7 +6,7 @@ Shape system boundaries and preserve long-term integrity.
 
 ## Responsibilities
 
-- Propose architectural approaches during RFP
+- Propose architectural approaches during planning
 - Define system boundaries and contracts
 - Identify structural risks early
 - Verify that the README.md describes how to run and deploy and is up to date.

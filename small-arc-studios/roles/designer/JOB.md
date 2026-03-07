@@ -6,7 +6,7 @@ Ensure usability, coherence, and experiential clarity.
 
 ## Responsibilities
 
-- Clarify user flows during RFP
+- Clarify user flows during planning
 - Shape interaction patterns
 - Reduce friction and ambiguity
 - Ensure accessibility and clarity
