@@ -198,40 +198,42 @@
     dragHistory.length = 0;
   }
 
-  // Mouse events
-  canvas.addEventListener("mousedown", (e) => {
+  // Mouse events — listen on document because #app overlays the canvas
+  document.addEventListener("mousedown", (e) => {
     const { x, y } = canvasCoords(e.clientX, e.clientY);
     grabParticle(x, y);
   });
-  canvas.addEventListener("mousemove", (e) => {
+  document.addEventListener("mousemove", (e) => {
+    if (!dragParticle) return;
     const { x, y } = canvasCoords(e.clientX, e.clientY);
     moveParticle(x, y);
   });
-  canvas.addEventListener("mouseup", () => {
-    releaseParticle();
-  });
-  canvas.addEventListener("mouseleave", () => {
+  document.addEventListener("mouseup", () => {
     releaseParticle();
   });
 
-  // Touch events
-  canvas.addEventListener("touchstart", (e) => {
-    e.preventDefault();
+  // Touch events — only preventDefault when we're actually dragging,
+  // so normal taps on buttons still work
+  document.addEventListener("touchstart", (e) => {
     const touch = e.touches[0];
     const { x, y } = canvasCoords(touch.clientX, touch.clientY);
-    grabParticle(x, y);
+    const p = findParticleAt(x, y);
+    if (p) {
+      e.preventDefault();
+      grabParticle(x, y);
+    }
   }, { passive: false });
-  canvas.addEventListener("touchmove", (e) => {
+  document.addEventListener("touchmove", (e) => {
+    if (!dragParticle) return;
     e.preventDefault();
     const touch = e.touches[0];
     const { x, y } = canvasCoords(touch.clientX, touch.clientY);
     moveParticle(x, y);
   }, { passive: false });
-  canvas.addEventListener("touchend", (e) => {
-    e.preventDefault();
+  document.addEventListener("touchend", () => {
     releaseParticle();
   });
-  canvas.addEventListener("touchcancel", () => {
+  document.addEventListener("touchcancel", () => {
     releaseParticle();
   });
 
