@@ -24,7 +24,8 @@
 
   const COLORS = ["W", "U", "B", "R", "G"];
   const SYMBOL_SIZE = 48;
-  const SYMBOL_COUNT = 35;
+  // Scale particle count to screen area — one per ~25000 sq px, balanced across 5 colors
+  const SYMBOL_COUNT = Math.min(100, Math.max(15, Math.round(canvas.width * canvas.height / 25000 / 5) * 5));
   const MAX_SPEED = 0.6;
   const DAMPING = 0.999;
   const R = SYMBOL_SIZE / 2;
