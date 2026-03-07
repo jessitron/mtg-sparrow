@@ -204,7 +204,7 @@
     dragParticle.vx = release_vx;
     dragParticle.vy = release_vy;
 
-    // Dispatch telemetry event
+    // Dispatch telemetry event — listened in src/welcome.ts → mana_gas.drag span
     window.dispatchEvent(new CustomEvent("mana-gas-drag", {
       detail: {
         color: dragParticle.color,
@@ -454,7 +454,7 @@
             e.cx = (e.a.x + e.b.x + e.c.x) / 3;
             e.cy = (e.a.y + e.b.y + e.c.y) / 3;
 
-            // Dispatch telemetry event
+            // Dispatch event — not currently listened to (too noisy for telemetry)
             window.dispatchEvent(new CustomEvent("mana-gas-encounter", {
               detail: {
                 type: "triple",
