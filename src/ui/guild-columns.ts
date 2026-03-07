@@ -2,7 +2,7 @@ import { renderPip } from './pips';
 import { alliedGuilds, enemyGuilds, wedges, shards, ColorCombo } from '../data/combos';
 import { guildDescriptionMap } from '../data/guild-descriptions';
 import { Span } from '@opentelemetry/api';
-import { startChildSpan, endSpan, addSpanEvent } from '../telemetry/telemetry';
+import { startChildSpan, endSpan, emitLog } from '../telemetry/telemetry';
 import { hasCompletedSubgroup } from '../progression';
 import { GuildSubgroup } from '../session';
 
@@ -1102,7 +1102,7 @@ export function showSessionEndColumns(
       }
 
       if (action !== 'accumulating') {
-        addSpanEvent(sectionSpanRef.current, 'end.wheel_event', {
+        emitLog('end.wheel_event', {
           'wheel.deltaY': Math.round(e.deltaY),
           'wheel.accumulated_deltaY': Math.round(reelAccumulatedDelta),
           'wheel.direction': direction,

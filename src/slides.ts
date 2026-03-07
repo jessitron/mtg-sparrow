@@ -1,4 +1,4 @@
-import { initTelemetry, startSpan, startChildSpan, endSpan, addSpanEvent, flushSpans, getTraceId } from './telemetry/telemetry';
+import { initTelemetry, startSpan, startChildSpan, endSpan, emitLog, flushSpans, getTraceId } from './telemetry/telemetry';
 import { renderCard, revealName } from './ui/render';
 import {
   createSession,
@@ -73,8 +73,8 @@ async function navigateToAssessment(actualCount: number): Promise<void> {
     const nextSubgroup = nextSubgroupMap[session.subgroup];
     if (nextSubgroup !== null) {
       const justUnlocked = markSubgroupUnlocked(nextSubgroup);
-      if (justUnlocked && sessionSpan) {
-        addSpanEvent(sessionSpan, 'progression.subgroup_unlocked', {
+      if (justUnlocked) {
+        emitLog('progression.subgroup_unlocked', {
           'progression.subgroup': nextSubgroup,
         });
       }
@@ -162,11 +162,9 @@ function showCard(): void {
       e.stopPropagation();
       paused = !paused;
       pauseBtn.textContent = paused ? 'Resume' : 'Pause';
-      if (sessionSpan) {
-        addSpanEvent(sessionSpan, paused ? 'session.pause' : 'session.resume', {
-          'session.card_index': session ? session.currentIndex : 0,
-        });
-      }
+      emitLog(paused ? 'session.pause' : 'session.resume', {
+        'session.card_index': session ? session.currentIndex : 0,
+      });
       if (paused) {
         clearTimers();
       } else {
@@ -260,13 +258,11 @@ function handleAdvance(): void {
   if (!session || session.completed) return;
   if (paused) return;
 
-  // Record a span event on the card span for every user tap
-  if (cardSpan) {
-    addSpanEvent(cardSpan, 'user.tap', {
-      'tap.time_since_card_ms': Date.now() - cardShowTime,
-      'tap.name_revealed': revealTimer === null,
-    });
-  }
+  // Record a log for every user tap (sent immediately, unlike span events)
+  emitLog('user.tap', {
+    'tap.time_since_card_ms': Date.now() - cardShowTime,
+    'tap.name_revealed': revealTimer === null,
+  });
 
   if (revealTimer !== null) {
     // Name not yet revealed — reveal it now, then auto-advance after ADVANCE_DELAY_MS
