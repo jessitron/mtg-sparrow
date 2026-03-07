@@ -994,4 +994,32 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-108: Upgrade/Downgrade Model for Three-Color Encounters
+- **Date**: 2026-03-07
+- **Decision**: Three-color encounters upgrade from existing two-color encounters when a matching third particle enters the bubble, and downgrade back to two-color when the third particle drifts away.
+- **Context**: Need to detect when three mana symbols of a valid triple (wedge or shard) cluster together in the gas simulation.
+- **Alternatives Considered**: Independent O(n^3) triple detection each frame. Rejected for performance reasons and because the upgrade model makes the progression visible to users — "Dimir + Green = Sultai" is more interesting than a triple appearing from nothing.
+- **Rationale**: The upgrade model is both more efficient (only checks when a third particle enters an existing encounter) and more visually meaningful (users see the pair become a triple).
+
+## DEC-109: Triple Name Replaces Guild Name (Not Shown Alongside)
+- **Date**: 2026-03-07
+- **Decision**: When a triple forms, the encounter label shows only the triple name (e.g., "Sultai"), replacing the guild name (e.g., "Dimir"). The two names are not shown simultaneously.
+- **Context**: The encounter bubble has limited visual space. Showing both names would be cluttered and confusing.
+- **Rationale**: The triple is the higher-order concept. Client confirmed this preference.
+
+## DEC-110: Gold Visual Distinction for Triple Encounters
+- **Date**: 2026-03-07
+- **Decision**: Triple encounters use gold stroke (`rgba(255,215,0,0.4)`) and 22px bold gold text, distinct from white 18px text for two-color guild encounters.
+- **Context**: Users need to visually distinguish three-color encounters from two-color encounters at a glance.
+- **Alternatives Considered**: Different bubble shape, particle effects, animation. Gold color was chosen as visually distinct without being garish, and gold has a natural association with "higher tier" or "upgrade."
+- **Rationale**: Clear visual hierarchy — white for guilds, gold for triples — communicates the upgrade without requiring the user to read the label.
+
+## DEC-111: Telemetry via CustomEvent for Triple Encounters
+- **Date**: 2026-03-07
+- **Decision**: Triple encounter formation dispatches a `mana-gas-encounter` CustomEvent with `{ type: "triple", name, colors }`. No Honeycomb listener is wired yet.
+- **Context**: mana-gas.js is standalone vanilla JS outside the esbuild bundle and cannot import the telemetry module. This is the same cross-boundary communication pattern established for drag events in Arc 32 (`mana-gas-drag`).
+- **Rationale**: Consistent pattern. A future arc will wire the event listener in the bundled code to forward spans to Honeycomb.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
