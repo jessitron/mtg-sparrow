@@ -649,7 +649,7 @@ function buildAlliedColumn(
 
     const explanation = document.createElement('p');
     explanation.classList.add('level-section-explanation');
-    explanation.textContent = "Magic's five colors form a circle: ☀️ 💧 💀 🔥 🌿. Allied guilds are pairs of neighboring colors.";
+    explanation.textContent = "Allied guilds are pairs of neighboring colors.";
     summary.appendChild(explanation);
 
     summary.appendChild(buildGuildList(alliedGuilds));
@@ -771,7 +771,7 @@ function buildWedgeColumn(
 
     const explanation = document.createElement('p');
     explanation.classList.add('level-section-explanation');
-    explanation.textContent = "Wedges combine one color with its two enemies — three colors that don't naturally agree.";
+    explanation.textContent = "Wedges combine one color with the two across from it.";
     summary.appendChild(explanation);
 
     summary.appendChild(buildGuildList(wedges));
@@ -832,7 +832,7 @@ function buildShardColumn(
 
     const explanation = document.createElement('p');
     explanation.classList.add('level-section-explanation');
-    explanation.textContent = 'Shards unite one color with its two allies — three colors that naturally work together.';
+    explanation.textContent = 'Shards combine one color with the two on either side.';
     summary.appendChild(explanation);
 
     summary.appendChild(buildGuildList(shards));
