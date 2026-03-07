@@ -162,6 +162,11 @@ function showCard(): void {
       e.stopPropagation();
       paused = !paused;
       pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+      if (sessionSpan) {
+        addSpanEvent(sessionSpan, paused ? 'session.pause' : 'session.resume', {
+          'session.card_index': session ? session.currentIndex : 0,
+        });
+      }
       if (paused) {
         clearTimers();
       } else {
