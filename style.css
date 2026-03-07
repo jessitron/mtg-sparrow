@@ -87,16 +87,19 @@ body {
 }
 
 footer {
-  position: relative;
-  z-index: 1;
-  padding: 0.5rem;
-  font-size: 0.75rem;
-  color: #666;
-  text-align: center;
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  padding: 0;
 }
 
-/* Gear icon button */
+/* Gear icon button — top-right on every page */
 .settings-gear-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
   background: transparent;
   border: none;
   color: #555;
@@ -131,9 +134,11 @@ footer {
 /* Settings panel */
 .settings-panel {
   position: fixed;
-  bottom: 3.5rem;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 3.5rem;
+  right: 1rem;
+  left: auto;
+  bottom: auto;
+  transform: none;
   z-index: 11;
   background: color-mix(in srgb, var(--bg-brown-dark) 97%, transparent);
   backdrop-filter: blur(12px);

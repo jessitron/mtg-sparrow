@@ -461,20 +461,3 @@
   font-weight: 700;
   color: #f0f0f0;
 }
-
-/* Settings gear: upper right on end screen */
-.settings-gear-btn--top-right {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 5;
-}
-
-/* Settings panel: open from top-right on end screen */
-.settings-gear-btn--top-right ~ .settings-panel {
-  top: 3.5rem;
-  right: 1rem;
-  bottom: auto;
-  left: auto;
-  transform: none;
-}
