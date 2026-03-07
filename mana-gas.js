@@ -72,6 +72,14 @@
   const particles = [];
   let paused = false;
 
+  // Drag state
+  let dragParticle = null;
+  let dragStartTime = 0;
+  // Track recent positions for release velocity
+  const dragHistory = []; // { x, y, t }
+  const DRAG_HISTORY_MAX = 5;
+  const DRAG_SCALE = 1.2;
+
   // Wire up stop/fan buttons if present
   const stopBtn = document.getElementById("gas-stop-btn") || document.getElementById("stop-btn");
   const fanBtn = document.getElementById("gas-fan-btn") || document.getElementById("fan-btn");
@@ -107,6 +115,126 @@
     });
   }
 
+  // --- Drag interaction ---
+
+  function canvasCoords(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top,
+    };
+  }
+
+  function findParticleAt(x, y) {
+    let closest = null;
+    let closestDist = Infinity;
+    for (const p of particles) {
+      const dx = p.x - x;
+      const dy = p.y - y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < p.r && dist < closestDist) {
+        closest = p;
+        closestDist = dist;
+      }
+    }
+    return closest;
+  }
+
+  function grabParticle(x, y) {
+    const p = findParticleAt(x, y);
+    if (!p) return;
+    dragParticle = p;
+    dragStartTime = performance.now();
+    dragHistory.length = 0;
+    dragHistory.push({ x, y, t: dragStartTime });
+  }
+
+  function moveParticle(x, y) {
+    if (!dragParticle) return;
+    dragParticle.x = x;
+    dragParticle.y = y;
+    const now = performance.now();
+    dragHistory.push({ x, y, t: now });
+    if (dragHistory.length > DRAG_HISTORY_MAX) {
+      dragHistory.shift();
+    }
+  }
+
+  function releaseParticle() {
+    if (!dragParticle) return;
+    const now = performance.now();
+    const duration_ms = Math.round(now - dragStartTime);
+
+    // Compute release velocity from drag history
+    let release_vx = 0;
+    let release_vy = 0;
+    if (dragHistory.length >= 2) {
+      const recent = dragHistory[dragHistory.length - 1];
+      const older = dragHistory[0];
+      const dt = recent.t - older.t;
+      if (dt > 0) {
+        // Scale down to match the simulation's per-frame velocity units
+        // At 60fps, one frame ~16.7ms
+        const frameMs = 16.7;
+        release_vx = ((recent.x - older.x) / dt) * frameMs;
+        release_vy = ((recent.y - older.y) / dt) * frameMs;
+      }
+    }
+
+    dragParticle.vx = release_vx;
+    dragParticle.vy = release_vy;
+
+    // Dispatch telemetry event
+    window.dispatchEvent(new CustomEvent("mana-gas-drag", {
+      detail: {
+        color: dragParticle.color,
+        duration_ms,
+        release_vx: Math.round(release_vx * 100) / 100,
+        release_vy: Math.round(release_vy * 100) / 100,
+      },
+    }));
+
+    dragParticle = null;
+    dragHistory.length = 0;
+  }
+
+  // Mouse events
+  canvas.addEventListener("mousedown", (e) => {
+    const { x, y } = canvasCoords(e.clientX, e.clientY);
+    grabParticle(x, y);
+  });
+  canvas.addEventListener("mousemove", (e) => {
+    const { x, y } = canvasCoords(e.clientX, e.clientY);
+    moveParticle(x, y);
+  });
+  canvas.addEventListener("mouseup", () => {
+    releaseParticle();
+  });
+  canvas.addEventListener("mouseleave", () => {
+    releaseParticle();
+  });
+
+  // Touch events
+  canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const { x, y } = canvasCoords(touch.clientX, touch.clientY);
+    grabParticle(x, y);
+  }, { passive: false });
+  canvas.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const { x, y } = canvasCoords(touch.clientX, touch.clientY);
+    moveParticle(x, y);
+  }, { passive: false });
+  canvas.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    releaseParticle();
+  });
+  canvas.addEventListener("touchcancel", () => {
+    releaseParticle();
+  });
+
   function init() {
     for (let i = 0; i < SYMBOL_COUNT; i++) {
       particles.push({
@@ -128,8 +256,12 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (!paused) {
-    // Update positions
+    // Update positions (skip dragged particle — cursor controls it)
     for (const p of particles) {
+      if (p === dragParticle) {
+        p.rotation += p.rotationSpeed;
+        continue;
+      }
       p.x += p.vx;
       p.y += p.vy;
       p.rotation += p.rotationSpeed;
@@ -155,22 +287,40 @@
         if (dist < minDist && dist > 0) {
           const nx = dx / dist;
           const ny = dy / dist;
-          const dvx = a.vx - b.vx;
-          const dvy = a.vy - b.vy;
-          const dvn = dvx * nx + dvy * ny;
+          const aIsDragged = a === dragParticle;
+          const bIsDragged = b === dragParticle;
 
-          if (dvn > 0) {
-            a.vx -= dvn * nx;
-            a.vy -= dvn * ny;
-            b.vx += dvn * nx;
-            b.vy += dvn * ny;
+          if (aIsDragged || bIsDragged) {
+            // Dragged particle acts as immovable: push the other one away
+            const other = aIsDragged ? b : a;
+            const sign = aIsDragged ? 1 : -1;
+            // Give the other particle a kick away from the dragged one
+            const pushStrength = 2;
+            other.vx += sign * nx * pushStrength;
+            other.vy += sign * ny * pushStrength;
+            // Separate fully by moving only the other particle
+            const overlap = minDist - dist;
+            other.x += sign * nx * overlap;
+            other.y += sign * ny * overlap;
+          } else {
+            // Normal elastic collision
+            const dvx = a.vx - b.vx;
+            const dvy = a.vy - b.vy;
+            const dvn = dvx * nx + dvy * ny;
+
+            if (dvn > 0) {
+              a.vx -= dvn * nx;
+              a.vy -= dvn * ny;
+              b.vx += dvn * nx;
+              b.vy += dvn * ny;
+            }
+
+            const overlap = (minDist - dist) / 2;
+            a.x -= overlap * nx;
+            a.y -= overlap * ny;
+            b.x += overlap * nx;
+            b.y += overlap * ny;
           }
-
-          const overlap = (minDist - dist) / 2;
-          a.x -= overlap * nx;
-          a.y -= overlap * ny;
-          b.x += overlap * nx;
-          b.y += overlap * ny;
         }
       }
     }
@@ -247,21 +397,37 @@
       ctx.restore();
     }
 
-    // Draw particles
-    for (const p of particles) {
+    // Draw particles (dragged particle last so it renders on top)
+    const drawOrder = dragParticle
+      ? particles.filter(p => p !== dragParticle).concat([dragParticle])
+      : particles;
+    for (const p of drawOrder) {
+      const isDragged = p === dragParticle;
+      const scale = isDragged ? DRAG_SCALE : 1;
+      const drawR = p.r * scale;
+      const drawSize = SYMBOL_SIZE * scale;
+
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rotation);
-      ctx.globalAlpha = 0.75;
+      ctx.globalAlpha = isDragged ? 0.95 : 0.75;
+
+      // Drop shadow for dragged symbol
+      if (isDragged) {
+        ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+        ctx.shadowBlur = 16;
+        ctx.shadowOffsetX = 4;
+        ctx.shadowOffsetY = 4;
+      }
 
       // Outline ring behind the symbol for separation from the background
       ctx.beginPath();
-      ctx.arc(0, 0, p.r + SYMBOL_OUTLINE_WIDTH / 2, 0, Math.PI * 2);
+      ctx.arc(0, 0, drawR + SYMBOL_OUTLINE_WIDTH / 2, 0, Math.PI * 2);
       ctx.strokeStyle = SYMBOL_OUTLINE_COLOR;
       ctx.lineWidth = SYMBOL_OUTLINE_WIDTH;
       ctx.stroke();
 
-      ctx.drawImage(images[p.color], -p.r, -p.r, SYMBOL_SIZE, SYMBOL_SIZE);
+      ctx.drawImage(images[p.color], -drawR, -drawR, drawSize, drawSize);
       ctx.restore();
     }
 
