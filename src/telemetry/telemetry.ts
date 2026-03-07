@@ -1,7 +1,9 @@
 import { trace, context, Span, SpanStatusCode } from '@opentelemetry/api';
+import { logs, SeverityNumber } from '@opentelemetry/api-logs';
 import { init, getProvider } from './init';
 
 let tracer: ReturnType<typeof trace.getTracer>;
+let logger: ReturnType<typeof logs.getLogger>;
 let sessionId: string;
 let playerId: string;
 
@@ -33,6 +35,7 @@ export function initTelemetry(version: string, page?: string, navigation?: strin
   if (navigation) resourceAttrs['app.navigation'] = navigation;
   init(version, sessionId, resourceAttrs);
   tracer = trace.getTracer('sparrow-deck', version);
+  logger = logs.getLogger('sparrow-deck', version);
 }
 
 export function getSessionId(): string {
@@ -61,6 +64,17 @@ export function addSpanEvent(
   attributes?: Record<string, string | number | boolean>,
 ): void {
   span.addEvent(name, attributes);
+}
+
+export function emitLog(
+  name: string,
+  attributes?: Record<string, string | number | boolean>,
+): void {
+  logger.emit({
+    severityNumber: SeverityNumber.INFO,
+    body: name,
+    attributes,
+  });
 }
 
 export function getTraceId(span: Span): string {
