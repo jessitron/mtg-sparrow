@@ -71,9 +71,10 @@ export function endSpan(span: Span): void {
   span.end();
 }
 
-export function sendStartupSpan(version: string): void {
+export function sendStartupSpan(version: string): Span {
   const span = startSpan('app.startup', { 'app.version': version, 'css.split': 'true', 'app.module_structure': 'extracted', 'data.tier_version': 'three_color_v1' });
   span.end();
+  return span;
 }
 
 export function flushSpans(): Promise<void> {

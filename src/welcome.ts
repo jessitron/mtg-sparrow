@@ -1,4 +1,4 @@
-import { initTelemetry, sendStartupSpan, startSpan, flushSpans } from './telemetry/telemetry';
+import { initTelemetry, sendStartupSpan, startSpan, getTraceId, flushSpans } from './telemetry/telemetry';
 import { wireSettings } from './ui/settings';
 
 export const APP_VERSION = '0.19.0';
@@ -7,7 +7,18 @@ let welcomeScreenLoadTime = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'welcome', 'multi_page');
-  sendStartupSpan(APP_VERSION);
+  const startupSpan = sendStartupSpan(APP_VERSION);
+
+  // Wire trace link in settings panel
+  const traceId = getTraceId(startupSpan);
+  const traceLink = document.getElementById('settings-trace-link') as HTMLAnchorElement | null;
+  const traceContainer = document.getElementById('settings-trace-container');
+  if (traceLink) {
+    traceLink.href = `https://ui.honeycomb.io/modernity/environments/sparrow-deck/trace?trace_id=${traceId}`;
+  }
+  if (traceContainer) {
+    traceContainer.hidden = false;
+  }
 
   wireSettings(APP_VERSION);
 
