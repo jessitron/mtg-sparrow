@@ -2,7 +2,7 @@ import { renderPip } from './pips';
 import { alliedGuilds, enemyGuilds, wedges, shards, ColorCombo } from '../data/combos';
 import { guildDescriptionMap } from '../data/guild-descriptions';
 import { Span } from '@opentelemetry/api';
-import { startChildSpan, endSpan, emitLog } from '../telemetry/telemetry';
+import { startChildSpan, endSpan, emitLog, getSessionId, startSpan } from '../telemetry/telemetry';
 import { hasCompletedSubgroup } from '../progression';
 import { GuildSubgroup } from '../session';
 
@@ -975,12 +975,45 @@ export function showSessionEndColumns(
   clearWedge = clearWedgeFn;
   clearShard = clearShardFn;
 
-  // Build share section (placeholder — real implementation comes later)
+  // Build share section
   const shareSection = document.createElement('div');
   shareSection.classList.add('level-section', 'level-section--share');
+
   const shareHeader = document.createElement('h2');
+  shareHeader.classList.add('level-section-header');
   shareHeader.textContent = 'Share';
   shareSection.appendChild(shareHeader);
+
+  const sharePrompt = document.createElement('p');
+  sharePrompt.classList.add('share-prompt');
+  sharePrompt.textContent = 'Know someone who could use this? Send them a link.';
+  shareSection.appendChild(sharePrompt);
+
+  const shareBtn = document.createElement('button');
+  shareBtn.classList.add('share-copy-btn');
+  shareBtn.textContent = 'Copy link';
+  shareBtn.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    const sessionId = getSessionId();
+    // Build a clean share URL pointing to the home page
+    const url = new URL(window.location.origin + window.location.pathname.replace(/end\/?$/, ''));
+    url.searchParams.set('utm_source', 'share');
+    url.searchParams.set('utm_id', sessionId);
+    const shareUrl = url.toString();
+
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      shareBtn.textContent = 'Copied!';
+      setTimeout(() => { shareBtn.textContent = 'Copy link'; }, 2000);
+    });
+
+    const span = startSpan('share.copy_link', {
+      'share.session_id': sessionId,
+      'share.url': shareUrl,
+      'share.source': 'end_screen',
+    });
+    endSpan(span);
+  });
+  shareSection.appendChild(shareBtn);
 
   // Build reel structure: viewport clips to one section, reel translates
   const sections = [alliedCol, enemyCol, wedgeCol, shardCol, shareSection];

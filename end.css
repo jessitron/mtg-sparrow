@@ -453,17 +453,43 @@
   transition: opacity 150ms ease;
 }
 
-/* Share section placeholder */
+/* Share section */
 .level-section--share {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 400px;
+  gap: 1.5rem;
+  min-height: 300px;
+  padding: 3rem 1.5rem;
 }
 
-.level-section--share h2 {
-  font-family: 'GoudyMediaeval', Georgia, serif;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #f0f0f0;
+.share-prompt {
+  font-size: 1.1rem;
+  color: #aaa;
+  text-align: center;
+  line-height: 1.5;
+  max-width: 400px;
+}
+
+.share-copy-btn {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  background: color-mix(in srgb, var(--card-back-turquoise) 20%, transparent);
+  border: 2px solid var(--card-back-turquoise);
+  border-radius: 12px;
+  padding: 0.9rem 2rem;
+  cursor: pointer;
+  transition: background 200ms ease, border-color 200ms ease, transform 100ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.share-copy-btn:hover {
+  background: color-mix(in srgb, var(--card-back-turquoise) 35%, transparent);
+  border-color: var(--card-back-oval-brighter);
+}
+
+.share-copy-btn:active {
+  transform: scale(0.97);
 }
