@@ -1182,4 +1182,51 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-131: Deploy Markers via Honeycomb Markers API to `__all__` Datasets
+- **Date**: 2026-03-08
+- **Arc**: 39 (Deploy Markers)
+- **Decision**: Deploy markers are sent to Honeycomb's `__all__` datasets endpoint rather than a specific dataset.
+- **Context**: Honeycomb markers can target a specific dataset or `__all__`. The project has telemetry across the default dataset; operators may view different datasets when debugging.
+- **Alternatives considered**: Per-dataset markers — would require maintaining a dataset list and updating it if new datasets are added. `__all__` covers everything.
+- **Rationale**: Posting to `__all__` ensures the marker appears on every query timeline regardless of which dataset the operator is viewing. Zero maintenance overhead when datasets change.
+
+## DEC-132: Marker as Post-Deploy Step in GitHub Actions
+- **Date**: 2026-03-08
+- **Arc**: 39 (Deploy Markers)
+- **Decision**: The deploy marker is sent as a step within the existing deploy job in `.github/workflows/deploy.yml`, not as a separate workflow.
+- **Alternatives considered**: (1) Separate workflow triggered by deploy completion — adds complexity and a second workflow file. (2) GitHub Action marketplace action — adds a third-party dependency for a single curl call.
+- **Rationale**: Simpler. The step only runs after a successful deploy (it follows the deploy step in the same job). It shares the job's git context, so it can derive the commit SHA directly. No additional workflow orchestration needed.
+
+## DEC-133: Local Deploy Marker Script
+- **Date**: 2026-03-08
+- **Arc**: 39 (Deploy Markers)
+- **Decision**: A standalone `scripts/deploy-marker.sh` script is provided for manual marker creation.
+- **Context**: Operators may want to create markers outside of CI — for example, when testing locally or when a deploy happens through a non-standard path.
+- **Rationale**: Follows the project convention of scripts in `scripts/` directory (DEC-028). Derives SHA and repo URL from git so it works without configuration beyond the API key.
+
+---
+
+## Arc 39 Completion Record
+- **Date**: 2026-03-08
+- **Arc**: Arc 39 — Deploy Markers
+- **Status**: COMPLETE — Structural verification
+- **Decisions**: DEC-131, DEC-132, DEC-133
+- **Detailed record**: arc39-deploy-markers.md
+
+---
+
+## Publish Readiness Plan — COMPLETE
+- **Date**: 2026-03-08
+- **Plan document**: plan-publish-readiness.md
+- **Status**: All 5 arcs delivered
+- **Arcs**:
+  - Arc 35: Fix User-Facing Bugs (home link, layout shift, Scryfall fallback, reel animation) — DEC-116 through DEC-119
+  - Arc 36: License, About Page, Site Identity, and Share — 71/71 PASS — DEC-120 through DEC-125
+  - Arc 37: Clean Up Public-Facing Artifacts — 49/49 PASS — DEC-126 through DEC-128
+  - Arc 38: Mobile Welcome & Responsiveness — 20/20 PASS — DEC-129, DEC-130
+  - Arc 39: Deploy Markers — Structural verification — DEC-131 through DEC-133
+- **Outcome**: MTG Sparrow is publish-ready. Known bugs fixed, legal foundations in place, prototype artifacts removed, mobile welcome works, deploy markers configured. Version 0.27.0. Client action needed: add `HONEYCOMB_API_KEY` secret to GitHub repo settings for deploy markers to function.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
