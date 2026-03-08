@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MTG Colors Logo Prototype</title>
+  <style>
+    :root {
+      /* === TWEAK THESE === */
+
+      /* Background circle */
+      --bg-radius: 200px;
+
+      /* Mana symbol sizing & positioning */
+      --symbol-size: 70px;
+      --symbol-orbit-radius: 120px; /* distance from center to each symbol */
+
+      /* Symbol outline (applied as drop-shadow since SVGs are images) */
+      --symbol-outline-width: 2px;
+      --symbol-outline-color: rgba(0, 0, 0, 0.4);
+
+      /* The five mana colors (WUBRG order, starting at top going clockwise) */
+      --color-W: #F9FAF4;  /* White */
+      --color-U: #0E68AB;  /* Blue */
+      --color-B: #B336D9;  /* Black */
+      --color-R: #D3202A;  /* Red */
+      --color-G: #00733E;  /* Green */
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #1a1a2e;
+      font-family: system-ui, sans-serif;
+      color: #ccc;
+    }
+
+    h1 {
+      margin-bottom: 40px;
+      font-size: 1.2rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+    }
+
+    .logo-container {
+      position: relative;
+      width: calc(var(--bg-radius) * 2);
+      height: calc(var(--bg-radius) * 2);
+    }
+
+    /* Background gradient circle */
+    .bg-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: calc(var(--bg-radius) * 2);
+      height: calc(var(--bg-radius) * 2);
+      border-radius: 50%;
+      background: conic-gradient(
+        from 0deg,       /* 0° = top center */
+        var(--color-W) 0deg,
+        var(--color-U) 72deg,
+        var(--color-B) 144deg,
+        var(--color-R) 216deg,
+        var(--color-G) 288deg,
+        var(--color-W) 360deg
+      );
+    }
+
+    /* Each mana symbol */
+    .mana-symbol {
+      position: absolute;
+      width: var(--symbol-size);
+      height: var(--symbol-size);
+      /* center the symbol on its computed position */
+      top: 50%;
+      left: 50%;
+      filter: drop-shadow(0 0 var(--symbol-outline-width) var(--symbol-outline-color));
+    }
+
+    /*
+     * Pentagon placement: WUBRG starting at top (–90°), each +72° clockwise.
+     * Using transform to position along the orbit.
+     * angle: W=-90°, U=-18°, B=54°, R=126°, G=198°
+     * x = orbit * cos(angle), y = orbit * sin(angle)
+     * Then shift by -50% of symbol size to center.
+     *
+     * We compute these with calc() — but trig in CSS is modern (cos/sin).
+     * For broadest compat, using hardcoded multipliers:
+     *   W: cos(-90°)= 0,      sin(-90°)=-1
+     *   U: cos(-18°)= 0.9511, sin(-18°)=-0.3090
+     *   B: cos(54°) = 0.5878, sin(54°) = 0.8090
+     *   R: cos(126°)=-0.5878, sin(126°)= 0.8090
+     *   G: cos(198°)=-0.9511, sin(198°)=-0.3090
+     */
+    .mana-symbol[data-color="W"] {
+      transform: translate(
+        calc(var(--symbol-orbit-radius) * 0 - var(--symbol-size) / 2),
+        calc(var(--symbol-orbit-radius) * -1 - var(--symbol-size) / 2)
+      );
+    }
+    .mana-symbol[data-color="U"] {
+      transform: translate(
+        calc(var(--symbol-orbit-radius) * 0.9511 - var(--symbol-size) / 2),
+        calc(var(--symbol-orbit-radius) * -0.309 - var(--symbol-size) / 2)
+      );
+    }
+    .mana-symbol[data-color="B"] {
+      transform: translate(
+        calc(var(--symbol-orbit-radius) * 0.5878 - var(--symbol-size) / 2),
+        calc(var(--symbol-orbit-radius) * 0.809 - var(--symbol-size) / 2)
+      );
+    }
+    .mana-symbol[data-color="R"] {
+      transform: translate(
+        calc(var(--symbol-orbit-radius) * -0.5878 - var(--symbol-size) / 2),
+        calc(var(--symbol-orbit-radius) * 0.809 - var(--symbol-size) / 2)
+      );
+    }
+    .mana-symbol[data-color="G"] {
+      transform: translate(
+        calc(var(--symbol-orbit-radius) * -0.9511 - var(--symbol-size) / 2),
+        calc(var(--symbol-orbit-radius) * -0.309 - var(--symbol-size) / 2)
+      );
+    }
+
+    /* Controls panel */
+    .controls {
+      margin-top: 50px;
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 8px 16px;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .controls label {
+      text-align: right;
+    }
+
+    .controls input[type="range"] {
+      width: 180px;
+    }
+
+    .controls input[type="color"] {
+      width: 40px;
+      height: 28px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .value-display {
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: #888;
+      min-width: 40px;
+      display: inline-block;
+    }
+
+    .color-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      grid-column: 1 / -1;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .color-swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 0.75rem;
+    }
+
+    .hex-input {
+      width: 70px;
+      font-family: monospace;
+      font-size: 0.75rem;
+      text-align: center;
+      background: #2a2a3e;
+      color: #ccc;
+      border: 1px solid #555;
+      border-radius: 3px;
+      padding: 2px 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>LOGO PROTOTYPE</h1>
+
+  <div class="logo-container">
+    <div class="bg-circle"></div>
+    <img class="mana-symbol" data-color="W" src="images/W.svg" alt="White">
+    <img class="mana-symbol" data-color="U" src="images/U.svg" alt="Blue">
+    <img class="mana-symbol" data-color="B" src="images/B.svg" alt="Black">
+    <img class="mana-symbol" data-color="R" src="images/R.svg" alt="Red">
+    <img class="mana-symbol" data-color="G" src="images/G.svg" alt="Green">
+  </div>
+
+  <div class="controls">
+    <label for="bg-radius">Background radius:</label>
+    <div>
+      <input type="range" id="bg-radius" min="80" max="400" value="200">
+      <span class="value-display" id="bg-radius-val">200px</span>
+    </div>
+
+    <label for="symbol-size">Symbol size:</label>
+    <div>
+      <input type="range" id="symbol-size" min="20" max="150" value="70">
+      <span class="value-display" id="symbol-size-val">70px</span>
+    </div>
+
+    <label for="orbit-radius">Orbit radius:</label>
+    <div>
+      <input type="range" id="orbit-radius" min="40" max="300" value="120">
+      <span class="value-display" id="orbit-radius-val">120px</span>
+    </div>
+
+    <label for="outline-width">Outline width:</label>
+    <div>
+      <input type="range" id="outline-width" min="0" max="10" value="2" step="0.5">
+      <span class="value-display" id="outline-width-val">2px</span>
+    </div>
+
+    <label for="outline-color">Outline color:</label>
+    <div>
+      <input type="color" id="outline-color" value="#000000">
+      <input type="text" class="hex-input" id="outline-color-hex" value="#000000">
+    </div>
+
+    <div class="color-row">
+      <div class="color-swatch">
+        <label>W</label>
+        <input type="color" id="color-W" value="#F9FAF4">
+        <input type="text" class="hex-input" id="color-W-hex" value="#F9FAF4">
+      </div>
+      <div class="color-swatch">
+        <label>U</label>
+        <input type="color" id="color-U" value="#0E68AB">
+        <input type="text" class="hex-input" id="color-U-hex" value="#0E68AB">
+      </div>
+      <div class="color-swatch">
+        <label>B</label>
+        <input type="color" id="color-B" value="#150B00">
+        <input type="text" class="hex-input" id="color-B-hex" value="#150B00">
+      </div>
+      <div class="color-swatch">
+        <label>R</label>
+        <input type="color" id="color-R" value="#D3202A">
+        <input type="text" class="hex-input" id="color-R-hex" value="#D3202A">
+      </div>
+      <div class="color-swatch">
+        <label>G</label>
+        <input type="color" id="color-G" value="#00733E">
+        <input type="text" class="hex-input" id="color-G-hex" value="#00733E">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const root = document.documentElement.style;
+
+    function bindRange(id, cssVar, unit = 'px') {
+      const input = document.getElementById(id);
+      const display = document.getElementById(id + '-val');
+      input.addEventListener('input', () => {
+        root.setProperty(cssVar, input.value + unit);
+        if (display) display.textContent = input.value + unit;
+      });
+    }
+
+    function bindColor(id, cssVar) {
+      const picker = document.getElementById(id);
+      const hex = document.getElementById(id + '-hex');
+
+      picker.addEventListener('input', () => {
+        root.setProperty(cssVar, picker.value);
+        if (hex) hex.value = picker.value.toUpperCase();
+      });
+
+      if (hex) {
+        hex.addEventListener('change', () => {
+          let val = hex.value.trim();
+          if (!val.startsWith('#')) val = '#' + val;
+          // Validate hex
+          if (/^#[0-9A-Fa-f]{6}$/.test(val) || /^#[0-9A-Fa-f]{3}$/.test(val)) {
+            picker.value = val.length === 4
+              ? '#' + val[1]+val[1] + val[2]+val[2] + val[3]+val[3]
+              : val;
+            hex.value = picker.value.toUpperCase();
+            root.setProperty(cssVar, picker.value);
+          }
+        });
+      }
+    }
+
+    bindRange('bg-radius', '--bg-radius');
+    bindRange('symbol-size', '--symbol-size');
+    bindRange('orbit-radius', '--symbol-orbit-radius');
+    bindRange('outline-width', '--symbol-outline-width');
+    bindColor('outline-color', '--symbol-outline-color');
+    bindColor('color-W', '--color-W');
+    bindColor('color-U', '--color-U');
+    bindColor('color-B', '--color-B');
+    bindColor('color-R', '--color-R');
+    bindColor('color-G', '--color-G');
+  </script>
+</body>
+</html>
