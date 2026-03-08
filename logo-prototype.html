@@ -20,7 +20,7 @@
       --symbol-outline-color: rgba(0, 0, 0, 0.4);
 
       /* The five mana colors (WUBRG order, starting at top going clockwise) */
-      --color-W: #F9FAF4;  /* White */
+      --color-W: #F7EA3D;  /* White */
       --color-U: #0E68AB;  /* Blue */
       --color-B: #B336D9;  /* Black */
       --color-R: #D3202A;  /* Red */
@@ -73,15 +73,33 @@
       );
     }
 
-    /* Each mana symbol */
-    .mana-symbol {
+    /* Each mana symbol wrapper */
+    .mana-symbol-wrap {
       position: absolute;
       width: var(--symbol-size);
       height: var(--symbol-size);
-      /* center the symbol on its computed position */
       top: 50%;
       left: 50%;
-      filter: drop-shadow(0 0 var(--symbol-outline-width) var(--symbol-outline-color));
+    }
+
+    /* Outline circle behind the symbol */
+    .mana-symbol-wrap::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: calc(100% + var(--symbol-outline-width) * 2);
+      height: calc(100% + var(--symbol-outline-width) * 2);
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: var(--symbol-outline-color);
+    }
+
+    .mana-symbol {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     /*
@@ -99,31 +117,31 @@
      *   R: cos(126°)=-0.5878, sin(126°)= 0.8090
      *   G: cos(198°)=-0.9511, sin(198°)=-0.3090
      */
-    .mana-symbol[data-color="W"] {
+    .mana-symbol-wrap[data-color="W"] {
       transform: translate(
         calc(var(--symbol-orbit-radius) * 0 - var(--symbol-size) / 2),
         calc(var(--symbol-orbit-radius) * -1 - var(--symbol-size) / 2)
       );
     }
-    .mana-symbol[data-color="U"] {
+    .mana-symbol-wrap[data-color="U"] {
       transform: translate(
         calc(var(--symbol-orbit-radius) * 0.9511 - var(--symbol-size) / 2),
         calc(var(--symbol-orbit-radius) * -0.309 - var(--symbol-size) / 2)
       );
     }
-    .mana-symbol[data-color="B"] {
+    .mana-symbol-wrap[data-color="B"] {
       transform: translate(
         calc(var(--symbol-orbit-radius) * 0.5878 - var(--symbol-size) / 2),
         calc(var(--symbol-orbit-radius) * 0.809 - var(--symbol-size) / 2)
       );
     }
-    .mana-symbol[data-color="R"] {
+    .mana-symbol-wrap[data-color="R"] {
       transform: translate(
         calc(var(--symbol-orbit-radius) * -0.5878 - var(--symbol-size) / 2),
         calc(var(--symbol-orbit-radius) * 0.809 - var(--symbol-size) / 2)
       );
     }
-    .mana-symbol[data-color="G"] {
+    .mana-symbol-wrap[data-color="G"] {
       transform: translate(
         calc(var(--symbol-orbit-radius) * -0.9511 - var(--symbol-size) / 2),
         calc(var(--symbol-orbit-radius) * -0.309 - var(--symbol-size) / 2)
@@ -198,11 +216,11 @@
 
   <div class="logo-container">
     <div class="bg-circle"></div>
-    <img class="mana-symbol" data-color="W" src="images/W.svg" alt="White">
-    <img class="mana-symbol" data-color="U" src="images/U.svg" alt="Blue">
-    <img class="mana-symbol" data-color="B" src="images/B.svg" alt="Black">
-    <img class="mana-symbol" data-color="R" src="images/R.svg" alt="Red">
-    <img class="mana-symbol" data-color="G" src="images/G.svg" alt="Green">
+    <div class="mana-symbol-wrap" data-color="W"><img class="mana-symbol" src="images/W.svg" alt="White"></div>
+    <div class="mana-symbol-wrap" data-color="U"><img class="mana-symbol" src="images/U.svg" alt="Blue"></div>
+    <div class="mana-symbol-wrap" data-color="B"><img class="mana-symbol" src="images/B.svg" alt="Black"></div>
+    <div class="mana-symbol-wrap" data-color="R"><img class="mana-symbol" src="images/R.svg" alt="Red"></div>
+    <div class="mana-symbol-wrap" data-color="G"><img class="mana-symbol" src="images/G.svg" alt="Green"></div>
   </div>
 
   <div class="controls">
