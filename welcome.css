@@ -57,6 +57,44 @@
   transform: scale(0.97);
 }
 
+/* Responsive: desktop/mobile content switching */
+.welcome-mobile {
+  display: none;
+}
+
+.welcome-desktop {
+  display: contents;
+}
+
+@media (max-width: 600px) {
+  .welcome-desktop {
+    display: none;
+  }
+
+  .welcome-mobile {
+    display: contents;
+  }
+
+  .welcome {
+    border-radius: 40% / 30%;
+    padding: 2.5rem 1.5rem;
+    gap: 1.2rem;
+    max-width: 90vw;
+  }
+
+  .welcome-instructions-list--mobile {
+    font-size: 1.2rem;
+    gap: 0.5rem;
+  }
+
+  .welcome-mobile .welcome-button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.9rem 2.5rem;
+    font-size: 1.2rem;
+  }
+}
+
 /* Settings gear needs more visibility over the mana gas background */
 #app-footer .settings-gear-btn {
   color: rgba(255, 255, 255, 0.6);

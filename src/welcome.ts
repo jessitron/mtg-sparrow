@@ -26,13 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   welcomeScreenLoadTime = Date.now();
 
-  document.getElementById('start-button')?.addEventListener('click', (e: MouseEvent) => {
-    e.stopPropagation();
-    const dwellMs = Date.now() - welcomeScreenLoadTime;
-    pageSpan.setAttribute('welcome.dwell_ms', dwellMs);
-    endSpan(pageSpan);
-    flushSpans();
-    window.location.href = `slides?subgroup=allied&from=welcome&welcome_dwell_ms=${dwellMs}`;
+  document.querySelectorAll('.welcome-start-btn').forEach((btn) => {
+    btn.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      const dwellMs = Date.now() - welcomeScreenLoadTime;
+      pageSpan.setAttribute('welcome.dwell_ms', dwellMs);
+      endSpan(pageSpan);
+      flushSpans();
+      window.location.href = `slides?subgroup=allied&from=welcome&welcome_dwell_ms=${dwellMs}`;
+    });
   });
 
   // Mana gas drag telemetry — fired from mana-gas.js when a symbol is dragged and released

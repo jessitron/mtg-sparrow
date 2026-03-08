@@ -21,18 +21,31 @@
   <canvas id="gas"></canvas>
   <main id="app">
     <div class="welcome" id="welcome-screen">
-      <h1 class="welcome-heading">Learn MTG Color Combinations</h1>
-      <p class="welcome-instructions">
-        I swear, this will work. Try it for 3 minutes.
-    <br/>
-        You'll know five color combos, and it will stick.
-      </p>
-      <ol class="welcome-instructions-list">
-        <li>See a color combo</li>
-        <li>Guess a name — any name. Say it out loud!</li>
-        <li>When the right name appears, say it out loud too.</li>
-      </ol>
-      <button class="welcome-button" id="start-button">Learn guild names</button>
+      <!-- Desktop version -->
+      <div class="welcome-desktop">
+        <h1 class="welcome-heading">Learn MTG Color Combinations</h1>
+        <p class="welcome-instructions">
+          I swear, this will work. Try it for 3 minutes.
+      <br/>
+          You'll know five color combos, and it will stick.
+        </p>
+        <ol class="welcome-instructions-list">
+          <li>See a color combo</li>
+          <li>Guess a name — any name. Say it out loud!</li>
+          <li>When the right name appears, say it out loud too.</li>
+        </ol>
+        <button class="welcome-button welcome-start-btn">Learn guild names</button>
+      </div>
+      <!-- Mobile version -->
+      <div class="welcome-mobile">
+        <h1 class="welcome-heading">MTG Colors</h1>
+        <ol class="welcome-instructions-list welcome-instructions-list--mobile">
+          <li>See a combo</li>
+          <li>Guess a name out loud</li>
+          <li>See the name. Say the name.</li>
+        </ol>
+        <button class="welcome-button welcome-start-btn">Start</button>
+      </div>
     </div>
   </main>
   <button id="gas-stop-btn" class="gas-btn" title="Freeze / Unfreeze">
