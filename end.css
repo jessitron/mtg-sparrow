@@ -93,6 +93,7 @@
   overflow: hidden;
   position: relative;
   transition: height 600ms cubic-bezier(0.2, 0.8, 0.3, 1.05);
+  animation: reelFadeIn 300ms ease-out;
   /* Gradient mask: fade at top/bottom edges */
   mask-image: linear-gradient(
     to bottom,
@@ -176,12 +177,18 @@
   z-index: 1;
 }
 
-/* Reel strip: sections stacked, translated by JS */
+/* Reel strip: sections stacked, translated by JS.
+   No CSS animation here — the reel uses transform for navigation,
+   and a CSS animation on transform would conflict with JS transitions. */
 .level-sections-reel {
   display: flex;
   flex-direction: column;
   width: 100%;
-  animation: cardEnter 250ms ease-out;
+}
+
+@keyframes reelFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* Each guild row: summary | wheel | flavor */
