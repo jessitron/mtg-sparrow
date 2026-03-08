@@ -1088,6 +1088,46 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Rationale**: Client decision. The name is descriptive, memorable, and matches the app's purpose (learning MTG color combinations).
 - **Impact**: Arc 36 (License, About Page, Site Identity, and Share) can now proceed with the final site title. The plan noted custom domain setup as a "separate concern" — the client is handling the DNS/GitHub Pages configuration themselves.
 
+## DEC-121: Site Title "MTG Colors"
+- **Date**: 2026-03-08
+- **Decision**: All page titles updated from "MTG Color Combos" to "MTG Colors".
+- **Context**: The client chose the domain `mtgcolors.quest` (DEC-120). The site title should match the domain identity.
+- **Decided by**: Client
+- **Rationale**: Consistent branding between domain and page title. Shorter, cleaner.
+
+## DEC-122: About Page as Separate HTML Page
+- **Date**: 2026-03-08
+- **Decision**: About page implemented as a standalone HTML page (`about.html`) rather than a modal within the settings panel.
+- **Context**: The project follows a multi-page architecture (DEC-053). An about page needs room for attributions (Scryfall, MTG Wiki, Wizards of the Coast) and license information.
+- **Rationale**: Follows the established multi-page pattern. Gives attributions proper visibility rather than cramming them into a settings dropdown.
+
+## DEC-123: SVG Favicon with WUBRG Pentagon
+- **Date**: 2026-03-08
+- **Decision**: Favicon is an SVG with five colored circles in WUBRG pentagon formation. No `og:image` meta tag yet — deferred until client provides one.
+- **Context**: The site needed a favicon for browser tabs and bookmarks. SVG favicons are supported by modern browsers and scale cleanly.
+- **Rationale**: The five mana colors in pentagon formation is the most recognizable MTG symbol that can be represented without copyrighted imagery. `og:image` deferred as a separate concern.
+
+## DEC-124: Share via Copy Link with UTM Tracking
+- **Date**: 2026-03-08
+- **Decision**: Share functionality uses a "Copy link" button that constructs a URL with `utm_source=share` and `utm_id={session_id}`. No native share API, no social buttons.
+- **Context**: The app needs a lightweight sharing mechanism. UTM parameters enable referral chain analysis in Honeycomb without requiring a backend.
+- **Rationale**: Copy-to-clipboard is the simplest cross-platform sharing pattern. UTM parameters are a well-understood convention that works with any analytics tool. The session_id in utm_id enables tracing referral chains.
+
+## DEC-125: UTM Parameters as OTel Resource Attributes
+- **Date**: 2026-03-08
+- **Decision**: `utm_source` and `utm_id` from the URL are captured as OTel resource attributes (`utm.source`, `utm.referral_session_id`), appearing on ALL spans for the session.
+- **Context**: Resource attributes propagate to every span automatically, unlike span attributes which only appear on the span where they're set.
+- **Rationale**: Referral context should be visible on every span in the session, enabling Honeycomb queries like "show me all sessions that came from a share link" without filtering to specific span names. Follows the pattern established for `app.page` and `app.navigation` (DEC-066).
+
+---
+
+## Arc 36 Completion Record
+- **Date**: 2026-03-08
+- **Arc**: Arc 36 — License, About Page, Site Identity, and Share
+- **Status**: COMPLETE — 71/71 PASS
+- **Decisions**: DEC-121 through DEC-125
+- **Detailed record**: arc36-identity-share.md
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
