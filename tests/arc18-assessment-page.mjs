@@ -276,10 +276,10 @@ async function run() {
         await page.waitForTimeout(500);
       }
 
-      const gearVisible = await page.isVisible('#settings-gear-btn');
+      const gearVisible = await page.isVisible('#menu-btn');
       assert(gearVisible, 'Settings gear button is visible on assessment page');
 
-      await page.click('#settings-gear-btn');
+      await page.click('#menu-btn');
       await page.waitForSelector('#settings-panel:not([hidden])', { timeout: 5000 });
 
       const panelVisible = await page.isVisible('#settings-panel');

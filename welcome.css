@@ -96,7 +96,7 @@
   }
 }
 
-/* Settings gear needs more visibility over the mana gas background */
-.settings-gear-btn {
+/* Menu button needs more visibility over the mana gas background */
+.menu-btn {
   color: rgba(255, 255, 255, 0.6);
 }

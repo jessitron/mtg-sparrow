@@ -5,15 +5,16 @@ import { startSpan, endSpan, flushSpans, getSessionId } from '../telemetry/telem
  * Called once before wiring event listeners.
  */
 function injectMenuDOM(): void {
-  // Menu button (fixed top-right)
+  // Menu button (fixed top-right, hamburger icon)
   const btn = document.createElement('button');
-  btn.id = 'settings-gear-btn';
-  btn.className = 'settings-gear-btn';
-  btn.title = 'Settings';
-  btn.setAttribute('aria-label', 'Settings');
-  btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  btn.id = 'menu-btn';
+  btn.className = 'menu-btn';
+  btn.title = 'Menu';
+  btn.setAttribute('aria-label', 'Menu');
+  btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
     </svg>`;
   document.body.appendChild(btn);
 
@@ -31,23 +32,18 @@ function injectMenuDOM(): void {
   panel.className = 'settings-panel';
   panel.hidden = true;
   panel.setAttribute('role', 'dialog');
-  panel.setAttribute('aria-label', 'Settings');
+  panel.setAttribute('aria-label', 'Menu');
   panel.setAttribute('aria-modal', 'true');
   panel.innerHTML = `
-    <button id="settings-close-btn" class="settings-close-btn" aria-label="Close settings">&times;</button>
-    <h2 class="settings-title">Settings</h2>
+    <button id="settings-close-btn" class="settings-close-btn" aria-label="Close menu">&times;</button>
+    <h2 class="settings-title">MTG Colors</h2>
     <div id="settings-version" class="settings-version"></div>
+    <a class="settings-about-link" href="about">About</a>
+    <button id="settings-share-btn" class="settings-share-btn">\u{1F517} Share</button>
+    <button id="settings-reset-btn" class="settings-reset-btn" title="forget what you've unlocked">Reset Progress</button>
     <div id="settings-trace-container" class="settings-trace-container" hidden>
       <a id="settings-trace-link" class="settings-trace-link trace-link" target="_blank" rel="noopener noreferrer">Current trace</a>
-    </div>
-    <a class="settings-github-link" href="https://github.com/jessitron/mtg-sparrow" target="_blank" rel="noopener noreferrer">
-      <img src="images/github-mark.svg" alt="" class="settings-github-icon" aria-hidden="true" width="16" height="16">
-      GitHub
-    </a>
-    <a class="settings-about-link" href="about">About</a>
-    <button id="settings-share-btn" class="settings-share-btn">Copy link</button>
-    <hr class="settings-divider"/>
-    <button id="settings-reset-btn" class="settings-reset-btn">Reset progress</button>`;
+    </div>`;
   document.body.appendChild(panel);
 }
 
@@ -67,7 +63,7 @@ export function wireSettings(
     settingsVersionEl.textContent = `v${appVersion}`;
   }
 
-  const gearBtn = document.getElementById('settings-gear-btn');
+  const gearBtn = document.getElementById('menu-btn');
   const settingsPanel = document.getElementById('settings-panel');
   const settingsBackdrop = document.getElementById('settings-backdrop');
   const settingsCloseBtn = document.getElementById('settings-close-btn');
@@ -121,7 +117,7 @@ export function wireSettings(
     navigator.clipboard.writeText(shareUrl).then(() => {
       if (shareBtn) {
         shareBtn.textContent = 'Copied!';
-        setTimeout(() => { shareBtn.textContent = 'Copy link'; }, 2000);
+        setTimeout(() => { shareBtn.textContent = '\u{1F517} Share'; }, 2000);
       }
     });
 

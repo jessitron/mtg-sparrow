@@ -366,10 +366,10 @@ async function run() {
       await page2.waitForLoadState('domcontentloaded');
       await page2.waitForTimeout(300);
 
-      const gearVisible = await page2.isVisible('#settings-gear-btn');
+      const gearVisible = await page2.isVisible('#menu-btn');
       assert(gearVisible, 'Settings gear button is visible');
 
-      await page2.click('#settings-gear-btn');
+      await page2.click('#menu-btn');
       await page2.waitForSelector('#settings-panel:not([hidden])', { timeout: 5000 });
       const panelVisible = await page2.isVisible('#settings-panel');
       assert(panelVisible, 'Settings panel opens');

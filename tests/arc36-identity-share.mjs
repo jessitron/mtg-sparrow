@@ -155,7 +155,7 @@ async function run() {
       }
 
       // Settings gear
-      const gear = await page.$('#settings-gear-btn');
+      const gear = await page.$('#menu-btn');
       assert(gear !== null, 'About page has settings gear button');
 
       await ctx.close();
@@ -199,11 +199,11 @@ async function run() {
         await page.waitForTimeout(500); // let JS wire up
 
         const shareBtn = await page.$('#settings-share-btn');
-        assert(shareBtn !== null, `${name} settings has Copy link button`);
+        assert(shareBtn !== null, `${name} settings has Share button`);
 
         if (shareBtn && name === 'welcome') {
           // Test click on one page: open settings first
-          const gearBtn = await page.$('#settings-gear-btn');
+          const gearBtn = await page.$('#menu-btn');
           if (gearBtn) await gearBtn.click();
           await page.waitForTimeout(200);
 
@@ -296,7 +296,7 @@ async function run() {
       await page2.waitForTimeout(1000);
 
       // Open settings and click copy link
-      const gearBtn = await page2.$('#settings-gear-btn');
+      const gearBtn = await page2.$('#menu-btn');
       if (gearBtn) await gearBtn.click();
       await page2.waitForTimeout(200);
       const shareBtn = await page2.$('#settings-share-btn');

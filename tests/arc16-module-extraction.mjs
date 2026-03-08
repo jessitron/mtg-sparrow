@@ -88,7 +88,7 @@ async function run() {
       await loadApp(page);
 
       // Open settings
-      await page.click('#settings-gear-btn');
+      await page.click('#menu-btn');
       await page.waitForSelector('#settings-panel:not([hidden])', { timeout: 5000 });
 
       const panelVisible = await page.isVisible('#settings-panel');

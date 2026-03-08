@@ -86,8 +86,8 @@ body {
   }
 }
 
-/* Gear icon button — top-right on every page */
-.settings-gear-btn {
+/* Menu button — top-right on every page */
+.menu-btn {
   position: fixed;
   top: 16px;
   right: 16px;
@@ -105,12 +105,12 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-.settings-gear-btn:hover {
+.menu-btn:hover {
   color: #c8b88a;
   background: rgba(200, 184, 138, 0.1);
 }
 
-.settings-gear-btn:active {
+.menu-btn:active {
   transform: scale(0.92);
 }
 
@@ -183,6 +183,7 @@ body {
 .settings-version {
   font-size: 0.85rem;
   color: #666;
+  margin-top: -0.5rem;
 }
 
 .settings-trace-container {
@@ -195,30 +196,6 @@ body {
 
 .settings-trace-link {
   font-size: 0.85rem;
-}
-
-.settings-github-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  color: #888;
-  text-decoration: none;
-  transition: color 200ms ease;
-}
-
-.settings-github-link:hover {
-  color: #ccc;
-}
-
-.settings-github-icon {
-  opacity: 0.6;
-  filter: invert(1);
-  flex-shrink: 0;
-}
-
-.settings-github-link:hover .settings-github-icon {
-  opacity: 0.9;
 }
 
 .settings-about-link {
@@ -249,12 +226,6 @@ body {
   color: #ccc;
   border-color: #666;
   background: rgba(200, 184, 138, 0.08);
-}
-
-.settings-divider {
-  border: none;
-  border-top: 1px solid #333;
-  margin: 0;
 }
 
 .settings-reset-btn {
