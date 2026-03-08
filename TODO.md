@@ -6,10 +6,9 @@
   - remove the cards and completed URL params when changing the other
 - When arriving at the end screen from an Enemy Guilds session, there's a flash of Allied Guilds before it moves to Enemy guilds. What if the section opened (like it's a scroll) after the page loads, which would give some time? so it starts with 0 height and then transitions to open.
 - add a "feedback" link in the settings. It can open a little popup asking for the feedback, which then gets added to telemetry. Then set up a trigger in Honeycomb (just 1x/day) that sends me an email if we get any feedback.
-- move settings to upper right, everywhere.
-  - add a settings gear in the upper right of the slides and the self-assessment
 - when paused, make the space key resume. (Space doesn't pause, because it advances when the slideshow is running.)
 - also make tapping the slide resume... or maybe it should advance but not start playing?
+- Add a progress marker to the end screen, like some dots at the left that shows where you are and that you could move up or down
 - add markers to Honeycomb on deploy
 - add an 'about' page with acknowledgements. Include scryfall, that wiki where we got the mana and guild symbols, that Wizards article where we got the flavorful guild descriptions.
 - add a license file, CC0

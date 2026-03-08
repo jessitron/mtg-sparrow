@@ -1047,4 +1047,38 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-116: Relative Home Link for GitHub Pages Compatibility
+- **Date**: 2026-03-08
+- **Arc**: 35 (Fix User-Facing Bugs)
+- **Decision**: Change end screen home link from `href="/"` to `href="./"` so it works on GitHub Pages.
+- **Context**: The site is hosted at `/<repo-name>/` on GitHub Pages. An absolute `/` link navigates to the GitHub Pages root, not the app root.
+- **Rationale**: Relative `./` resolves correctly regardless of deployment path prefix.
+
+## DEC-117: Reserve Image Space with Explicit Width/Height
+- **Date**: 2026-03-08
+- **Arc**: 35 (Fix User-Facing Bugs)
+- **Decision**: Set `width=180 height=252` on Scryfall card images to prevent layout shift during loading.
+- **Context**: MTG cards have a ~5:7 aspect ratio. Without explicit dimensions, the browser allocates zero space until the image loads, causing visible layout shift on slides.
+- **Rationale**: HTML width/height attributes let the browser reserve the correct space before load, eliminating CLS with no CSS changes needed.
+
+## DEC-118: Graceful Scryfall Image Fallback
+- **Date**: 2026-03-08
+- **Arc**: 35 (Fix User-Facing Bugs)
+- **Decision**: On Scryfall image load failure, remove `card--with-image` class and hide the image column, falling back to pips-only layout.
+- **Context**: Scryfall is a third-party service; image loads can fail due to network issues, rate limiting, or missing images.
+- **Rationale**: Users should never see a broken image icon. The pips-only layout is the existing fallback and remains fully functional.
+
+## DEC-119: Remove cardEnter Animation from Reel, Use Opacity-Only reelFadeIn
+- **Date**: 2026-03-08
+- **Arc**: 35 (Fix User-Facing Bugs)
+- **Decision**: Remove the `cardEnter` CSS animation (which used `transform: scale()`) from `.level-sections-reel` and replace it with an opacity-only `reelFadeIn` on `.level-sections-viewport`.
+- **Context**: The reel navigation uses `transform: translateY()` as a CSS transition to scroll between sections. The `cardEnter` animation also applied `transform` (scale 0.95→1) over 250ms. CSS animations take precedence over transitions on the same property, so the translateY transition never ran — the reel snapped instead of scrolling smoothly. This was the root cause of the Allied→Enemy flash bug. Multiple earlier approaches (synchronous positioning, opacity loading class, height-transition reveal) reduced the flash but did not eliminate it because the animation/transition conflict remained.
+- **Alternatives considered**:
+  - Synchronous reel positioning before first paint (commit 53ebe88) — reduced but didn't eliminate flash
+  - Loading class with opacity reveal (commit 8423cff) — masked initial flash but scroll still snapped
+  - Height-transition reveal (commit a6a2cd9) — complex and still flickered
+- **Rationale**: The fix is CSS-only and addresses the root cause: `transform` must be reserved for navigation. Visual entrance effect moved to opacity, which doesn't conflict with transform transitions.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
