@@ -1056,22 +1056,23 @@ export function showSessionEndColumns(
   app.appendChild(viewport);
   app.appendChild(bottomBtn);
 
-  // Set initial viewport height and position, then wire scroll navigation
-  requestAnimationFrame(() => {
-    // Position reel at the initial section without animation
-    if (initialIndex > 0) {
-      let targetY = 0;
-      for (let i = 0; i < initialIndex; i++) {
-        targetY += sections[i].offsetHeight;
-      }
-      reel.style.transform = `translateY(${-targetY}px)`;
+  // Position reel synchronously after DOM insertion (before first paint).
+  // Reading offsetHeight forces layout so the measurements are accurate.
+  if (initialIndex > 0) {
+    let targetY = 0;
+    for (let i = 0; i < initialIndex; i++) {
+      targetY += sections[i].offsetHeight;
     }
-    viewport.style.height = `${sections[initialIndex].offsetHeight}px`;
-    updateNavButtons();
+    reel.style.transform = `translateY(${-targetY}px)`;
+  }
+  viewport.style.height = `${sections[initialIndex].offsetHeight}px`;
+  updateNavButtons();
 
-    // Reveal the viewport now that positioning is complete
-    viewport.classList.remove('level-sections-viewport--loading');
+  // Reveal the viewport now that positioning is complete
+  viewport.classList.remove('level-sections-viewport--loading');
 
+  // Wire scroll navigation after next frame
+  requestAnimationFrame(() => {
     document.addEventListener('wheel', (e: WheelEvent) => {
       e.preventDefault();
 
