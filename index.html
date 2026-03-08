@@ -63,33 +63,6 @@
       <path d="M10 12C10 12 2 12 2 17C2 22 10 22 10 12Z" fill="rgba(255,255,255,0.6)"/>
     </svg>
   </button>
-  <footer id="app-footer">
-    <button id="settings-gear-btn" class="settings-gear-btn" title="Settings" aria-label="Settings">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>
-    </button>
-  </footer>
-
-  <!-- Settings panel -->
-  <div id="settings-backdrop" class="settings-backdrop" hidden aria-hidden="true"></div>
-  <div id="settings-panel" class="settings-panel" hidden role="dialog" aria-label="Settings" aria-modal="true">
-    <button id="settings-close-btn" class="settings-close-btn" aria-label="Close settings">&times;</button>
-    <h2 class="settings-title">Settings</h2>
-    <div id="settings-version" class="settings-version"></div>
-    <div id="settings-trace-container" class="settings-trace-container" hidden>
-      <a id="settings-trace-link" class="settings-trace-link trace-link" target="_blank" rel="noopener noreferrer">Current trace</a>
-    </div>
-    <a class="settings-github-link" href="https://github.com/jessitron/mtg-sparrow" target="_blank" rel="noopener noreferrer">
-      <img src="images/github-mark.svg" alt="" class="settings-github-icon" aria-hidden="true" width="16" height="16">
-      GitHub
-    </a>
-    <a class="settings-about-link" href="about">About</a>
-    <button id="settings-share-btn" class="settings-share-btn">Copy link</button>
-    <hr class="settings-divider"/>
-    <button id="settings-reset-btn" class="settings-reset-btn">Reset progress</button>
-  </div>
   <script src="mana-gas.js"></script>
   <script type="module" src="dist/welcome.js"></script>
 </body>

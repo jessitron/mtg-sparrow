@@ -86,14 +86,6 @@ body {
   }
 }
 
-footer {
-  position: fixed;
-  top: 0;
-  right: 0;
-  z-index: 2;
-  padding: 0;
-}
-
 /* Gear icon button — top-right on every page */
 .settings-gear-btn {
   position: fixed;

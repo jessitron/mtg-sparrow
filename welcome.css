@@ -97,6 +97,6 @@
 }
 
 /* Settings gear needs more visibility over the mana gas background */
-#app-footer .settings-gear-btn {
+.settings-gear-btn {
   color: rgba(255, 255, 255, 0.6);
 }
