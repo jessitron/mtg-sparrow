@@ -1020,6 +1020,31 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: mana-gas.js is standalone vanilla JS outside the esbuild bundle and cannot import the telemetry module. This is the same cross-boundary communication pattern established for drag events in Arc 32 (`mana-gas-drag`).
 - **Rationale**: Consistent pattern. A future arc will wire the event listener in the bundled code to forward spans to Honeycomb.
 
+## DEC-112: Trace-Participating Logs Over Span Events
+- **Date**: 2026-03-08
+- **Decision**: Replace `addSpanEvent()` calls with OTel log records emitted via `emitLog()`. Log records are sent immediately via SimpleLogRecordProcessor, not waiting for the parent span to end.
+- **Context**: Span events only ship when the parent span ends. In a browser, the parent span may never end — tab close, navigation away, or long-lived page spans all cause span events to be lost silently. Four call sites were affected: `progression.subgroup_unlocked`, `session.pause`/`session.resume`, `user.tap`, and `end.wheel_event`.
+- **Alternatives Considered**: (1) Force-ending parent spans more aggressively — adds complexity and changes trace structure. (2) Using `sendBeacon` — bypasses the OTel pipeline and loses trace correlation.
+- **Rationale**: Log records participate in traces (carry trace_id and span_id) and appear in Honeycomb's trace waterfall identically to span events, but ship immediately. Best of both worlds: trace correlation + delivery reliability.
+
+## DEC-113: Upgrade Honeycomb Web SDK to 1.x
+- **Date**: 2026-03-08
+- **Decision**: Upgrade `@honeycombio/opentelemetry-web` from `^0.10.0` to `^1.3.0`.
+- **Context**: v0.10.0 had no LoggerProvider — `logs.getLogger()` returned a no-op logger, so log records were silently discarded. v1.x initializes the full logs pipeline automatically (LoggerProvider, SimpleLogRecordProcessor, OTLP HTTP log exporter).
+- **Rationale**: This was the only way to get log records flowing without manually configuring the OTel Logs SDK. The 1.x line has been stable and available; the `^0.10.0` semver range simply never crossed the major version boundary.
+
+## DEC-114: Explicit Context Passing for Trace Correlation
+- **Date**: 2026-03-08
+- **Decision**: `emitLog()` accepts an optional parent Span and uses `trace.setSpan(context.active(), span)` to set the active context before emitting the log record.
+- **Context**: The OTel Logs API doesn't automatically inherit trace context from explicitly-managed spans. The app manages spans directly (not via the OTel context API's implicit propagation), so log records would otherwise have empty trace_id.
+- **Rationale**: Same pattern used by `startChildSpan()`. Ensures log records appear in the correct trace waterfall without requiring a change to how the app manages span lifecycle.
+
+## DEC-115: Keep addSpanEvent Available
+- **Date**: 2026-03-08
+- **Decision**: Retain the `addSpanEvent()` function definition in telemetry.ts even though no call sites remain.
+- **Context**: All four call sites were converted to `emitLog()`. The function is still exported and usable.
+- **Rationale**: Span events are still appropriate for events that are tightly coupled to a span's lifecycle and guaranteed to ship with it (e.g., error details on a span that will definitely end). Removing the function would require re-implementing it if such a case arises.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
