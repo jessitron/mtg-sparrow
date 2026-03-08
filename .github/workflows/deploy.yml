@@ -37,11 +37,12 @@ jobs:
         env:
           HONEYCOMB_API_KEY: ${{ secrets.HONEYCOMB_API_KEY }}
         run: |
+          VERSION=$(node -p "require('./package.json').version")
           curl -s -X POST https://api.honeycomb.io/1/markers/__all__ \
             -H "X-Honeycomb-Team: $HONEYCOMB_API_KEY" \
             -H "Content-Type: application/json" \
             -d "{
-              \"message\": \"deploy ${GITHUB_SHA::7}\",
+              \"message\": \"deploy v${VERSION} ${GITHUB_SHA::7}\",
               \"type\": \"deploy\",
               \"url\": \"https://github.com/${{ github.repository }}/commit/${{ github.sha }}\"
             }"
