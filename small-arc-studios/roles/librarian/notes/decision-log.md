@@ -1130,4 +1130,33 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-126: APP_VERSION Extracted to src/version.ts
+- **Date**: 2026-03-08
+- **Decision**: The `APP_VERSION` constant is defined in a single module (`src/version.ts`) and imported by all 5 entry points.
+- **Context**: Previously each entry point (index, slides, assessment, end, about) declared its own `APP_VERSION` constant. This created duplication risk — a version bump required editing 5 files identically.
+- **Rationale**: Single source of truth eliminates version drift between pages. The `service.version` resource attribute on OTel spans is only as trustworthy as the constant feeding it.
+
+## DEC-127: Version Bumped to 0.27.0
+- **Date**: 2026-03-08
+- **Decision**: Version bumped from 0.20.0 to 0.27.0 in both `package.json` and `src/version.ts`.
+- **Context**: The version had not been bumped since Arc 21 (v0.20.0), despite significant feature work through Arcs 22–37. The publish readiness plan called for an accurate version.
+- **Rationale**: Reflects the true arc count and signals that cleanup has occurred. `service.version` resource attribute propagates to all spans and logs automatically.
+
+## DEC-128: Five Prototype Pages Removed
+- **Date**: 2026-03-08
+- **Decision**: Removed prototype.html, color-wheel-test.html, mana-gas.html, slot-machine.html, and card-back-demo.html along with their CSS and TS assets.
+- **Context**: These pages were development artifacts from early exploration. They would confuse visitors if discovered on the public site, and they reference outdated code paths.
+- **Rationale**: Public-facing deployments should only contain production pages. Historical references in librarian notes are preserved as documentation of what existed and why it was removed.
+
+---
+
+## Arc 37 Completion Record
+- **Date**: 2026-03-08
+- **Arc**: Arc 37 — Clean Up Public-Facing Artifacts
+- **Status**: COMPLETE — 49/49 PASS
+- **Decisions**: DEC-126 through DEC-128
+- **Detailed record**: arc37-cleanup.md
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
