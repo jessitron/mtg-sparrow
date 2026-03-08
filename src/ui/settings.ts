@@ -1,4 +1,4 @@
-import { startSpan, endSpan, flushSpans } from '../telemetry/telemetry';
+import { startSpan, endSpan, flushSpans, getSessionId } from '../telemetry/telemetry';
 
 /**
  * Wire the settings panel: version display, open/close, and reset progress.
@@ -53,5 +53,28 @@ export function wireSettings(
     await flushSpans();
     localStorage.clear();
     window.location.href = '.';
+  });
+
+  // Share / Copy link button
+  const shareBtn = document.getElementById('settings-share-btn');
+  shareBtn?.addEventListener('click', () => {
+    const sessionId = getSessionId();
+    const url = new URL(window.location.href);
+    url.searchParams.set('utm_source', 'share');
+    url.searchParams.set('utm_id', sessionId);
+    const shareUrl = url.toString();
+
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      if (shareBtn) {
+        shareBtn.textContent = 'Copied!';
+        setTimeout(() => { shareBtn.textContent = 'Copy link'; }, 2000);
+      }
+    });
+
+    const span = startSpan('share.copy_link', {
+      'share.session_id': sessionId,
+      'share.url': shareUrl,
+    });
+    endSpan(span);
   });
 }
