@@ -1,7 +1,6 @@
 import { initTelemetry, sendStartupSpan, startSpan, startChildSpan, endSpan, getTraceId, flushSpans } from './telemetry/telemetry';
 import { wireSettings } from './ui/settings';
-
-export const APP_VERSION = '0.20.0';
+import { APP_VERSION } from './version';
 
 let welcomeScreenLoadTime = 0;
 

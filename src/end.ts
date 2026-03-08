@@ -3,8 +3,7 @@ import { showSessionEndColumns } from './ui/guild-columns';
 import { isSubgroupUnlocked, isEnemyUnlocked } from './progression';
 import { wireSettings } from './ui/settings';
 import { GuildSubgroup } from './session';
-
-const APP_VERSION = '0.20.0';
+import { APP_VERSION } from './version';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'end', 'multi_page');

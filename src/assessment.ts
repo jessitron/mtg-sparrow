@@ -1,8 +1,7 @@
 import { initTelemetry, startSpan, endSpan, flushSpans } from './telemetry/telemetry';
 import { buildSelfAssessment, SELF_ASSESSMENT_MIN_CARDS } from './ui/self-assessment';
 import { wireSettings } from './ui/settings';
-
-const APP_VERSION = '0.20.0';
+import { APP_VERSION } from './version';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'assessment', 'multi_page');

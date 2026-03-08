@@ -1,7 +1,6 @@
 import { initTelemetry, sendStartupSpan, startSpan, endSpan, flushSpans, getTraceId } from './telemetry/telemetry';
 import { wireSettings } from './ui/settings';
-
-export const APP_VERSION = '0.20.0';
+import { APP_VERSION } from './version';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'about', 'multi_page');

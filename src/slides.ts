@@ -13,8 +13,7 @@ import { colorEmojiMap } from './data/combos';
 import { isSubgroupUnlocked, markSubgroupUnlocked, markSubgroupCompleted } from './progression';
 import { Span } from '@opentelemetry/api';
 import { wireSettings } from './ui/settings';
-
-const APP_VERSION = '0.20.0';
+import { APP_VERSION } from './version';
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
