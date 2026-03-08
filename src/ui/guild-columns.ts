@@ -992,7 +992,8 @@ export function showSessionEndColumns(
   }
 
   const viewport = document.createElement('div');
-  viewport.classList.add('level-sections-viewport', 'level-sections-viewport--loading');
+  viewport.classList.add('level-sections-viewport');
+  viewport.style.height = '0';
   viewport.appendChild(reel);
 
   // Top button: up chevron shape (clip-path in CSS)
@@ -1056,23 +1057,23 @@ export function showSessionEndColumns(
   app.appendChild(viewport);
   app.appendChild(bottomBtn);
 
-  // Position reel synchronously after DOM insertion (before first paint).
-  // Reading offsetHeight forces layout so the measurements are accurate.
-  if (initialIndex > 0) {
-    let targetY = 0;
-    for (let i = 0; i < initialIndex; i++) {
-      targetY += sections[i].offsetHeight;
+  // Wait for full page load (stylesheets, images) before measuring and revealing.
+  // The viewport starts at height:0, so nothing is visible during positioning.
+  window.addEventListener('load', () => {
+    // Position reel at the target section WITHOUT transition (invisible behind collapsed viewport)
+    if (initialIndex > 0) {
+      let targetY = 0;
+      for (let i = 0; i < initialIndex; i++) {
+        targetY += sections[i].offsetHeight;
+      }
+      reel.style.transform = `translateY(${-targetY}px)`;
     }
-    reel.style.transform = `translateY(${-targetY}px)`;
-  }
-  viewport.style.height = `${sections[initialIndex].offsetHeight}px`;
-  updateNavButtons();
 
-  // Reveal the viewport now that positioning is complete
-  viewport.classList.remove('level-sections-viewport--loading');
+    // Animate viewport open — the CSS transition handles the smooth reveal
+    viewport.style.height = `${sections[initialIndex].offsetHeight}px`;
+    updateNavButtons();
 
-  // Wire scroll navigation after next frame
-  requestAnimationFrame(() => {
+    // Wire scroll navigation (needs measurements, so also inside load)
     document.addEventListener('wheel', (e: WheelEvent) => {
       e.preventDefault();
 
