@@ -147,6 +147,7 @@
 }
 
 .mtg-card-img {
+  aspect-ratio: 5 / 7;
   width: 180px;
   border-radius: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
