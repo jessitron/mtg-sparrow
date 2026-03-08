@@ -192,7 +192,6 @@
   align-items: center;
   padding: 1.5rem;
   background: color-mix(in srgb, var(--bg-brown-dark) 60%, transparent);
-  border-radius: 12px;
 }
 
 /* Locked row: just a centered button */
