@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Five mana circles in WUBRG pentagon arrangement -->
+  <!-- Pentagon center: (16,16), radius: 9, circle radius: 5.3 -->
+  <!-- W - White (top, 12 o'clock) -->
+  <circle cx="16" cy="7" r="5.3" fill="#F9FAF4" stroke="#CCCCCC" stroke-width="0.5"/>
+  <!-- U - Blue (~1:30, 72° clockwise) -->
+  <circle cx="24.6" cy="12.2" r="5.3" fill="#0E68AB"/>
+  <!-- B - Black (~4:30, 144° clockwise) -->
+  <circle cx="21.3" cy="22.3" r="5.3" fill="#150B00" stroke="#333333" stroke-width="0.5"/>
+  <!-- R - Red (~7:30, 216° clockwise) -->
+  <circle cx="10.7" cy="22.3" r="5.3" fill="#D3202A"/>
+  <!-- G - Green (~10:30, 288° clockwise) -->
+  <circle cx="7.4" cy="12.2" r="5.3" fill="#00733E"/>
+</svg>
