@@ -1159,4 +1159,27 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-129: CSS Media Query Approach for Mobile Welcome
+- **Date**: 2026-03-08
+- **Decision**: Use two HTML content blocks (`.welcome-desktop` and `.welcome-mobile`) with a CSS media query display toggle at 600px, rather than JavaScript-based detection.
+- **Context**: The welcome page needed a mobile-friendly version with condensed content. Options considered: (1) CSS media query with dual HTML blocks, (2) JS-based viewport detection swapping content, (3) purely responsive CSS reshuffling existing content.
+- **Rationale**: CSS-only approach keeps both versions in the HTML for SEO and no-JS fallback. No runtime detection needed. Simpler than trying to reflow the existing desktop content into a mobile-friendly layout with CSS alone.
+
+## DEC-130: 600px Breakpoint for Mobile/Desktop Split
+- **Date**: 2026-03-08
+- **Decision**: 600px chosen as the breakpoint between mobile and desktop welcome content.
+- **Context**: Common phone widths range from 375px (iPhone SE) to 428px (iPhone 14 Pro Max). Tablets start around 768px.
+- **Rationale**: 600px covers all common phone widths while preserving the desktop layout on tablets. It is a standard responsive design breakpoint that avoids edge cases.
+
+---
+
+## Arc 38 Completion Record
+- **Date**: 2026-03-08
+- **Arc**: Arc 38 — Mobile Welcome & Responsiveness
+- **Status**: COMPLETE — 20/20 PASS
+- **Decisions**: DEC-129, DEC-130
+- **Detailed record**: arc38-mobile-welcome.md
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
