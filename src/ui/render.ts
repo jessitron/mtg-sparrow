@@ -18,6 +18,10 @@ export function renderCard(slide: Slide): HTMLElement {
     img.alt = '';
     img.width = 180;
     img.height = 252;
+    img.onerror = () => {
+      card.classList.remove('card--with-image');
+      imgCol.style.display = 'none';
+    };
     imgCol.appendChild(img);
     card.appendChild(imgCol);
 
