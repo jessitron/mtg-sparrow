@@ -39,12 +39,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Mana gas drag telemetry — fired from mana-gas.js when a symbol is dragged and released
   window.addEventListener('mana-gas-drag', ((e: CustomEvent) => {
     const { color, duration_ms, release_vx, release_vy } = e.detail;
+    const dragStartTime = Date.now() - duration_ms;
     const span = startChildSpan('mana_gas.drag', pageSpan, {
       'mana_gas.drag.color': color,
       'mana_gas.drag.duration_ms': duration_ms,
       'mana_gas.drag.release_vx': release_vx,
       'mana_gas.drag.release_vy': release_vy,
-    });
+    }, dragStartTime);
     span.end();
   }) as EventListener);
 

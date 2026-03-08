@@ -53,9 +53,10 @@ export function startChildSpan(
   name: string,
   parent: Span,
   attributes?: Record<string, string | number | boolean>,
+  startTime?: number,
 ): Span {
   const ctx = trace.setSpan(context.active(), parent);
-  return tracer.startSpan(name, { attributes }, ctx);
+  return tracer.startSpan(name, { attributes, startTime }, ctx);
 }
 
 export function addSpanEvent(
