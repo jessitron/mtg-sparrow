@@ -16,6 +16,8 @@ export function renderCard(slide: Slide): HTMLElement {
     img.classList.add('mtg-card-img');
     img.src = slide.selectedCard.imageUrl;
     img.alt = '';
+    img.width = 180;
+    img.height = 252;
     imgCol.appendChild(img);
     card.appendChild(imgCol);
 
