@@ -992,7 +992,7 @@ export function showSessionEndColumns(
   }
 
   const viewport = document.createElement('div');
-  viewport.classList.add('level-sections-viewport');
+  viewport.classList.add('level-sections-viewport', 'level-sections-viewport--loading');
   viewport.appendChild(reel);
 
   // Top button: up chevron shape (clip-path in CSS)
@@ -1068,6 +1068,9 @@ export function showSessionEndColumns(
     }
     viewport.style.height = `${sections[initialIndex].offsetHeight}px`;
     updateNavButtons();
+
+    // Reveal the viewport now that positioning is complete
+    viewport.classList.remove('level-sections-viewport--loading');
 
     document.addEventListener('wheel', (e: WheelEvent) => {
       e.preventDefault();
