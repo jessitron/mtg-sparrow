@@ -33,6 +33,14 @@ export function initTelemetry(version: string, page?: string, navigation?: strin
   };
   if (page) resourceAttrs['app.page'] = page;
   if (navigation) resourceAttrs['app.navigation'] = navigation;
+
+  // Capture UTM params for referral chain analysis
+  const urlParams = new URLSearchParams(window.location.search);
+  const utmSource = urlParams.get('utm_source');
+  const utmId = urlParams.get('utm_id');
+  if (utmSource) resourceAttrs['utm.source'] = utmSource;
+  if (utmId) resourceAttrs['utm.referral_session_id'] = utmId;
+
   init(version, sessionId, resourceAttrs);
   tracer = trace.getTracer('sparrow-deck', version);
   logger = logs.getLogger('sparrow-deck', version);
