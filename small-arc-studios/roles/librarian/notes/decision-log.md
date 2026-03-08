@@ -1081,4 +1081,13 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-120: Domain Name `mtgcolors.quest` Selected
+- **Date**: 2026-03-08
+- **Decision**: Domain name `mtgcolors.quest` selected for the project.
+- **Context**: The project was previously hosted on GitHub Pages under a default URL. The client chose a custom domain. This resolves the open question in Arc 36's acceptance criteria where `<title>` updates were deferred until a domain name was chosen.
+- **Rationale**: Client decision. The name is descriptive, memorable, and matches the app's purpose (learning MTG color combinations).
+- **Impact**: Arc 36 (License, About Page, Site Identity, and Share) can now proceed with the final site title. The plan noted custom domain setup as a "separate concern" — the client is handling the DNS/GitHub Pages configuration themselves.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

@@ -81,6 +81,7 @@ No structural changes needed. This is a polish and hardening pass across the exi
   - About page accessible from settings menu, acknowledging: Scryfall, MTG Wiki (mana/guild symbols), Wizards of the Coast (guild flavor descriptions)
   - Page `<title>` updated from "MTG Color Combos" to something more polished
     - Client: But MTG Color Combos is the name of the app right now. Let's leave this and revisit after we pick a real domain name.
+    - **Update 2026-03-08**: Domain `mtgcolors.quest` has been chosen (DEC-120). The title can now be updated.
   - Open Graph meta tags (title, description, image) for social sharing previews
   - Favicon present
   - "Copy link" button in settings menu and on end screen under "Share"
