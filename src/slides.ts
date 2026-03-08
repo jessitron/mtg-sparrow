@@ -14,7 +14,7 @@ import { isSubgroupUnlocked, markSubgroupUnlocked, markSubgroupCompleted } from 
 import { Span } from '@opentelemetry/api';
 import { wireSettings } from './ui/settings';
 
-const APP_VERSION = '0.19.0';
+const APP_VERSION = '0.20.0';
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
