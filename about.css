@@ -73,6 +73,34 @@
   border-bottom-color: #f0f0f0;
 }
 
+.about-author {
+  font-size: 0.95rem;
+  color: #bbb;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.about-author-links {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.about-author-links a {
+  font-size: 0.95rem;
+  color: var(--allied-line-color);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--allied-line-color);
+  transition: color 200ms ease, border-color 200ms ease;
+}
+
+.about-author-links a:hover {
+  color: #f0f0f0;
+  border-bottom-color: #f0f0f0;
+}
+
 .about-home-link {
   display: inline-block;
   font-size: 0.95rem;
