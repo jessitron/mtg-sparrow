@@ -57,6 +57,7 @@ No structural changes needed. This is a polish and hardening pass across the exi
 ### Phase 1: Bug Fixes
 
 **Arc 35: Fix User-Facing Bugs**
+
 - Type: User
 - Intention: Eliminate the three bugs that most damage user experience
 - Observable Outcome: End screen home link works in production; no Allied→Enemy flash on end screen; slides don't shift when card images load
@@ -71,6 +72,7 @@ No structural changes needed. This is a polish and hardening pass across the exi
 ### Phase 2: Legal & Identity
 
 **Arc 36: License, About Page, Site Identity, and Share**
+
 - Type: User
 - Intention: Establish the site's legal and public identity, and give users a way to share it
 - Observable Outcome: Site has a license, an about page with proper acknowledgements, a favicon, rich meta tags for link previews, and a "Copy link" share button
@@ -78,33 +80,42 @@ No structural changes needed. This is a polish and hardening pass across the exi
   - CC0 LICENSE file in repo root
   - About page accessible from settings menu, acknowledging: Scryfall, MTG Wiki (mana/guild symbols), Wizards of the Coast (guild flavor descriptions)
   - Page `<title>` updated from "MTG Color Combos" to something more polished
+    - Client: But MTG Color Combos is the name of the app right now. Let's leave this and revisit after we pick a real domain name.
   - Open Graph meta tags (title, description, image) for social sharing previews
   - Favicon present
-  - "Copy link" button in settings menu and on end screen
+  - "Copy link" button in settings menu and on end screen under "Share"
   - Copied URL includes `?utm_source=share&utm_id={session_id}` so shared traffic is identifiable
   - Arriving with a `utm_id` param records it as a telemetry attribute so we can trace referral chains
-- Observability: `about.page_view` span when about page is visited. `share.copy_link` event recording the session ID. Inbound `utm_id` recorded as span attribute on page view, queryable in Honeycomb to answer "how many visitors came from shares, and which sessions generated them?"
+- Observability: `about.page_view` span when about page is visited. `share.copy_link` event recording the session ID. Inbound `utm_id` and `utm_source` recorded as span attribute on page view, queryable in Honeycomb to answer "how many visitors came from shares, and which sessions generated them?"
 - Risks Reduced: Legal exposure, unprofessional first impression when link is shared, no way for happy users to spread the word
 
 ### Phase 3: Polish & Cleanup
 
 **Arc 37: Clean Up Public-Facing Artifacts**
+
 - Type: Structural
-- Intention: Remove or exclude development artifacts that shouldn't be publicly accessible
+- Intention: Remove development artifacts that shouldn't be publicly accessible
 - Observable Outcome: Prototype and test HTML files are not served in production
 - Acceptance Criteria:
-  - `prototype.html`, `color-wheel-test.html`, `mana-gas.html`, `slot-machine.html`, `card-back-demo.html` are either excluded from deploy or removed/moved
+  - `prototype.html`, `color-wheel-test.html`, `mana-gas.html`, `slot-machine.html`, `card-back-demo.html` are removed
+  - CSS files and rules specific to those are also removed.
+  - Extract `APP_VERSION` to a shared module (currently duplicated in 4 entry points)
+  - `app.version` is present on every event in Honeycomb.
   - No broken internal references after cleanup
   - Build still works normally
-- Observability: Structural marker `app.cleanup_version = 'publish_ready_v1'` or equivalent
+- Observability: increment version number. Get version number in every log, span, and (if they still exist) span event.
 - Risks Reduced: Users stumbling onto half-finished prototype pages
 
 **Arc 38: Mobile Welcome & Responsiveness**
+
 - Type: User
 - Intention: Make the welcome screen work well on phone-sized screens
 - Observable Outcome: Welcome page is readable and functional at 375px width
+- Client says: it's quite good on my phone now. Too much text, is all.
 - Acceptance Criteria:
   - Welcome text is shorter on mobile (client to provide curated copy, or responsive hiding of detail)
+    - Copy should say: "MTG Color Combos/1. See a combo/2. Guess a name out loud/3. See the name. Say the name."
+    - Then the button says "Start"
   - Button is easily tappable
   - Mana gas canvas doesn't interfere with interaction on small screens
   - No horizontal scrolling
@@ -114,6 +125,7 @@ No structural changes needed. This is a polish and hardening pass across the exi
 ### Phase 4: Operations
 
 **Arc 39: Deploy Markers**
+
 - Type: Operator
 - Intention: Enable correlating user experience with specific deployments
 - Observable Outcome: Each deploy to GitHub Pages creates a marker in Honeycomb
@@ -121,7 +133,7 @@ No structural changes needed. This is a polish and hardening pass across the exi
   - Deploy script (or GitHub Action) sends a marker to Honeycomb on successful deploy
   - Marker includes commit SHA and timestamp
   - Marker visible in Honeycomb query timeline
-- Observability: This arc *is* observability. Markers queryable in Honeycomb.
+- Observability: This arc _is_ observability. Markers queryable in Honeycomb.
 - Risks Reduced: Blind debugging when something breaks after a deploy
 
 ---

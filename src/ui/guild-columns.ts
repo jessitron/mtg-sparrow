@@ -993,7 +993,6 @@ export function showSessionEndColumns(
 
   const viewport = document.createElement('div');
   viewport.classList.add('level-sections-viewport');
-  viewport.style.height = '0';
   viewport.appendChild(reel);
 
   // Top button: up chevron shape (clip-path in CSS)
@@ -1057,23 +1056,22 @@ export function showSessionEndColumns(
   app.appendChild(viewport);
   app.appendChild(bottomBtn);
 
-  // Wait for full page load (stylesheets, images) before measuring and revealing.
-  // The viewport starts at height:0, so nothing is visible during positioning.
-  window.addEventListener('load', () => {
-    // Position reel at the target section WITHOUT transition (invisible behind collapsed viewport)
-    if (initialIndex > 0) {
-      let targetY = 0;
-      for (let i = 0; i < initialIndex; i++) {
-        targetY += sections[i].offsetHeight;
-      }
-      reel.style.transform = `translateY(${-targetY}px)`;
-    }
-
-    // Animate viewport open — the CSS transition handles the smooth reveal
-    viewport.style.height = `${sections[initialIndex].offsetHeight}px`;
+  // Show Allied section immediately, then scroll to target after page loads
+  requestAnimationFrame(() => {
+    viewport.style.height = `${sections[0].offsetHeight}px`;
     updateNavButtons();
 
-    // Wire scroll navigation (needs measurements, so also inside load)
+    if (initialIndex > 0) {
+      // Scroll to the target section after a frame so the initial render is settled
+      requestAnimationFrame(() => {
+        reelSpinTo(reel, viewport, sections, initialIndex).then(() => {
+          updateNavButtons();
+        });
+      });
+    }
+  });
+
+  // Wire scroll navigation
     document.addEventListener('wheel', (e: WheelEvent) => {
       e.preventDefault();
 
@@ -1122,7 +1120,6 @@ export function showSessionEndColumns(
 
       reelAdvance(reel, viewport, sections, direction as 1 | -1, pageSpan, sectionSpanRef, updateNavButtons);
     }, { passive: false });
-  });
 
   // Return cleanup: end the current section span when the page is done
   return () => endSpan(sectionSpanRef.current);

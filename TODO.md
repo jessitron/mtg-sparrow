@@ -2,6 +2,8 @@
 
 - BUG: the "home" link on the end screen doesn't work in production. Can you look at the current URL and remove "/end" from it, instead of using "/"?
 - when the slide loads but the card image hasn't loaded yet, then it changes size. Load the slide with a placeholder the same size as the card so it doesn't move when the image loads.
+- update the end screen URL when switching between info sections, so that if someone c&p the link, it'll take the recipient to the right page.
+  - remove the cards and completed URL params when changing the other
 - When arriving at the end screen from an Enemy Guilds session, there's a flash of Allied Guilds before it moves to Enemy guilds. What if the section opened (like it's a scroll) after the page loads, which would give some time? so it starts with 0 height and then transitions to open.
 - add a "feedback" link in the settings. It can open a little popup asking for the feedback, which then gets added to telemetry. Then set up a trigger in Honeycomb (just 1x/day) that sends me an email if we get any feedback.
 - move settings to upper right, everywhere.
@@ -15,10 +17,13 @@
 - on mobile, make the opening screen have fewer words (client to curate)
 - implement Share, like make it show some links to share on social media, etc.
 - change consulting process to not have a separate SOW step, it seems like a lot
-- a custom URL, obvs. 
+- a custom URL, obvs.
 - a support link that goes to my Patreon
-   - and some Patreon levels that are specific to this
-   - which means I need stickers
+  - and some Patreon levels that are specific to this
+  - which means I need stickers
+- AI-friendly versions that give it the info this app supplies?
+- make the settings into a hamburger? with About and Share, it's more of a general menu than settings
+- Make the "current trace" link only present if "debug=true" is in local storage. Update this local storage attribute if you ever see 'debug=bool' as a query param
 
 # Expanding features
 
