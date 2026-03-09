@@ -1253,6 +1253,12 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: A logo that works as a physical sticker demonstrates sufficient contrast and recognizability at small scale.
 - **Rationale**: Recorded as a milestone — the logo design is confirmed satisfactory by the client for both digital and physical contexts.
 
+## DEC-138: Scope End Screen Wheel Listener to Viewport
+- **Date**: 2026-03-08
+- **Decision**: Changed the end screen `wheel` event listener from `document` to the `.level-sections-viewport` element.
+- **Context**: The reel navigation captured all wheel events on the entire document via `e.preventDefault()`. At higher browser zoom levels (e.g. 150%), content extended below the fold but users could not scroll to reach it. The scroll hijacking cost exceeded its benefit.
+- **Rationale**: Scoping to the viewport element preserves reel navigation when scrolling over the info section while restoring normal page scrolling everywhere else. Minimal change, maximum accessibility improvement.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
