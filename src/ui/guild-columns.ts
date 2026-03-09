@@ -158,7 +158,8 @@ function buildFlavorPanel(
   // Practice/Learn button — always visible, outside the stack
   const btn = document.createElement('button');
   btn.classList.add('next-session-button', 'level-section-button');
-  btn.textContent = hasCompletedSubgroup(subgroup) ? 'Practice' : `Learn ${subgroup} guilds`;
+  const subgroupLabel = subgroup === 'allied' || subgroup === 'enemy' ? `${subgroup} guilds` : subgroup;
+  btn.textContent = hasCompletedSubgroup(subgroup) ? 'Practice' : `Learn ${subgroupLabel}`;
   btn.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
     startSession(subgroup, 'session_end_screen');
