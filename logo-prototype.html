@@ -12,12 +12,12 @@
       --bg-radius: 200px;
 
       /* Mana symbol sizing & positioning */
-      --symbol-size: 70px;
-      --symbol-orbit-radius: 120px; /* distance from center to each symbol */
+      --symbol-size: 100px;
+      --symbol-orbit-radius: 192px; /* distance from center to each symbol */
 
       /* Symbol outline (applied as drop-shadow since SVGs are images) */
       --symbol-outline-width: 2px;
-      --symbol-outline-color: rgba(0, 0, 0, 0.4);
+      --symbol-outline-color: rgb(0, 0, 0);
 
       /* The five mana colors (WUBRG order, starting at top going clockwise) */
       --color-W: #F7EA3D;  /* White */
@@ -35,7 +35,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: #1a1a2e;
+      background: #000000;
       font-family: system-ui, sans-serif;
       color: #ccc;
     }
@@ -198,7 +198,7 @@
       font-size: 0.75rem;
     }
 
-    /* Spiral overlay */
+    /* Spiral overlay (hidden when masking, visible when not) */
     .spiral-svg {
       position: absolute;
       top: 0;
@@ -206,6 +206,7 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
+      display: none; /* hidden — spiral is now used as mask on bg-circle */
     }
 
     .hex-input {
@@ -265,22 +266,40 @@
       <input type="text" class="hex-input" id="outline-color-hex" value="#000000">
     </div>
 
+    <label for="spiral-start">Spiral start angle:</label>
+    <div>
+      <input type="range" id="spiral-start" min="0" max="360" value="35" step="5">
+      <span class="value-display" id="spiral-start-val">0°</span>
+    </div>
+
     <label for="spiral-turns">Spiral turns:</label>
     <div>
       <input type="range" id="spiral-turns" min="1" max="8" value="3" step="0.25">
       <span class="value-display" id="spiral-turns-val">3</span>
     </div>
 
+    <label for="spiral-outer">Spiral outer radius:</label>
+    <div>
+      <input type="range" id="spiral-outer" min="50" max="100" value="85" step="1">
+      <span class="value-display" id="spiral-outer-val">95%</span>
+    </div>
+
     <label for="spiral-width">Spiral stroke:</label>
     <div>
-      <input type="range" id="spiral-width" min="0.5" max="10" value="2" step="0.5">
-      <span class="value-display" id="spiral-width-val">2px</span>
+      <input type="range" id="spiral-width" min="0.5" max="40" value="22" step="0.5">
+      <span class="value-display" id="spiral-width-val">8px</span>
     </div>
 
     <label for="spiral-color">Spiral color:</label>
     <div>
       <input type="color" id="spiral-color" value="#ffffff">
       <input type="text" class="hex-input" id="spiral-color-hex" value="#FFFFFF">
+    </div>
+
+    <label for="spiral-inner">Spiral inner radius:</label>
+    <div>
+      <input type="range" id="spiral-inner" min="0" max="50" value="8" step="1">
+      <span class="value-display" id="spiral-inner-val">15%</span>
     </div>
 
     <label for="spiral-opacity">Spiral opacity:</label>
@@ -381,11 +400,15 @@
       const size = bgRadius * 2;
       const cx = bgRadius;
       const cy = bgRadius;
-      const outerR = bgRadius * 0.95; // start just inside the circle edge
-      const innerR = 2; // end near center
+      const innerPct = parseFloat(document.getElementById('spiral-inner').value) / 100;
+      const outerPct = parseFloat(document.getElementById('spiral-outer').value) / 100;
+      const outerR = bgRadius * outerPct;
+      const innerR = bgRadius * innerPct; // end at inner radius %
 
       // Archimedean spiral: r decreases linearly, angle sweeps counterclockwise
-      // Start at top (-π/2), go counterclockwise (subtract angle)
+      // Start at top (-π/2) offset by start angle, go counterclockwise
+      const startDeg = parseFloat(document.getElementById('spiral-start').value);
+      const startAngle = -Math.PI / 2 - (startDeg * Math.PI / 180); // counterclockwise offset
       const totalAngle = turns * 2 * Math.PI;
       const steps = Math.round(turns * 120); // smooth enough
       const points = [];
@@ -393,7 +416,7 @@
       for (let i = 0; i <= steps; i++) {
         const t = i / steps; // 0 to 1
         const r = outerR - (outerR - innerR) * t;
-        const angle = -Math.PI / 2 - t * totalAngle; // counterclockwise from top
+        const angle = startAngle - t * totalAngle; // counterclockwise from start
         const x = cx + r * Math.cos(angle);
         const y = cy + r * Math.sin(angle);
         points.push(`${x.toFixed(2)},${y.toFixed(2)}`);
@@ -401,7 +424,7 @@
 
       const d = 'M ' + points[0] + ' L ' + points.slice(1).join(' ');
 
-      // Update SVG
+      // Update SVG (kept for reference, hidden)
       spiralSvg.setAttribute('viewBox', `0 0 ${size} ${size}`);
       spiralSvg.innerHTML = '';
       const path = document.createElementNS(NS, 'path');
@@ -412,10 +435,19 @@
       path.setAttribute('stroke-opacity', opacity);
       path.setAttribute('stroke-linecap', 'round');
       spiralSvg.appendChild(path);
+
+      // Apply spiral as CSS mask on the background circle
+      const maskSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}"><path d="${d}" fill="none" stroke="white" stroke-width="${strokeWidth}" stroke-linecap="round"/></svg>`;
+      const maskUrl = `url("data:image/svg+xml,${encodeURIComponent(maskSvg)}")`;
+      const bgCircle = document.querySelector('.bg-circle');
+      bgCircle.style.maskImage = maskUrl;
+      bgCircle.style.webkitMaskImage = maskUrl;
+      bgCircle.style.maskSize = '100% 100%';
+      bgCircle.style.webkitMaskSize = '100% 100%';
     }
 
     // Bind spiral controls
-    ['bg-radius', 'spiral-turns', 'spiral-width', 'spiral-color', 'spiral-opacity'].forEach(id => {
+    ['bg-radius', 'spiral-start', 'spiral-turns', 'spiral-outer', 'spiral-width', 'spiral-color', 'spiral-opacity', 'spiral-inner'].forEach(id => {
       document.getElementById(id).addEventListener('input', () => {
         // Update display labels
         const turnsDisp = document.getElementById('spiral-turns-val');
@@ -424,6 +456,12 @@
         if (widthDisp) widthDisp.textContent = document.getElementById('spiral-width').value + 'px';
         const opacityDisp = document.getElementById('spiral-opacity-val');
         if (opacityDisp) opacityDisp.textContent = document.getElementById('spiral-opacity').value;
+        const startDisp = document.getElementById('spiral-start-val');
+        if (startDisp) startDisp.textContent = document.getElementById('spiral-start').value + '°';
+        const outerDisp = document.getElementById('spiral-outer-val');
+        if (outerDisp) outerDisp.textContent = document.getElementById('spiral-outer').value + '%';
+        const innerDisp = document.getElementById('spiral-inner-val');
+        if (innerDisp) innerDisp.textContent = document.getElementById('spiral-inner').value + '%';
         drawSpiral();
       });
     });
