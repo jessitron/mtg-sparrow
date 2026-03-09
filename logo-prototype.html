@@ -22,7 +22,7 @@
       /* The five mana colors (WUBRG order, starting at top going clockwise) */
       --color-W: #F7EA3D;  /* White */
       --color-U: #0E68AB;  /* Blue */
-      --color-B: #B336D9;  /* Black */
+      --color-B: #59289E  ;  /* Black */
       --color-R: #D3202A;  /* Red */
       --color-G: #00733E;  /* Green */
     }
@@ -198,6 +198,16 @@
       font-size: 0.75rem;
     }
 
+    /* Spiral overlay */
+    .spiral-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
     .hex-input {
       width: 70px;
       font-family: monospace;
@@ -216,6 +226,7 @@
 
   <div class="logo-container">
     <div class="bg-circle"></div>
+    <svg class="spiral-svg" id="spiral-svg"></svg>
     <div class="mana-symbol-wrap" data-color="W"><img class="mana-symbol" src="images/W.svg" alt="White"></div>
     <div class="mana-symbol-wrap" data-color="U"><img class="mana-symbol" src="images/U.svg" alt="Blue"></div>
     <div class="mana-symbol-wrap" data-color="B"><img class="mana-symbol" src="images/B.svg" alt="Black"></div>
@@ -252,6 +263,30 @@
     <div>
       <input type="color" id="outline-color" value="#000000">
       <input type="text" class="hex-input" id="outline-color-hex" value="#000000">
+    </div>
+
+    <label for="spiral-turns">Spiral turns:</label>
+    <div>
+      <input type="range" id="spiral-turns" min="1" max="8" value="3" step="0.25">
+      <span class="value-display" id="spiral-turns-val">3</span>
+    </div>
+
+    <label for="spiral-width">Spiral stroke:</label>
+    <div>
+      <input type="range" id="spiral-width" min="0.5" max="10" value="2" step="0.5">
+      <span class="value-display" id="spiral-width-val">2px</span>
+    </div>
+
+    <label for="spiral-color">Spiral color:</label>
+    <div>
+      <input type="color" id="spiral-color" value="#ffffff">
+      <input type="text" class="hex-input" id="spiral-color-hex" value="#FFFFFF">
+    </div>
+
+    <label for="spiral-opacity">Spiral opacity:</label>
+    <div>
+      <input type="range" id="spiral-opacity" min="0" max="1" value="0.6" step="0.05">
+      <span class="value-display" id="spiral-opacity-val">0.6</span>
     </div>
 
     <div class="color-row">
@@ -330,6 +365,89 @@
     bindColor('color-B', '--color-B');
     bindColor('color-R', '--color-R');
     bindColor('color-G', '--color-G');
+
+    // --- Spiral ---
+    const spiralSvg = document.getElementById('spiral-svg');
+    const NS = 'http://www.w3.org/2000/svg';
+
+    function drawSpiral() {
+      // Read current values from the controls
+      const bgRadius = parseFloat(document.getElementById('bg-radius').value);
+      const turns = parseFloat(document.getElementById('spiral-turns').value);
+      const strokeWidth = parseFloat(document.getElementById('spiral-width').value);
+      const strokeColor = document.getElementById('spiral-color').value;
+      const opacity = parseFloat(document.getElementById('spiral-opacity').value);
+
+      const size = bgRadius * 2;
+      const cx = bgRadius;
+      const cy = bgRadius;
+      const outerR = bgRadius * 0.95; // start just inside the circle edge
+      const innerR = 2; // end near center
+
+      // Archimedean spiral: r decreases linearly, angle sweeps counterclockwise
+      // Start at top (-π/2), go counterclockwise (subtract angle)
+      const totalAngle = turns * 2 * Math.PI;
+      const steps = Math.round(turns * 120); // smooth enough
+      const points = [];
+
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps; // 0 to 1
+        const r = outerR - (outerR - innerR) * t;
+        const angle = -Math.PI / 2 - t * totalAngle; // counterclockwise from top
+        const x = cx + r * Math.cos(angle);
+        const y = cy + r * Math.sin(angle);
+        points.push(`${x.toFixed(2)},${y.toFixed(2)}`);
+      }
+
+      const d = 'M ' + points[0] + ' L ' + points.slice(1).join(' ');
+
+      // Update SVG
+      spiralSvg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+      spiralSvg.innerHTML = '';
+      const path = document.createElementNS(NS, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', strokeColor);
+      path.setAttribute('stroke-width', strokeWidth);
+      path.setAttribute('stroke-opacity', opacity);
+      path.setAttribute('stroke-linecap', 'round');
+      spiralSvg.appendChild(path);
+    }
+
+    // Bind spiral controls
+    ['bg-radius', 'spiral-turns', 'spiral-width', 'spiral-color', 'spiral-opacity'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        // Update display labels
+        const turnsDisp = document.getElementById('spiral-turns-val');
+        if (turnsDisp) turnsDisp.textContent = document.getElementById('spiral-turns').value;
+        const widthDisp = document.getElementById('spiral-width-val');
+        if (widthDisp) widthDisp.textContent = document.getElementById('spiral-width').value + 'px';
+        const opacityDisp = document.getElementById('spiral-opacity-val');
+        if (opacityDisp) opacityDisp.textContent = document.getElementById('spiral-opacity').value;
+        drawSpiral();
+      });
+    });
+
+    // Hex sync for spiral color (no CSS var needed, drawSpiral reads it directly)
+    (function() {
+      const picker = document.getElementById('spiral-color');
+      const hex = document.getElementById('spiral-color-hex');
+      picker.addEventListener('input', () => { hex.value = picker.value.toUpperCase(); });
+      hex.addEventListener('change', () => {
+        let val = hex.value.trim();
+        if (!val.startsWith('#')) val = '#' + val;
+        if (/^#[0-9A-Fa-f]{6}$/.test(val) || /^#[0-9A-Fa-f]{3}$/.test(val)) {
+          picker.value = val.length === 4
+            ? '#' + val[1]+val[1] + val[2]+val[2] + val[3]+val[3]
+            : val;
+          hex.value = picker.value.toUpperCase();
+          drawSpiral();
+        }
+      });
+    })();
+
+    // Initial draw
+    drawSpiral();
   </script>
 </body>
 </html>
