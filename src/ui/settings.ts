@@ -39,7 +39,7 @@ function injectMenuDOM(): void {
     <h2 class="settings-title">MTG Colors</h2>
     <div id="settings-version" class="settings-version"></div>
     <a class="settings-about-link" href="about">About</a>
-    <button id="settings-share-btn" class="settings-share-btn">\u{1F517} Share</button>
+    <button id="settings-share-btn" class="settings-share-btn">Share \u{1F517}</button>
     <button id="settings-reset-btn" class="settings-reset-btn" title="forget what you've unlocked">Reset Progress</button>
     <div id="settings-trace-container" class="settings-trace-container" hidden>
       <a id="settings-trace-link" class="settings-trace-link trace-link" target="_blank" rel="noopener noreferrer">Current trace</a>
@@ -117,7 +117,7 @@ export function wireSettings(
     navigator.clipboard.writeText(shareUrl).then(() => {
       if (shareBtn) {
         shareBtn.textContent = 'Copied!';
-        setTimeout(() => { shareBtn.textContent = '\u{1F517} Share'; }, 2000);
+        setTimeout(() => { shareBtn.textContent = 'Share \u{1F517}'; }, 2000);
       }
     });
 
