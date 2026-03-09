@@ -10,8 +10,6 @@
 - Add a progress marker to the end screen, like some dots at the left that shows where you are and that you could move up or down. I think they defined an arc for this but then we got distracted in a different direction
 - add markers to Honeycomb on deploy
 - add an 'about' page with acknowledgements. Include scryfall, that wiki where we got the mana and guild symbols, that Wizards article where we got the flavorful guild descriptions.
-- add a license file, CC0
-- on mobile, make the opening screen have fewer words (client to curate)
 - implement Share further, like make it show some links to share on social media, etc.
 - a support link that goes to my Patreon (requires client help)
   - and some Patreon levels that are specific to this
@@ -21,6 +19,7 @@
 - Make the "current trace" link only present if "debug=true" is in local storage. Update this local storage attribute if you ever see 'debug=bool' as a query param
 - on the home page, give players a button for each level they've unlocked. Change "learn" to "practice" for the ones they've completed.
 - VISUAL BUG: on the end screen, when it loads on Allied Guilds (the top section), the "up" arrow chevron starts visible then moves down to hide. I think both arrows should start in their hidden positions, and then the ones that need to be visible slide out. That will draw attention to them.
+- build a board in Honeycomb to see site usage
 
 # Expanding features
 
