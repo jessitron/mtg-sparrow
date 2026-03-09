@@ -163,6 +163,11 @@ body {
   padding-left: calc(0.75rem + 1px);
 }
 
+.settings-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
 .settings-close-btn {
   position: absolute;
   top: calc(1.5rem - 0.2rem);
