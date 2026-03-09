@@ -169,7 +169,7 @@ body {
   right: 0.75rem;
   background: transparent;
   border: none;
-  color: #888;
+  color: var(--menu-action-color);
   font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
