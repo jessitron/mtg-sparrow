@@ -985,11 +985,6 @@ export function showSessionEndColumns(
   shareHeader.textContent = 'Share';
   shareSection.appendChild(shareHeader);
 
-  const sharePrompt = document.createElement('p');
-  sharePrompt.classList.add('share-prompt');
-  sharePrompt.textContent = 'Know someone who could use this? Send them a link.';
-  shareSection.appendChild(sharePrompt);
-
   const shareBtn = document.createElement('button');
   shareBtn.classList.add('share-copy-btn');
   shareBtn.textContent = 'Copy link';
@@ -1154,6 +1149,19 @@ export function showSessionEndColumns(
 
       reelAdvance(reel, viewport, sections, direction as 1 | -1, pageSpan, sectionSpanRef, updateNavButtons);
     }, { passive: false });
+
+  // On resize (window resize, zoom change), snap the reel to the current section
+  // so sections don't end up misaligned after pixel offsets shift.
+  window.addEventListener('resize', () => {
+    if (reelSpinning) return;
+    let targetY = 0;
+    for (let i = 0; i < reelIndex; i++) {
+      targetY += sections[i].offsetHeight;
+    }
+    reel.style.transition = 'none';
+    reel.style.transform = `translateY(${-targetY}px)`;
+    viewport.style.height = `${sections[reelIndex].offsetHeight}px`;
+  });
 
   // Return cleanup: end the current section span when the page is done
   return () => endSpan(sectionSpanRef.current);
