@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
   <title>MTG Colors Logo Prototype</title>
   <style>
     :root {
@@ -209,6 +212,24 @@
       display: none; /* hidden — spiral is now used as mask on bg-circle */
     }
 
+    /* Logo text between bottom two symbols */
+    .logo-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      /* Align bottom of text with bottom of bottom symbols */
+      /* Bottom symbols' bottom edge: 50% + orbit*0.809 + symbol/2 */
+      top: calc(50% + var(--symbol-orbit-radius) * 0.809 + var(--symbol-size) / 2);
+      transform: translate(-50%, -100%);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: var(--text-size, 18px);
+      color: var(--text-color, #ffffff);
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+      text-align: center;
+    }
+
     .hex-input {
       width: 70px;
       font-family: monospace;
@@ -233,6 +254,7 @@
     <div class="mana-symbol-wrap" data-color="B"><img class="mana-symbol" src="images/B.svg" alt="Black"></div>
     <div class="mana-symbol-wrap" data-color="R"><img class="mana-symbol" src="images/R.svg" alt="Red"></div>
     <div class="mana-symbol-wrap" data-color="G"><img class="mana-symbol" src="images/G.svg" alt="Green"></div>
+    <div class="logo-text">mtgcolors.quest</div>
   </div>
 
   <div class="controls">
@@ -308,6 +330,18 @@
       <span class="value-display" id="spiral-opacity-val">0.6</span>
     </div>
 
+    <label for="text-size">Text size:</label>
+    <div>
+      <input type="range" id="text-size" min="8" max="40" value="14" step="1">
+      <span class="value-display" id="text-size-val">18px</span>
+    </div>
+
+    <label for="text-color">Text color:</label>
+    <div>
+      <input type="color" id="text-color" value="#ffffff">
+      <input type="text" class="hex-input" id="text-color-hex" value="#FFFFFF">
+    </div>
+
     <div class="color-row">
       <div class="color-swatch">
         <label>W</label>
@@ -375,6 +409,8 @@
     }
 
     bindRange('bg-radius', '--bg-radius');
+    bindRange('text-size', '--text-size');
+    bindColor('text-color', '--text-color');
     bindRange('symbol-size', '--symbol-size');
     bindRange('orbit-radius', '--symbol-orbit-radius');
     bindRange('outline-width', '--symbol-outline-width');
