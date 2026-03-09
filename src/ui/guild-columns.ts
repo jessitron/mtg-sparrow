@@ -1104,8 +1104,8 @@ export function showSessionEndColumns(
     }
   });
 
-  // Wire scroll navigation
-    document.addEventListener('wheel', (e: WheelEvent) => {
+  // Wire scroll navigation — scoped to viewport so page scrolling works normally
+    viewport.addEventListener('wheel', (e: WheelEvent) => {
       e.preventDefault();
 
       const wasZero = reelAccumulatedDelta === 0;
