@@ -20,7 +20,7 @@
 
       /* Symbol outline (applied as drop-shadow since SVGs are images) */
       --symbol-outline-width: 2px;
-      --symbol-outline-color: rgb(0, 0, 0);
+      --symbol-outline-color: rgb(255, 255, 255);
 
       /* The five mana colors (WUBRG order, starting at top going clockwise) */
       --color-W: #F7EA3D;  /* White */
@@ -249,11 +249,11 @@
   <div class="logo-container">
     <div class="bg-circle"></div>
     <svg class="spiral-svg" id="spiral-svg"></svg>
-    <div class="mana-symbol-wrap" data-color="W"><img class="mana-symbol" src="images/W.svg" alt="White"></div>
-    <div class="mana-symbol-wrap" data-color="U"><img class="mana-symbol" src="images/U.svg" alt="Blue"></div>
-    <div class="mana-symbol-wrap" data-color="B"><img class="mana-symbol" src="images/B.svg" alt="Black"></div>
-    <div class="mana-symbol-wrap" data-color="R"><img class="mana-symbol" src="images/R.svg" alt="Red"></div>
-    <div class="mana-symbol-wrap" data-color="G"><img class="mana-symbol" src="images/G.svg" alt="Green"></div>
+    <div class="mana-symbol-wrap" data-color="W"><img class="mana-symbol" src="images/logo/W.svg" alt="White"></div>
+    <div class="mana-symbol-wrap" data-color="U"><img class="mana-symbol" src="images/logo/U.svg" alt="Blue"></div>
+    <div class="mana-symbol-wrap" data-color="B"><img class="mana-symbol" src="images/logo/B.svg" alt="Black"></div>
+    <div class="mana-symbol-wrap" data-color="R"><img class="mana-symbol" src="images/logo/R.svg" alt="Red"></div>
+    <div class="mana-symbol-wrap" data-color="G"><img class="mana-symbol" src="images/logo/G.svg" alt="Green"></div>
     <div class="logo-text">mtgcolors.quest</div>
   </div>
 
@@ -284,8 +284,8 @@
 
     <label for="outline-color">Outline color:</label>
     <div>
-      <input type="color" id="outline-color" value="#000000">
-      <input type="text" class="hex-input" id="outline-color-hex" value="#000000">
+      <input type="color" id="outline-color" value="#ffffff">
+      <input type="text" class="hex-input" id="outline-color-hex" value="#ffffff">
     </div>
 
     <label for="spiral-start">Spiral start angle:</label>
@@ -308,7 +308,7 @@
 
     <label for="spiral-width">Spiral stroke:</label>
     <div>
-      <input type="range" id="spiral-width" min="0.5" max="40" value="22" step="0.5">
+      <input type="range" id="spiral-width" min="0.5" max="40" value="25" step="0.5">
       <span class="value-display" id="spiral-width-val">8px</span>
     </div>
 
