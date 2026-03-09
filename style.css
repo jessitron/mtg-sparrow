@@ -190,7 +190,6 @@ body {
 .settings-version {
   font-size: 0.9rem;
   color: #666;
-  text-decoration: none;
   margin-top: -1.5rem;
   padding-left: calc(0.75rem + 1px);
 }
