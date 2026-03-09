@@ -165,8 +165,8 @@ body {
 
 .settings-close-btn {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
+  top: calc(1.5rem - 0.2rem);
+  right: calc(1.5rem - 0.4rem);
   background: transparent;
   border: none;
   color: var(--menu-action-color);
