@@ -37,7 +37,7 @@ function injectMenuDOM(): void {
   panel.innerHTML = `
     <button id="settings-close-btn" class="settings-close-btn" aria-label="Close menu">&times;</button>
     <h2 class="settings-title"><a href="/" class="settings-title-link">MTG Colors</a></h2>
-    <div id="settings-version" class="settings-version"></div>
+    <a id="settings-version" class="settings-version" href="https://github.com/jessitron/mtg-sparrow" target="_blank" rel="noopener noreferrer"></a>
     <a class="settings-about-link" href="about">About</a>
     <button id="settings-share-btn" class="settings-share-btn">Share \u{1F517}</button>
     <button id="settings-reset-btn" class="settings-reset-btn" title="forget what you've unlocked">Reset Progress</button>
