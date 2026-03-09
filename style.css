@@ -20,6 +20,7 @@
   --card-back-oval: #707090;
   --card-back-oval-brighter: #7070F3;
   --symbol-outline-color: #272817;
+  --menu-action-color: #ccc;
 }
 
 *,
@@ -204,7 +205,7 @@ body {
 .settings-about-link {
   display: inline-block;
   font-size: 1.05rem;
-  color: #ccc;
+  color: var(--menu-action-color);
   text-decoration: none;
   transition: color 200ms ease;
   padding-left: calc(0.75rem + 1px);
@@ -216,7 +217,7 @@ body {
 
 .settings-share-btn {
   font-size: 1.05rem;
-  color: #888;
+  color: var(--menu-action-color);
   background: transparent;
   border: 1px solid #444;
   border-radius: 6px;
