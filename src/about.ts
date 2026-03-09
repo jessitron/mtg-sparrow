@@ -1,5 +1,6 @@
 import { initTelemetry, sendStartupSpan, startSpan, endSpan, flushSpans, getTraceId } from './telemetry/telemetry';
 import { wireSettings } from './ui/settings';
+import { renderLogo } from './ui/logo';
 import { APP_VERSION } from './version';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,6 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const pageSpan = startSpan('about.page_view', { 'app.version': APP_VERSION });
 
   wireSettings(APP_VERSION);
+
+  const logoContainer = document.getElementById('about-logo');
+  if (logoContainer) {
+    renderLogo(logoContainer);
+  }
 
   // Wire trace link in settings panel (must be after wireSettings which injects the DOM)
   const traceId = getTraceId(pageSpan);

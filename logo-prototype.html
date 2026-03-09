@@ -6,28 +6,39 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-  <title>MTG Colors Logo Prototype</title>
+  <title>MTG Colors Logo</title>
   <style>
     :root {
-      /* === TWEAK THESE === */
+      /* === LOGO VARIABLES === */
 
       /* Background circle */
       --bg-radius: 200px;
 
       /* Mana symbol sizing & positioning */
       --symbol-size: 100px;
-      --symbol-orbit-radius: 192px; /* distance from center to each symbol */
+      --symbol-orbit-radius: 192px;
 
-      /* Symbol outline (applied as drop-shadow since SVGs are images) */
+      /* Symbol background circle */
       --symbol-outline-width: 2px;
-      --symbol-outline-color: rgb(255, 255, 255);
+      --symbol-outline-color: #ffffff;
 
       /* The five mana colors (WUBRG order, starting at top going clockwise) */
-      --color-W: #F7EA3D;  /* White */
-      --color-U: #0E68AB;  /* Blue */
-      --color-B: #59289E  ;  /* Black */
-      --color-R: #D3202A;  /* Red */
-      --color-G: #00733E;  /* Green */
+      --color-W: #F7EA3D;
+      --color-U: #0E68AB;
+      --color-B: #59289E;
+      --color-R: #D3202A;
+      --color-G: #00733E;
+
+      /* Spiral */
+      --spiral-start: 35;       /* degrees from top, counterclockwise */
+      --spiral-turns: 3;
+      --spiral-outer: 85;       /* % of bg radius */
+      --spiral-inner: 8;        /* % of bg radius */
+      --spiral-width: 25;       /* stroke width in SVG units */
+
+      /* Text */
+      --text-size: 14px;
+      --text-color: #000000;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,19 +46,9 @@
     body {
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       background: #ffffff;
-      font-family: system-ui, sans-serif;
-      color: #ccc;
-    }
-
-    h1 {
-      margin-bottom: 40px;
-      font-size: 1.2rem;
-      font-weight: 400;
-      letter-spacing: 0.1em;
     }
 
     .logo-container {
@@ -56,7 +57,6 @@
       height: calc(var(--bg-radius) * 2);
     }
 
-    /* Background gradient circle */
     .bg-circle {
       position: absolute;
       top: 50%;
@@ -66,7 +66,7 @@
       height: calc(var(--bg-radius) * 2);
       border-radius: 50%;
       background: conic-gradient(
-        from 0deg,       /* 0° = top center */
+        from 0deg,
         var(--color-W) 0deg,
         var(--color-U) 72deg,
         var(--color-B) 144deg,
@@ -76,7 +76,16 @@
       );
     }
 
-    /* Each mana symbol wrapper */
+    .spiral-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: none;
+    }
+
     .mana-symbol-wrap {
       position: absolute;
       width: var(--symbol-size);
@@ -85,7 +94,6 @@
       left: 50%;
     }
 
-    /* Outline circle behind the symbol */
     .mana-symbol-wrap::before {
       content: '';
       position: absolute;
@@ -105,21 +113,7 @@
       display: block;
     }
 
-    /*
-     * Pentagon placement: WUBRG starting at top (–90°), each +72° clockwise.
-     * Using transform to position along the orbit.
-     * angle: W=-90°, U=-18°, B=54°, R=126°, G=198°
-     * x = orbit * cos(angle), y = orbit * sin(angle)
-     * Then shift by -50% of symbol size to center.
-     *
-     * We compute these with calc() — but trig in CSS is modern (cos/sin).
-     * For broadest compat, using hardcoded multipliers:
-     *   W: cos(-90°)= 0,      sin(-90°)=-1
-     *   U: cos(-18°)= 0.9511, sin(-18°)=-0.3090
-     *   B: cos(54°) = 0.5878, sin(54°) = 0.8090
-     *   R: cos(126°)=-0.5878, sin(126°)= 0.8090
-     *   G: cos(198°)=-0.9511, sin(198°)=-0.3090
-     */
+    /* Pentagon placement: WUBRG from top, clockwise */
     .mana-symbol-wrap[data-color="W"] {
       transform: translate(
         calc(var(--symbol-orbit-radius) * 0 - var(--symbol-size) / 2),
@@ -151,101 +145,21 @@
       );
     }
 
-    /* Controls panel */
-    .controls {
-      margin-top: 50px;
-      display: grid;
-      grid-template-columns: auto auto;
-      gap: 8px 16px;
-      align-items: center;
-      font-size: 0.85rem;
-    }
-
-    .controls label {
-      text-align: right;
-    }
-
-    .controls input[type="range"] {
-      width: 180px;
-    }
-
-    .controls input[type="color"] {
-      width: 40px;
-      height: 28px;
-      border: none;
-      cursor: pointer;
-    }
-
-    .value-display {
-      font-family: monospace;
-      font-size: 0.75rem;
-      color: #888;
-      min-width: 40px;
-      display: inline-block;
-    }
-
-    .color-row {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      grid-column: 1 / -1;
-      justify-content: center;
-      margin-top: 8px;
-    }
-
-    .color-swatch {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      font-size: 0.75rem;
-    }
-
-    /* Spiral overlay (hidden when masking, visible when not) */
-    .spiral-svg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      display: none; /* hidden — spiral is now used as mask on bg-circle */
-    }
-
-    /* Logo text between bottom two symbols */
     .logo-text {
       position: absolute;
-      top: 50%;
       left: 50%;
-      /* Align bottom of text with bottom of bottom symbols */
-      /* Bottom symbols' bottom edge: 50% + orbit*0.809 + symbol/2 */
       top: calc(50% + var(--symbol-orbit-radius) * 0.809 + var(--symbol-size) / 2);
       transform: translate(-50%, -100%);
       font-family: 'Orbitron', sans-serif;
       font-weight: 700;
-      font-size: var(--text-size, 14px);
-      color: var(--text-color, #000); 
+      font-size: var(--text-size);
+      color: var(--text-color);
       letter-spacing: 0.1em;
       white-space: nowrap;
-      text-align: center;
-    }
-
-    .hex-input {
-      width: 70px;
-      font-family: monospace;
-      font-size: 0.75rem;
-      text-align: center;
-      background: #2a2a3e;
-      color: #ccc;
-      border: 1px solid #555;
-      border-radius: 3px;
-      padding: 2px 4px;
     }
   </style>
 </head>
 <body>
-  <h1>LOGO PROTOTYPE</h1>
-
   <div class="logo-container">
     <div class="bg-circle"></div>
     <svg class="spiral-svg" id="spiral-svg"></svg>
@@ -257,271 +171,43 @@
     <div class="logo-text">mtgcolors.quest</div>
   </div>
 
-  <div class="controls">
-    <label for="bg-radius">Background radius:</label>
-    <div>
-      <input type="range" id="bg-radius" min="80" max="400" value="200">
-      <span class="value-display" id="bg-radius-val">200px</span>
-    </div>
-
-    <label for="symbol-size">Symbol size:</label>
-    <div>
-      <input type="range" id="symbol-size" min="20" max="150" value="70">
-      <span class="value-display" id="symbol-size-val">70px</span>
-    </div>
-
-    <label for="orbit-radius">Orbit radius:</label>
-    <div>
-      <input type="range" id="orbit-radius" min="40" max="300" value="120">
-      <span class="value-display" id="orbit-radius-val">120px</span>
-    </div>
-
-    <label for="outline-width">Outline width:</label>
-    <div>
-      <input type="range" id="outline-width" min="0" max="10" value="2" step="0.5">
-      <span class="value-display" id="outline-width-val">2px</span>
-    </div>
-
-    <label for="outline-color">Outline color:</label>
-    <div>
-      <input type="color" id="outline-color" value="#ffffff">
-      <input type="text" class="hex-input" id="outline-color-hex" value="#ffffff">
-    </div>
-
-    <label for="spiral-start">Spiral start angle:</label>
-    <div>
-      <input type="range" id="spiral-start" min="0" max="360" value="35" step="5">
-      <span class="value-display" id="spiral-start-val">0°</span>
-    </div>
-
-    <label for="spiral-turns">Spiral turns:</label>
-    <div>
-      <input type="range" id="spiral-turns" min="1" max="8" value="3" step="0.25">
-      <span class="value-display" id="spiral-turns-val">3</span>
-    </div>
-
-    <label for="spiral-outer">Spiral outer radius:</label>
-    <div>
-      <input type="range" id="spiral-outer" min="50" max="100" value="85" step="1">
-      <span class="value-display" id="spiral-outer-val">95%</span>
-    </div>
-
-    <label for="spiral-width">Spiral stroke:</label>
-    <div>
-      <input type="range" id="spiral-width" min="0.5" max="40" value="25" step="0.5">
-      <span class="value-display" id="spiral-width-val">8px</span>
-    </div>
-
-    <label for="spiral-color">Spiral color:</label>
-    <div>
-      <input type="color" id="spiral-color" value="#ffffff">
-      <input type="text" class="hex-input" id="spiral-color-hex" value="#FFFFFF">
-    </div>
-
-    <label for="spiral-inner">Spiral inner radius:</label>
-    <div>
-      <input type="range" id="spiral-inner" min="0" max="50" value="8" step="1">
-      <span class="value-display" id="spiral-inner-val">15%</span>
-    </div>
-
-    <label for="spiral-opacity">Spiral opacity:</label>
-    <div>
-      <input type="range" id="spiral-opacity" min="0" max="1" value="0.6" step="0.05">
-      <span class="value-display" id="spiral-opacity-val">0.6</span>
-    </div>
-
-    <label for="text-size">Text size:</label>
-    <div>
-      <input type="range" id="text-size" min="8" max="40" value="14" step="1">
-      <span class="value-display" id="text-size-val">18px</span>
-    </div>
-
-    <label for="text-color">Text color:</label>
-    <div>
-      <input type="color" id="text-color" value="#000000">
-      <input type="text" class="hex-input" id="text-color-hex" value="#000000">
-    </div>
-
-    <div class="color-row">
-      <div class="color-swatch">
-        <label>W</label>
-        <input type="color" id="color-W" value="#F9FAF4">
-        <input type="text" class="hex-input" id="color-W-hex" value="#F9FAF4">
-      </div>
-      <div class="color-swatch">
-        <label>U</label>
-        <input type="color" id="color-U" value="#0E68AB">
-        <input type="text" class="hex-input" id="color-U-hex" value="#0E68AB">
-      </div>
-      <div class="color-swatch">
-        <label>B</label>
-        <input type="color" id="color-B" value="#150B00">
-        <input type="text" class="hex-input" id="color-B-hex" value="#150B00">
-      </div>
-      <div class="color-swatch">
-        <label>R</label>
-        <input type="color" id="color-R" value="#D3202A">
-        <input type="text" class="hex-input" id="color-R-hex" value="#D3202A">
-      </div>
-      <div class="color-swatch">
-        <label>G</label>
-        <input type="color" id="color-G" value="#00733E">
-        <input type="text" class="hex-input" id="color-G-hex" value="#00733E">
-      </div>
-    </div>
-  </div>
-
   <script>
-    const root = document.documentElement.style;
+    // Generate spiral mask from CSS variables
+    const root = getComputedStyle(document.documentElement);
+    const bgRadius = parseFloat(root.getPropertyValue('--bg-radius'));
+    const turns = parseFloat(root.getPropertyValue('--spiral-turns'));
+    const strokeWidth = parseFloat(root.getPropertyValue('--spiral-width'));
+    const startDeg = parseFloat(root.getPropertyValue('--spiral-start'));
+    const outerPct = parseFloat(root.getPropertyValue('--spiral-outer')) / 100;
+    const innerPct = parseFloat(root.getPropertyValue('--spiral-inner')) / 100;
 
-    function bindRange(id, cssVar, unit = 'px') {
-      const input = document.getElementById(id);
-      const display = document.getElementById(id + '-val');
-      input.addEventListener('input', () => {
-        root.setProperty(cssVar, input.value + unit);
-        if (display) display.textContent = input.value + unit;
-      });
+    const size = bgRadius * 2;
+    const cx = bgRadius;
+    const cy = bgRadius;
+    const outerR = bgRadius * outerPct;
+    const innerR = bgRadius * innerPct;
+    const startAngle = -Math.PI / 2 - (startDeg * Math.PI / 180);
+    const totalAngle = turns * 2 * Math.PI;
+    const steps = Math.round(turns * 120);
+    const points = [];
+
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const r = outerR - (outerR - innerR) * t;
+      const angle = startAngle - t * totalAngle;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+      points.push(`${x.toFixed(2)},${y.toFixed(2)}`);
     }
 
-    function bindColor(id, cssVar) {
-      const picker = document.getElementById(id);
-      const hex = document.getElementById(id + '-hex');
-
-      picker.addEventListener('input', () => {
-        root.setProperty(cssVar, picker.value);
-        if (hex) hex.value = picker.value.toUpperCase();
-      });
-
-      if (hex) {
-        hex.addEventListener('change', () => {
-          let val = hex.value.trim();
-          if (!val.startsWith('#')) val = '#' + val;
-          // Validate hex
-          if (/^#[0-9A-Fa-f]{6}$/.test(val) || /^#[0-9A-Fa-f]{3}$/.test(val)) {
-            picker.value = val.length === 4
-              ? '#' + val[1]+val[1] + val[2]+val[2] + val[3]+val[3]
-              : val;
-            hex.value = picker.value.toUpperCase();
-            root.setProperty(cssVar, picker.value);
-          }
-        });
-      }
-    }
-
-    bindRange('bg-radius', '--bg-radius');
-    bindRange('text-size', '--text-size');
-    bindColor('text-color', '--text-color');
-    bindRange('symbol-size', '--symbol-size');
-    bindRange('orbit-radius', '--symbol-orbit-radius');
-    bindRange('outline-width', '--symbol-outline-width');
-    bindColor('outline-color', '--symbol-outline-color');
-    bindColor('color-W', '--color-W');
-    bindColor('color-U', '--color-U');
-    bindColor('color-B', '--color-B');
-    bindColor('color-R', '--color-R');
-    bindColor('color-G', '--color-G');
-
-    // --- Spiral ---
-    const spiralSvg = document.getElementById('spiral-svg');
-    const NS = 'http://www.w3.org/2000/svg';
-
-    function drawSpiral() {
-      // Read current values from the controls
-      const bgRadius = parseFloat(document.getElementById('bg-radius').value);
-      const turns = parseFloat(document.getElementById('spiral-turns').value);
-      const strokeWidth = parseFloat(document.getElementById('spiral-width').value);
-      const strokeColor = document.getElementById('spiral-color').value;
-      const opacity = parseFloat(document.getElementById('spiral-opacity').value);
-
-      const size = bgRadius * 2;
-      const cx = bgRadius;
-      const cy = bgRadius;
-      const innerPct = parseFloat(document.getElementById('spiral-inner').value) / 100;
-      const outerPct = parseFloat(document.getElementById('spiral-outer').value) / 100;
-      const outerR = bgRadius * outerPct;
-      const innerR = bgRadius * innerPct; // end at inner radius %
-
-      // Archimedean spiral: r decreases linearly, angle sweeps counterclockwise
-      // Start at top (-π/2) offset by start angle, go counterclockwise
-      const startDeg = parseFloat(document.getElementById('spiral-start').value);
-      const startAngle = -Math.PI / 2 - (startDeg * Math.PI / 180); // counterclockwise offset
-      const totalAngle = turns * 2 * Math.PI;
-      const steps = Math.round(turns * 120); // smooth enough
-      const points = [];
-
-      for (let i = 0; i <= steps; i++) {
-        const t = i / steps; // 0 to 1
-        const r = outerR - (outerR - innerR) * t;
-        const angle = startAngle - t * totalAngle; // counterclockwise from start
-        const x = cx + r * Math.cos(angle);
-        const y = cy + r * Math.sin(angle);
-        points.push(`${x.toFixed(2)},${y.toFixed(2)}`);
-      }
-
-      const d = 'M ' + points[0] + ' L ' + points.slice(1).join(' ');
-
-      // Update SVG (kept for reference, hidden)
-      spiralSvg.setAttribute('viewBox', `0 0 ${size} ${size}`);
-      spiralSvg.innerHTML = '';
-      const path = document.createElementNS(NS, 'path');
-      path.setAttribute('d', d);
-      path.setAttribute('fill', 'none');
-      path.setAttribute('stroke', strokeColor);
-      path.setAttribute('stroke-width', strokeWidth);
-      path.setAttribute('stroke-opacity', opacity);
-      path.setAttribute('stroke-linecap', 'round');
-      spiralSvg.appendChild(path);
-
-      // Apply spiral as CSS mask on the background circle
-      const maskSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}"><path d="${d}" fill="none" stroke="white" stroke-width="${strokeWidth}" stroke-linecap="round"/></svg>`;
-      const maskUrl = `url("data:image/svg+xml,${encodeURIComponent(maskSvg)}")`;
-      const bgCircle = document.querySelector('.bg-circle');
-      bgCircle.style.maskImage = maskUrl;
-      bgCircle.style.webkitMaskImage = maskUrl;
-      bgCircle.style.maskSize = '100% 100%';
-      bgCircle.style.webkitMaskSize = '100% 100%';
-    }
-
-    // Bind spiral controls
-    ['bg-radius', 'spiral-start', 'spiral-turns', 'spiral-outer', 'spiral-width', 'spiral-color', 'spiral-opacity', 'spiral-inner'].forEach(id => {
-      document.getElementById(id).addEventListener('input', () => {
-        // Update display labels
-        const turnsDisp = document.getElementById('spiral-turns-val');
-        if (turnsDisp) turnsDisp.textContent = document.getElementById('spiral-turns').value;
-        const widthDisp = document.getElementById('spiral-width-val');
-        if (widthDisp) widthDisp.textContent = document.getElementById('spiral-width').value + 'px';
-        const opacityDisp = document.getElementById('spiral-opacity-val');
-        if (opacityDisp) opacityDisp.textContent = document.getElementById('spiral-opacity').value;
-        const startDisp = document.getElementById('spiral-start-val');
-        if (startDisp) startDisp.textContent = document.getElementById('spiral-start').value + '°';
-        const outerDisp = document.getElementById('spiral-outer-val');
-        if (outerDisp) outerDisp.textContent = document.getElementById('spiral-outer').value + '%';
-        const innerDisp = document.getElementById('spiral-inner-val');
-        if (innerDisp) innerDisp.textContent = document.getElementById('spiral-inner').value + '%';
-        drawSpiral();
-      });
-    });
-
-    // Hex sync for spiral color (no CSS var needed, drawSpiral reads it directly)
-    (function() {
-      const picker = document.getElementById('spiral-color');
-      const hex = document.getElementById('spiral-color-hex');
-      picker.addEventListener('input', () => { hex.value = picker.value.toUpperCase(); });
-      hex.addEventListener('change', () => {
-        let val = hex.value.trim();
-        if (!val.startsWith('#')) val = '#' + val;
-        if (/^#[0-9A-Fa-f]{6}$/.test(val) || /^#[0-9A-Fa-f]{3}$/.test(val)) {
-          picker.value = val.length === 4
-            ? '#' + val[1]+val[1] + val[2]+val[2] + val[3]+val[3]
-            : val;
-          hex.value = picker.value.toUpperCase();
-          drawSpiral();
-        }
-      });
-    })();
-
-    // Initial draw
-    drawSpiral();
+    const d = 'M ' + points[0] + ' L ' + points.slice(1).join(' ');
+    const maskSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}"><path d="${d}" fill="none" stroke="white" stroke-width="${strokeWidth}" stroke-linecap="round"/></svg>`;
+    const maskUrl = `url("data:image/svg+xml,${encodeURIComponent(maskSvg)}")`;
+    const bgCircle = document.querySelector('.bg-circle');
+    bgCircle.style.maskImage = maskUrl;
+    bgCircle.style.webkitMaskImage = maskUrl;
+    bgCircle.style.maskSize = '100% 100%';
+    bgCircle.style.webkitMaskSize = '100% 100%';
   </script>
 </body>
 </html>
