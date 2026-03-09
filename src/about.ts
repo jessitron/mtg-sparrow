@@ -8,7 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const pageSpan = startSpan('about.page_view', { 'app.version': APP_VERSION });
 
-  // Wire trace link in settings panel
+  wireSettings(APP_VERSION);
+
+  // Wire trace link in settings panel (must be after wireSettings which injects the DOM)
   const traceId = getTraceId(pageSpan);
   const traceLink = document.getElementById('settings-trace-link') as HTMLAnchorElement | null;
   const traceContainer = document.getElementById('settings-trace-container');
@@ -18,8 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (traceContainer) {
     traceContainer.hidden = false;
   }
-
-  wireSettings(APP_VERSION);
 
   // End span and flush when user leaves
   document.addEventListener('visibilitychange', () => {
