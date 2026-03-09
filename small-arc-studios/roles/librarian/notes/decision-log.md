@@ -1229,4 +1229,30 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-134: Logo Design — Archimedean Spiral over WUBRG Conic Gradient
+- **Date**: 2026-03-08
+- **Decision**: The MTG Colors logo uses an Archimedean spiral shape masked over a conic gradient of the five mana colors, with mana symbol silhouettes arranged in a pentagon and "mtgcolors.quest" text in Orbitron font. Prototyped in `logo-prototype.html`.
+- **Context**: The site needed a visual identity beyond the favicon. The spiral form echoes the color wheel concept central to the app while the conic gradient naturally blends the five mana colors.
+- **Rationale**: The spiral is distinctive, avoids direct reproduction of Wizards of the Coast IP, and works at multiple sizes. Orbitron font matches the tech-meets-fantasy aesthetic.
+
+## DEC-135: Symbol-Only SVG Mana Silhouettes for Logo
+- **Date**: 2026-03-08
+- **Decision**: New SVG assets created at `images/logo/{W,U,B,R,G}.svg` — mana symbol silhouettes without colored background circles.
+- **Context**: The logo needed mana symbols that work as transparent overlays on the gradient, not the standard colored-circle mana pips used elsewhere in the app.
+- **Rationale**: Silhouettes integrate cleanly with the spiral mask effect and remain legible at small sizes. Separate from the existing mana symbol assets to avoid coupling logo needs with card display needs.
+
+## DEC-136: Reusable renderLogo() Module
+- **Date**: 2026-03-08
+- **Decision**: Logo rendering extracted into `src/ui/logo.ts` as a reusable `renderLogo()` function, integrated into the about page.
+- **Context**: The logo prototype was a standalone HTML page. Extracting the rendering logic into a module makes it available to any page that needs it.
+- **Rationale**: Follows the project pattern of keeping rendering logic in `src/ui/` modules. The about page is the natural first integration point. Additional pages can import the same module.
+
+## DEC-137: Logo Physical Artifact — Mirror-Finish Glitter Sticker
+- **Date**: 2026-03-08
+- **Decision**: Client ordered the logo as a mirror-finish glitter sticker, validating the design for physical media use.
+- **Context**: A logo that works as a physical sticker demonstrates sufficient contrast and recognizability at small scale.
+- **Rationale**: Recorded as a milestone — the logo design is confirmed satisfactory by the client for both digital and physical contexts.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
