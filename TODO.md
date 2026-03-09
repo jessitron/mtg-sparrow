@@ -20,6 +20,7 @@
 - on the home page, give players a button for each level they've unlocked. Change "learn" to "practice" for the ones they've completed.
 - VISUAL BUG: on the end screen, when it loads on Allied Guilds (the top section), the "up" arrow chevron starts visible then moves down to hide. I think both arrows should start in their hidden positions, and then the ones that need to be visible slide out. That will draw attention to them.
 - build a board in Honeycomb to see site usage
+- a newsletter landing page on ConvertKit, and then we need to get the agent to write exciting upate emails.
 
 # Expanding features
 
