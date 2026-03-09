@@ -159,6 +159,7 @@ body {
   font-family: 'GoudyMediaeval', Georgia, serif;
   color: #f0f0f0;
   margin: 0;
+  padding-left: 0.75rem;
 }
 
 .settings-close-btn {
@@ -184,10 +185,12 @@ body {
   font-size: 0.9rem;
   color: #666;
   margin-top: -0.5rem;
+  padding-left: 0.75rem;
 }
 
 .settings-trace-container {
   font-size: 0.95rem;
+  padding-left: 0.75rem;
 }
 
 .settings-trace-container[hidden] {
@@ -204,6 +207,7 @@ body {
   color: #ccc;
   text-decoration: none;
   transition: color 200ms ease;
+  padding-left: 0.75rem;
 }
 
 .settings-about-link:hover {
