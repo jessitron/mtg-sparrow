@@ -25,6 +25,7 @@ let advanceTimer: ReturnType<typeof setTimeout> | null = null;
 let paused = false;
 let nameRevealed = false;
 let currentTraceUrl: string | null = null;
+let doneZoneEl: HTMLElement | null = null;
 
 function clearTimers(): void {
   if (revealTimer !== null) {
@@ -108,6 +109,7 @@ function stopSession(): void {
   const cardsShown = session.currentIndex + 1;
   session.completed = false;
 
+  doneZoneEl = null;
   navigateToAssessment(cardsShown);
 }
 
@@ -144,11 +146,11 @@ function showCard(): void {
   const card = renderCard(combo);
   app.appendChild(card);
 
-  // Floating done-zone — fixed at bottom with gradient fade.
-  let doneZone = document.querySelector('.done-zone') as HTMLElement | null;
-  if (!doneZone) {
-    doneZone = document.createElement('div');
+  // Controls below the card — pause, counter, done button.
+  if (!doneZoneEl) {
+    const doneZone = document.createElement('div');
     doneZone.classList.add('done-zone');
+    doneZoneEl = doneZone;
 
     // Left side: pause button + counter
     const doneLeft = document.createElement('div');
@@ -210,17 +212,17 @@ function showCard(): void {
     const spacer = document.createElement('div');
     doneZone.appendChild(spacer);
 
-    document.body.appendChild(doneZone);
-  } else {
-    // Update counter in place on card transitions
-    const progress = doneZone.querySelector('.progress-counter') as HTMLElement | null;
-    if (progress) {
-      progress.textContent = `${session.currentIndex + 1} / ${session.cardCount}`;
-    }
+  }
+
+  // Re-append (survives innerHTML clear) and update counter
+  app.appendChild(doneZoneEl);
+  const progress = doneZoneEl.querySelector('.progress-counter') as HTMLElement | null;
+  if (progress) {
+    progress.textContent = `${session.currentIndex + 1} / ${session.cardCount}`;
   }
 
   // Show "Done for now" button from card 2 onward
-  const doneBtn = doneZone.querySelector('.done-button');
+  const doneBtn = doneZoneEl.querySelector('.done-button');
   if (doneBtn && session.currentIndex >= 1) {
     doneBtn.classList.add('button-visible');
   }
@@ -249,6 +251,7 @@ function goToNextCard(early: boolean): void {
   if (hasMore) {
     showCard();
   } else {
+    doneZoneEl = null;
     navigateToAssessment(session.cardCount);
   }
 }
