@@ -416,6 +416,20 @@
           } else {
             encounters.splice(i, 1);
           }
+        } else {
+          // Check for a fourth color entering the triple bubble
+          const tripleColors = new Set([e.a.color, e.b.color, e.c.color]);
+          for (const p of particles) {
+            if (p === e.a || p === e.b || p === e.c) continue;
+            if (tripleColors.has(p.color)) continue;
+            const dx = p.x - e.cx;
+            const dy = p.y - e.cy;
+            if (Math.sqrt(dx * dx + dy * dy) - p.r < TRIPLE_BUBBLE_RADIUS) {
+              // Fourth color intruder: pop the triple
+              encounters.splice(i, 1);
+              break;
+            }
+          }
         }
       } else {
         // Two-color encounter: update center
