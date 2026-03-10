@@ -44,15 +44,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (minimizeBtn && restoreBtn && welcomeCard) {
     minimizeBtn.addEventListener('click', () => {
-      welcomeCard.style.display = 'none';
-      restoreBtn.style.display = 'flex';
+      welcomeCard.classList.add('welcome--minimizing');
+      welcomeCard.addEventListener('transitionend', () => {
+        welcomeCard.classList.remove('welcome--minimizing');
+        welcomeCard.classList.add('welcome--minimized');
+        restoreBtn.style.display = 'flex';
+      }, { once: true });
       const span = startChildSpan('welcome.minimize', pageSpan, {});
       span.end();
     });
 
     restoreBtn.addEventListener('click', () => {
-      welcomeCard.style.display = '';
       restoreBtn.style.display = 'none';
+      welcomeCard.classList.remove('welcome--minimized');
       const span = startChildSpan('welcome.restore', pageSpan, {});
       span.end();
     });

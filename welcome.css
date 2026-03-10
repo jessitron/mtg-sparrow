@@ -10,7 +10,19 @@
   backdrop-filter: blur(8px);
   border-radius: 60% / 45%;
   padding: 3.5rem 3rem;
+  transition: transform 300ms ease-in, opacity 300ms ease-in;
+  transform-origin: bottom right;
 }
+
+.welcome--minimizing {
+  transform: scale(0.15) translate(60vw, 60vh);
+  opacity: 0;
+}
+
+.welcome--minimized {
+  display: none;
+}
+
 
 .welcome-minimize-btn {
   position: absolute;
