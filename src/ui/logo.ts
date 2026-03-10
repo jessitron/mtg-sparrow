@@ -90,7 +90,7 @@ export function renderLogo(container: HTMLElement): void {
 
     const img = document.createElement('img');
     img.src = `images/logo/${color}.svg`;
-    img.alt = color;
+    img.alt = '';
     img.style.cssText = `
       position: relative;
       width: 100%; height: 100%;
