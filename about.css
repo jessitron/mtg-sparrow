@@ -101,6 +101,24 @@
   border-bottom-color: #f0f0f0;
 }
 
+.about-signup {
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.about-signup-blurb {
+  font-size: 0.95rem;
+  color: #bbb;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+#convertkit-form {
+  min-height: 2.5rem;
+}
+
 .about-home-link {
   display: inline-block;
   font-size: 0.95rem;
