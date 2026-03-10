@@ -113,6 +113,12 @@
   pointer-events: auto;
 }
 
+.done-button.button-steady {
+  opacity: 1;
+  animation: none;
+  pointer-events: auto;
+}
+
 .done-button:hover {
   background: color-mix(in srgb, var(--card-back-turquoise) 35%, transparent);
   border-color: var(--card-back-oval-brighter);
