@@ -1283,6 +1283,34 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: ConvertKit handles the form submit internally via its own JS. There is no reliable hook to intercept submission from outside the embed.
 - **Rationale**: Click engagement is a meaningful signal (intent to interact) and is technically accessible. Submission tracking would require ConvertKit webhook integration — disproportionate effort for this arc.
 
+## DEC-143: Feedback Goes to Honeycomb as Telemetry, Not External Service
+- **Date**: 2026-03-10
+- **Decision**: User feedback is captured as a `feedback.submit` span in Honeycomb (`sparrow-deck` dataset), not routed to an external service (Google Forms, Typeform, etc.).
+- **Context**: The app needed a way to collect user feedback before wider publishing. Options considered: external form services, email mailto link, custom backend, Honeycomb telemetry.
+- **Alternatives rejected**: External form services break the in-app experience and lose session correlation. A custom backend is disproportionate effort. A mailto link is friction-heavy.
+- **Rationale**: Honeycomb is already instrumented. Sending feedback as a span gives automatic session correlation, queryability with existing tools, and zero additional infrastructure. The client can query "What are users saying?" alongside "What did they do just before submitting?"
+
+## DEC-144: Context Provider Pattern for Per-Page Feedback Enrichment
+- **Date**: 2026-03-10
+- **Decision**: Each page registers a context provider function (`registerFeedbackContext(fn)`) that returns page-specific attributes. The provider is called lazily at submit time so it captures current state.
+- **Context**: Feedback submitted from the slides page should include which card was showing; from the end page, which section was active; from assessment, which subgroup was in progress. This information is only meaningful at the moment of submission.
+- **Alternatives rejected**: Passing attributes at registration time would capture state at page load, not at submission. A global state object would create tight coupling between pages and the feedback module.
+- **Rationale**: The lazy provider pattern decouples the feedback module from page internals. Each page owns its own context definition. Attributes captured include: `feedback.unlocked_levels` (all pages), plus slide/end/assessment-specific state.
+
+## DEC-145: Dialog-Open/Close Custom Events for Slideshow Pause Coordination
+- **Date**: 2026-03-10
+- **Decision**: Opening any dialog (settings menu or feedback modal) dispatches a `dialog-open` custom event; closing dispatches `dialog-close`. The slides page listens and pauses/resumes the slideshow using a counter (`dialogOpenCount`) and a `pausedByDialog` flag that preserves user's manual pause state.
+- **Context**: The feedback modal is a second overlay that can open while the slideshow is running. The slideshow needs to pause so users can write feedback without the cards advancing. Coordination is needed across the settings panel and feedback modal.
+- **Alternatives rejected**: Having the feedback module directly call slideshow APIs would create direct coupling across unrelated modules. A shared mutable pause flag would be fragile when multiple dialogs overlap.
+- **Rationale**: Custom events decouple the modules. The counter approach (not boolean) correctly handles the edge case of transitioning from settings to feedback without an intervening resume. The `pausedByDialog` flag prevents auto-resuming a slideshow that the user had manually paused.
+
+## DEC-146: Spacebar Handler Checks e.target.tagName to Skip TEXTAREA/INPUT
+- **Date**: 2026-03-10
+- **Decision**: The slides page spacebar handler checks `e.target.tagName` and skips TEXTAREA and INPUT elements, so typing a space in the feedback textarea does not advance the slides.
+- **Context**: The slides page intercepts the spacebar key to pause/resume the slideshow. After adding the feedback modal (which contains a textarea), pressing space in the textarea was triggering slideshow navigation instead of inserting a character.
+- **Alternatives rejected**: Stopping propagation from the modal — fragile and would need maintenance every time a new focusable element was added. Checking `e.defaultPrevented` — not reliable across all browsers.
+- **Rationale**: Checking `e.target.tagName` is explicit, reliable, and minimal. It directly expresses the intent: "don't intercept keyboard events when the user is typing in a form field."
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
