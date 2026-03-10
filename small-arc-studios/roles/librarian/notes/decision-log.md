@@ -1259,6 +1259,30 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: The reel navigation captured all wheel events on the entire document via `e.preventDefault()`. At higher browser zoom levels (e.g. 150%), content extended below the fold but users could not scroll to reach it. The scroll hijacking cost exceeded its benefit.
 - **Rationale**: Scoping to the viewport element preserves reel navigation when scrolling over the info section while restoring normal page scrolling everywhere else. Minimal change, maximum accessibility improvement.
 
+## DEC-139: Email Signup Uses ConvertKit Inline Embed
+- **Date**: 2026-03-09
+- **Decision**: Email signup on the About page uses a ConvertKit inline form embed (data-uid="df1fad2ec7"), not a custom form. ConvertKit handles all email infrastructure.
+- **Context**: Client wanted a way for engaged readers to follow future updates. A hosted embed avoids building and maintaining email infrastructure.
+- **Rationale**: ConvertKit handles GDPR compliance, deliverability, and subscriber management. The embed is a single script tag — minimal code surface, no server-side work required.
+
+## DEC-140: Signup Section Placed Above Acknowledgments
+- **Date**: 2026-03-09
+- **Decision**: The "Pause on my Upkeep" signup section is placed after the intro paragraph and before Acknowledgments — highest visibility position for engaged readers.
+- **Context**: Multiple placement options were considered. Client chose above Acknowledgments to maximize visibility while still letting the intro paragraph establish context.
+- **Rationale**: Readers who scroll past the intro are already engaged; the signup form catches them at peak interest before they reach the credits section.
+
+## DEC-141: Section Heading "Pause on my Upkeep"
+- **Date**: 2026-03-09
+- **Decision**: The email signup section is titled "Pause on my Upkeep" — an MTG-themed heading referencing the upkeep phase.
+- **Context**: Several options were brainstormed. Client chose this one for its MTG flavor and the double meaning (pause = the upkeep phase trigger; also "pause and follow along").
+- **Rationale**: Consistent with the app's MTG-native voice. Memorable and distinctive compared to generic "Subscribe" or "Newsletter" headings.
+
+## DEC-142: Telemetry Tracks Form Presence and Click Engagement, Not Submission
+- **Date**: 2026-03-09
+- **Decision**: `about.has_signup_form` boolean attribute records form presence on page load; `about.signup_interact` child span fires on click in the form container. Submission is not tracked.
+- **Context**: ConvertKit handles the form submit internally via its own JS. There is no reliable hook to intercept submission from outside the embed.
+- **Rationale**: Click engagement is a meaningful signal (intent to interact) and is technically accessible. Submission tracking would require ConvertKit webhook integration — disproportionate effort for this arc.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
