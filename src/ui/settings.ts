@@ -1,4 +1,5 @@
 import { startSpan, endSpan, flushSpans, getSessionId } from '../telemetry/telemetry';
+import { wireFeedback } from './feedback';
 
 /**
  * Create and inject the menu DOM (button, backdrop, panel) into document.body.
@@ -40,6 +41,7 @@ function injectMenuDOM(): void {
     <div id="settings-version" class="settings-version"></div>
     <a class="settings-about-link" href="about">About</a>
     <button id="settings-share-btn" class="settings-share-btn">Share \u{1F517}</button>
+    <button id="settings-feedback-btn" class="settings-feedback-btn">Feedback</button>
     <button id="settings-reset-btn" class="settings-reset-btn" title="forget what you've unlocked">Reset Progress</button>
     <div id="settings-trace-container" class="settings-trace-container" hidden>
       <a id="settings-trace-link" class="settings-trace-link trace-link" target="_blank" rel="noopener noreferrer">Current trace</a>
@@ -104,6 +106,8 @@ export function wireSettings(
     localStorage.clear();
     window.location.href = '.';
   });
+
+  wireFeedback();
 
   // Share / Copy link button
   const shareBtn = document.getElementById('settings-share-btn');
