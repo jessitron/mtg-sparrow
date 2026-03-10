@@ -102,15 +102,21 @@
 }
 
 .about-signup {
-  border: 1px solid #333;
-  border-radius: 6px;
+  border: 1px solid var(--bg-brown-dark);
+  border-radius: 4px;
   padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-khaki);
+  color: white;
+  margin-left: calc(-1.25rem + 1px);
+  margin-right: calc(-1.25rem + 1px);
+}
+
+.about-signup .about-section-heading {
+  color: white;
 }
 
 .about-signup-blurb {
   font-size: 0.95rem;
-  color: #bbb;
   line-height: 1.5;
   margin-bottom: 1rem;
 }

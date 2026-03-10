@@ -183,6 +183,7 @@
   gap: 2rem;
   height: 100%;
   align-items: center;
+  border-radius: 4px;
 }
 
 #app.app--quiz-active .card-image-column {
