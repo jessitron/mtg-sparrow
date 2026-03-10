@@ -65,20 +65,7 @@ export function renderLogo(container: HTMLElement): void {
     -webkit-mask-size: 100% 100%;
     mask-size: 100% 100%;
   `;
-  // Entrance spin animation — spiral starts rotated 20° clockwise and eases back
-  bgCircle.style.animation = 'logo-spiral-spin 0.8s ease-out forwards';
-  const styleId = 'logo-spiral-keyframes';
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = `
-      @keyframes logo-spiral-spin {
-        from { transform: translate(-50%, -50%) rotate(20deg); }
-        to   { transform: translate(-50%, -50%) rotate(0deg); }
-      }
-    `;
-    document.head.appendChild(style);
-  }
+  bgCircle.classList.add('logo-spiral');
 
   container.appendChild(bgCircle);
 
