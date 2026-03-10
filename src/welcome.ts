@@ -37,6 +37,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Minimize / restore welcome card
+  const welcomeCard = document.getElementById('welcome-screen') as HTMLElement | null;
+  const minimizeBtn = document.getElementById('welcome-minimize-btn') as HTMLButtonElement | null;
+  const restoreBtn = document.getElementById('gas-restore-btn') as HTMLButtonElement | null;
+
+  if (minimizeBtn && restoreBtn && welcomeCard) {
+    minimizeBtn.addEventListener('click', () => {
+      welcomeCard.style.display = 'none';
+      restoreBtn.style.display = 'flex';
+      const span = startChildSpan('welcome.minimize', pageSpan, {});
+      span.end();
+    });
+
+    restoreBtn.addEventListener('click', () => {
+      welcomeCard.style.display = '';
+      restoreBtn.style.display = 'none';
+      const span = startChildSpan('welcome.restore', pageSpan, {});
+      span.end();
+    });
+  }
+
   // Mana gas drag telemetry — fired from mana-gas.js when a symbol is dragged and released
   window.addEventListener('mana-gas-drag', ((e: CustomEvent) => {
     const { color, duration_ms, release_vx, release_vy } = e.detail;

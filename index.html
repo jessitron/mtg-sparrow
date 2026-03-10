@@ -21,6 +21,7 @@
   <canvas id="gas"></canvas>
   <main id="app">
     <div class="welcome" id="welcome-screen">
+      <button id="welcome-minimize-btn" class="welcome-minimize-btn" title="Minimize">─</button>
       <!-- Desktop version -->
       <div class="welcome-desktop">
         <h1 class="welcome-heading">Learn MTG Color Combinations</h1>
@@ -48,6 +49,12 @@
       </div>
     </div>
   </main>
+  <button id="gas-restore-btn" class="gas-btn" title="Restore welcome card">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="8" width="11" height="11" rx="1"/>
+      <path d="M10 8V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3"/>
+    </svg>
+  </button>
   <button id="gas-stop-btn" class="gas-btn" title="Freeze / Unfreeze">
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="6" y="4" width="4" height="16" rx="1" fill="rgba(255,255,255,0.6)"/>
