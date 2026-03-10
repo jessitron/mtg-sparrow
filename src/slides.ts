@@ -23,6 +23,8 @@ let cardShowTime = 0;
 let revealTimer: ReturnType<typeof setTimeout> | null = null;
 let advanceTimer: ReturnType<typeof setTimeout> | null = null;
 let paused = false;
+let dialogOpenCount = 0;
+let pausedByDialog = false;
 let nameRevealed = false;
 let currentTraceUrl: string | null = null;
 let doneZoneEl: HTMLElement | null = null;
@@ -140,6 +142,7 @@ function showCard(): void {
     : startSpan('card', cardAttrs);
 
   paused = false;
+  pausedByDialog = false;
   nameRevealed = false;
 
   app.innerHTML = '';
@@ -157,6 +160,7 @@ function showCard(): void {
     doneLeft.classList.add('done-zone-left');
 
     const pauseBtn = document.createElement('button');
+    pauseBtn.id = 'pause-btn';
     pauseBtn.classList.add('control-button');
     pauseBtn.textContent = 'Pause';
     pauseBtn.addEventListener('click', (e: MouseEvent) => {
@@ -364,11 +368,32 @@ document.addEventListener('DOMContentLoaded', () => {
     if (session) handleAdvance();
   });
 
-  // Spacebar to advance early
+  // Spacebar to advance early (skip when focus is in a text field)
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.code === 'Space' && session) {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'TEXTAREA' || tag === 'INPUT') return;
       e.preventDefault();
       handleAdvance();
+    }
+  });
+
+  // Pause slideshow when any dialog opens; resume when all dialogs close
+  document.addEventListener('dialog-open', () => {
+    dialogOpenCount++;
+    if (dialogOpenCount === 1 && !paused && session) {
+      pausedByDialog = true;
+      const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement | null;
+      if (pauseBtn) pauseBtn.click();
+    }
+  });
+
+  document.addEventListener('dialog-close', () => {
+    dialogOpenCount = Math.max(0, dialogOpenCount - 1);
+    if (dialogOpenCount === 0 && pausedByDialog) {
+      pausedByDialog = false;
+      const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement | null;
+      if (pauseBtn && paused) pauseBtn.click();
     }
   });
 

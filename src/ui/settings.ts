@@ -75,11 +75,13 @@ export function wireSettings(
     if (settingsBackdrop) settingsBackdrop.hidden = false;
     if (settingsPanel) settingsPanel.removeAttribute('aria-hidden');
     if (settingsBackdrop) settingsBackdrop.removeAttribute('aria-hidden');
+    document.dispatchEvent(new CustomEvent('dialog-open'));
   }
 
   function closeSettings(): void {
     if (settingsPanel) settingsPanel.hidden = true;
     if (settingsBackdrop) settingsBackdrop.hidden = true;
+    document.dispatchEvent(new CustomEvent('dialog-close'));
   }
 
   gearBtn?.addEventListener('click', (e: MouseEvent) => {

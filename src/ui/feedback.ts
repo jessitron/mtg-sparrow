@@ -13,11 +13,12 @@ export function wireFeedback(): void {
   feedbackBtn.addEventListener('click', () => {
     if (recentlySubmitted) return;
 
-    // Close the settings menu
+    // Close the settings menu (dispatch dialog-close to mirror the openSettings dialog-open)
     const panel = document.getElementById('settings-panel');
     const backdrop = document.getElementById('settings-backdrop');
     if (panel) panel.hidden = true;
     if (backdrop) backdrop.hidden = true;
+    document.dispatchEvent(new CustomEvent('dialog-close'));
 
     openFeedbackModal();
   });
@@ -47,6 +48,7 @@ export function wireFeedback(): void {
 
     document.body.appendChild(modalBackdrop);
     document.body.appendChild(modal);
+    document.dispatchEvent(new CustomEvent('dialog-open'));
 
     const closeBtn = modal.querySelector<HTMLButtonElement>('.feedback-close-btn')!;
     const textarea = modal.querySelector<HTMLTextAreaElement>('.feedback-textarea')!;
@@ -58,6 +60,7 @@ export function wireFeedback(): void {
 
     function closeModal(): void {
       document.removeEventListener('keydown', onKeyDown);
+      document.dispatchEvent(new CustomEvent('dialog-close'));
       modal.remove();
       modalBackdrop.remove();
     }
