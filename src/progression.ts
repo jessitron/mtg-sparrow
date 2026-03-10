@@ -73,6 +73,10 @@ export function hasCompletedSubgroup(subgroup: string): boolean {
   return (state.completedSubgroups ?? []).includes(subgroup);
 }
 
+export function getUnlockedSubgroups(): string[] {
+  return loadProgression().unlockedSubgroups ?? [];
+}
+
 export function markSubgroupCompleted(subgroup: string): void {
   const state = loadProgression();
   const existing = state.completedSubgroups ?? [];

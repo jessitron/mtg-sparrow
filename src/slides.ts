@@ -10,10 +10,11 @@ import {
   ADVANCE_DELAY_MS,
 } from './session';
 import { colorEmojiMap } from './data/combos';
-import { isSubgroupUnlocked, markSubgroupUnlocked, markSubgroupCompleted } from './progression';
+import { isSubgroupUnlocked, markSubgroupUnlocked, markSubgroupCompleted, getUnlockedSubgroups } from './progression';
 import { Span } from '@opentelemetry/api';
 import { wireSettings } from './ui/settings';
 import { APP_VERSION } from './version';
+import { setFeedbackContextProvider } from './ui/feedback';
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
@@ -28,6 +29,7 @@ let pausedByDialog = false;
 let nameRevealed = false;
 let currentTraceUrl: string | null = null;
 let doneZoneEl: HTMLElement | null = null;
+let currentCardName = '';
 
 function clearTimers(): void {
   if (revealTimer !== null) {
@@ -137,6 +139,7 @@ function showCard(): void {
   if (combo.selectedCard) {
     cardAttrs['slide.card_name'] = combo.selectedCard.name;
   }
+  currentCardName = combo.selectedCard?.name ?? combo.name;
   cardSpan = sessionSpan
     ? startChildSpan('card', sessionSpan, cardAttrs)
     : startSpan('card', cardAttrs);
@@ -353,6 +356,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // Do NOT call sendStartupSpan — welcome page only
 
   wireSettings(APP_VERSION);
+
+  setFeedbackContextProvider(() => {
+    const ctx: Record<string, string | number | boolean> = {
+      'feedback.unlocked_levels': getUnlockedSubgroups().join(','),
+    };
+    if (session) {
+      ctx['feedback.slide.subgroup'] = session.subgroup;
+      ctx['feedback.slide.card_index'] = session.currentIndex + 1;
+      ctx['feedback.slide.card_count'] = session.cardCount;
+      if (currentCardName) {
+        ctx['feedback.slide.card_name'] = currentCardName;
+      }
+    }
+    return ctx;
+  });
 
   app = document.getElementById('app');
   if (!app) return;

@@ -2,11 +2,22 @@ import { initTelemetry, startSpan, endSpan, flushSpans } from './telemetry/telem
 import { buildSelfAssessment, SELF_ASSESSMENT_MIN_CARDS } from './ui/self-assessment';
 import { wireSettings } from './ui/settings';
 import { APP_VERSION } from './version';
+import { setFeedbackContextProvider } from './ui/feedback';
+import { getUnlockedSubgroups } from './progression';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'assessment', 'multi_page');
 
   wireSettings(APP_VERSION);
+
+  setFeedbackContextProvider(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return {
+      'feedback.unlocked_levels': getUnlockedSubgroups().join(','),
+      'feedback.assessment.subgroup': urlParams.get('subgroup') ?? '',
+      'feedback.assessment.cards': urlParams.get('cards') ?? '',
+    };
+  });
 
   // Flush spans when page is hidden
   document.addEventListener('visibilitychange', () => {

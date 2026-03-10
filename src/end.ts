@@ -1,9 +1,10 @@
 import { initTelemetry, startSpan, startChildSpan, endSpan, flushSpans, getTraceId } from './telemetry/telemetry';
-import { showSessionEndColumns } from './ui/guild-columns';
-import { isSubgroupUnlocked, isEnemyUnlocked } from './progression';
+import { showSessionEndColumns, getEndPageContext } from './ui/guild-columns';
+import { isSubgroupUnlocked, isEnemyUnlocked, getUnlockedSubgroups } from './progression';
 import { wireSettings } from './ui/settings';
 import { GuildSubgroup } from './session';
 import { APP_VERSION } from './version';
+import { setFeedbackContextProvider } from './ui/feedback';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'end', 'multi_page');
@@ -53,6 +54,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const enemyUnlocked = isEnemyUnlocked();
   const wedgesUnlocked = isSubgroupUnlocked('wedges');
   const shardsUnlocked = isSubgroupUnlocked('shards');
+
+  setFeedbackContextProvider(() => {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      'feedback.unlocked_levels': getUnlockedSubgroups().join(','),
+      'feedback.end.subgroup': params.get('subgroup') ?? '',
+      'feedback.end.cards': params.get('cards') ?? '',
+      'feedback.end.completed': params.get('completed') ?? '',
+      'feedback.end.assessment': params.get('assessment') ?? '',
+      ...getEndPageContext(),
+    };
+  });
 
   const endCurrentSection = showSessionEndColumns(
     app,

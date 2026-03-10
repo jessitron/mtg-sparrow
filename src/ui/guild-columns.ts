@@ -1166,3 +1166,15 @@ export function showSessionEndColumns(
   // Return cleanup: end the current section span when the page is done
   return () => endSpan(sectionSpanRef.current);
 }
+
+export function getEndPageContext(): Record<string, string | number | boolean> {
+  const ctx: Record<string, string | number | boolean> = {
+    'feedback.end.current_section': SECTION_LABELS[reelIndex] ?? `section_${reelIndex}`,
+    'feedback.end.section_index': reelIndex,
+  };
+  const activeEntry = document.querySelector('.level-section-flavor-entry.active');
+  if (activeEntry instanceof HTMLElement && activeEntry.dataset.guildId) {
+    ctx['feedback.end.selected_combo'] = activeEntry.dataset.guildId;
+  }
+  return ctx;
+}

@@ -1,6 +1,8 @@
 import { initTelemetry, sendStartupSpan, startSpan, startChildSpan, endSpan, getTraceId, flushSpans } from './telemetry/telemetry';
 import { wireSettings } from './ui/settings';
 import { APP_VERSION } from './version';
+import { setFeedbackContextProvider } from './ui/feedback';
+import { getUnlockedSubgroups } from './progression';
 
 let welcomeScreenLoadTime = 0;
 
@@ -12,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const pageSpan = startSpan('welcome.page_view', { 'app.version': APP_VERSION });
 
   wireSettings(APP_VERSION);
+
+  setFeedbackContextProvider(() => ({
+    'feedback.unlocked_levels': getUnlockedSubgroups().join(','),
+  }));
 
   // Wire trace link in settings panel (must be after wireSettings which injects the DOM)
   const traceId = getTraceId(pageSpan);

@@ -1,5 +1,11 @@
 import { startSpan, endSpan, flushSpans, getSessionId } from '../telemetry/telemetry';
 
+let contextProvider: (() => Record<string, string | number | boolean>) | null = null;
+
+export function setFeedbackContextProvider(fn: () => Record<string, string | number | boolean>): void {
+  contextProvider = fn;
+}
+
 /**
  * Wire the feedback button in the settings menu.
  * Opens a modal where users can submit feedback as a telemetry span.
@@ -86,12 +92,14 @@ export function wireFeedback(): void {
 
       submitBtn.disabled = true;
 
+      const extraContext = contextProvider ? contextProvider() : {};
       const span = startSpan('feedback.submit', {
         'feedback.message': message,
         'feedback.email': email,
         'feedback.page': window.location.pathname,
         'feedback.session_id': getSessionId(),
         'feedback.message_length': message.length,
+        ...extraContext,
       });
       endSpan(span);
       await flushSpans();
