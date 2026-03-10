@@ -44,11 +44,9 @@ export function renderLogo(container: HTMLElement): void {
   const maskSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}"><path d="${d}" fill="none" stroke="white" stroke-width="${spiral.strokeWidth}" stroke-linecap="round"/></svg>`;
   const maskUrl = `url("data:image/svg+xml,${encodeURIComponent(maskSvg)}")`;
 
-  // Container styling
+  // Container needs relative positioning for absolute children
+  // (size and margin are in about.css on .about-logo)
   container.style.position = 'relative';
-  container.style.width = `${size}px`;
-  container.style.height = `${size}px`;
-  container.style.margin = '0 auto 1.5rem';
 
   // Background gradient circle with spiral mask
   const bgCircle = document.createElement('div');

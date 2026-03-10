@@ -151,6 +151,13 @@
   transition: color 200ms ease, border-color 200ms ease;
 }
 
+/* Reserve space for JS-rendered logo to prevent layout shift */
+.about-logo {
+  width: 240px;
+  height: 240px;
+  margin: 0 auto 1.5rem;
+}
+
 .about-home-link:hover {
   color: #ccc;
   border-bottom-color: #888;
