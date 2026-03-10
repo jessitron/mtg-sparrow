@@ -10,12 +10,11 @@
   backdrop-filter: blur(8px);
   border-radius: 60% / 45%;
   padding: 3.5rem 3rem;
-  transition: transform 300ms ease-in, opacity 300ms ease-in;
-  transform-origin: bottom right;
+  transition: transform 350ms ease-in, opacity 250ms ease-in 100ms;
 }
 
 .welcome--minimizing {
-  transform: scale(0.15) translate(60vw, 60vh);
+  transform: scale(0.05) translate(150vw, 150vh);
   opacity: 0;
 }
 
