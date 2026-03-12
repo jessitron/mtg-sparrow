@@ -3,10 +3,12 @@ import { wireSettings } from './ui/settings';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
 import { getUnlockedSubgroups } from './progression';
+import { initDebugMode } from './debug';
 
 let welcomeScreenLoadTime = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
+  const debugMode = initDebugMode();
   initTelemetry(APP_VERSION, 'welcome', 'multi_page');
   sendStartupSpan(APP_VERSION);
 
@@ -26,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (traceLink) {
     traceLink.href = `https://ui.honeycomb.io/modernity/environments/sparrow-deck/trace?trace_id=${traceId}`;
   }
-  if (traceContainer) {
+  if (traceContainer && debugMode) {
     traceContainer.hidden = false;
   }
 

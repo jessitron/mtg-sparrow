@@ -15,6 +15,7 @@ import { Span } from '@opentelemetry/api';
 import { wireSettings } from './ui/settings';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
+import { initDebugMode, isDebugMode } from './debug';
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
@@ -335,7 +336,7 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
     if (traceLink) {
       traceLink.href = currentTraceUrl;
     }
-    if (traceContainer) {
+    if (traceContainer && isDebugMode()) {
       traceContainer.hidden = false;
     }
   }
@@ -352,6 +353,7 @@ window.addEventListener('pageshow', (event: PageTransitionEvent) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  initDebugMode();
   initTelemetry(APP_VERSION, 'slides', 'multi_page');
   // Do NOT call sendStartupSpan — welcome page only
 

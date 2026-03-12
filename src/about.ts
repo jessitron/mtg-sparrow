@@ -2,8 +2,10 @@ import { initTelemetry, sendStartupSpan, startSpan, startChildSpan, endSpan, flu
 import { wireSettings } from './ui/settings';
 import { renderLogo } from './ui/logo';
 import { APP_VERSION } from './version';
+import { initDebugMode } from './debug';
 
 document.addEventListener('DOMContentLoaded', () => {
+  const debugMode = initDebugMode();
   initTelemetry(APP_VERSION, 'about', 'multi_page');
   sendStartupSpan(APP_VERSION);
 
@@ -37,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (traceLink) {
     traceLink.href = `https://ui.honeycomb.io/modernity/environments/sparrow-deck/trace?trace_id=${traceId}`;
   }
-  if (traceContainer) {
+  if (traceContainer && debugMode) {
     traceContainer.hidden = false;
   }
 

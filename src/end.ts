@@ -5,8 +5,10 @@ import { wireSettings } from './ui/settings';
 import { GuildSubgroup } from './session';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
+import { initDebugMode } from './debug';
 
 document.addEventListener('DOMContentLoaded', () => {
+  const debugMode = initDebugMode();
   initTelemetry(APP_VERSION, 'end', 'multi_page');
 
   wireSettings(APP_VERSION);
@@ -24,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (traceLink) {
     traceLink.href = `https://ui.honeycomb.io/modernity/environments/sparrow-deck/trace?trace_id=${traceId}`;
   }
-  if (traceContainer) {
+  if (traceContainer && debugMode) {
     traceContainer.hidden = false;
   }
 
