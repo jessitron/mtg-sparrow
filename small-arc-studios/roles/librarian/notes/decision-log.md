@@ -1317,6 +1317,27 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: `flushSpans()` had two silent failure modes: (1) if `forceFlush` didn't exist on the provider, it logged nothing and returned `Promise.resolve()`; (2) if `forceFlush` threw, `.catch()` swallowed the error and also returned `Promise.resolve()`. Both paths were indistinguishable from success to the caller. During debug mode implementation, a `debug.mode_changed` span was recorded and the page reloaded after flush — but the span never appeared in Honeycomb. We spent multiple iterations debugging the wrong layers (initialization order, async/await timing) before the client added `console.warn` to `flushSpans()` and discovered the provider didn't support `forceFlush` at all. The code had been silently pretending to flush the whole time.
 - **Lesson**: When a function returns a promise, callers trust the contract: resolved means done, rejected means failed. Swallowing errors and returning resolved violates that contract. `console.warn` is not an error signal — callers cannot react to it. If a function cannot do what it promises, it must reject or throw. Silent fallbacks that mask failure are not graceful — they are deceptive, and they cost debugging time in all the wrong places.
 
+## DEC-148: Debug Mode Toggle via URL Parameter
+- **Date**: 2026-03-12
+- **Decision**: Debug mode stored in localStorage (`mtg-sparrow.debug`). Toggled via `?debug=on` or `?debug=off` URL parameter on any page. The "Current trace" link in the menu is only visible when debug mode is active.
+- **Context**: The trace link is useful for development but confusing for end users. Debug mode gates developer-facing UI.
+- **Alternatives rejected**: Hidden key combo or devtools flag considered, but URL params are shareable and easy to use without opening devtools.
+
+## DEC-149: Debug Mode Page Reload on Toggle
+- **Date**: 2026-03-12
+- **Decision**: When `?debug=on` or `?debug=off` is detected, the page updates localStorage, emits a `debug.mode_changed` span, shows a modal, then reloads via `location.replace()` with the param stripped. The reload ensures the `app.debug` resource attribute is correct from the start of the new page session.
+- **Context**: Resource attributes are set once at `initTelemetry()` time. Rather than have a stale `app.debug` value on the pre-toggle trace, we reload so every span on the new page has the correct value.
+
+## DEC-150: Debug Activation Modal as Flush Window
+- **Date**: 2026-03-12
+- **Decision**: A full-screen modal with animation ("debug ACTIVATED" / "debug DEACTIVATED") displays for 3 seconds before reload. This serves dual purpose: user feedback and time for the telemetry XHR to complete.
+- **Context**: The OTel SDK uses XHR (not sendBeacon) because Honeycomb requires auth headers that sendBeacon can't carry. XHR requests are aborted on page navigation. The modal delay keeps the page alive long enough for the flush to succeed.
+
+## DEC-151: app.debug Resource Attribute on All Spans
+- **Date**: 2026-03-12
+- **Decision**: `app.debug` is set as a resource attribute in `initTelemetry()`, so it appears on every span and log. Value is the string "true" or "false" read from localStorage at init time.
+- **Context**: Allows filtering debug traffic in Honeycomb queries. Being a resource attribute means it's automatic — no per-span work needed.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
