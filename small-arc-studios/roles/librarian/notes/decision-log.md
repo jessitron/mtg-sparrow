@@ -1311,6 +1311,12 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Alternatives rejected**: Stopping propagation from the modal — fragile and would need maintenance every time a new focusable element was added. Checking `e.defaultPrevented` — not reliable across all browsers.
 - **Rationale**: Checking `e.target.tagName` is explicit, reliable, and minimal. It directly expresses the intent: "don't intercept keyboard events when the user is typing in a form field."
 
+## DEC-147: Silent Failure Is Never Graceful
+- **Date**: 2026-03-12
+- **Decision**: Functions that can fail must make failure visible. A resolved promise must mean success. Silent fallbacks that return success on failure are bugs, not graceful degradation.
+- **Context**: `flushSpans()` had two silent failure modes: (1) if `forceFlush` didn't exist on the provider, it logged nothing and returned `Promise.resolve()`; (2) if `forceFlush` threw, `.catch()` swallowed the error and also returned `Promise.resolve()`. Both paths were indistinguishable from success to the caller. During debug mode implementation, a `debug.mode_changed` span was recorded and the page reloaded after flush — but the span never appeared in Honeycomb. We spent multiple iterations debugging the wrong layers (initialization order, async/await timing) before the client added `console.warn` to `flushSpans()` and discovered the provider didn't support `forceFlush` at all. The code had been silently pretending to flush the whole time.
+- **Lesson**: When a function returns a promise, callers trust the contract: resolved means done, rejected means failed. Swallowing errors and returning resolved violates that contract. `console.warn` is not an error signal — callers cannot react to it. If a function cannot do what it promises, it must reject or throw. Silent fallbacks that mask failure are not graceful — they are deceptive, and they cost debugging time in all the wrong places.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
