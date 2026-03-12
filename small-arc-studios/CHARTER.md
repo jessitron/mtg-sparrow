@@ -98,6 +98,12 @@ Completion requires:
 - Recorded reasoning
 - A visible next step
 
+**Failure must be visible.**
+
+Silent fallbacks that disguise failure as success are not graceful — they are deceptive. When a function cannot do what it promises, it must signal failure, not quietly return. A resolved promise means the work is done. A caught exception must be re-raised or visibly reported to the caller, not swallowed.
+
+We do not ship silent failure paths.
+
 ---
 
 ## Our Relationship With Clients
