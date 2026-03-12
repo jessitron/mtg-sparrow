@@ -1,6 +1,7 @@
 import { trace, context, Span, SpanStatusCode } from '@opentelemetry/api';
 import { logs, SeverityNumber } from '@opentelemetry/api-logs';
 import { init, getProvider } from './init';
+import { isDebugMode } from '../debug';
 
 let tracer: ReturnType<typeof trace.getTracer>;
 let logger: ReturnType<typeof logs.getLogger>;
@@ -40,6 +41,7 @@ export function initTelemetry(version: string, page?: string, navigation?: strin
   const utmId = urlParams.get('utm_id');
   if (utmSource) resourceAttrs['utm.source'] = utmSource;
   if (utmId) resourceAttrs['utm.referral_session_id'] = utmId;
+  resourceAttrs['app.debug'] = String(isDebugMode());
 
   init(version, sessionId, resourceAttrs);
   tracer = trace.getTracer('sparrow-deck', version);
