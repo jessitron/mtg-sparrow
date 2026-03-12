@@ -1,6 +1,6 @@
 import { trace, context, Span, SpanStatusCode } from '@opentelemetry/api';
 import { logs, SeverityNumber } from '@opentelemetry/api-logs';
-import { init, getProvider } from './init';
+import { init, flush } from './init';
 import { isDebugMode } from '../debug';
 
 let tracer: ReturnType<typeof trace.getTracer>;
@@ -69,14 +69,6 @@ export function startChildSpan(
   return tracer.startSpan(name, { attributes, startTime }, ctx);
 }
 
-export function addSpanEvent(
-  span: Span,
-  name: string,
-  attributes?: Record<string, string | number | boolean>,
-): void {
-  span.addEvent(name, attributes);
-}
-
 export function emitLog(
   name: string,
   parentSpan?: Span,
@@ -106,9 +98,5 @@ export function sendStartupSpan(version: string): Span {
 }
 
 export function flushSpans(): Promise<void> {
-  const provider = getProvider();
-  if (provider && typeof provider.forceFlush === 'function') {
-    return provider.forceFlush().catch(() => {});
-  }
-  return Promise.resolve();
+  return flush();
 }

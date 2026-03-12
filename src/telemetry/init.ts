@@ -1,5 +1,4 @@
 import { HoneycombWebSDK } from '@honeycombio/opentelemetry-web';
-import { trace } from '@opentelemetry/api';
 
 let sdk: HoneycombWebSDK | null = null;
 
@@ -22,6 +21,10 @@ export function init(version: string, sessionId: string, resourceAttrs?: Record<
   sdk.start();
 }
 
-export function getProvider() {
-  return trace.getTracerProvider() as any;
+export function flush(): Promise<void> {
+  if (sdk) {
+    return sdk.forceFlush();
+  }
+  console.warn('Telemetry SDK not initialized, cannot flush');
+  return Promise.reject(new Error('Telemetry SDK not initialized'));
 }
