@@ -355,10 +355,9 @@ window.addEventListener('pageshow', (event: PageTransitionEvent) => {
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'slides', 'multi_page');
   // Do NOT call sendStartupSpan — welcome page only
+  initDebugMode(); // reloads if ?debug param present; otherwise no-op
 
   wireSettings(APP_VERSION);
-
-  initDebugMode();
 
   setFeedbackContextProvider(() => {
     const ctx: Record<string, string | number | boolean> = {

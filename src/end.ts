@@ -5,14 +5,15 @@ import { wireSettings } from './ui/settings';
 import { GuildSubgroup } from './session';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
-import { initDebugMode } from './debug';
+import { initDebugMode, isDebugMode } from './debug';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'end', 'multi_page');
+  initDebugMode(); // reloads if ?debug param present; otherwise no-op
 
   wireSettings(APP_VERSION);
 
-  const debugMode = initDebugMode();
+  const debugMode = isDebugMode();
 
   // Root span for the entire end-page visit — stays open until the user leaves
   const pageSpan = startSpan('end.page_view', {

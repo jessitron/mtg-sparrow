@@ -3,20 +3,21 @@ import { wireSettings } from './ui/settings';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
 import { getUnlockedSubgroups } from './progression';
-import { initDebugMode } from './debug';
+import { initDebugMode, isDebugMode } from './debug';
 
 let welcomeScreenLoadTime = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'welcome', 'multi_page');
   sendStartupSpan(APP_VERSION);
+  initDebugMode(); // reloads if ?debug param present; otherwise no-op
 
   // Long-lived page span — parent for all welcome page activity
   const pageSpan = startSpan('welcome.page_view', { 'app.version': APP_VERSION });
 
   wireSettings(APP_VERSION);
 
-  const debugMode = initDebugMode();
+  const debugMode = isDebugMode();
 
   setFeedbackContextProvider(() => ({
     'feedback.unlocked_levels': getUnlockedSubgroups().join(','),

@@ -2,11 +2,12 @@ import { initTelemetry, sendStartupSpan, startSpan, startChildSpan, endSpan, flu
 import { wireSettings } from './ui/settings';
 import { renderLogo } from './ui/logo';
 import { APP_VERSION } from './version';
-import { initDebugMode } from './debug';
+import { initDebugMode, isDebugMode } from './debug';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'about', 'multi_page');
   sendStartupSpan(APP_VERSION);
+  initDebugMode(); // reloads if ?debug param present; otherwise no-op
 
   const signupFormEl = document.getElementById('convertkit-form');
   const hasSignupForm = signupFormEl !== null;
@@ -18,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   wireSettings(APP_VERSION);
 
-  const debugMode = initDebugMode();
+  const debugMode = isDebugMode();
 
   const logoContainer = document.getElementById('about-logo');
   if (logoContainer) {
