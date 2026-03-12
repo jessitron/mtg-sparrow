@@ -353,11 +353,12 @@ window.addEventListener('pageshow', (event: PageTransitionEvent) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  initDebugMode();
   initTelemetry(APP_VERSION, 'slides', 'multi_page');
   // Do NOT call sendStartupSpan — welcome page only
 
   wireSettings(APP_VERSION);
+
+  initDebugMode();
 
   setFeedbackContextProvider(() => {
     const ctx: Record<string, string | number | boolean> = {

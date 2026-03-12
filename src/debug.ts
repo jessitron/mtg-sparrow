@@ -1,3 +1,5 @@
+import { startSpan, endSpan } from './telemetry/telemetry';
+
 const DEBUG_KEY = 'mtg-sparrow.debug';
 
 /**
@@ -13,10 +15,14 @@ export function initDebugMode(): boolean {
     localStorage.setItem(DEBUG_KEY, 'true');
     url.searchParams.delete('debug');
     window.history.replaceState(null, '', url.toString());
+    const span = startSpan('debug.mode_changed', { 'debug.mode': 'on', 'debug.source': 'url_param' });
+    endSpan(span);
   } else if (param === 'off') {
     localStorage.removeItem(DEBUG_KEY);
     url.searchParams.delete('debug');
     window.history.replaceState(null, '', url.toString());
+    const span = startSpan('debug.mode_changed', { 'debug.mode': 'off', 'debug.source': 'url_param' });
+    endSpan(span);
   }
 
   return isDebugMode();

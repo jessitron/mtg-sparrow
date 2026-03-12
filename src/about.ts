@@ -5,7 +5,6 @@ import { APP_VERSION } from './version';
 import { initDebugMode } from './debug';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const debugMode = initDebugMode();
   initTelemetry(APP_VERSION, 'about', 'multi_page');
   sendStartupSpan(APP_VERSION);
 
@@ -18,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   wireSettings(APP_VERSION);
+
+  const debugMode = initDebugMode();
 
   const logoContainer = document.getElementById('about-logo');
   if (logoContainer) {

@@ -8,10 +8,11 @@ import { setFeedbackContextProvider } from './ui/feedback';
 import { initDebugMode } from './debug';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const debugMode = initDebugMode();
   initTelemetry(APP_VERSION, 'end', 'multi_page');
 
   wireSettings(APP_VERSION);
+
+  const debugMode = initDebugMode();
 
   // Root span for the entire end-page visit — stays open until the user leaves
   const pageSpan = startSpan('end.page_view', {

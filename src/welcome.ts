@@ -8,7 +8,6 @@ import { initDebugMode } from './debug';
 let welcomeScreenLoadTime = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
-  const debugMode = initDebugMode();
   initTelemetry(APP_VERSION, 'welcome', 'multi_page');
   sendStartupSpan(APP_VERSION);
 
@@ -16,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const pageSpan = startSpan('welcome.page_view', { 'app.version': APP_VERSION });
 
   wireSettings(APP_VERSION);
+
+  const debugMode = initDebugMode();
 
   setFeedbackContextProvider(() => ({
     'feedback.unlocked_levels': getUnlockedSubgroups().join(','),
