@@ -29,3 +29,9 @@ Make the cylinder roll.
 Make it roll across the screen. Give me buttons for roll left, roll right.
 
 The stripes will make it very clear that it is rolling.
+
+# failure
+
+... this isn't getting me there.
+
+Maybe I should start by getting it to develop a mathematical model of a 2px-thick surface rolled into a spiral.
