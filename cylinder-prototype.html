@@ -211,16 +211,24 @@
     // The unrolled line extends downward from the anchor point.
     // Anchor = outermost point (index 0), which is on the LEFT side.
 
-    // The straight line goes downward from the anchor.
-    // Max height needed: at full unroll, the straight line is (totalArcLength - STOP_REMAINING)
-    // plus the remaining small coil below it, plus padding.
+    // The anchor (spiralPoints[0]) sits at a fixed SVG position. The coil can
+    // extend above the anchor (the portion of the spiral above the leftmost point).
+    // We need enough room above the anchor for that, plus room below for the
+    // straight line + remaining coil at full unroll.
+    const anchorPt = spiralPoints[0];
+    const extentAboveAnchor = anchorPt.y - fullBBox.minY + STROKE_WIDTH / 2;
+    const extentBelowAnchor = fullBBox.maxY - anchorPt.y + STROKE_WIDTH / 2;
     const fullCoilDiameter = (fullBBox.maxY - fullBBox.minY) + STROKE_WIDTH;
     const fullCoilWidth = (fullBBox.maxX - fullBBox.minX) + STROKE_WIDTH;
     const maxUnrollLength = totalArcLength - STOP_REMAINING;
+
+    // The anchor Y in SVG coords: needs room above for the coil's upper extent
+    const ANCHOR_Y = SVG_PADDING + extentAboveAnchor;
+
     const svgWidth = fullCoilWidth + SVG_PADDING * 2;
     const svgHeight = Math.max(
-      fullCoilDiameter + SVG_PADDING * 2,
-      maxUnrollLength + fullCoilDiameter + SVG_PADDING * 2
+      ANCHOR_Y + extentBelowAnchor + SVG_PADDING,
+      ANCHOR_Y + maxUnrollLength + fullCoilDiameter + SVG_PADDING
     );
 
     spiralSvg.setAttribute('width', svgWidth);
@@ -278,7 +286,7 @@
       // Fixed anchor point in SVG coordinates — this is where the paper meets the wall.
       // It never moves. The straight line extends downward from here.
       const aX = SVG_PADDING + STROKE_WIDTH / 2;
-      const aY = SVG_PADDING + STROKE_WIDTH / 2;
+      const aY = ANCHOR_Y;
 
       // Compute remaining coil's bounding box in original coordinates
       const coilBBox = getBBox(remainingPoints);
@@ -288,11 +296,13 @@
       // The straight line goes downward from anchor
       const lineEndY = aY + unrolledLength;
 
-      // Transform: place remaining coil so that:
-      //   - Its left edge (coilBBox.minX) maps to aX (wall position)
-      //   - Its top edge (coilBBox.minY) maps to lineEndY (just below the straight line)
-      const txX = aX - coilBBox.minX;
-      const txY = lineEndY - coilBBox.minY;
+      // The split point (remainingPoints[0]) is where the coil connects to the
+      // straight line. We position the coil so this point meets the line end.
+      // The split point is always on the left edge of the coil (flush with wall),
+      // but its vertical position within the coil depends on winding direction.
+      const splitPt = remainingPoints[0];
+      const txX = aX - splitPt.x;
+      const txY = lineEndY - splitPt.y;
 
       // Build the path for remaining spiral
       let d = '';
@@ -330,13 +340,14 @@
         <div>Straight line height: ${unrolledLength.toFixed(1)} px</div>
         <div>Remaining coil diameter: ${coilDiameter.toFixed(1)} px</div>
         <div>Remaining coil center (SVG): (${coilSvgCX.toFixed(1)}, ${coilSvgCY.toFixed(1)})</div>
-        <div>Coil top Y (SVG): ${lineEndY.toFixed(1)}</div>
+        <div>Coil top Y (SVG): ${(coilBBox.minY + txY).toFixed(1)}</div>
       `;
 
       // ============================================================
       // STEP 5: Side projection
       // ============================================================
-      renderSideView(unrolledLength, coilDiameter, lineEndY, aX, aY);
+      const coilTopYSvg = coilBBox.minY + txY;
+      renderSideView(unrolledLength, coilDiameter, coilTopYSvg, aX, aY);
     }
 
     // ============================================================
