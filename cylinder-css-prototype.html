@@ -136,7 +136,7 @@
 
   <div class="param-controls">
     <label>
-      Spiral length (px)
+      Paper length (px)
       <input type="number" id="input-length" value="800" min="200" max="2000" step="100">
     </label>
     <label>
@@ -156,7 +156,6 @@
   <div class="controls">
     <button id="btn-unroll">Unroll</button>
     <button id="btn-roll">Roll Up</button>
-    <button id="btn-apply">Apply Params</button>
   </div>
 
   <div id="scroll-container">
@@ -258,7 +257,11 @@
     // Wire buttons
     document.getElementById('btn-unroll').addEventListener('click', unroll);
     document.getElementById('btn-roll').addEventListener('click', rollUp);
-    document.getElementById('btn-apply').addEventListener('click', () => applyTransition(readParams()));
+
+    // Auto-apply when any param changes
+    for (const input of document.querySelectorAll('.param-controls input')) {
+      input.addEventListener('change', () => applyTransition(readParams()));
+    }
 
     // Initial setup
     applyTransition(readParams());
