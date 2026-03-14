@@ -1391,6 +1391,12 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: Encapsulates the full transition calculation so callers need no knowledge of spiral geometry.
 - **Rationale**: Clean separation — callers provide scroll position context, module returns ready-to-apply CSS transition values.
 
+## DEC-160: Welcome Page CTA Unified to "BEGIN"
+- **Date**: 2026-03-14
+- **Decision**: The first call-to-action button on the welcome/main page is now labeled "BEGIN" on all screen sizes.
+- **Context**: Previously, the button read "Learn guild names" on desktop and "Start" on mobile — two different labels for the same action.
+- **Rationale**: A single bold word is clearer and more inviting. Unified labeling removes the inconsistency between responsive breakpoints.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
