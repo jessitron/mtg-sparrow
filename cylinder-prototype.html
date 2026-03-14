@@ -347,43 +347,76 @@
       return result;
     }
 
-    // unrolledLength: how much of the spiral (from the outside) has been straightened
-    function render(unrolledLength) {
-      unrolledLength = Math.max(0, Math.min(unrolledLength, totalArcLength - STOP_REMAINING));
+    // ============================================================
+    // Pure computation: mirrors computeProjection() in cylinder-projection.js
+    // ============================================================
 
+    // Compute all frame values from unrolledLength — no DOM access.
+    // Returns { remainingPoints, aX, aY, txX, txY, coilBBox, coilDiameter,
+    //           coilTopY, lineEndY, unrolledLength, remainingLength,
+    //           projection (CSS values for side view) }
+    function computeFrame(rawUnrolledLength) {
+      const unrolledLength = Math.max(0, Math.min(rawUnrolledLength, totalArcLength - STOP_REMAINING));
       const remainingLength = totalArcLength - unrolledLength;
 
       // Generate remaining coil as a fresh spiral of the right length.
-      // The outermost point always lands on the LEFT (angle π) — this is
-      // the wall contact point. As the coil shrinks, each frame's spiral
-      // has fewer turns but the same winding direction. The visual effect
-      // is that the coil rotates clockwise as it descends.
       const remainingPoints = unrolledLength === 0
-        ? spiralPoints  // use pre-computed full spiral at start
+        ? spiralPoints
         : buildCoilForLength(remainingLength);
 
-      if (remainingPoints.length < 2) return;
+      if (remainingPoints.length < 2) return null;
 
-      // Fixed anchor in SVG coordinates
       const aX = SVG_PADDING + STROKE_WIDTH / 2;
       const aY = ANCHOR_Y;
 
-      // Compute remaining coil's bounding box
       const coilBBox = getBBox(remainingPoints);
-      const coilH = coilBBox.maxY - coilBBox.minY;
       const coilCY = (coilBBox.minY + coilBBox.maxY) / 2;
-
-      // The straight line goes downward from anchor
       const lineEndY = aY + unrolledLength;
 
-      // Position the coil:
-      //   X: left edge flush with wall (aX)
-      //   Y: outermost point (remainingPoints[0], always on left) at lineEndY
       const splitPt = remainingPoints[0];
       const txX = aX - coilBBox.minX;
       const txY = lineEndY - splitPt.y;
 
-      // Build the path for remaining spiral
+      const coilDiameter = Math.max(
+        coilBBox.maxX - coilBBox.minX,
+        coilBBox.maxY - coilBBox.minY
+      ) + STROKE_WIDTH;
+      const coilTopY = coilBBox.minY + txY;
+      const coilSvgCX = (coilBBox.minX + coilBBox.maxX) / 2 + txX;
+      const coilSvgCY = coilCY + txY;
+
+      // CSS projection values (same as computeProjection in cylinder-projection.js)
+      const projection = {
+        paperStripMarginTop: aY,
+        paperStripHeight: Math.max(0, unrolledLength),
+        coilRectTop: coilTopY,
+        coilRectHeight: coilDiameter > STROKE_WIDTH * 2 ? coilDiameter : 0,
+        coilDiameter,
+        containerHeight: svgHeight,
+      };
+
+      return {
+        remainingPoints, aX, aY, txX, txY, coilBBox, coilDiameter,
+        coilTopY, lineEndY, unrolledLength, remainingLength,
+        coilSvgCX, coilSvgCY, projection,
+      };
+    }
+
+    // ============================================================
+    // DOM rendering: applies computed values to the page
+    // ============================================================
+
+    function render(rawUnrolledLength) {
+      const frame = computeFrame(rawUnrolledLength);
+      if (!frame) return;
+
+      const {
+        remainingPoints, aX, aY, txX, txY, coilBBox, coilDiameter,
+        coilTopY, lineEndY, unrolledLength, remainingLength,
+        coilSvgCX, coilSvgCY, projection,
+      } = frame;
+
+      // Build the SVG path for the remaining spiral
       let d = '';
       for (let i = 0; i < remainingPoints.length; i++) {
         const px = remainingPoints[i].x + txX;
@@ -402,11 +435,7 @@
         straightPath.setAttribute('visibility', 'hidden');
       }
 
-      // Update analysis
-      const coilDiameter = Math.max(coilBBox.maxX - coilBBox.minX, coilBBox.maxY - coilBBox.minY) + STROKE_WIDTH;
-      const coilSvgCX = (coilBBox.minX + coilBBox.maxX) / 2 + txX;
-      const coilSvgCY = coilCY + txY;
-
+      // Update analysis panel
       const analysisEl = document.getElementById('analysis');
       analysisEl.innerHTML = `
         <div>Total spiral length: ${totalArcLength.toFixed(1)} px</div>
@@ -417,38 +446,19 @@
         <div>Straight line height: ${unrolledLength.toFixed(1)} px</div>
         <div>Remaining coil diameter: ${coilDiameter.toFixed(1)} px</div>
         <div>Remaining coil center (SVG): (${coilSvgCX.toFixed(1)}, ${coilSvgCY.toFixed(1)})</div>
-        <div>Coil top Y (SVG): ${(coilBBox.minY + txY).toFixed(1)}</div>
+        <div>Coil top Y (SVG): ${coilTopY.toFixed(1)}</div>
       `;
 
-      // ============================================================
-      // STEP 5: Side projection
-      // ============================================================
-      const coilTopYSvg = coilBBox.minY + txY;
-      renderSideView(unrolledLength, coilDiameter, coilTopYSvg, aX, aY);
-    }
-
-    // ============================================================
-    // Side view rendering (CSS divs)
-    // ============================================================
-
-    function renderSideView(unrolledLength, coilDiameter, coilTopY, anchorSvgX, anchorSvgY) {
-      const sideHeight = parseFloat(spiralSvg.getAttribute('height'));
-
-      // Size the container to match the spiral SVG height
+      // Apply CSS projection values to the side view
       sideContainer.style.width = Z_DEPTH + 'px';
-      sideContainer.style.height = sideHeight + 'px';
+      sideContainer.style.height = projection.containerHeight + 'px';
 
-      // The paper meets the wall at the anchor point — the tangent point where
-      // the outermost turn of the coil touches the wall (left side). This is the
-      // same as the straight line's start in the SVG. The paper's top is pinned
-      // there, and it grows downward as the coil descends.
-      paperStripEl.style.marginTop = anchorSvgY + 'px';
-      paperStripEl.style.height = Math.max(0, unrolledLength) + 'px';
+      paperStripEl.style.marginTop = projection.paperStripMarginTop + 'px';
+      paperStripEl.style.height = projection.paperStripHeight + 'px';
 
-      // Coil rectangle positioned independently using the exact SVG coil top
-      if (coilDiameter > STROKE_WIDTH * 2) {
-        coilRectEl.style.top = coilTopY + 'px';
-        coilRectEl.style.height = coilDiameter + 'px';
+      if (projection.coilRectHeight > 0) {
+        coilRectEl.style.top = projection.coilRectTop + 'px';
+        coilRectEl.style.height = projection.coilRectHeight + 'px';
         coilRectEl.style.display = 'block';
       } else {
         coilRectEl.style.display = 'none';
