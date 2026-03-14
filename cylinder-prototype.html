@@ -267,29 +267,64 @@
     // Rendering functions
     // ============================================================
 
+    // Generate a fresh spiral of a given arc length, with outermost point on the left.
+    // Uses the same a, b parameters as the main spiral.
+    // Returns points in outer-to-inner order (for drawing).
+    function buildCoilForLength(targetLength) {
+      if (targetLength < 1) return [];
+      const pts = [];
+      let len = 0;
+      let theta = 0;
+      let r = a + b * theta;
+      pts.push({ theta, r });
+
+      while (len < targetLength) {
+        theta += ANGLE_STEP;
+        r = a + b * theta;
+        const prev = pts[pts.length - 1];
+        const dx = r * Math.cos(theta) - prev.r * Math.cos(prev.theta);
+        const dy = r * Math.sin(theta) - prev.r * Math.sin(prev.theta);
+        len += Math.sqrt(dx * dx + dy * dy);
+        pts.push({ theta, r });
+      }
+
+      // Rotate so outermost point (highest theta) lands on the LEFT (angle π)
+      const thetaMax = pts[pts.length - 1].theta;
+      const rot = Math.PI - thetaMax;
+
+      // Apply rotation, compute x/y, same formula as the main spiral
+      const result = pts.map(p => ({
+        x: p.r * Math.cos(p.theta + rot),
+        y: p.r * Math.sin(p.theta + rot)
+      }));
+
+      // Reverse so index 0 = outermost (on the left)
+      result.reverse();
+      return result;
+    }
+
     // unrolledLength: how much of the spiral (from the outside) has been straightened
     function render(unrolledLength) {
       unrolledLength = Math.max(0, Math.min(unrolledLength, totalArcLength - STOP_REMAINING));
 
-      // Find the split point: everything before this arc length is "unrolled" (straight),
-      // everything after is still coiled.
-      const remainingPoints = [];
-      for (let i = 0; i < spiralPoints.length; i++) {
-        if (spiralPoints[i].arcLength >= unrolledLength) {
-          remainingPoints.push(spiralPoints[i]);
-        }
-      }
+      const remainingLength = totalArcLength - unrolledLength;
+
+      // Generate remaining coil as a fresh spiral of the right length.
+      // The outermost point always lands on the LEFT (angle π) — this is
+      // the wall contact point. As the coil shrinks, each frame's spiral
+      // has fewer turns but the same winding direction. The visual effect
+      // is that the coil rotates clockwise as it descends.
+      const remainingPoints = unrolledLength === 0
+        ? spiralPoints  // use pre-computed full spiral at start
+        : buildCoilForLength(remainingLength);
 
       if (remainingPoints.length < 2) return;
 
-      // The remaining coil is a sub-spiral. We need to position it in SVG space.
-      //
-      // Fixed anchor point in SVG coordinates — this is where the paper meets the wall.
-      // It never moves. The straight line extends downward from here.
+      // Fixed anchor in SVG coordinates
       const aX = SVG_PADDING + STROKE_WIDTH / 2;
       const aY = ANCHOR_Y;
 
-      // Compute remaining coil's bounding box in original coordinates
+      // Compute remaining coil's bounding box
       const coilBBox = getBBox(remainingPoints);
       const coilH = coilBBox.maxY - coilBBox.minY;
       const coilCY = (coilBBox.minY + coilBBox.maxY) / 2;
@@ -297,13 +332,9 @@
       // The straight line goes downward from anchor
       const lineEndY = aY + unrolledLength;
 
-      // Two independent positioning constraints:
-      //   X: the coil's left edge (coilBBox.minX) must sit at the wall (aX).
-      //      Nothing can cross to the left of the wall.
-      //   Y: the split point (remainingPoints[0]) must meet the bottom of
-      //      the straight line (lineEndY). The split point moves around
-      //      the coil's perimeter as we unroll, so we use its Y position
-      //      relative to the coil, not the bounding box edge.
+      // Position the coil:
+      //   X: left edge flush with wall (aX)
+      //   Y: outermost point (remainingPoints[0], always on left) at lineEndY
       const splitPt = remainingPoints[0];
       const txX = aX - coilBBox.minX;
       const txY = lineEndY - splitPt.y;
@@ -317,17 +348,10 @@
       }
       spiralPath.setAttribute('d', d);
 
-      // Draw unrolled portion: straight line along wall + connector to coil split point
-      const splitSvgX = splitPt.x + txX;
-      const splitSvgY = splitPt.y + txY;  // = lineEndY by construction
+      // Draw straight line along wall from anchor to coil connection
       if (unrolledLength > 0) {
-        // Path: from anchor down the wall, then across to where the coil starts
         let sd = `M${aX.toFixed(2)},${aY.toFixed(2)}`;
         sd += ` L${aX.toFixed(2)},${lineEndY.toFixed(2)}`;
-        if (Math.abs(splitSvgX - aX) > 1) {
-          // Connector from wall to the coil's split point
-          sd += ` L${splitSvgX.toFixed(2)},${splitSvgY.toFixed(2)}`;
-        }
         straightPath.setAttribute('d', sd);
         straightPath.setAttribute('visibility', 'visible');
       } else {
@@ -336,7 +360,6 @@
 
       // Update analysis
       const coilDiameter = Math.max(coilBBox.maxX - coilBBox.minX, coilBBox.maxY - coilBBox.minY) + STROKE_WIDTH;
-      const remainingLength = totalArcLength - unrolledLength;
       const coilSvgCX = (coilBBox.minX + coilBBox.maxX) / 2 + txX;
       const coilSvgCY = coilCY + txY;
 
