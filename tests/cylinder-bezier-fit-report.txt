@@ -1,0 +1,227 @@
+Cubic Bezier Fit Report — Cylinder Projection
+============================================================
+
+[800/60] paperStripHeight (linear)
+  Range: 0.0 → 740.8 (740.8px)
+  cubic-bezier(0.0071, 0.0010, 0.4581, 0.7686)
+  Max error: 0.128% normalized = 0.95px
+  RMS error: 0.092% normalized
+
+[800/60] coilRectTop (linear)
+  Range: 23.0 → 802.9 (779.9px)
+  cubic-bezier(0.0729, 0.1079, 0.4866, 0.7614)
+  Max error: 0.046% normalized = 0.36px
+  RMS error: 0.028% normalized
+
+[800/60] coilRectHeight (linear)
+  Range: 111.2 → 32.6 (78.6px)
+  cubic-bezier(0.0296, 0.0216, 0.0000, 0.0056)
+  Max error: 0.198% normalized = 0.16px
+  RMS error: 0.099% normalized
+
+[800/60] paperStripHeight (eased)
+  Range: 0.0 → 740.8 (740.8px)
+  cubic-bezier(0.4248, 0.0658, 0.4387, 1.0437)
+  Max error: 0.615% normalized = 4.56px
+  RMS error: 0.404% normalized
+
+[800/60] coilRectTop (eased)
+  Range: 23.0 → 802.9 (779.9px)
+  cubic-bezier(0.4319, 0.0691, 0.4390, 1.0355)
+  Max error: 0.540% normalized = 4.21px
+  RMS error: 0.378% normalized
+
+[800/60] coilRectHeight (eased)
+  Range: 111.2 → 32.6 (78.6px)
+  cubic-bezier(0.4063, -0.0475, 0.5931, 1.0479)
+  Max error: 0.936% normalized = 0.74px
+  RMS error: 0.598% normalized
+
+[800/20] paperStripHeight (linear)
+  Range: 0.0 → 780.8 (780.8px)
+  cubic-bezier(0.6217, 1.0191, 1.0000, 0.9689)
+  Max error: 0.445% normalized = 3.48px
+  RMS error: 0.315% normalized
+
+[800/20] coilRectTop (linear)
+  Range: 23.0 → 850.4 (827.4px)
+  cubic-bezier(0.0000, -0.0069, 0.4429, 0.8010)
+  Max error: 0.177% normalized = 1.47px
+  RMS error: 0.120% normalized
+
+[800/20] coilRectHeight (linear)
+  Range: 111.2 → 21.0 (90.2px)
+  cubic-bezier(0.0000, 0.0029, 1.0000, 0.9908)
+  Max error: 0.235% normalized = 0.21px
+  RMS error: 0.124% normalized
+
+[800/20] paperStripHeight (eased)
+  Range: 0.0 → 780.8 (780.8px)
+  cubic-bezier(0.4442, 0.1004, 0.3869, 1.0320)
+  Max error: 0.791% normalized = 6.17px
+  RMS error: 0.503% normalized
+  ⚠️  WARNING: Max pixel error exceeds 5px!
+
+[800/20] coilRectTop (eased)
+  Range: 23.0 → 850.4 (827.4px)
+  cubic-bezier(0.3991, 0.0298, 0.4254, 1.0640)
+  Max error: 0.831% normalized = 6.87px
+  RMS error: 0.552% normalized
+  ⚠️  WARNING: Max pixel error exceeds 5px!
+
+[800/20] coilRectHeight (eased)
+  Range: 111.2 → 21.0 (90.2px)
+  cubic-bezier(0.4816, 0.0379, 0.5153, 0.9513)
+  Max error: 0.421% normalized = 0.38px
+  RMS error: 0.220% normalized
+
+[400/30] paperStripHeight (linear)
+  Range: 0.0 → 371.2 (371.2px)
+  cubic-bezier(0.0331, 0.0474, 0.4733, 0.7626)
+  Max error: 0.075% normalized = 0.28px
+  RMS error: 0.052% normalized
+
+[400/30] coilRectTop (linear)
+  Range: 22.9 → 424.1 (401.2px)
+  cubic-bezier(1.0000, 1.2651, 0.5110, 0.5767)
+  Max error: 2.613% normalized = 10.48px
+  RMS error: 1.829% normalized
+  ⚠️  WARNING: Max pixel error exceeds 5px!
+
+[400/30] coilRectHeight (linear)
+  Range: 79.3 → 24.7 (54.6px)
+  cubic-bezier(0.0076, -0.0011, 0.0000, 0.0136)
+  Max error: 0.317% normalized = 0.17px
+  RMS error: 0.163% normalized
+
+[400/30] paperStripHeight (eased)
+  Range: 0.0 → 371.2 (371.2px)
+  cubic-bezier(0.4349, 0.0724, 0.4358, 1.0376)
+  Max error: 0.566% normalized = 2.10px
+  RMS error: 0.385% normalized
+
+[400/30] coilRectTop (eased)
+  Range: 22.9 → 424.1 (401.2px)
+  cubic-bezier(0.4364, 0.0716, 0.4265, 0.9915)
+  Max error: 0.610% normalized = 2.45px
+  RMS error: 0.367% normalized
+
+[400/30] coilRectHeight (eased)
+  Range: 79.3 → 24.7 (54.6px)
+  cubic-bezier(0.4159, -0.0301, 0.5883, 1.0453)
+  Max error: 0.890% normalized = 0.49px
+  RMS error: 0.560% normalized
+
+[1600/120] paperStripHeight (linear)
+  Range: 0.0 → 1481.3 (1481.3px)
+  cubic-bezier(0.0000, -0.0089, 0.4459, 0.7644)
+  Max error: 0.083% normalized = 1.23px
+  RMS error: 0.051% normalized
+
+[1600/120] coilRectTop (linear)
+  Range: 22.9 → 1560.5 (1537.6px)
+  cubic-bezier(0.1700, 0.2643, 0.5510, 0.8004)
+  Max error: 0.055% normalized = 0.85px
+  RMS error: 0.038% normalized
+
+[1600/120] coilRectHeight (linear)
+  Range: 157.0 → 44.4 (112.6px)
+  cubic-bezier(0.0011, -0.0032, 0.0000, 0.0057)
+  Max error: 0.148% normalized = 0.17px
+  RMS error: 0.078% normalized
+
+[1600/120] paperStripHeight (eased)
+  Range: 0.0 → 1481.3 (1481.3px)
+  cubic-bezier(0.4348, 0.0760, 0.4296, 1.0418)
+  Max error: 0.596% normalized = 8.83px
+  RMS error: 0.406% normalized
+  ⚠️  WARNING: Max pixel error exceeds 5px!
+
+[1600/120] coilRectTop (eased)
+  Range: 22.9 → 1560.5 (1537.6px)
+  cubic-bezier(0.4312, 0.0708, 0.4357, 1.0386)
+  Max error: 0.554% normalized = 8.52px
+  RMS error: 0.388% normalized
+  ⚠️  WARNING: Max pixel error exceeds 5px!
+
+[1600/120] coilRectHeight (eased)
+  Range: 157.0 → 44.4 (112.6px)
+  cubic-bezier(0.4575, 0.0073, 0.5393, 0.9940)
+  Max error: 0.633% normalized = 0.71px
+  RMS error: 0.363% normalized
+
+[800/200] paperStripHeight (linear)
+  Range: 0.0 → 600.8 (600.8px)
+  cubic-bezier(0.1817, 0.2438, 0.5703, 0.7178)
+  Max error: 0.060% normalized = 0.36px
+  RMS error: 0.040% normalized
+
+[800/200] coilRectTop (linear)
+  Range: 23.0 → 651.0 (628.0px)
+  cubic-bezier(0.2818, 0.3688, 0.6239, 0.7435)
+  Max error: 0.081% normalized = 0.51px
+  RMS error: 0.052% normalized
+
+[800/200] coilRectHeight (linear)
+  Range: 111.2 → 56.6 (54.6px)
+  cubic-bezier(1.0000, 0.9949, 0.0000, 0.0058)
+  Max error: 0.296% normalized = 0.16px
+  RMS error: 0.141% normalized
+
+[800/200] paperStripHeight (eased)
+  Range: 0.0 → 600.8 (600.8px)
+  cubic-bezier(0.4413, 0.0549, 0.4751, 1.0082)
+  Max error: 0.420% normalized = 2.52px
+  RMS error: 0.285% normalized
+
+[800/200] coilRectTop (eased)
+  Range: 23.0 → 651.0 (628.0px)
+  cubic-bezier(0.4413, 0.0527, 0.4790, 1.0082)
+  Max error: 0.411% normalized = 2.58px
+  RMS error: 0.284% normalized
+
+[800/200] coilRectHeight (eased)
+  Range: 111.2 → 56.6 (54.6px)
+  cubic-bezier(0.4666, 0.0195, 0.5293, 0.9738)
+  Max error: 0.459% normalized = 0.25px
+  RMS error: 0.248% normalized
+
+
+Stability Summary — Are bezier params stable across param sets?
+------------------------------------------------------------
+paperStripHeight (linear):
+  x1: 0.0000–0.6217 (spread 0.6217)
+  y1: -0.0089–1.0191 (spread 1.0279)
+  x2: 0.4459–1.0000 (spread 0.5541)
+  y2: 0.7178–0.9689 (spread 0.2510)
+
+coilRectTop (linear):
+  x1: 0.0000–1.0000 (spread 1.0000)
+  y1: -0.0069–1.2651 (spread 1.2720)
+  x2: 0.4429–0.6239 (spread 0.1810)
+  y2: 0.5767–0.8010 (spread 0.2243)
+
+coilRectHeight (linear):
+  x1: 0.0000–1.0000 (spread 1.0000)
+  y1: -0.0032–0.9949 (spread 0.9980)
+  x2: 0.0000–1.0000 (spread 1.0000)
+  y2: 0.0056–0.9908 (spread 0.9852)
+
+paperStripHeight (eased):
+  x1: 0.4248–0.4442 (spread 0.0195)
+  y1: 0.0549–0.1004 (spread 0.0454)
+  x2: 0.3869–0.4751 (spread 0.0882)
+  y2: 1.0082–1.0437 (spread 0.0355)
+
+coilRectTop (eased):
+  x1: 0.3991–0.4413 (spread 0.0422)
+  y1: 0.0298–0.0716 (spread 0.0419)
+  x2: 0.4254–0.4790 (spread 0.0536)
+  y2: 0.9915–1.0640 (spread 0.0725)
+
+coilRectHeight (eased):
+  x1: 0.4063–0.4816 (spread 0.0753)
+  y1: -0.0475–0.0379 (spread 0.0853)
+  x2: 0.5153–0.5931 (spread 0.0777)
+  y2: 0.9513–1.0479 (spread 0.0966)
+
