@@ -55,6 +55,39 @@
       border: 1px solid #5a3a1a;
     }
 
+    #side-container {
+      position: relative;
+      background: #3b2314;
+      border: 1px solid #5a3a1a;
+      overflow: hidden;
+    }
+
+    #paper-strip {
+      width: 100%;
+      height: 0;
+      background: #e8dcc8;
+      /* Subtle paper texture via layered gradients */
+      background-image:
+        linear-gradient(180deg, rgba(0,0,0,0.03) 0%, transparent 2px),
+        linear-gradient(0deg, rgba(0,0,0,0.02) 0%, transparent 1px);
+      background-size: 100% 8px, 100% 4px;
+    }
+
+    #coil-rect {
+      width: 100%;
+      height: 0;
+      background: linear-gradient(
+        to bottom,
+        #6b5130 0%,
+        #d4b88a 25%,
+        #c4a474 45%,
+        #8a6d42 75%,
+        #5a3f20 100%
+      );
+      border-top: 1px solid #5a3f20;
+      border-bottom: 1px solid #5a3f20;
+    }
+
     #analysis {
       margin-top: 1rem;
       padding: 1rem;
@@ -78,7 +111,10 @@
 
   <div class="canvas-area">
     <svg id="spiral-svg"></svg>
-    <svg id="side-svg"></svg>
+    <div id="side-container">
+      <div id="paper-strip"></div>
+      <div id="coil-rect"></div>
+    </div>
   </div>
 
   <div id="analysis"></div>
@@ -205,7 +241,9 @@
     // ============================================================
 
     const spiralSvg = document.getElementById('spiral-svg');
-    const sideSvg = document.getElementById('side-svg');
+    const sideContainer = document.getElementById('side-container');
+    const paperStripEl = document.getElementById('paper-strip');
+    const coilRectEl = document.getElementById('coil-rect');
 
     // Size the spiral SVG to contain the full spiral + room for unrolled line
     // The unrolled line extends downward from the anchor point.
@@ -384,105 +422,28 @@
     }
 
     // ============================================================
-    // Side view rendering
+    // Side view rendering (CSS divs)
     // ============================================================
 
     function renderSideView(unrolledLength, coilDiameter, coilTopY, anchorSvgX, anchorSvgY) {
-      const sideWidth = Z_DEPTH + SVG_PADDING * 2;
       const sideHeight = parseFloat(spiralSvg.getAttribute('height'));
 
-      sideSvg.setAttribute('width', sideWidth);
-      sideSvg.setAttribute('height', sideHeight);
-      sideSvg.style.background = BG_COLOR;
+      // Size the container to match the spiral SVG height
+      sideContainer.style.width = Z_DEPTH + 'px';
+      sideContainer.style.height = sideHeight + 'px';
 
-      // Clear previous
-      sideSvg.innerHTML = '';
+      // Paper strip: grows taller as the coil unrolls
+      // It's a content-ready div that fills the width and sits at the top
+      paperStripEl.style.height = unrolledLength + 'px';
 
-      const wallX = SVG_PADDING; // left edge = wall
-
-      // The paper strip on the wall (unrolled part) — essentially zero thickness
-      // Draw as a thin line from anchorSvgY down to anchorSvgY + unrolledLength
-      if (unrolledLength > 0) {
-        const wallLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        wallLine.setAttribute('x1', wallX);
-        wallLine.setAttribute('y1', anchorSvgY);
-        wallLine.setAttribute('x2', wallX);
-        wallLine.setAttribute('y2', anchorSvgY + unrolledLength);
-        wallLine.setAttribute('stroke', SPIRAL_COLOR);
-        wallLine.setAttribute('stroke-width', 2);
-        sideSvg.appendChild(wallLine);
-
-        // Label
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', wallX + 8);
-        label.setAttribute('y', anchorSvgY + unrolledLength / 2);
-        label.setAttribute('fill', '#888');
-        label.setAttribute('font-size', '11');
-        label.textContent = 'flat paper';
-        sideSvg.appendChild(label);
-      }
-
-      // The rolled coil — a cylinder cross-section: coilDiameter tall × Z_DEPTH wide
-      // Positioned so its top is at coilTopY
+      // Coil rectangle: cylinder cross-section, sits directly below the paper strip
+      // No border-radius — the gradient creates the round appearance
       if (coilDiameter > STROKE_WIDTH * 2) {
-        // Cylindrical shading gradient (top-to-bottom simulating a horizontal cylinder
-        // lit from the upper-left)
-        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-        const grad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
-        grad.setAttribute('id', 'cylinder-grad');
-        grad.setAttribute('x1', '0');
-        grad.setAttribute('y1', '0');
-        grad.setAttribute('x2', '0');
-        grad.setAttribute('y2', '1');
-        // Stops: dark edge → highlight (upper-left light) → mid → dark edge
-        const stops = [
-          { offset: '0%',   color: '#6b5130' },  // dark top edge
-          { offset: '25%',  color: '#d4b88a' },  // highlight (light from upper-left)
-          { offset: '45%',  color: '#c4a474' },  // slightly dimmer
-          { offset: '75%',  color: '#8a6d42' },  // shadow
-          { offset: '100%', color: '#5a3f20' },  // dark bottom edge
-        ];
-        for (const s of stops) {
-          const stop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-          stop.setAttribute('offset', s.offset);
-          stop.setAttribute('stop-color', s.color);
-          grad.appendChild(stop);
-        }
-        defs.appendChild(grad);
-        sideSvg.appendChild(defs);
-
-        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('x', wallX);
-        rect.setAttribute('y', coilTopY);
-        rect.setAttribute('width', Z_DEPTH);
-        rect.setAttribute('height', coilDiameter);
-        rect.setAttribute('fill', 'url(#cylinder-grad)');
-        rect.setAttribute('stroke', '#5a3f20');
-        rect.setAttribute('stroke-width', 1);
-        rect.setAttribute('rx', 4);
-        sideSvg.appendChild(rect);
-
-        // Label
-        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        label.setAttribute('x', wallX + Z_DEPTH / 2);
-        label.setAttribute('y', coilTopY + coilDiameter / 2 + 4);
-        label.setAttribute('fill', '#2a1508');
-        label.setAttribute('font-size', '11');
-        label.setAttribute('text-anchor', 'middle');
-        label.textContent = `scroll roll (${Z_DEPTH}px deep)`;
-        sideSvg.appendChild(label);
+        coilRectEl.style.height = coilDiameter + 'px';
+        coilRectEl.style.display = 'block';
+      } else {
+        coilRectEl.style.display = 'none';
       }
-
-      // Wall line
-      const wall = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      wall.setAttribute('x1', wallX);
-      wall.setAttribute('y1', 0);
-      wall.setAttribute('x2', wallX);
-      wall.setAttribute('y2', sideHeight);
-      wall.setAttribute('stroke', '#666');
-      wall.setAttribute('stroke-width', 1);
-      wall.setAttribute('stroke-dasharray', '4,4');
-      sideSvg.appendChild(wall);
     }
 
     // ============================================================
