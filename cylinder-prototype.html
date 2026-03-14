@@ -74,6 +74,8 @@
     }
 
     #coil-rect {
+      position: absolute;
+      left: 0;
       width: 100%;
       height: 0;
       background: linear-gradient(
@@ -301,6 +303,10 @@
     straightPath.setAttribute('visibility', 'hidden');
     spiralSvg.appendChild(straightPath);
 
+    // The initial coil top Y in SVG coords (when fully rolled, unrolledLength=0).
+    // This is where the paper strip's top edge stays pinned in the side projection.
+    const initialCoilTopY = fullBBox.minY + (ANCHOR_Y - spiralPoints[0].y);
+
     // ============================================================
     // Rendering functions
     // ============================================================
@@ -432,14 +438,16 @@
       sideContainer.style.width = Z_DEPTH + 'px';
       sideContainer.style.height = sideHeight + 'px';
 
-      // Paper strip height = distance from the anchor to the coil's top edge.
-      // This uses the exact same coilTopY computed in the spiral render loop,
-      // so the CSS projection stays perfectly in sync with the SVG spiral.
-      const paperHeight = coilTopY - anchorSvgY;
-      paperStripEl.style.height = Math.max(0, paperHeight) + 'px';
+      // The paper meets the wall at the anchor point — the tangent point where
+      // the outermost turn of the coil touches the wall (left side). This is the
+      // same as the straight line's start in the SVG. The paper's top is pinned
+      // there, and it grows downward as the coil descends.
+      paperStripEl.style.marginTop = anchorSvgY + 'px';
+      paperStripEl.style.height = Math.max(0, unrolledLength) + 'px';
 
-      // Coil rectangle: exact coilDiameter from the spiral's bounding box calc
+      // Coil rectangle positioned independently using the exact SVG coil top
       if (coilDiameter > STROKE_WIDTH * 2) {
+        coilRectEl.style.top = coilTopY + 'px';
         coilRectEl.style.height = coilDiameter + 'px';
         coilRectEl.style.display = 'block';
       } else {
