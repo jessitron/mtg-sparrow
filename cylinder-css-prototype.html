@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scroll Unroll — CSS Transition Prototype</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2rem;
+      background-color: #3b2314;
+      color: #d2b48c;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    h1 {
+      margin-bottom: 0.5rem;
+      font-size: 1.4rem;
+      color: #f5deb3;
+    }
+
+    .subtitle {
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: #8a7a6a;
+    }
+
+    .controls {
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    button {
+      padding: 0.5rem 1.2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border: 1px solid #d2b48c;
+      background: #5a3a1a;
+      color: #f5deb3;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background: #7a5a3a;
+    }
+
+    .param-controls {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .param-controls label {
+      font-size: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .param-controls input {
+      width: 80px;
+      padding: 0.3rem;
+      background: #2a1508;
+      border: 1px solid #5a3a1a;
+      color: #f5deb3;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+
+    #scroll-container {
+      position: relative;
+      background: #3b2314;
+      border: 1px solid #5a3a1a;
+      overflow: hidden;
+    }
+
+    #paper-strip {
+      width: 100%;
+      height: 0;
+      background: #e8dcc8;
+      background-image:
+        linear-gradient(180deg, rgba(0,0,0,0.03) 0%, transparent 2px),
+        linear-gradient(0deg, rgba(0,0,0,0.02) 0%, transparent 1px);
+      background-size: 100% 8px, 100% 4px;
+      overflow: hidden;
+    }
+
+    #paper-content {
+      padding: 1rem;
+      color: #3b2314;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    #coil-rect {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(
+        to bottom,
+        #6b5130 0%,
+        #d4b88a 25%,
+        #c4a474 45%,
+        #8a6d42 75%,
+        #5a3f20 100%
+      );
+      border-top: 1px solid #5a3f20;
+      border-bottom: 1px solid #5a3f20;
+    }
+
+    #info {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #2a1508;
+      border: 1px solid #5a3a1a;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      min-width: 400px;
+      white-space: pre;
+    }
+  </style>
+</head>
+<body>
+  <h1>CSS Transition Scroll Unroll</h1>
+  <p class="subtitle">Pure CSS transitions — no per-frame JS. Bezier timing functions from spiral simulation.</p>
+
+  <div class="param-controls">
+    <label>
+      Spiral length (px)
+      <input type="number" id="input-length" value="800" min="200" max="2000" step="100">
+    </label>
+    <label>
+      Stop remaining (px)
+      <input type="number" id="input-stop" value="60" min="10" max="400" step="10">
+    </label>
+    <label>
+      Duration (ms)
+      <input type="number" id="input-duration" value="1500" min="300" max="5000" step="100">
+    </label>
+    <label>
+      Z-depth (px)
+      <input type="number" id="input-depth" value="600" min="100" max="1200" step="50">
+    </label>
+  </div>
+
+  <div class="controls">
+    <button id="btn-unroll">Unroll</button>
+    <button id="btn-roll">Roll Up</button>
+    <button id="btn-apply">Apply Params</button>
+  </div>
+
+  <div id="scroll-container">
+    <div id="paper-strip">
+      <div id="paper-content">
+        <p><strong>The scroll is revealed.</strong></p>
+        <p>This content lives inside the paper strip. As the scroll unrolls, more of it becomes visible.</p>
+        <p>The animation is driven entirely by CSS transitions with cubic-bezier timing functions computed from the spiral geometry.</p>
+        <p>No per-frame JavaScript. The browser handles all interpolation.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+      </div>
+    </div>
+    <div id="coil-rect"></div>
+  </div>
+
+  <div id="info"></div>
+
+  <script type="module">
+    import { computeTransition } from './cylinder-transition.js';
+
+    const container = document.getElementById('scroll-container');
+    const paperStrip = document.getElementById('paper-strip');
+    const coilRect = document.getElementById('coil-rect');
+    const infoEl = document.getElementById('info');
+
+    let transition = null;
+    let isUnrolled = false;
+
+    function readParams() {
+      return {
+        spiralLength: +document.getElementById('input-length').value,
+        stopRemaining: +document.getElementById('input-stop').value,
+        duration: +document.getElementById('input-duration').value,
+        zDepth: +document.getElementById('input-depth').value,
+      };
+    }
+
+    function applyTransition(params) {
+      transition = computeTransition(params);
+      const t = transition;
+
+      // Size container
+      container.style.width = t.zDepth + 'px';
+      container.style.height = t.container.height + 'px';
+
+      // Remove transitions temporarily for instant positioning
+      paperStrip.style.transition = 'none';
+      coilRect.style.transition = 'none';
+
+      // Set to rolled-up state
+      paperStrip.style.marginTop = t.anchorY + 'px';
+      paperStrip.style.height = t.paperStrip.start + 'px';
+      coilRect.style.top = t.coilTop.start + 'px';
+      coilRect.style.height = t.coilHeight.start + 'px';
+
+      isUnrolled = false;
+
+      // Show info
+      const ratio = (params.stopRemaining / params.spiralLength).toFixed(4);
+      infoEl.textContent =
+        `Ratio: ${ratio}\n` +
+        `\n` +
+        `paperStrip:  ${t.paperStrip.start.toFixed(1)}px → ${t.paperStrip.end.toFixed(1)}px\n` +
+        `  timing:    ${t.paperStrip.css}\n` +
+        `coilTop:     ${t.coilTop.start.toFixed(1)}px → ${t.coilTop.end.toFixed(1)}px\n` +
+        `  timing:    ${t.coilTop.css}\n` +
+        `coilHeight:  ${t.coilHeight.start.toFixed(1)}px → ${t.coilHeight.end.toFixed(1)}px\n` +
+        `  timing:    ${t.coilHeight.css}\n` +
+        `\n` +
+        `Container: ${t.zDepth}×${t.container.height.toFixed(0)}px\n` +
+        `Duration: ${t.duration}ms`;
+
+      // Force reflow before re-enabling transitions
+      void paperStrip.offsetHeight;
+
+      // Set up transitions
+      const dur = t.duration + 'ms';
+      paperStrip.style.transition = `height ${dur} ${t.paperStrip.css}, margin-top 0s`;
+      coilRect.style.transition = `top ${dur} ${t.coilTop.css}, height ${dur} ${t.coilHeight.css}`;
+    }
+
+    function unroll() {
+      if (!transition || isUnrolled) return;
+      paperStrip.style.height = transition.paperStrip.end + 'px';
+      coilRect.style.top = transition.coilTop.end + 'px';
+      coilRect.style.height = transition.coilHeight.end + 'px';
+      isUnrolled = true;
+    }
+
+    function rollUp() {
+      if (!transition || !isUnrolled) return;
+      paperStrip.style.height = transition.paperStrip.start + 'px';
+      coilRect.style.top = transition.coilTop.start + 'px';
+      coilRect.style.height = transition.coilHeight.start + 'px';
+      isUnrolled = false;
+    }
+
+    // Wire buttons
+    document.getElementById('btn-unroll').addEventListener('click', unroll);
+    document.getElementById('btn-roll').addEventListener('click', rollUp);
+    document.getElementById('btn-apply').addEventListener('click', () => applyTransition(readParams()));
+
+    // Initial setup
+    applyTransition(readParams());
+  </script>
+</body>
+</html>
