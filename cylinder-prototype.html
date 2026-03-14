@@ -151,10 +151,15 @@
       const rotationOffset = Math.PI - thetaMax;
 
       // Second pass: apply rotation and compute x,y
-      // Negate the sin term to make the spiral wind clockwise in SVG coords
-      // (where Y points down). This way, traversing from outer to inner goes
-      // clockwise, which means the bottom of the coil peels off downward
-      // during unroll.
+      // In standard math coords, increasing theta goes counterclockwise.
+      // SVG has Y-down, which mirrors the vertical axis — so (cos, sin) would
+      // appear clockwise on screen. We negate sin to flip it back:
+      //   (cos θ, -sin θ) traces counterclockwise in SVG's Y-down coords.
+      //
+      // After reversal (outer→inner), the drawn path goes counterclockwise,
+      // matching the app logo spiral. The unroll animation peels from the
+      // outermost point (left/wall side), and the remaining coil rolls
+      // clockwise as it descends — correct scroll-unrolling physics.
       const points = rawPoints.map(p => ({
         theta: p.theta,
         r: p.r,
