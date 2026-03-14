@@ -1,0 +1,90 @@
+Stroke/Gap Sensitivity Report
+=============================
+
+Compares real spiral computation (ground truth) vs module approximation
+(bezier table built with strokeWidth=6, turnGap=6).
+
+For each combo, measures:
+  - Start/end value differences (the module uses real computation for these)
+  - Mid-animation bezier approximation error (the bezier was fit at 6/6)
+
+SW TG | Spiral  Stop | Property          | End Δ(px) | Bezier MaxErr(px) | Bezier MaxErr(%)
+──────┼──────────────┼───────────────────┼───────────┼───────────────────┼─────────────────
+ 1  1 |   800   60 | paperStripHeight  |       0.0 |               7.4 |           0.99%  !
+ 1  1 |   800   60 | coilRectTop       |       0.0 |               9.7 |           1.28%  !
+ 1  1 |   800   60 | coilRectHeight    |       0.0 |               0.1 |           0.46%
+ 1  1 |   800  200 | paperStripHeight  |       0.0 |               3.0 |           0.49%
+ 1  1 |   800  200 | coilRectTop       |       0.0 |               4.2 |           0.69%
+ 1  1 |   800  200 | coilRectHeight    |       0.0 |               0.1 |           0.46%
+ 1  1 |   400   30 | paperStripHeight  |       0.0 |               3.4 |           0.93%
+ 1  1 |   400   30 | coilRectTop       |       0.0 |               4.2 |           1.11%
+ 1  1 |   400   30 | coilRectHeight    |       0.0 |               0.1 |           0.54%
+ 2  2 |   800   60 | paperStripHeight  |       0.0 |               6.9 |           0.93%  !
+ 2  2 |   800   60 | coilRectTop       |       0.0 |               8.5 |           1.11%  !
+ 2  2 |   800   60 | coilRectHeight    |       0.0 |               0.2 |           0.54%
+ 2  2 |   800  200 | paperStripHeight  |       0.0 |               3.1 |           0.51%
+ 2  2 |   800  200 | coilRectTop       |       0.0 |               4.1 |           0.66%
+ 2  2 |   800  200 | coilRectHeight    |       0.0 |               0.2 |           0.59%
+ 2  2 |   400   30 | paperStripHeight  |       0.0 |               2.6 |           0.70%
+ 2  2 |   400   30 | coilRectTop       |       0.0 |               2.8 |           0.73%
+ 2  2 |   400   30 | coilRectHeight    |       0.0 |               0.2 |           0.57%
+ 3  3 |   800   60 | paperStripHeight  |       0.0 |               6.4 |           0.86%  !
+ 3  3 |   800   60 | coilRectTop       |       0.0 |               7.3 |           0.95%  !
+ 3  3 |   800   60 | coilRectHeight    |       0.0 |               0.3 |           0.58%
+ 3  3 |   800  200 | paperStripHeight  |       0.0 |               2.8 |           0.47%
+ 3  3 |   800  200 | coilRectTop       |       0.0 |               3.6 |           0.57%
+ 3  3 |   800  200 | coilRectHeight    |       0.0 |               0.2 |           0.64%
+ 3  3 |   400   30 | paperStripHeight  |       0.0 |               2.2 |           0.61%
+ 3  3 |   400   30 | coilRectTop       |       0.0 |               2.1 |           0.55%
+ 3  3 |   400   30 | coilRectHeight    |       0.0 |               0.2 |           0.43%
+ 6  6 |   800   60 | paperStripHeight  |       0.0 |               4.5 |           0.61%
+ 6  6 |   800   60 | coilRectTop       |       0.0 |               4.3 |           0.55%
+ 6  6 |   800   60 | coilRectHeight    |       0.0 |               0.3 |           0.43%
+ 6  6 |   800  200 | paperStripHeight  |       0.0 |               2.7 |           0.45%
+ 6  6 |   800  200 | coilRectTop       |       0.0 |               2.7 |           0.43%
+ 6  6 |   800  200 | coilRectHeight    |       0.0 |               0.3 |           0.49%
+ 6  6 |   400   30 | paperStripHeight  |       0.0 |               3.7 |           0.98%
+ 6  6 |   400   30 | coilRectTop       |       0.0 |               6.3 |           1.56%  !
+ 6  6 |   400   30 | coilRectHeight    |       0.0 |               0.4 |           0.81%
+10 10 |   800   60 | paperStripHeight  |       0.0 |               5.7 |           0.77%  !
+10 10 |   800   60 | coilRectTop       |       0.0 |               8.4 |           1.06%  !
+10 10 |   800   60 | coilRectHeight    |       0.0 |               0.7 |           0.72%
+10 10 |   800  200 | paperStripHeight  |       0.0 |               2.7 |           0.45%
+10 10 |   800  200 | coilRectTop       |       0.0 |               3.2 |           0.50%
+10 10 |   800  200 | coilRectHeight    |       0.0 |               0.6 |           0.86%
+10 10 |   400   30 | paperStripHeight  |       0.0 |               6.0 |           1.62%  !
+10 10 |   400   30 | coilRectTop       |       0.0 |               9.5 |           2.33%  !
+10 10 |   400   30 | coilRectHeight    |       0.0 |               1.7 |           2.48%
+12 16 |   800   60 | paperStripHeight  |       0.0 |               6.1 |           0.82%  !
+12 16 |   800   60 | coilRectTop       |       0.0 |              11.9 |           1.48%  !!!
+12 16 |   800   60 | coilRectHeight    |       0.0 |               0.7 |           0.64%
+12 16 |   800  200 | paperStripHeight  |       0.0 |               2.7 |           0.45%
+12 16 |   800  200 | coilRectTop       |       0.0 |               3.8 |           0.59%
+12 16 |   800  200 | coilRectHeight    |       0.0 |               0.6 |           0.68%
+12 16 |   400   30 | paperStripHeight  |       0.0 |               6.5 |           1.74%  !
+12 16 |   400   30 | coilRectTop       |       0.0 |               9.3 |           2.24%  !
+12 16 |   400   30 | coilRectHeight    |       0.0 |               3.7 |           4.37%
+ 1  6 |   800   60 | paperStripHeight  |       0.0 |               8.1 |           1.09%  !
+ 1  6 |   800   60 | coilRectTop       |       0.0 |               8.8 |           1.13%  !
+ 1  6 |   800   60 | coilRectHeight    |       0.0 |               0.3 |           0.42%
+ 1  6 |   800  200 | paperStripHeight  |       0.0 |               3.9 |           0.65%
+ 1  6 |   800  200 | coilRectTop       |       0.0 |               4.5 |           0.72%
+ 1  6 |   800  200 | coilRectHeight    |       0.0 |               0.2 |           0.48%
+ 1  6 |   400   30 | paperStripHeight  |       0.0 |               4.1 |           1.10%
+ 1  6 |   400   30 | coilRectTop       |       0.0 |               3.8 |           0.96%
+ 1  6 |   400   30 | coilRectHeight    |       0.0 |               0.2 |           0.47%
+ 6  1 |   800   60 | paperStripHeight  |       0.0 |               6.6 |           0.89%  !
+ 6  1 |   800   60 | coilRectTop       |       0.0 |               5.8 |           0.75%  !
+ 6  1 |   800   60 | coilRectHeight    |       0.0 |               0.3 |           0.45%
+ 6  1 |   800  200 | paperStripHeight  |       0.0 |               3.3 |           0.55%
+ 6  1 |   800  200 | coilRectTop       |       0.0 |               2.8 |           0.46%
+ 6  1 |   800  200 | coilRectHeight    |       0.0 |               0.2 |           0.48%
+ 6  1 |   400   30 | paperStripHeight  |       0.0 |               6.0 |           1.61%  !
+ 6  1 |   400   30 | coilRectTop       |       0.0 |               7.2 |           1.84%  !
+ 6  1 |   400   30 | coilRectHeight    |       0.0 |               0.2 |           0.44%
+
+──────┼──────────────┼───────────────────┼───────────┼───────────────────┼─────────────────
+
+SW=strokeWidth, TG=turnGap. Baseline is 6/6 (bezier table was built with these).
+"End Δ" should be ~0 since the module computes start/end from real geometry.
+"Bezier MaxErr" is the mid-animation error from using beziers fit at SW=6 TG=6.
