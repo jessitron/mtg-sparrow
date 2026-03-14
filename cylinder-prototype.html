@@ -151,11 +151,15 @@
       const rotationOffset = Math.PI - thetaMax;
 
       // Second pass: apply rotation and compute x,y
+      // Negate the sin term to make the spiral wind clockwise in SVG coords
+      // (where Y points down). This way, traversing from outer to inner goes
+      // clockwise, which means the bottom of the coil peels off downward
+      // during unroll.
       const points = rawPoints.map(p => ({
         theta: p.theta,
         r: p.r,
         x: p.r * Math.cos(p.theta + rotationOffset),
-        y: p.r * Math.sin(p.theta + rotationOffset),
+        y: -p.r * Math.sin(p.theta + rotationOffset),
         arcLength: p.arcLength
       }));
 
