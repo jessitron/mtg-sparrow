@@ -36,18 +36,33 @@ An animation prototype for a scroll unrolling, with two views:
 - Uses `cylinder-projection.js` for geometry, interpolates beziers from ratio table
 - Enables pure CSS transitions — no per-frame JS needed
 
+### Stroke/gap sensitivity
+- Bezier table was built at strokeWidth=6, turnGap=6
+- Tested across 1/1 to 12/16 — max error ~12px only at extremes, typically under 8px
+- Single bezier table sufficient for all stroke/gap combos
+
 ## Files created
 - `cylinder-prototype.html` — full simulation with SVG spiral + CSS projection
 - `cylinder-css-prototype.html` — CSS-only prototype using the transition module
-- `cylinder-projection.js` — pure computation module
-- `cylinder-transition.js` — CSS transition parameter module
-- `tests/cylinder-projection.test.mjs` — regression tests
-- `tests/cylinder-projection-graph.mjs` — graph generation
+- `cylinder-projection.js` — pure computation module (no DOM)
+- `cylinder-transition.js` — CSS transition parameter module (the end product)
+- `tests/cylinder-projection.test.mjs` — 42 regression assertions
+- `tests/cylinder-projection-graph.mjs` — graph generation (CSV + HTML)
 - `tests/cylinder-bezier-fit.mjs` — bezier fitting with Nelder-Mead optimization
-- `tests/cylinder-bezier-by-ratio.mjs` — ratio analysis
+- `tests/cylinder-bezier-by-ratio.mjs` — ratio→bezier analysis
+- `tests/cylinder-fixed-bezier-report.mjs` — fixed bezier error measurement
+- `tests/cylinder-stroke-gap-sensitivity.mjs` — stroke/gap impact on approximation
 - Various report .txt, .csv, .html outputs in tests/
 
+## Decisions recorded
+DEC-152 through DEC-159 in the decision log.
+
+## Process notes
+- Drawing direction and rolling direction were tangled — took several iterations to get both right independently. The key was decoupling them: spiral point generation controls drawing, positioning logic controls rolling.
+- The bezier fitting initially had a degenerate local minimum (x1=1.0) for 400/30 — multi-start optimization fixed it. Always use multiple starting points with Nelder-Mead.
+- The paper strip's top edge is at the anchor point (tangent to coil), NOT the top of the coil. This was a conceptual confusion that the client caught.
+
 ## What's next
-- "Spiral length" should control paper amount in CSS prototype
-- Content inside the paper strip
-- Integration with the app
+- Content inside the paper strip (the paper div is already content-ready)
+- Integration with the app — use `computeTransition()` to animate page reveals
+- Consider whether easing should be configurable or always ease-in-out
