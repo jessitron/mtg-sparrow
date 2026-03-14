@@ -222,6 +222,76 @@
     const totalArcLength = spiralPoints[spiralPoints.length - 1].arcLength;
 
     // ============================================================
+    // Theta-to-arc-length lookup table for angular animation
+    // ============================================================
+    // Build from the raw spiral: theta goes from 0 (inner) to thetaMax (outer).
+    // At each theta, arcLength is cumulative from inner.
+    // "unrollAngle" measures how much angle has been peeled off from the outer end.
+    // unrollAngle = thetaMax - theta, unrolledArcLength = totalArcLength - arcLength(theta).
+    // The table maps unrollAngle → unrolledArcLength (both monotonically increasing).
+
+    function buildThetaToArcTable() {
+      const table = [];
+      let len = 0;
+      let theta = 0;
+      let r = a + b * theta;
+      table.push({ theta, arcLength: 0 });
+
+      while (len < SPIRAL_LENGTH) {
+        theta += ANGLE_STEP;
+        r = a + b * theta;
+        const prev = table[table.length - 1];
+        const prevR = a + b * prev.theta;
+        const dx = r * Math.cos(theta) - prevR * Math.cos(prev.theta);
+        const dy = r * Math.sin(theta) - prevR * Math.sin(prev.theta);
+        len += Math.sqrt(dx * dx + dy * dy);
+        table.push({ theta, arcLength: len });
+      }
+      return table;
+    }
+
+    const rawTable = buildThetaToArcTable();
+    const THETA_MAX = rawTable[rawTable.length - 1].theta;
+    const RAW_TOTAL_ARC = rawTable[rawTable.length - 1].arcLength;
+
+    // Build the unroll lookup: unrollAngle → unrolledArcLength
+    // Entries go from unrollAngle=0 (fully coiled) to unrollAngle=THETA_MAX (fully unrolled)
+    const unrollLookup = rawTable.map(entry => ({
+      unrollAngle: THETA_MAX - entry.theta,
+      unrolledArcLength: RAW_TOTAL_ARC - entry.arcLength,
+    })).reverse(); // reverse so unrollAngle increases from 0
+
+    // Find the theta that corresponds to STOP_REMAINING
+    // We want unrolledArcLength = totalArcLength - STOP_REMAINING
+    const maxUnrolledArc = RAW_TOTAL_ARC - STOP_REMAINING;
+    let THETA_STOP = THETA_MAX;
+    for (let i = 0; i < unrollLookup.length; i++) {
+      if (unrollLookup[i].unrolledArcLength >= maxUnrolledArc) {
+        THETA_STOP = unrollLookup[i].unrollAngle;
+        break;
+      }
+    }
+
+    // Interpolate: given unrollAngle, return unrolledArcLength
+    function thetaToArcLength(unrollAngle) {
+      if (unrollAngle <= 0) return 0;
+      if (unrollAngle >= THETA_MAX) return RAW_TOTAL_ARC;
+
+      // Binary search for the right interval
+      let lo = 0, hi = unrollLookup.length - 1;
+      while (lo < hi - 1) {
+        const mid = (lo + hi) >> 1;
+        if (unrollLookup[mid].unrollAngle <= unrollAngle) lo = mid;
+        else hi = mid;
+      }
+
+      const a0 = unrollLookup[lo];
+      const a1 = unrollLookup[hi];
+      const frac = (unrollAngle - a0.unrollAngle) / (a1.unrollAngle - a0.unrollAngle);
+      return a0.unrolledArcLength + frac * (a1.unrolledArcLength - a0.unrolledArcLength);
+    }
+
+    // ============================================================
     // Compute bounding box of the full spiral for SVG sizing
     // ============================================================
 
@@ -471,28 +541,30 @@
     render(0);
 
     // ============================================================
-    // STEP 2 & 3: Animation
+    // STEP 2 & 3: Animation — constant angular velocity
     // ============================================================
+    // Instead of interpolating unrolledLength, we interpolate the unroll
+    // angle (theta) linearly. Since outer turns have more circumference,
+    // the paper growth is fast at first (big coil) and decelerates (small coil).
 
-    let currentUnrolled = 0;
+    let currentTheta = 0;  // current unroll angle in radians
     let animationId = null;
 
-    function animateTo(targetUnrolled) {
+    function animateToTheta(targetTheta) {
       if (animationId) cancelAnimationFrame(animationId);
 
-      const startUnrolled = currentUnrolled;
+      const startTheta = currentTheta;
       const startTime = performance.now();
 
       function step(now) {
         const elapsed = now - startTime;
         const t = Math.min(elapsed / ANIMATION_DURATION, 1);
-        // Ease in-out
-        const eased = t < 0.5
-          ? 2 * t * t
-          : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        // Linear interpolation of theta — constant angular velocity
+        currentTheta = startTheta + (targetTheta - startTheta) * t;
 
-        currentUnrolled = startUnrolled + (targetUnrolled - startUnrolled) * eased;
-        render(currentUnrolled);
+        // Look up the corresponding unrolledLength from the theta-to-arc table
+        const unrolledLength = thetaToArcLength(currentTheta);
+        render(unrolledLength);
 
         if (t < 1) {
           animationId = requestAnimationFrame(step);
@@ -505,12 +577,11 @@
     }
 
     document.getElementById('btn-unroll').addEventListener('click', () => {
-      const maxUnroll = totalArcLength - STOP_REMAINING;
-      animateTo(maxUnroll);
+      animateToTheta(THETA_STOP);
     });
 
     document.getElementById('btn-roll').addEventListener('click', () => {
-      animateTo(0);
+      animateToTheta(0);
     });
   </script>
 </body>
