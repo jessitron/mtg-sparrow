@@ -107,6 +107,29 @@ The Sparrow Deck is **not a quiz**. It's a training tool. The distinction matter
 
 That said, **confidence tracking** could be valuable — not as a grade, but as a signal to the learner about their progress.
 
+## Direct Advice from Falco: Show Names Upfront
+
+**Source**: Direct conversation with Llewellyn Falco (the technique's creator).
+
+**The recommendation**: At the beginning of each level, show all 5 category names upfront. Keep those names visible on screen throughout the entire slideshow.
+
+### Why This Matters for MTG Colors Specifically
+
+The original Sparrow Deck has only **2 categories** (House Sparrow vs. Song Sparrow). Two categories are trivially easy to hold in working memory — learners can guess between them without ever forgetting what the options are.
+
+MTG Colors has **5 names per level** (e.g., 5 allied guild names, 5 shard names, 5 wedge names). Five arbitrary proper nouns exceed what most people can comfortably hold in working memory *while also* doing the rapid classification task. The cognitive load of remembering the options list interferes with the learning of the color-to-name associations.
+
+**The fix is not to slow down** — slowing down undermines the perceptual learning mechanism. The fix is to **externalize the options list** so that working memory isn't consumed by it.
+
+### Implementation Implication
+
+- At the start of each level (e.g., Allied Guilds), display all 5 names before the rapid-fire cards begin
+- Keep the list of 5 names visible in the UI during the entire slideshow — as a sidebar, header bar, or persistent reference panel
+- The learner can glance at the list to make a guess, rather than having to reconstruct the option set from memory each time
+- This preserves the rapid-fire pace while removing an irrelevant source of cognitive load
+
+This is consistent with the core principle: the technique targets **pattern recognition**, not **recall of the category list**. Making the categories visible isolates the skill being trained.
+
 ## Sources
 
 - [Sparrow Decks - LearnWithLlew](https://learnwithllew.github.io/SparrowDecks/)
