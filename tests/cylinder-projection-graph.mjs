@@ -7,7 +7,7 @@
  *          tests/cylinder-projection-graph.html
  */
 
-import { computeScaffold, computeProjection } from '../cylinder-projection.js';
+import { computeScaffold, computeProjection, thetaToArcLength } from '../cylinder-projection.js';
 import { writeFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -29,22 +29,24 @@ const STEPS = 100; // sample points across the animation
 // Generate CSV
 // ============================================================
 
-const csvRows = ['paramSet,step,pct,unrolledLength,paperStripMarginTop,paperStripHeight,coilRectTop,coilRectHeight,coilDiameter'];
+const csvRows = ['paramSet,step,pct,theta,unrolledLength,paperStripMarginTop,paperStripHeight,coilRectTop,coilRectHeight,coilDiameter'];
 
 const allData = {};
 
 for (const params of PARAM_SETS) {
   const scaffold = computeScaffold(params);
-  const maxUnroll = scaffold.maxUnrollLength;
   allData[params.name] = [];
 
   for (let i = 0; i <= STEPS; i++) {
     const pct = i / STEPS;
-    const unrolledLength = pct * maxUnroll;
+    // Step through theta linearly (constant angular velocity), then convert to arc length
+    const theta = pct * scaffold.thetaStop;
+    const unrolledLength = thetaToArcLength(theta, scaffold);
     const proj = computeProjection(unrolledLength, scaffold);
 
     allData[params.name].push({
       pct,
+      theta,
       unrolledLength,
       ...proj,
     });
@@ -53,6 +55,7 @@ for (const params of PARAM_SETS) {
       params.name,
       i,
       pct.toFixed(4),
+      theta.toFixed(4),
       unrolledLength.toFixed(2),
       proj.paperStripMarginTop.toFixed(2),
       proj.paperStripHeight.toFixed(2),
@@ -102,11 +105,15 @@ const html = `<!DOCTYPE html>
 </head>
 <body>
   <h1>Cylinder Projection Values</h1>
-  <p>Each line is a different parameter set. X-axis = unroll % (0–100). Y-axis = px.</p>
+  <p>Each line is a different parameter set. X-axis = animation progress (constant angular velocity). Y-axis = px.</p>
 
   <div class="legend" id="legend"></div>
 
   <div class="chart-container">
+    <div>
+      <h2>Unrolled Length (nonlinear with constant angular velocity)</h2>
+      <canvas id="chart-unrolledLength"></canvas>
+    </div>
     <div>
       <h2>Coil Position (coilRectTop)</h2>
       <canvas id="chart-coilRectTop"></canvas>
@@ -205,6 +212,7 @@ const html = `<!DOCTYPE html>
 
     // Draw on load and resize
     function drawAll() {
+      drawChart('chart-unrolledLength', 'unrolledLength');
       drawChart('chart-coilRectTop', 'coilRectTop');
       drawChart('chart-coilRectHeight', 'coilRectHeight');
       drawChart('chart-paperStripHeight', 'paperStripHeight');
