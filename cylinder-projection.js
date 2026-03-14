@@ -99,6 +99,43 @@ function computeScaffold(params) {
     anchorY + maxUnrollLength + fullCoilDiameter + svgPadding
   );
 
+  // Build theta-to-arc-length lookup table for angular animation.
+  // Raw spiral goes from theta=0 (inner) to thetaMax (outer).
+  // unrollAngle = thetaMax - theta; unrolledArcLength = totalRawArc - arcLength(theta).
+  const rawTable = [];
+  {
+    let len = 0, th = 0, r = spiralA;
+    rawTable.push({ theta: th, arcLength: 0 });
+    while (len < spiralLength) {
+      th += ANGLE_STEP;
+      r = spiralA + spiralB * th;
+      const prev = rawTable[rawTable.length - 1];
+      const prevR = spiralA + spiralB * prev.theta;
+      const dx = r * Math.cos(th) - prevR * Math.cos(prev.theta);
+      const dy = r * Math.sin(th) - prevR * Math.sin(prev.theta);
+      len += Math.sqrt(dx * dx + dy * dy);
+      rawTable.push({ theta: th, arcLength: len });
+    }
+  }
+  const thetaMax = rawTable[rawTable.length - 1].theta;
+  const rawTotalArc = rawTable[rawTable.length - 1].arcLength;
+
+  // unrollLookup: sorted by increasing unrollAngle
+  const unrollLookup = rawTable.map(e => ({
+    unrollAngle: thetaMax - e.theta,
+    unrolledArcLength: rawTotalArc - e.arcLength,
+  })).reverse();
+
+  // Find theta corresponding to STOP_REMAINING
+  const maxUnrolledArc = rawTotalArc - stopRemaining;
+  let thetaStop = thetaMax;
+  for (let i = 0; i < unrollLookup.length; i++) {
+    if (unrollLookup[i].unrolledArcLength >= maxUnrolledArc) {
+      thetaStop = unrollLookup[i].unrollAngle;
+      break;
+    }
+  }
+
   return {
     spiralA,
     spiralB,
@@ -110,6 +147,10 @@ function computeScaffold(params) {
     stopRemaining,
     svgPadding,
     fullCoilDiameter,
+    // Angular animation data
+    thetaMax,
+    thetaStop,
+    unrollLookup,
   };
 }
 
@@ -174,7 +215,40 @@ function computeProjection(unrolledLength, scaffold) {
 }
 
 // ============================================================
+// Angular animation helper
+// ============================================================
+
+/**
+ * Convert an unroll angle (radians) to the corresponding unrolled arc length (px).
+ * Uses the lookup table from scaffold for binary-search interpolation.
+ *
+ * @param {number} unrollAngle - radians of unrolling (0 = fully coiled)
+ * @param {object} scaffold - output of computeScaffold()
+ * @returns {number} unrolled arc length in px
+ */
+function thetaToArcLength(unrollAngle, scaffold) {
+  const { unrollLookup, thetaMax } = scaffold;
+  const rawTotalArc = unrollLookup[unrollLookup.length - 1].unrolledArcLength;
+
+  if (unrollAngle <= 0) return 0;
+  if (unrollAngle >= thetaMax) return rawTotalArc;
+
+  // Binary search
+  let lo = 0, hi = unrollLookup.length - 1;
+  while (lo < hi - 1) {
+    const mid = (lo + hi) >> 1;
+    if (unrollLookup[mid].unrollAngle <= unrollAngle) lo = mid;
+    else hi = mid;
+  }
+
+  const a0 = unrollLookup[lo];
+  const a1 = unrollLookup[hi];
+  const frac = (unrollAngle - a0.unrollAngle) / (a1.unrollAngle - a0.unrollAngle);
+  return a0.unrolledArcLength + frac * (a1.unrolledArcLength - a0.unrolledArcLength);
+}
+
+// ============================================================
 // Exports
 // ============================================================
 
-export { computeScaffold, computeProjection, buildCoilForLength, getBBox };
+export { computeScaffold, computeProjection, buildCoilForLength, getBBox, thetaToArcLength };
