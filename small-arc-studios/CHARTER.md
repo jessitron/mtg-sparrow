@@ -100,9 +100,9 @@ Completion requires:
 
 **Failure must be visible.**
 
-Silent fallbacks that disguise failure as success are not graceful — they are deceptive. When a function cannot do what it promises, it must signal failure, not quietly return. A resolved promise means the work is done. A caught exception must be re-raised or visibly reported to the caller, not swallowed.
+Silent fallbacks that disguise failure as success are not graceful — they are deceptive. When a function cannot do what it promises, it must signal failure, not quietly return. A resolved promise means the work is done. A caught exception must be re-raised or carefully reported in telemetry before defaulting.
 
-We do not ship silent failure paths.
+While sometimes it is graceful to hide partial failure from the user, failure must always be visible to the maintainers. That is how we improve.
 
 ---
 
