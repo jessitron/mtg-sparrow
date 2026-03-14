@@ -3,116 +3,450 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cylinder Prototype</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Scroll Spiral Prototype</title>
   <style>
-    :root {
-      /* === CYLINDER VARIABLES === */
-
-      /* Cylinder dimensions */
-      --cylinder-height: 600px;
-      --cylinder-width: 100px;   /* = diameter = 2 * radius */
-
-      /* Stripe spacing around circumference (px) */
-      --stripe-spacing: 30px;
-
-      /* Visual style */
-      --cylinder-fill: #9c8e69;
-      --cylinder-highlight: rgba(255, 255, 255, 0.25);  /* center highlight */
-      --cylinder-shadow: rgba(0, 0, 0, 0.4);            /* edge darkening */
-      --cylinder-border: #272817;
-      --stripe-color: rgb(228, 232, 41);
-      --stripe-width: 1px;
-    }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      background-color: var(--bg-brown-dark, #272817);
-      background: radial-gradient(
-        ellipse at center,
-        var(--bg-brown-light, #8D6137) 0%,
-        var(--bg-brown-mid,   #7D572D) 40%,
-        var(--bg-brown-dark,  #272817) 100%
-      );
+      justify-content: flex-start;
+      padding: 2rem;
+      background-color: #3b2314;
+      color: #d2b48c;
+      font-family: 'Segoe UI', system-ui, sans-serif;
     }
 
-    #cylinder {
-      position: relative;
-      width: var(--cylinder-width);
-      height: var(--cylinder-height);
-      background:
-        linear-gradient(to right,
-          var(--cylinder-shadow),
-          var(--cylinder-highlight) 50%,
-          var(--cylinder-shadow)
-        ),
-        var(--cylinder-fill);
-      border-left:  1px solid var(--cylinder-border);
-      border-right: 1px solid var(--cylinder-border);
-      overflow: visible;
+    h1 {
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+      color: #f5deb3;
     }
 
-    /* Stripes are placed by JS as absolutely-positioned children */
-    .stripe {
-      position: absolute;
-      top: 0;
-      width: var(--stripe-width);
-      height: 100%;
-      background: var(--stripe-color);
-      transform: translateX(-50%);
-      pointer-events: none;
+    .controls {
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    button {
+      padding: 0.5rem 1.2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border: 1px solid #d2b48c;
+      background: #5a3a1a;
+      color: #f5deb3;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background: #7a5a3a;
+    }
+
+    .canvas-area {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+
+    svg {
+      border: 1px solid #5a3a1a;
+    }
+
+    #analysis {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #2a1508;
+      border: 1px solid #5a3a1a;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      min-width: 300px;
     }
   </style>
 </head>
 <body>
-  <div id="cylinder"></div>
+  <h1>Scroll Spiral Prototype</h1>
+
+  <div class="controls">
+    <button id="btn-unroll">Unroll</button>
+    <button id="btn-roll">Roll Up</button>
+  </div>
+
+  <div class="canvas-area">
+    <svg id="spiral-svg"></svg>
+    <svg id="side-svg"></svg>
+  </div>
+
+  <div id="analysis"></div>
 
   <script>
-    // Read cylinder parameters from CSS custom properties
-    const rootStyle = getComputedStyle(document.documentElement);
+    // ============================================================
+    // TUNABLE PARAMETERS — tweak these!
+    // ============================================================
 
-    function parsePx(varName) {
-      return parseFloat(rootStyle.getPropertyValue(varName).trim());
+    const STROKE_WIDTH = 12;        // Thickness of the spiral line (px)
+    const TURN_GAP = 16;            // Gap between successive turns (px), a.k.a. "pitch"
+    const SPIRAL_LENGTH = 2400;     // Total arc length of the curved line (px)
+    const ANIMATION_DURATION = 1500; // Duration of unroll/roll animation (ms)
+    const STOP_REMAINING = 300;     // Remaining coiled length when unroll stops (px)
+    const Z_DEPTH = 600;            // Width of the paper going "into" screen (px)
+    const SVG_PADDING = 20;         // Padding around the spiral in the SVG
+
+    // Colors
+    const SPIRAL_COLOR = '#d2b48c'; // khaki
+    const LINE_COLOR = '#d2b48c';
+    const BG_COLOR = '#3b2314';
+
+    // Archimedean spiral: r = a + b*θ
+    // where b = (TURN_GAP + STROKE_WIDTH) / (2π)
+    // "a" is the innermost radius (we'll use STROKE_WIDTH as minimum)
+
+    const a = STROKE_WIDTH;  // inner radius — leave room for the center
+    const b = (TURN_GAP + STROKE_WIDTH) / (2 * Math.PI);  // radial growth per radian
+
+    // ============================================================
+    // STEP 1: Compute the spiral path as a polyline
+    // ============================================================
+
+    // We sample the spiral at small angular increments and accumulate arc length.
+    // We stop when we've reached SPIRAL_LENGTH.
+
+    const ANGLE_STEP = 0.05; // radians per sample — small for smooth curve
+
+    function buildSpiralPoints() {
+      // First pass: compute points without rotation to find the outermost angle
+      const rawPoints = [];
+      let totalLength = 0;
+      let theta = 0;
+
+      let r = a + b * theta;
+      rawPoints.push({ theta, r, arcLength: 0 });
+
+      while (totalLength < SPIRAL_LENGTH) {
+        theta += ANGLE_STEP;
+        r = a + b * theta;
+
+        const prev = rawPoints[rawPoints.length - 1];
+        const prevR = prev.r;
+        const prevTheta = prev.theta;
+        // Distance between consecutive points on the spiral
+        const dx = r * Math.cos(theta) - prevR * Math.cos(prevTheta);
+        const dy = r * Math.sin(theta) - prevR * Math.sin(prevTheta);
+        const segLen = Math.sqrt(dx * dx + dy * dy);
+        totalLength += segLen;
+
+        rawPoints.push({ theta, r, arcLength: totalLength });
+      }
+
+      // The outermost point is the last one (highest theta, largest r).
+      // We want it on the LEFT, i.e. at angle π in Cartesian coords.
+      // Its natural angle is theta_max (mod 2π). We apply a rotation offset.
+      const thetaMax = rawPoints[rawPoints.length - 1].theta;
+      // Natural direction of outermost point: thetaMax
+      // We want it at π, so rotation = π - thetaMax
+      const rotationOffset = Math.PI - thetaMax;
+
+      // Second pass: apply rotation and compute x,y
+      const points = rawPoints.map(p => ({
+        theta: p.theta,
+        r: p.r,
+        x: p.r * Math.cos(p.theta + rotationOffset),
+        y: p.r * Math.sin(p.theta + rotationOffset),
+        arcLength: p.arcLength
+      }));
+
+      return points;
     }
 
-    const diameterPx   = parsePx('--cylinder-width');   // 100
-    const spacingPx    = parsePx('--stripe-spacing');    // 30
+    const spiralPoints = buildSpiralPoints();
 
-    const radius = diameterPx / 2;                       // 50
+    // Reverse so index 0 = outermost (largest radius) = the anchor point.
+    // The spec says "start" of the spiral is the outermost point.
+    spiralPoints.reverse();
 
-    // Circumference of the cylinder
-    const circumference = 2 * Math.PI * radius;
-
-    // Number of evenly-spaced stripes around the full circumference
-    const stripeCount = Math.round(circumference / spacingPx);
-
-    // Angular positions of each stripe (radians)
-    // θ = 0 is the front-center of the cylinder
-    const cylinder = document.getElementById('cylinder');
-
-    for (let i = 0; i < stripeCount; i++) {
-      // Distribute stripes evenly around the full circle
-      const theta = (2 * Math.PI * i) / stripeCount;
-
-      // Normalise theta to [-π, π] so we can test front-facing half
-      const thetaNorm = theta > Math.PI ? theta - 2 * Math.PI : theta;
-
-      // Only the front-facing half is visible: −π/2 < θ < π/2
-      if (Math.abs(thetaNorm) >= Math.PI / 2) continue;
-
-      // Projected x position: R * sin(θ), offset from the cylinder's left edge
-      const projectedX = radius * Math.sin(thetaNorm) + radius;
-
-      const stripe = document.createElement('div');
-      stripe.className = 'stripe';
-      stripe.style.left = projectedX + 'px';
-      cylinder.appendChild(stripe);
+    // Recompute arc lengths from the new start (outermost)
+    spiralPoints[0].arcLength = 0;
+    for (let i = 1; i < spiralPoints.length; i++) {
+      const prev = spiralPoints[i - 1];
+      const dx = spiralPoints[i].x - prev.x;
+      const dy = spiralPoints[i].y - prev.y;
+      spiralPoints[i].arcLength = prev.arcLength + Math.sqrt(dx * dx + dy * dy);
     }
+
+    const totalArcLength = spiralPoints[spiralPoints.length - 1].arcLength;
+
+    // ============================================================
+    // Compute bounding box of the full spiral for SVG sizing
+    // ============================================================
+
+    function getBBox(pts) {
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      for (const p of pts) {
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
+      }
+      return { minX, maxX, minY, maxY };
+    }
+
+    const fullBBox = getBBox(spiralPoints);
+
+    // ============================================================
+    // SVG setup
+    // ============================================================
+
+    const spiralSvg = document.getElementById('spiral-svg');
+    const sideSvg = document.getElementById('side-svg');
+
+    // Size the spiral SVG to contain the full spiral + room for unrolled line
+    // The unrolled line extends downward from the anchor point.
+    // Anchor = outermost point (index 0), which is on the LEFT side.
+
+    const anchorX = spiralPoints[0].x;
+    const anchorY = spiralPoints[0].y;
+
+    // The straight line goes downward from the anchor, max length = totalArcLength
+    const svgWidth = (fullBBox.maxX - fullBBox.minX) + STROKE_WIDTH + SVG_PADDING * 2;
+    const svgHeight = Math.max(
+      (fullBBox.maxY - fullBBox.minY) + STROKE_WIDTH + SVG_PADDING * 2,
+      totalArcLength + STROKE_WIDTH + SVG_PADDING * 2
+    );
+
+    // Translate so that anchor point is at a nice position
+    // We want the anchor on the left side, with some padding
+    const offsetX = -fullBBox.minX + SVG_PADDING + STROKE_WIDTH / 2;
+    const offsetY = -fullBBox.minY + SVG_PADDING + STROKE_WIDTH / 2;
+
+    spiralSvg.setAttribute('width', svgWidth);
+    spiralSvg.setAttribute('height', svgHeight);
+    spiralSvg.style.background = BG_COLOR;
+
+    // Create spiral path element
+    const spiralPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    spiralPath.setAttribute('fill', 'none');
+    spiralPath.setAttribute('stroke', SPIRAL_COLOR);
+    spiralPath.setAttribute('stroke-width', STROKE_WIDTH);
+    spiralPath.setAttribute('stroke-linecap', 'round');
+    spiralSvg.appendChild(spiralPath);
+
+    // Create straight line element (for unrolled portion)
+    const straightLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    straightLine.setAttribute('stroke', LINE_COLOR);
+    straightLine.setAttribute('stroke-width', STROKE_WIDTH);
+    straightLine.setAttribute('stroke-linecap', 'round');
+    straightLine.setAttribute('visibility', 'hidden');
+    spiralSvg.appendChild(straightLine);
+
+    // ============================================================
+    // Rendering functions
+    // ============================================================
+
+    // unrolledLength: how much of the spiral (from the outside) has been straightened
+    function render(unrolledLength) {
+      unrolledLength = Math.max(0, Math.min(unrolledLength, totalArcLength - STOP_REMAINING));
+
+      // Find the split point: everything before this arc length is "unrolled" (straight),
+      // everything after is still coiled.
+      const remainingPoints = [];
+      for (let i = 0; i < spiralPoints.length; i++) {
+        if (spiralPoints[i].arcLength >= unrolledLength) {
+          remainingPoints.push(spiralPoints[i]);
+        }
+      }
+
+      if (remainingPoints.length < 2) return;
+
+      // Compute the remaining coil's bounding box and center
+      const coilBBox = getBBox(remainingPoints);
+      const coilCenterX = (coilBBox.minX + coilBBox.maxX) / 2;
+      const coilCenterY = (coilBBox.minY + coilBBox.maxY) / 2;
+
+      // The anchor point (where the line meets the wall) is the outermost point
+      const aX = anchorX + offsetX;
+      const aY = anchorY + offsetY;
+
+      // The remaining coil needs to shift so its LEFT edge aligns with the wall (anchor X).
+      // The coil's left edge in original coords is coilBBox.minX.
+      // We want: coilBBox.minX + shiftX + offsetX = aX
+      const shiftX = anchorX - coilBBox.minX;
+
+      // The coil's vertical position: its top should be at the bottom of the straight line.
+      // The straight line goes from aY downward for unrolledLength pixels.
+      const lineEndY = aY + unrolledLength;
+      // Position the coil so its top edge is at lineEndY
+      const shiftY = (lineEndY - (coilBBox.minY + offsetY));
+
+      // Build the path for remaining spiral
+      let d = '';
+      for (let i = 0; i < remainingPoints.length; i++) {
+        const px = remainingPoints[i].x + offsetX + shiftX;
+        const py = remainingPoints[i].y + offsetY + shiftY;
+        d += (i === 0 ? 'M' : 'L') + px.toFixed(2) + ',' + py.toFixed(2);
+      }
+      spiralPath.setAttribute('d', d);
+
+      // Draw straight line
+      if (unrolledLength > 0) {
+        straightLine.setAttribute('visibility', 'visible');
+        straightLine.setAttribute('x1', aX);
+        straightLine.setAttribute('y1', aY);
+        straightLine.setAttribute('x2', aX);
+        straightLine.setAttribute('y2', lineEndY);
+      } else {
+        straightLine.setAttribute('visibility', 'hidden');
+      }
+
+      // Update analysis
+      const coilDiameter = Math.max(coilBBox.maxX - coilBBox.minX, coilBBox.maxY - coilBBox.minY) + STROKE_WIDTH;
+      const remainingLength = totalArcLength - unrolledLength;
+
+      const analysisEl = document.getElementById('analysis');
+      analysisEl.innerHTML = `
+        <div>Total spiral length: ${totalArcLength.toFixed(1)} px</div>
+        <div>Unrolled (straight) length: ${unrolledLength.toFixed(1)} px</div>
+        <div>Remaining coiled length: ${remainingLength.toFixed(1)} px</div>
+        <div>Stop remaining: ${STOP_REMAINING} px</div>
+        <div>───────────────────────</div>
+        <div>Straight line height: ${unrolledLength.toFixed(1)} px</div>
+        <div>Remaining coil diameter: ${coilDiameter.toFixed(1)} px</div>
+        <div>Remaining coil center: (${(coilCenterX + offsetX + shiftX).toFixed(1)}, ${(coilCenterY + offsetY + shiftY).toFixed(1)})</div>
+        <div>Coil top Y: ${lineEndY.toFixed(1)}</div>
+      `;
+
+      // ============================================================
+      // STEP 5: Side projection
+      // ============================================================
+      renderSideView(unrolledLength, coilDiameter, lineEndY, aX, aY);
+    }
+
+    // ============================================================
+    // Side view rendering
+    // ============================================================
+
+    function renderSideView(unrolledLength, coilDiameter, coilTopY, anchorSvgX, anchorSvgY) {
+      const sideWidth = Z_DEPTH + SVG_PADDING * 2;
+      const sideHeight = parseFloat(spiralSvg.getAttribute('height'));
+
+      sideSvg.setAttribute('width', sideWidth);
+      sideSvg.setAttribute('height', sideHeight);
+      sideSvg.style.background = BG_COLOR;
+
+      // Clear previous
+      sideSvg.innerHTML = '';
+
+      const wallX = SVG_PADDING; // left edge = wall
+
+      // The paper strip on the wall (unrolled part) — essentially zero thickness
+      // Draw as a thin line from anchorSvgY down to anchorSvgY + unrolledLength
+      if (unrolledLength > 0) {
+        const wallLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        wallLine.setAttribute('x1', wallX);
+        wallLine.setAttribute('y1', anchorSvgY);
+        wallLine.setAttribute('x2', wallX);
+        wallLine.setAttribute('y2', anchorSvgY + unrolledLength);
+        wallLine.setAttribute('stroke', SPIRAL_COLOR);
+        wallLine.setAttribute('stroke-width', 2);
+        sideSvg.appendChild(wallLine);
+
+        // Label
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', wallX + 8);
+        label.setAttribute('y', anchorSvgY + unrolledLength / 2);
+        label.setAttribute('fill', '#888');
+        label.setAttribute('font-size', '11');
+        label.textContent = 'flat paper';
+        sideSvg.appendChild(label);
+      }
+
+      // The rolled coil — a rectangle: coilDiameter tall × Z_DEPTH wide
+      // Positioned so its top is at coilTopY
+      if (coilDiameter > STROKE_WIDTH * 2) {
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', wallX);
+        rect.setAttribute('y', coilTopY);
+        rect.setAttribute('width', Z_DEPTH);
+        rect.setAttribute('height', coilDiameter);
+        rect.setAttribute('fill', 'none');
+        rect.setAttribute('stroke', SPIRAL_COLOR);
+        rect.setAttribute('stroke-width', 2);
+        rect.setAttribute('rx', 4);
+        sideSvg.appendChild(rect);
+
+        // Label
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', wallX + Z_DEPTH / 2);
+        label.setAttribute('y', coilTopY + coilDiameter / 2 + 4);
+        label.setAttribute('fill', '#888');
+        label.setAttribute('font-size', '11');
+        label.setAttribute('text-anchor', 'middle');
+        label.textContent = `scroll roll (${Z_DEPTH}px deep)`;
+        sideSvg.appendChild(label);
+      }
+
+      // Wall line
+      const wall = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      wall.setAttribute('x1', wallX);
+      wall.setAttribute('y1', 0);
+      wall.setAttribute('x2', wallX);
+      wall.setAttribute('y2', sideHeight);
+      wall.setAttribute('stroke', '#666');
+      wall.setAttribute('stroke-width', 1);
+      wall.setAttribute('stroke-dasharray', '4,4');
+      sideSvg.appendChild(wall);
+    }
+
+    // ============================================================
+    // Initial render (fully coiled)
+    // ============================================================
+    render(0);
+
+    // ============================================================
+    // STEP 2 & 3: Animation
+    // ============================================================
+
+    let currentUnrolled = 0;
+    let animationId = null;
+
+    function animateTo(targetUnrolled) {
+      if (animationId) cancelAnimationFrame(animationId);
+
+      const startUnrolled = currentUnrolled;
+      const startTime = performance.now();
+
+      function step(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / ANIMATION_DURATION, 1);
+        // Ease in-out
+        const eased = t < 0.5
+          ? 2 * t * t
+          : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+        currentUnrolled = startUnrolled + (targetUnrolled - startUnrolled) * eased;
+        render(currentUnrolled);
+
+        if (t < 1) {
+          animationId = requestAnimationFrame(step);
+        } else {
+          animationId = null;
+        }
+      }
+
+      animationId = requestAnimationFrame(step);
+    }
+
+    document.getElementById('btn-unroll').addEventListener('click', () => {
+      const maxUnroll = totalArcLength - STOP_REMAINING;
+      animateTo(maxUnroll);
+    });
+
+    document.getElementById('btn-roll').addEventListener('click', () => {
+      animateTo(0);
+    });
   </script>
 </body>
 </html>
