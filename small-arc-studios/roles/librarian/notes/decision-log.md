@@ -1338,6 +1338,59 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Decision**: `app.debug` is set as a resource attribute in `initTelemetry()`, so it appears on every span and log. Value is the string "true" or "false" read from localStorage at init time.
 - **Context**: Allows filtering debug traffic in Honeycomb queries. Being a resource attribute means it's automatic — no per-span work needed.
 
+## DEC-152: Archimedean Spiral for Scroll Animation
+- **Date**: 2026-03-14
+- **Decision**: Use an Archimedean spiral (same as the app logo) for the scroll unroll prototype. Drawn counterclockwise, it rolls clockwise (down the wall).
+- **Context**: Cylinder/scroll prototype exploring unroll animation geometry.
+- **Alternatives**: Logarithmic spiral.
+- **Rationale**: Consistent with existing logo; constant spacing makes coil diameter predictable.
+
+## DEC-153: Constant Angular Velocity Animation
+- **Date**: 2026-03-14
+- **Decision**: Animate by interpolating theta linearly (constant angular velocity) rather than by constant arc-length velocity.
+- **Context**: Paper unrolls faster when the coil is large, slower when small — which is what this model produces.
+- **Alternatives**: Linear arc-length interpolation.
+- **Rationale**: Physically accurate — a real scroll turning at constant speed produces this behavior. Also makes coil height change linearly.
+
+## DEC-154: Ease-In-Out on Angular Velocity
+- **Date**: 2026-03-14
+- **Decision**: CSS ease-in-out applied on top of the constant angular velocity model for smooth start/stop. Angular velocity ramps up, cruises, ramps down.
+- **Context**: Pure constant angular velocity produces an abrupt start and stop.
+- **Alternatives**: Easing on arc-length directly.
+- **Rationale**: Layering easing on the physical model preserves the natural feel while smoothing the edges.
+
+## DEC-155: CSS Projection with Divs
+- **Date**: 2026-03-14
+- **Decision**: Side projection rendered as CSS divs, not SVG. Paper strip is a content-ready div; coil is a div with cylinder gradient (no border-radius).
+- **Context**: Prototype explores how the scroll animation will translate to real content delivery.
+- **Alternatives**: SVG for both views.
+- **Rationale**: Paper strip will eventually hold real content; CSS transitions are the target delivery mechanism.
+
+## DEC-156: Pure Computation Extraction
+- **Date**: 2026-03-14
+- **Decision**: Spiral geometry extracted to `cylinder-projection.js` with no DOM dependencies. Functions: `computeScaffold()`, `computeProjection()`, `thetaToArcLength()`.
+- **Context**: Prototype logic needed to be testable and analysable outside the browser.
+- **Rationale**: Enables Node-based testing and analysis without a DOM environment.
+
+## DEC-157: Cubic Bezier Approximation for CSS Transitions
+- **Date**: 2026-03-14
+- **Decision**: Fit cubic-bezier() timing functions to replace per-frame JS computation. Bezier params depend on the ratio `stopRemaining/spiralLength`, not individual parameter values. Lookup table with 12 ratio points, linear interpolation. Max error ~0.6% normalized.
+- **Context**: Goal is pure CSS transitions with no animation JS at runtime.
+- **Alternatives**: Per-frame JS computation.
+- **Rationale**: Enables pure CSS transitions; fitting on ratio rather than raw values makes the table compact and general.
+
+## DEC-158: Bezier Params Stable Across Stroke/Gap Variations
+- **Date**: 2026-03-14
+- **Decision**: Use a single bezier lookup table (built at strokeWidth=6, turnGap=6) for all stroke/gap combinations. No multi-dimensional lookup needed.
+- **Context**: Tested bezier table across various stroke/gap combos. Max error ~12px only at extreme values (12/16); typical error under 8px.
+- **Rationale**: Single table is sufficient; the added complexity of a multi-dimensional lookup is not justified by the error margin.
+
+## DEC-159: cylinder-transition.js Module API
+- **Date**: 2026-03-14
+- **Decision**: `cylinder-transition.js` exposes `computeTransition({ spiralLength, stopRemaining })` returning start/end CSS values plus cubic-bezier strings for `paperStripHeight`, `coilRectTop`, and `coilRectHeight`. Uses real spiral computation for endpoints, interpolated beziers for timing.
+- **Context**: Encapsulates the full transition calculation so callers need no knowledge of spiral geometry.
+- **Rationale**: Clean separation — callers provide scroll position context, module returns ready-to-apply CSS transition values.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
