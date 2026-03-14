@@ -88,11 +88,11 @@
     // TUNABLE PARAMETERS — tweak these!
     // ============================================================
 
-    const STROKE_WIDTH = 12;        // Thickness of the spiral line (px)
-    const TURN_GAP = 16;            // Gap between successive turns (px), a.k.a. "pitch"
-    const SPIRAL_LENGTH = 2400;     // Total arc length of the curved line (px)
+    const STROKE_WIDTH = 6;        // Thickness of the spiral line (px)
+    const TURN_GAP = 6;            // Gap between successive turns (px), a.k.a. "pitch"
+    const SPIRAL_LENGTH = 800;     // Total arc length of the curved line (px)
     const ANIMATION_DURATION = 1500; // Duration of unroll/roll animation (ms)
-    const STOP_REMAINING = 300;     // Remaining coiled length when unroll stops (px)
+    const STOP_REMAINING = 60;     // Remaining coiled length when unroll stops (px)
     const Z_DEPTH = 600;            // Width of the paper going "into" screen (px)
     const SVG_PADDING = 20;         // Padding around the spiral in the SVG
 
@@ -151,20 +151,15 @@
       const rotationOffset = Math.PI - thetaMax;
 
       // Second pass: apply rotation and compute x,y
-      // In standard math coords, increasing theta goes counterclockwise.
-      // SVG has Y-down, which mirrors the vertical axis — so (cos, sin) would
-      // appear clockwise on screen. We negate sin to flip it back:
-      //   (cos θ, -sin θ) traces counterclockwise in SVG's Y-down coords.
-      //
-      // After reversal (outer→inner), the drawn path goes counterclockwise,
-      // matching the app logo spiral. The unroll animation peels from the
-      // outermost point (left/wall side), and the remaining coil rolls
-      // clockwise as it descends — correct scroll-unrolling physics.
+      // Using (cos, +sin) so the spiral winds clockwise in SVG's Y-down coords
+      // when traced outer→inner (after reversal). The unroll animation is
+      // unaffected — it positions the remaining coil by bounding box, not
+      // winding direction.
       const points = rawPoints.map(p => ({
         theta: p.theta,
         r: p.r,
         x: p.r * Math.cos(p.theta + rotationOffset),
-        y: -p.r * Math.sin(p.theta + rotationOffset),
+        y: p.r * Math.sin(p.theta + rotationOffset),
         arcLength: p.arcLength
       }));
 
