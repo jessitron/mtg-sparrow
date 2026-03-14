@@ -231,6 +231,17 @@
     spiralPath.setAttribute('stroke-linecap', 'round');
     spiralSvg.appendChild(spiralPath);
 
+    // Wall line (dashed) in spiral view
+    const wallLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    wallLine.setAttribute('x1', SVG_PADDING + STROKE_WIDTH / 2);
+    wallLine.setAttribute('y1', 0);
+    wallLine.setAttribute('x2', SVG_PADDING + STROKE_WIDTH / 2);
+    wallLine.setAttribute('y2', svgHeight);
+    wallLine.setAttribute('stroke', '#666');
+    wallLine.setAttribute('stroke-width', 1);
+    wallLine.setAttribute('stroke-dasharray', '4,4');
+    spiralSvg.appendChild(wallLine);
+
     // Create straight line element (for unrolled portion)
     const straightLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     straightLine.setAttribute('stroke', LINE_COLOR);
