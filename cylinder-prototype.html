@@ -17,9 +17,11 @@
       --stripe-spacing: 30px;
 
       /* Visual style */
-      --cylinder-fill: rgba(255, 255, 255, 0.12);
-      --cylinder-border: rgba(255, 255, 255, 0.35);
-      --stripe-color: rgba(255, 255, 255, 0.45);
+      --cylinder-fill: #9c8e69;
+      --cylinder-highlight: rgba(255, 255, 255, 0.25);  /* center highlight */
+      --cylinder-shadow: rgba(0, 0, 0, 0.4);            /* edge darkening */
+      --cylinder-border: #272817;
+      --stripe-color: rgb(228, 232, 41);
       --stripe-width: 1px;
     }
 
@@ -43,7 +45,13 @@
       position: relative;
       width: var(--cylinder-width);
       height: var(--cylinder-height);
-      background: var(--cylinder-fill);
+      background:
+        linear-gradient(to right,
+          var(--cylinder-shadow),
+          var(--cylinder-highlight) 50%,
+          var(--cylinder-shadow)
+        ),
+        var(--cylinder-fill);
       border-left:  1px solid var(--cylinder-border);
       border-right: 1px solid var(--cylinder-border);
       overflow: visible;
