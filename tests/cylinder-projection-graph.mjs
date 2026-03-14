@@ -29,7 +29,12 @@ const STEPS = 100; // sample points across the animation
 // Generate CSV
 // ============================================================
 
-const csvRows = ['paramSet,step,pct,theta,unrolledLength,paperStripMarginTop,paperStripHeight,coilRectTop,coilRectHeight,coilDiameter'];
+// Ease in-out function (same as prototype)
+function easeInOut(t) {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+}
+
+const csvRows = ['paramSet,step,pct,theta,thetaEased,unrolledLength,unrolledLengthEased,paperStripMarginTop,paperStripHeight,coilRectTop,coilRectHeight,coilDiameter'];
 
 const allData = {};
 
@@ -39,16 +44,27 @@ for (const params of PARAM_SETS) {
 
   for (let i = 0; i <= STEPS; i++) {
     const pct = i / STEPS;
-    // Step through theta linearly (constant angular velocity), then convert to arc length
+    // Linear theta (constant angular velocity)
     const theta = pct * scaffold.thetaStop;
     const unrolledLength = thetaToArcLength(theta, scaffold);
+    // Eased theta (ease-in-out on top of angular velocity)
+    const thetaEased = easeInOut(pct) * scaffold.thetaStop;
+    const unrolledLengthEased = thetaToArcLength(thetaEased, scaffold);
     const proj = computeProjection(unrolledLength, scaffold);
+    const projEased = computeProjection(unrolledLengthEased, scaffold);
 
     allData[params.name].push({
       pct,
       theta,
+      thetaEased,
       unrolledLength,
+      unrolledLengthEased,
       ...proj,
+      // Eased versions with suffix
+      coilRectTopEased: projEased.coilRectTop,
+      coilRectHeightEased: projEased.coilRectHeight,
+      paperStripHeightEased: projEased.paperStripHeight,
+      coilDiameterEased: projEased.coilDiameter,
     });
 
     csvRows.push([
@@ -56,7 +72,9 @@ for (const params of PARAM_SETS) {
       i,
       pct.toFixed(4),
       theta.toFixed(4),
+      thetaEased.toFixed(4),
       unrolledLength.toFixed(2),
+      unrolledLengthEased.toFixed(2),
       proj.paperStripMarginTop.toFixed(2),
       proj.paperStripHeight.toFixed(2),
       proj.coilRectTop.toFixed(2),
@@ -111,24 +129,44 @@ const html = `<!DOCTYPE html>
 
   <div class="chart-container">
     <div>
-      <h2>Unrolled Length (nonlinear with constant angular velocity)</h2>
+      <h2>Unrolled Length — linear theta</h2>
       <canvas id="chart-unrolledLength"></canvas>
     </div>
     <div>
-      <h2>Coil Position (coilRectTop)</h2>
+      <h2>Unrolled Length — eased theta</h2>
+      <canvas id="chart-unrolledLengthEased"></canvas>
+    </div>
+    <div>
+      <h2>Coil Position — linear theta</h2>
       <canvas id="chart-coilRectTop"></canvas>
     </div>
     <div>
-      <h2>Coil Height (coilRectHeight)</h2>
+      <h2>Coil Position — eased theta</h2>
+      <canvas id="chart-coilRectTopEased"></canvas>
+    </div>
+    <div>
+      <h2>Coil Height — linear theta</h2>
       <canvas id="chart-coilRectHeight"></canvas>
     </div>
     <div>
-      <h2>Paper Height (paperStripHeight)</h2>
+      <h2>Coil Height — eased theta</h2>
+      <canvas id="chart-coilRectHeightEased"></canvas>
+    </div>
+    <div>
+      <h2>Paper Height — linear theta</h2>
       <canvas id="chart-paperStripHeight"></canvas>
     </div>
     <div>
-      <h2>Coil Diameter</h2>
+      <h2>Paper Height — eased theta</h2>
+      <canvas id="chart-paperStripHeightEased"></canvas>
+    </div>
+    <div>
+      <h2>Coil Diameter — linear theta</h2>
       <canvas id="chart-coilDiameter"></canvas>
+    </div>
+    <div>
+      <h2>Coil Diameter — eased theta</h2>
+      <canvas id="chart-coilDiameterEased"></canvas>
     </div>
   </div>
 
@@ -213,10 +251,15 @@ const html = `<!DOCTYPE html>
     // Draw on load and resize
     function drawAll() {
       drawChart('chart-unrolledLength', 'unrolledLength');
+      drawChart('chart-unrolledLengthEased', 'unrolledLengthEased');
       drawChart('chart-coilRectTop', 'coilRectTop');
+      drawChart('chart-coilRectTopEased', 'coilRectTopEased');
       drawChart('chart-coilRectHeight', 'coilRectHeight');
+      drawChart('chart-coilRectHeightEased', 'coilRectHeightEased');
       drawChart('chart-paperStripHeight', 'paperStripHeight');
+      drawChart('chart-paperStripHeightEased', 'paperStripHeightEased');
       drawChart('chart-coilDiameter', 'coilDiameter');
+      drawChart('chart-coilDiameterEased', 'coilDiameterEased');
     }
     drawAll();
     window.addEventListener('resize', drawAll);

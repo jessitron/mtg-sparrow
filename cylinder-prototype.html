@@ -559,8 +559,11 @@
       function step(now) {
         const elapsed = now - startTime;
         const t = Math.min(elapsed / ANIMATION_DURATION, 1);
-        // Linear interpolation of theta — constant angular velocity
-        currentTheta = startTheta + (targetTheta - startTheta) * t;
+        // Ease in-out applied to theta — angular velocity ramps up, cruises, ramps down
+        const eased = t < 0.5
+          ? 2 * t * t
+          : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        currentTheta = startTheta + (targetTheta - startTheta) * eased;
 
         // Look up the corresponding unrolledLength from the theta-to-arc table
         const unrolledLength = thetaToArcLength(currentTheta);
