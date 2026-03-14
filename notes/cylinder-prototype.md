@@ -35,3 +35,8 @@ The stripes will make it very clear that it is rolling.
 ... this isn't getting me there.
 
 Maybe I should start by getting it to develop a mathematical model of a 2px-thick surface rolled into a spiral.
+
+Yeah, the logo as an inspiration. Start from the spiral. Make it unroll.
+It can do that part as an svg.
+
+Then draw the projection of it from the side at the same time.
