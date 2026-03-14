@@ -207,20 +207,17 @@
     // The unrolled line extends downward from the anchor point.
     // Anchor = outermost point (index 0), which is on the LEFT side.
 
-    const anchorX = spiralPoints[0].x;
-    const anchorY = spiralPoints[0].y;
-
-    // The straight line goes downward from the anchor, max length = totalArcLength
-    const svgWidth = (fullBBox.maxX - fullBBox.minX) + STROKE_WIDTH + SVG_PADDING * 2;
+    // The straight line goes downward from the anchor.
+    // Max height needed: at full unroll, the straight line is (totalArcLength - STOP_REMAINING)
+    // plus the remaining small coil below it, plus padding.
+    const fullCoilDiameter = (fullBBox.maxY - fullBBox.minY) + STROKE_WIDTH;
+    const fullCoilWidth = (fullBBox.maxX - fullBBox.minX) + STROKE_WIDTH;
+    const maxUnrollLength = totalArcLength - STOP_REMAINING;
+    const svgWidth = fullCoilWidth + SVG_PADDING * 2;
     const svgHeight = Math.max(
-      (fullBBox.maxY - fullBBox.minY) + STROKE_WIDTH + SVG_PADDING * 2,
-      totalArcLength + STROKE_WIDTH + SVG_PADDING * 2
+      fullCoilDiameter + SVG_PADDING * 2,
+      maxUnrollLength + fullCoilDiameter + SVG_PADDING * 2
     );
-
-    // Translate so that anchor point is at a nice position
-    // We want the anchor on the left side, with some padding
-    const offsetX = -fullBBox.minX + SVG_PADDING + STROKE_WIDTH / 2;
-    const offsetY = -fullBBox.minY + SVG_PADDING + STROKE_WIDTH / 2;
 
     spiralSvg.setAttribute('width', svgWidth);
     spiralSvg.setAttribute('height', svgHeight);
@@ -261,31 +258,32 @@
 
       if (remainingPoints.length < 2) return;
 
-      // Compute the remaining coil's bounding box and center
+      // The remaining coil is a sub-spiral. We need to position it in SVG space.
+      //
+      // Fixed anchor point in SVG coordinates — this is where the paper meets the wall.
+      // It never moves. The straight line extends downward from here.
+      const aX = SVG_PADDING + STROKE_WIDTH / 2;
+      const aY = SVG_PADDING + STROKE_WIDTH / 2;
+
+      // Compute remaining coil's bounding box in original coordinates
       const coilBBox = getBBox(remainingPoints);
-      const coilCenterX = (coilBBox.minX + coilBBox.maxX) / 2;
-      const coilCenterY = (coilBBox.minY + coilBBox.maxY) / 2;
+      const coilH = coilBBox.maxY - coilBBox.minY;
+      const coilCY = (coilBBox.minY + coilBBox.maxY) / 2;
 
-      // The anchor point (where the line meets the wall) is the outermost point
-      const aX = anchorX + offsetX;
-      const aY = anchorY + offsetY;
-
-      // The remaining coil needs to shift so its LEFT edge aligns with the wall (anchor X).
-      // The coil's left edge in original coords is coilBBox.minX.
-      // We want: coilBBox.minX + shiftX + offsetX = aX
-      const shiftX = anchorX - coilBBox.minX;
-
-      // The coil's vertical position: its top should be at the bottom of the straight line.
-      // The straight line goes from aY downward for unrolledLength pixels.
+      // The straight line goes downward from anchor
       const lineEndY = aY + unrolledLength;
-      // Position the coil so its top edge is at lineEndY
-      const shiftY = (lineEndY - (coilBBox.minY + offsetY));
+
+      // Transform: place remaining coil so that:
+      //   - Its left edge (coilBBox.minX) maps to aX (wall position)
+      //   - Its top edge (coilBBox.minY) maps to lineEndY (just below the straight line)
+      const txX = aX - coilBBox.minX;
+      const txY = lineEndY - coilBBox.minY;
 
       // Build the path for remaining spiral
       let d = '';
       for (let i = 0; i < remainingPoints.length; i++) {
-        const px = remainingPoints[i].x + offsetX + shiftX;
-        const py = remainingPoints[i].y + offsetY + shiftY;
+        const px = remainingPoints[i].x + txX;
+        const py = remainingPoints[i].y + txY;
         d += (i === 0 ? 'M' : 'L') + px.toFixed(2) + ',' + py.toFixed(2);
       }
       spiralPath.setAttribute('d', d);
@@ -304,6 +302,8 @@
       // Update analysis
       const coilDiameter = Math.max(coilBBox.maxX - coilBBox.minX, coilBBox.maxY - coilBBox.minY) + STROKE_WIDTH;
       const remainingLength = totalArcLength - unrolledLength;
+      const coilSvgCX = (coilBBox.minX + coilBBox.maxX) / 2 + txX;
+      const coilSvgCY = coilCY + txY;
 
       const analysisEl = document.getElementById('analysis');
       analysisEl.innerHTML = `
@@ -314,8 +314,8 @@
         <div>───────────────────────</div>
         <div>Straight line height: ${unrolledLength.toFixed(1)} px</div>
         <div>Remaining coil diameter: ${coilDiameter.toFixed(1)} px</div>
-        <div>Remaining coil center: (${(coilCenterX + offsetX + shiftX).toFixed(1)}, ${(coilCenterY + offsetY + shiftY).toFixed(1)})</div>
-        <div>Coil top Y: ${lineEndY.toFixed(1)}</div>
+        <div>Remaining coil center (SVG): (${coilSvgCX.toFixed(1)}, ${coilSvgCY.toFixed(1)})</div>
+        <div>Coil top Y (SVG): ${lineEndY.toFixed(1)}</div>
       `;
 
       // ============================================================
