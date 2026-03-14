@@ -254,13 +254,14 @@
     wallLine.setAttribute('stroke-dasharray', '4,4');
     spiralSvg.appendChild(wallLine);
 
-    // Create straight line element (for unrolled portion)
-    const straightLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    straightLine.setAttribute('stroke', LINE_COLOR);
-    straightLine.setAttribute('stroke-width', STROKE_WIDTH);
-    straightLine.setAttribute('stroke-linecap', 'round');
-    straightLine.setAttribute('visibility', 'hidden');
-    spiralSvg.appendChild(straightLine);
+    // Create unrolled portion path (straight line along wall + connector to coil)
+    const straightPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    straightPath.setAttribute('fill', 'none');
+    straightPath.setAttribute('stroke', LINE_COLOR);
+    straightPath.setAttribute('stroke-width', STROKE_WIDTH);
+    straightPath.setAttribute('stroke-linecap', 'round');
+    straightPath.setAttribute('visibility', 'hidden');
+    spiralSvg.appendChild(straightPath);
 
     // ============================================================
     // Rendering functions
@@ -296,12 +297,15 @@
       // The straight line goes downward from anchor
       const lineEndY = aY + unrolledLength;
 
-      // The split point (remainingPoints[0]) is where the coil connects to the
-      // straight line. We position the coil so this point meets the line end.
-      // The split point is always on the left edge of the coil (flush with wall),
-      // but its vertical position within the coil depends on winding direction.
+      // Two independent positioning constraints:
+      //   X: the coil's left edge (coilBBox.minX) must sit at the wall (aX).
+      //      Nothing can cross to the left of the wall.
+      //   Y: the split point (remainingPoints[0]) must meet the bottom of
+      //      the straight line (lineEndY). The split point moves around
+      //      the coil's perimeter as we unroll, so we use its Y position
+      //      relative to the coil, not the bounding box edge.
       const splitPt = remainingPoints[0];
-      const txX = aX - splitPt.x;
+      const txX = aX - coilBBox.minX;
       const txY = lineEndY - splitPt.y;
 
       // Build the path for remaining spiral
@@ -313,15 +317,21 @@
       }
       spiralPath.setAttribute('d', d);
 
-      // Draw straight line
+      // Draw unrolled portion: straight line along wall + connector to coil split point
+      const splitSvgX = splitPt.x + txX;
+      const splitSvgY = splitPt.y + txY;  // = lineEndY by construction
       if (unrolledLength > 0) {
-        straightLine.setAttribute('visibility', 'visible');
-        straightLine.setAttribute('x1', aX);
-        straightLine.setAttribute('y1', aY);
-        straightLine.setAttribute('x2', aX);
-        straightLine.setAttribute('y2', lineEndY);
+        // Path: from anchor down the wall, then across to where the coil starts
+        let sd = `M${aX.toFixed(2)},${aY.toFixed(2)}`;
+        sd += ` L${aX.toFixed(2)},${lineEndY.toFixed(2)}`;
+        if (Math.abs(splitSvgX - aX) > 1) {
+          // Connector from wall to the coil's split point
+          sd += ` L${splitSvgX.toFixed(2)},${splitSvgY.toFixed(2)}`;
+        }
+        straightPath.setAttribute('d', sd);
+        straightPath.setAttribute('visibility', 'visible');
       } else {
-        straightLine.setAttribute('visibility', 'hidden');
+        straightPath.setAttribute('visibility', 'hidden');
       }
 
       // Update analysis
