@@ -432,12 +432,13 @@
       sideContainer.style.width = Z_DEPTH + 'px';
       sideContainer.style.height = sideHeight + 'px';
 
-      // Paper strip: grows taller as the coil unrolls
-      // It's a content-ready div that fills the width and sits at the top
-      paperStripEl.style.height = unrolledLength + 'px';
+      // Paper strip height = distance from the anchor to the coil's top edge.
+      // This uses the exact same coilTopY computed in the spiral render loop,
+      // so the CSS projection stays perfectly in sync with the SVG spiral.
+      const paperHeight = coilTopY - anchorSvgY;
+      paperStripEl.style.height = Math.max(0, paperHeight) + 'px';
 
-      // Coil rectangle: cylinder cross-section, sits directly below the paper strip
-      // No border-radius — the gradient creates the round appearance
+      // Coil rectangle: exact coilDiameter from the spiral's bounding box calc
       if (coilDiameter > STROKE_WIDTH * 2) {
         coilRectEl.style.height = coilDiameter + 'px';
         coilRectEl.style.display = 'block';
