@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cylinder Prototype</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      /* === CYLINDER VARIABLES === */
+
+      /* Cylinder dimensions */
+      --cylinder-height: 600px;
+      --cylinder-width: 100px;   /* = diameter = 2 * radius */
+
+      /* Stripe spacing around circumference (px) */
+      --stripe-spacing: 30px;
+
+      /* Visual style */
+      --cylinder-fill: rgba(255, 255, 255, 0.12);
+      --cylinder-border: rgba(255, 255, 255, 0.35);
+      --stripe-color: rgba(255, 255, 255, 0.45);
+      --stripe-width: 1px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--bg-brown-dark, #272817);
+      background: radial-gradient(
+        ellipse at center,
+        var(--bg-brown-light, #8D6137) 0%,
+        var(--bg-brown-mid,   #7D572D) 40%,
+        var(--bg-brown-dark,  #272817) 100%
+      );
+    }
+
+    #cylinder {
+      position: relative;
+      width: var(--cylinder-width);
+      height: var(--cylinder-height);
+      background: var(--cylinder-fill);
+      border-left:  1px solid var(--cylinder-border);
+      border-right: 1px solid var(--cylinder-border);
+      overflow: visible;
+    }
+
+    /* Stripes are placed by JS as absolutely-positioned children */
+    .stripe {
+      position: absolute;
+      top: 0;
+      width: var(--stripe-width);
+      height: 100%;
+      background: var(--stripe-color);
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="cylinder"></div>
+
+  <script>
+    // Read cylinder parameters from CSS custom properties
+    const rootStyle = getComputedStyle(document.documentElement);
+
+    function parsePx(varName) {
+      return parseFloat(rootStyle.getPropertyValue(varName).trim());
+    }
+
+    const diameterPx   = parsePx('--cylinder-width');   // 100
+    const spacingPx    = parsePx('--stripe-spacing');    // 30
+
+    const radius = diameterPx / 2;                       // 50
+
+    // Circumference of the cylinder
+    const circumference = 2 * Math.PI * radius;
+
+    // Number of evenly-spaced stripes around the full circumference
+    const stripeCount = Math.round(circumference / spacingPx);
+
+    // Angular positions of each stripe (radians)
+    // θ = 0 is the front-center of the cylinder
+    const cylinder = document.getElementById('cylinder');
+
+    for (let i = 0; i < stripeCount; i++) {
+      // Distribute stripes evenly around the full circle
+      const theta = (2 * Math.PI * i) / stripeCount;
+
+      // Normalise theta to [-π, π] so we can test front-facing half
+      const thetaNorm = theta > Math.PI ? theta - 2 * Math.PI : theta;
+
+      // Only the front-facing half is visible: −π/2 < θ < π/2
+      if (Math.abs(thetaNorm) >= Math.PI / 2) continue;
+
+      // Projected x position: R * sin(θ), offset from the cylinder's left edge
+      const projectedX = radius * Math.sin(thetaNorm) + radius;
+
+      const stripe = document.createElement('div');
+      stripe.className = 'stripe';
+      stripe.style.left = projectedX + 'px';
+      cylinder.appendChild(stripe);
+    }
+  </script>
+</body>
+</html>
