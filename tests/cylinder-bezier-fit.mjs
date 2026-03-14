@@ -169,27 +169,33 @@ function fitCubicBezier(points) {
     return maxErr;
   }
 
-  // Grid search for initial guess
-  let bestParams = [0.25, 0.1, 0.25, 1.0];
-  let bestScore = Infinity;
+  // Grid search for initial guesses — finer grid, keep top candidates
+  const candidates = [];
 
-  for (let x1 = 0; x1 <= 1; x1 += 0.2) {
-    for (let y1 = -0.5; y1 <= 1.5; y1 += 0.25) {
-      for (let x2 = 0; x2 <= 1; x2 += 0.2) {
-        for (let y2 = -0.5; y2 <= 1.5; y2 += 0.25) {
+  for (let x1 = 0; x1 <= 1; x1 += 0.1) {
+    for (let y1 = -0.5; y1 <= 1.5; y1 += 0.2) {
+      for (let x2 = 0; x2 <= 1; x2 += 0.1) {
+        for (let y2 = -0.5; y2 <= 1.5; y2 += 0.2) {
           const score = objective([x1, y1, x2, y2]);
-          if (score < bestScore) {
-            bestScore = score;
-            bestParams = [x1, y1, x2, y2];
-          }
+          candidates.push({ params: [x1, y1, x2, y2], score });
         }
       }
     }
   }
 
-  // Refine with Nelder-Mead
-  const result = nelderMead(objective, bestParams, { maxIter: 5000, tol: 1e-14 });
-  let [x1, y1, x2, y2] = result.x;
+  // Sort and take top 5 for multi-start optimization
+  candidates.sort((a, b) => a.score - b.score);
+  const topN = candidates.slice(0, 5);
+
+  let bestResult = { x: topN[0].params, fx: topN[0].score };
+  for (const c of topN) {
+    const result = nelderMead(objective, c.params, { maxIter: 5000, tol: 1e-14 });
+    if (result.fx < bestResult.fx) {
+      bestResult = result;
+    }
+  }
+
+  let [x1, y1, x2, y2] = bestResult.x;
   x1 = Math.max(0, Math.min(1, x1));
   x2 = Math.max(0, Math.min(1, x2));
 
