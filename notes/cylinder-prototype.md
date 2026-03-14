@@ -45,3 +45,7 @@ Now write formulas for
 - the length of the straight line
 - the height of the remaining spiral
 - the position of the remaining spiral
+
+# The projection
+
+Imagine the spiral has a z-height of 600px. What would it look like from the side? Draw this projection next to the spiral, as it unrolls and rolls like the dough for cinnamon rolls.
