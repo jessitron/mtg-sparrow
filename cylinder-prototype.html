@@ -422,17 +422,43 @@
         sideSvg.appendChild(label);
       }
 
-      // The rolled coil — a rectangle: coilDiameter tall × Z_DEPTH wide
+      // The rolled coil — a cylinder cross-section: coilDiameter tall × Z_DEPTH wide
       // Positioned so its top is at coilTopY
       if (coilDiameter > STROKE_WIDTH * 2) {
+        // Cylindrical shading gradient (top-to-bottom simulating a horizontal cylinder
+        // lit from the upper-left)
+        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        const grad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+        grad.setAttribute('id', 'cylinder-grad');
+        grad.setAttribute('x1', '0');
+        grad.setAttribute('y1', '0');
+        grad.setAttribute('x2', '0');
+        grad.setAttribute('y2', '1');
+        // Stops: dark edge → highlight (upper-left light) → mid → dark edge
+        const stops = [
+          { offset: '0%',   color: '#6b5130' },  // dark top edge
+          { offset: '25%',  color: '#d4b88a' },  // highlight (light from upper-left)
+          { offset: '45%',  color: '#c4a474' },  // slightly dimmer
+          { offset: '75%',  color: '#8a6d42' },  // shadow
+          { offset: '100%', color: '#5a3f20' },  // dark bottom edge
+        ];
+        for (const s of stops) {
+          const stop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+          stop.setAttribute('offset', s.offset);
+          stop.setAttribute('stop-color', s.color);
+          grad.appendChild(stop);
+        }
+        defs.appendChild(grad);
+        sideSvg.appendChild(defs);
+
         const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         rect.setAttribute('x', wallX);
         rect.setAttribute('y', coilTopY);
         rect.setAttribute('width', Z_DEPTH);
         rect.setAttribute('height', coilDiameter);
-        rect.setAttribute('fill', 'none');
-        rect.setAttribute('stroke', SPIRAL_COLOR);
-        rect.setAttribute('stroke-width', 2);
+        rect.setAttribute('fill', 'url(#cylinder-grad)');
+        rect.setAttribute('stroke', '#5a3f20');
+        rect.setAttribute('stroke-width', 1);
         rect.setAttribute('rx', 4);
         sideSvg.appendChild(rect);
 
@@ -440,7 +466,7 @@
         const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         label.setAttribute('x', wallX + Z_DEPTH / 2);
         label.setAttribute('y', coilTopY + coilDiameter / 2 + 4);
-        label.setAttribute('fill', '#888');
+        label.setAttribute('fill', '#2a1508');
         label.setAttribute('font-size', '11');
         label.setAttribute('text-anchor', 'middle');
         label.textContent = `scroll roll (${Z_DEPTH}px deep)`;
