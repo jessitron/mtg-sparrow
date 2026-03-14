@@ -4,39 +4,44 @@ It's time to work on a new animation. We are gonna build it up carefully.
 
 Let's start with a prototype page.
 
-- it has the same background as the welcome page.
 - it stores all parameters in variables at the top of the code, so that I can tweak them.
-- It can import existing CSS, and also add its own styles. Don't modify app css.
+- Use its own styles. Don't modify app css.
+- Use dark brown for the background.
 
-# Step 1: the cylinder
+# Step 1: the spiral
 
-Let's draw a rectangle.
+Draw a spiral like the app logo, in svg. It's a solid color though, maybe khaki.
 
-The rectangle is a projection of a cylinder, standing up on its end. I cannot see either end of the cylinder. Only its side.
+The 'start' of the spiral is the outermost point.
 
-Start with 600px height, 100px width.
+Make this spiral start at the left, instead of at the top.
 
-Try to give it a background that makes it look round.
+Make whatever parameters are needed for this, including the thickness of the spiral, and the spacing between the different layers of the spiral. (do you have better words for this? I welcome them.)
 
-# Step 2: the cylinder has stripes
+# step: variable length
 
-Along the surface of the cylinder are vertical lines. They're a bright gold so I can see them easily. These lines are every 30px going around -- not 30px on the screen, you have to project them onto the rectangle as they would look when they're every 30px around the circumference of the cylinder.
+Make a parameter for the 'length' of the spiral, like the total length of the curved line. Use this to calculate how many times the spiral should go around.
 
-# Step 3:
+# Step 2: the spiral unrolls
 
-Make the cylinder roll.
+Add an "unroll" button.
 
-Make it roll across the screen. Give me buttons for roll left, roll right.
+When I push it, the start of the spiral stays where it is. The rest of the spiral rolls downward.
 
-The stripes will make it very clear that it is rolling.
+The center of the spiral will move as this happens, to keep the outer edge of the shrinking spiral lined up on the left.
 
-# failure
+The curve is slowly converted into a straight line going down the page.
 
-... this isn't getting me there.
+# Step 3: the reverse
 
-Maybe I should start by getting it to develop a mathematical model of a 2px-thick surface rolled into a spiral.
+Make a "roll up" button that reverses this.
 
-Yeah, the logo as an inspiration. Start from the spiral. Make it unroll.
-It can do that part as an svg.
+Then add a parameter for stopping-point, for how much of the spiral is left before it stops unrolling.
 
-Then draw the projection of it from the side at the same time.
+# The analysis
+
+Now write formulas for
+
+- the length of the straight line
+- the height of the remaining spiral
+- the position of the remaining spiral
