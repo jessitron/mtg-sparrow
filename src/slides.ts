@@ -31,6 +31,26 @@ let nameRevealed = false;
 let currentTraceUrl: string | null = null;
 let doneZoneEl: HTMLElement | null = null;
 let currentCardName = '';
+let dockedScroll: HTMLElement | null = null;
+
+function removeDockedScroll(): void {
+  if (dockedScroll && dockedScroll.parentNode) {
+    dockedScroll.parentNode.removeChild(dockedScroll);
+  }
+  dockedScroll = null;
+}
+
+function highlightScrollEntry(comboName: string): void {
+  if (!dockedScroll) return;
+  const entries = Array.from(dockedScroll.querySelectorAll('.name-scroll-entry'));
+  for (const entry of entries) {
+    if (entry.textContent === comboName) {
+      entry.classList.add('name-scroll-entry--active');
+    } else {
+      entry.classList.remove('name-scroll-entry--active');
+    }
+  }
+}
 
 function clearTimers(): void {
   if (revealTimer !== null) {
@@ -115,6 +135,7 @@ function stopSession(): void {
   session.completed = false;
 
   doneZoneEl = null;
+  removeDockedScroll();
   navigateToAssessment(cardsShown);
 }
 
@@ -174,9 +195,41 @@ function showIntro(subgroup: GuildSubgroup): void {
     screen.style.pointerEvents = 'none';
 
     title.classList.add('level-title--fading');
+
+    // Move the scroll to document.body so it survives app.innerHTML = ''
+    // Capture current position first so the transition starts from there
+    const rect = scroll.getBoundingClientRect();
+    scroll.style.position = 'fixed';
+    scroll.style.left = `${rect.left}px`;
+    scroll.style.top = `${rect.top}px`;
+    scroll.style.width = `${rect.width}px`;
+    scroll.style.transform = 'none';
+    document.body.appendChild(scroll);
+    dockedScroll = scroll;
+
+    // Force a reflow so the fixed-position snapshot is painted before we
+    // apply the transition target (left: 0, vertical-center).
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    scroll.offsetWidth;
+
     scroll.classList.add('name-scroll--sliding');
 
+    // After transition completes, swap to docked state and tell #app to
+    // shift right by the scroll's rendered width.
     setTimeout(() => {
+      scroll.classList.remove('name-scroll--sliding');
+      scroll.classList.add('name-scroll--docked');
+      scroll.style.left = '';
+      scroll.style.top = '';
+      scroll.style.width = '';
+      scroll.style.transform = '';
+
+      // Measure docked width and push the app content right
+      const dockedWidth = scroll.getBoundingClientRect().width;
+      if (app) {
+        app.style.setProperty('--scroll-dock-width', `${dockedWidth}px`);
+      }
+
       showCard();
     }, 500);
   }
@@ -327,6 +380,7 @@ function showCard(): void {
     revealTimer = null;
     nameRevealed = true;
     revealName(card);
+    highlightScrollEntry(combo.name);
 
     // Auto-advance: after ADVANCE_DELAY_MS, go to next card
     advanceTimer = setTimeout(() => {
@@ -347,6 +401,7 @@ function goToNextCard(early: boolean): void {
     showCard();
   } else {
     doneZoneEl = null;
+    removeDockedScroll();
     navigateToAssessment(session.cardCount);
   }
 }
@@ -376,6 +431,9 @@ function handleAdvance(): void {
     const card = app?.querySelector('.card') as HTMLElement | null;
     if (card) {
       revealName(card);
+    }
+    if (session) {
+      highlightScrollEntry(currentCard(session).name);
     }
 
     advanceTimer = setTimeout(() => {

@@ -3,6 +3,7 @@
   max-width: 100%;
   padding: 1rem;
   gap: 1rem;
+  padding-left: calc(var(--scroll-dock-width, 0px) + 1rem);
 }
 
 @keyframes buttonFadeIn {
@@ -266,12 +267,31 @@
   background: color-mix(in srgb, var(--bg-brown-dark) 70%, transparent);
   border: 1px solid rgba(200, 184, 138, 0.3);
   border-radius: 4px;
-  transition: transform 500ms ease, opacity 500ms ease;
+  transition: left 500ms ease, top 500ms ease, transform 500ms ease, opacity 500ms ease;
 }
 
+/* Transitioning: move to fixed position (JS sets top/left first, then applies this class) */
 .name-scroll--sliding {
-  transform: translateX(-120vw);
-  opacity: 0;
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.9em;
+  z-index: 10;
+}
+
+/* Docked: persistent left-edge reference panel during quiz */
+.name-scroll--docked {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.9em;
+  z-index: 10;
+  padding: 1rem 1.25rem;
+  gap: 0.35rem;
 }
 
 .name-scroll-entry {
@@ -280,6 +300,19 @@
   color: #ddd;
   text-align: left;
   line-height: 1.5;
+  transition: color 300ms ease, text-shadow 300ms ease;
+}
+
+/* Active entry: highlighted when the combo name is revealed */
+.name-scroll-entry--active {
+  color: #f0d080;
+  text-shadow: 0 0 8px rgba(240, 208, 128, 0.5);
+}
+
+/* Docked: shrink entry font size */
+.name-scroll--docked .name-scroll-entry {
+  font-size: clamp(0.8rem, 2vw, 1.1rem);
+  line-height: 1.4;
 }
 
 .intro-hint {
