@@ -254,12 +254,12 @@
 .name-scroll {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: left;
   gap: 0.5rem;
   padding: 1.25rem 2.5rem;
   background: color-mix(in srgb, var(--bg-brown-dark) 70%, transparent);
   border: 1px solid rgba(200, 184, 138, 0.3);
-  border-radius: 8px;
+  border-radius: 4px;
   transition: transform 500ms ease, opacity 500ms ease;
 }
 
@@ -270,7 +270,7 @@
 
 .name-scroll-entry {
   font-family: 'GoudyMediaeval', Georgia, serif;
-  font-size: clamp(1.25rem, 3vw, 1.6rem);
+  font-size: clamp(1.25rem, 5vw, 4rem);
   color: #ddd;
   text-align: center;
   line-height: 1.5;
