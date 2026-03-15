@@ -229,11 +229,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
-  width: 100%;
   min-height: 60vh;
   cursor: pointer;
   user-select: none;
+}
+
+/* Inner wrapper so title and scroll share the same intrinsic width */
+.intro-group {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2rem;
 }
 
 .level-title {
@@ -272,7 +278,7 @@
   font-family: 'GoudyMediaeval', Georgia, serif;
   font-size: clamp(1.25rem, 5vw, 4rem);
   color: #ddd;
-  text-align: center;
+  text-align: left;
   line-height: 1.5;
 }
 

@@ -141,10 +141,13 @@ function showIntro(subgroup: GuildSubgroup): void {
   const screen = document.createElement('div');
   screen.classList.add('intro-screen');
 
+  const group = document.createElement('div');
+  group.classList.add('intro-group');
+
   const title = document.createElement('div');
   title.classList.add('level-title');
   title.textContent = `Level ${level}`;
-  screen.appendChild(title);
+  group.appendChild(title);
 
   const scroll = document.createElement('div');
   scroll.classList.add('name-scroll');
@@ -154,7 +157,9 @@ function showIntro(subgroup: GuildSubgroup): void {
     entry.textContent = name;
     scroll.appendChild(entry);
   }
-  screen.appendChild(scroll);
+  group.appendChild(scroll);
+
+  screen.appendChild(group);
 
   const hint = document.createElement('div');
   hint.classList.add('intro-hint');
