@@ -110,9 +110,17 @@ async function run() {
 
       await page.goto(`${BASE_URL}/slides?subgroup=allied`);
       await page.waitForLoadState('domcontentloaded');
+      await page.waitForTimeout(300);
+
+      // New intro: press Space 3 times to complete the intro sequence
+      await page.keyboard.press('Space');
+      await page.waitForTimeout(200);
+      await page.keyboard.press('Space');
+      await page.waitForTimeout(200);
+      await page.keyboard.press('Space');
 
       // Wait for the slide page JS to initialize and show a card
-      await page.waitForSelector('.control-button', { timeout: 10000 });
+      await page.waitForSelector('.control-button', { timeout: 6000 });
       console.log('  INFO: Slide page loaded, control button visible');
 
       // Click Pause

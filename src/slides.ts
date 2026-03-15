@@ -31,25 +31,13 @@ let nameRevealed = false;
 let currentTraceUrl: string | null = null;
 let doneZoneEl: HTMLElement | null = null;
 let currentCardName = '';
-let dockedScroll: HTMLElement | null = null;
+let ongoingScroll: HTMLElement | null = null;
 
-function removeDockedScroll(): void {
-  if (dockedScroll && dockedScroll.parentNode) {
-    dockedScroll.parentNode.removeChild(dockedScroll);
+function removeOngoingScroll(): void {
+  if (ongoingScroll && ongoingScroll.parentNode) {
+    ongoingScroll.parentNode.removeChild(ongoingScroll);
   }
-  dockedScroll = null;
-}
-
-function highlightScrollEntry(comboName: string): void {
-  if (!dockedScroll) return;
-  const entries = Array.from(dockedScroll.querySelectorAll('.name-scroll-entry'));
-  for (const entry of entries) {
-    if (entry.textContent === comboName) {
-      entry.classList.add('name-scroll-entry--active');
-    } else {
-      entry.classList.remove('name-scroll-entry--active');
-    }
-  }
+  ongoingScroll = null;
 }
 
 function clearTimers(): void {
@@ -135,10 +123,107 @@ function stopSession(): void {
   session.completed = false;
 
   doneZoneEl = null;
-  removeDockedScroll();
+  removeOngoingScroll();
   navigateToAssessment(cardsShown);
 }
 
+/**
+ * Build the scroll element with the given combo names.
+ * Shared between the ongoing-scroll and intro-scroll.
+ */
+function buildScrollElement(names: string[], extraClass?: string): HTMLElement {
+  const scroll = document.createElement('div');
+  scroll.classList.add('name-scroll');
+  if (extraClass) scroll.classList.add(extraClass);
+  for (const name of names) {
+    const entry = document.createElement('div');
+    entry.classList.add('name-scroll-entry');
+    entry.textContent = name;
+    scroll.appendChild(entry);
+  }
+  return scroll;
+}
+
+/**
+ * Check if the viewport is wide enough to show the scroll alongside the slide.
+ * Below this threshold we skip the scroll on mobile.
+ */
+function isScrollViewport(): boolean {
+  return window.innerWidth >= 800;
+}
+
+/**
+ * Render the placeholder slide state: card-back image + hidden name,
+ * using the same .card--with-image grid layout so sizes are correct.
+ * Also add app--quiz-active so the layout matches the real quiz state.
+ */
+function renderPlaceholderCard(): HTMLElement {
+  const card = document.createElement('div');
+  card.classList.add('card', 'card--with-image');
+
+  const imgCol = document.createElement('div');
+  imgCol.classList.add('card-image-column');
+
+  const img = document.createElement('img');
+  img.classList.add('mtg-card-img');
+  img.src = 'images/card-back.png';
+  img.alt = '';
+  imgCol.appendChild(img);
+  card.appendChild(imgCol);
+
+  const quizCol = document.createElement('div');
+  quizCol.classList.add('card-quiz-column');
+
+  // Empty pips placeholder
+  const pips = document.createElement('div');
+  pips.classList.add('card-pips');
+  quizCol.appendChild(pips);
+
+  const name = document.createElement('div');
+  name.classList.add('card-name', 'card-name-hidden');
+  name.textContent = '';
+  quizCol.appendChild(name);
+
+  card.appendChild(quizCol);
+  return card;
+}
+
+/**
+ * Position the ongoing-scroll to the right of the centered #app.
+ * Called after the scroll becomes visible and after window resize.
+ */
+function positionOngoingScroll(): void {
+  if (!ongoingScroll || !app) return;
+  if (!isScrollViewport()) {
+    ongoingScroll.style.display = 'none';
+    return;
+  }
+
+  ongoingScroll.style.display = '';
+
+  const appRect = app.getBoundingClientRect();
+  const viewportWidth = window.innerWidth;
+  const rightGap = viewportWidth - appRect.right;
+
+  // Center the scroll in the gap to the right of the slide
+  const scrollWidth = ongoingScroll.getBoundingClientRect().width;
+  const leftInGap = appRect.right + (rightGap - scrollWidth) / 2;
+
+  ongoingScroll.style.position = 'fixed';
+  ongoingScroll.style.left = `${Math.max(appRect.right + 8, leftInGap)}px`;
+  ongoingScroll.style.top = '50%';
+  ongoingScroll.style.transform = 'translateY(-50%)';
+}
+
+/**
+ * showIntro: multi-step intro sequence driven by Space key.
+ *
+ * Step 0 (page load): placeholder card + ongoing-scroll hidden on right.
+ * Step 1 (Space 1):   ongoing-scroll fades in.
+ * Step 2 (Space 2):   dark modal appears with LEVEL title + intro-scroll.
+ * Step 3 (Space 3):   intro-scroll flies to ongoing-scroll position;
+ *                     modal fades out; showCard() starts.
+ */
 function showIntro(subgroup: GuildSubgroup): void {
   if (!app) return;
 
@@ -158,103 +243,151 @@ function showIntro(subgroup: GuildSubgroup): void {
   const level = levelNumber[subgroup];
   const names = subgroupCombos[subgroup].map(c => c.name);
 
-  // Build intro screen
-  const screen = document.createElement('div');
-  screen.classList.add('intro-screen');
-
-  const group = document.createElement('div');
-  group.classList.add('intro-group');
-
-  const title = document.createElement('div');
-  title.classList.add('level-title');
-  title.textContent = `Level ${level}`;
-  group.appendChild(title);
-
-  const scroll = document.createElement('div');
-  scroll.classList.add('name-scroll');
-  for (const name of names) {
-    const entry = document.createElement('div');
-    entry.classList.add('name-scroll-entry');
-    entry.textContent = name;
-    scroll.appendChild(entry);
-  }
-  group.appendChild(scroll);
-
-  screen.appendChild(group);
-
-  const hint = document.createElement('div');
-  hint.classList.add('intro-hint');
-  hint.textContent = 'Tap or press Space to begin';
-  screen.appendChild(hint);
-
+  // ── Step 0: render placeholder slide ──────────────────────────────────────
+  app.classList.add('app--quiz-active');
   app.innerHTML = '';
-  app.appendChild(screen);
+  const placeholder = renderPlaceholderCard();
+  app.appendChild(placeholder);
 
-  function triggerTransition(): void {
-    // Prevent double-trigger
-    screen.style.pointerEvents = 'none';
+  // Build ongoing-scroll (lives on body, survives app.innerHTML clears)
+  ongoingScroll = buildScrollElement(names, 'ongoing-scroll');
+  ongoingScroll.style.opacity = '0';
+  ongoingScroll.style.pointerEvents = 'none';
+  if (!isScrollViewport()) {
+    ongoingScroll.style.display = 'none';
+  }
+  document.body.appendChild(ongoingScroll);
 
-    title.classList.add('level-title--fading');
+  // Position it now so getBoundingClientRect is correct later
+  positionOngoingScroll();
 
-    // Move the scroll to document.body so it survives app.innerHTML = ''
-    // Capture current position first so the transition starts from there
-    const rect = scroll.getBoundingClientRect();
-    scroll.style.position = 'fixed';
-    scroll.style.left = `${rect.left}px`;
-    scroll.style.top = `${rect.top}px`;
-    scroll.style.width = `${rect.width}px`;
-    scroll.style.transform = 'none';
-    document.body.appendChild(scroll);
-    dockedScroll = scroll;
+  let introStep = 0;
+  let introModal: HTMLElement | null = null;
 
-    // Force a reflow so the fixed-position snapshot is painted before we
-    // apply the transition target (left: 0, vertical-center).
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    scroll.offsetWidth;
+  function handleIntroSpace(e: KeyboardEvent): void {
+    if (e.code !== 'Space') return;
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === 'TEXTAREA' || tag === 'INPUT') return;
+    e.preventDefault();
+    advanceIntro();
+  }
 
-    scroll.classList.add('name-scroll--sliding');
+  function removeIntroHandlers(): void {
+    document.removeEventListener('keydown', handleIntroSpace);
+  }
 
-    // After transition completes, swap to docked state and tell #app to
-    // shift right by the scroll's rendered width.
-    setTimeout(() => {
-      scroll.classList.remove('name-scroll--sliding');
-      scroll.classList.add('name-scroll--docked');
-      scroll.style.left = '';
-      scroll.style.top = '';
-      scroll.style.width = '';
-      scroll.style.transform = '';
+  function advanceIntro(): void {
+    introStep++;
 
-      // Measure docked width and push the app content right
-      const dockedWidth = scroll.getBoundingClientRect().width;
-      if (app) {
-        app.style.setProperty('--scroll-dock-width', `${dockedWidth}px`);
+    if (introStep === 1) {
+      // Step 1: show the ongoing-scroll
+      if (ongoingScroll && isScrollViewport()) {
+        positionOngoingScroll();
+        ongoingScroll.style.transition = 'opacity 300ms ease';
+        ongoingScroll.style.opacity = '1';
+        ongoingScroll.style.pointerEvents = '';
       }
 
-      showCard();
-    }, 500);
+    } else if (introStep === 2) {
+      // Step 2: show the modal with level title + intro-scroll
+      introModal = document.createElement('div');
+      introModal.classList.add('intro-modal');
+
+      const group = document.createElement('div');
+      group.classList.add('intro-group');
+
+      const title = document.createElement('div');
+      title.classList.add('level-title');
+      title.textContent = `Level ${level}`;
+      group.appendChild(title);
+
+      const introScrollEl = buildScrollElement(names, 'intro-scroll');
+      group.appendChild(introScrollEl);
+
+      introModal.appendChild(group);
+
+      const hint = document.createElement('div');
+      hint.classList.add('intro-hint');
+      hint.textContent = 'Tap or press Space to begin';
+      introModal.appendChild(hint);
+
+      document.body.appendChild(introModal);
+
+    } else if (introStep === 3) {
+      // Step 3: animate ongoing-scroll from intro-scroll position to natural position
+      removeIntroHandlers();
+
+      if (!introModal || !ongoingScroll) {
+        // Fallback: skip straight to cards
+        if (introModal) introModal.remove();
+        showCard();
+        return;
+      }
+
+      const introScrollEl = introModal.querySelector('.intro-scroll') as HTMLElement | null;
+
+      if (!introScrollEl || !isScrollViewport()) {
+        // No scroll to animate — just fade modal and go
+        introModal.style.transition = 'opacity 300ms ease';
+        introModal.style.opacity = '0';
+        setTimeout(() => {
+          introModal?.remove();
+          introModal = null;
+          showCard();
+        }, 350);
+        return;
+      }
+
+      // Measure both scroll positions
+      const introRect = introScrollEl.getBoundingClientRect();
+      const ongoingRect = ongoingScroll.getBoundingClientRect();
+
+      // deltaX / deltaY to move from introRect to ongoingRect
+      const dx = introRect.left - ongoingRect.left;
+      const dy = introRect.top - ongoingRect.top;
+
+      // Scale factor (intro-scroll may be same size but let's handle differences)
+      const scaleX = introRect.width / (ongoingRect.width || 1);
+      const scaleY = introRect.height / (ongoingRect.height || 1);
+
+      // Apply inverse transform to ongoing-scroll so it appears at intro position
+      ongoingScroll.style.transition = 'none';
+      ongoingScroll.style.transform = `translateY(-50%) translateX(${dx}px) translateY(${dy}px) scaleX(${scaleX}) scaleY(${scaleY})`;
+
+      // Force reflow
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      ongoingScroll.offsetWidth;
+
+      // Now transition to natural position
+      ongoingScroll.style.transition = 'transform 500ms ease-in-out';
+      ongoingScroll.style.transform = 'translateY(-50%)';
+
+      // Simultaneously fade out the modal elements
+      const titleEl = introModal.querySelector('.level-title') as HTMLElement | null;
+      if (titleEl) {
+        titleEl.style.transition = 'opacity 300ms ease';
+        titleEl.style.opacity = '0';
+      }
+      introScrollEl.style.transition = 'opacity 300ms ease';
+      introScrollEl.style.opacity = '0';
+      introModal.style.transition = 'background-color 500ms ease';
+      introModal.style.backgroundColor = 'transparent';
+
+      setTimeout(() => {
+        introModal?.remove();
+        introModal = null;
+        showCard();
+      }, 550);
+    }
   }
 
-  screen.addEventListener('click', triggerTransition, { once: true });
-
-  // Space bar also triggers (the document-level keydown fires handleAdvance
-  // once session is running, but session hasn't started yet here, so we
-  // add a one-shot listener directly)
-  const spaceHandler = (e: KeyboardEvent) => {
-    if (e.code === 'Space') {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === 'TEXTAREA' || tag === 'INPUT') return;
-      e.preventDefault();
-      document.removeEventListener('keydown', spaceHandler);
-      triggerTransition();
-    }
-  };
-  document.addEventListener('keydown', spaceHandler);
+  document.addEventListener('keydown', handleIntroSpace);
 }
 
 function showCard(): void {
   if (!app || !session) return;
 
-  // Expand to full-screen quiz mode
+  // Ensure quiz mode is active (may already be set)
   app.classList.add('app--quiz-active');
 
   const combo = currentCard(session);
@@ -380,7 +513,6 @@ function showCard(): void {
     revealTimer = null;
     nameRevealed = true;
     revealName(card);
-    highlightScrollEntry(combo.name);
 
     // Auto-advance: after ADVANCE_DELAY_MS, go to next card
     advanceTimer = setTimeout(() => {
@@ -401,7 +533,7 @@ function goToNextCard(early: boolean): void {
     showCard();
   } else {
     doneZoneEl = null;
-    removeDockedScroll();
+    removeOngoingScroll();
     navigateToAssessment(session.cardCount);
   }
 }
@@ -431,9 +563,6 @@ function handleAdvance(): void {
     const card = app?.querySelector('.card') as HTMLElement | null;
     if (card) {
       revealName(card);
-    }
-    if (session) {
-      highlightScrollEntry(currentCard(session).name);
     }
 
     advanceTimer = setTimeout(() => {
@@ -522,14 +651,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const from = urlParams.get('from') || 'welcome';
   const welcomeDwellMs = parseInt(urlParams.get('welcome_dwell_ms') || '0', 10) || 0;
 
-  // Click/tap to advance early
+  // Click/tap to advance early — only when session is running (after intro)
   app.addEventListener('click', () => {
     if (session) handleAdvance();
   });
 
-  // Spacebar to advance early (skip when focus is in a text field)
+  // Spacebar: during session, advance card; during intro, handled inside showIntro
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.code === 'Space' && session) {
+      // Only handle if the session is actively showing cards (not in intro phase)
+      // The intro installs its own one-shot handler; once showCard() is called
+      // the session's cardSpan will be set and handleAdvance() is appropriate.
+      if (!cardSpan) return;
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'TEXTAREA' || tag === 'INPUT') return;
       e.preventDefault();

@@ -127,8 +127,14 @@ async function run() {
         `${BASE_URL}/slides?subgroup=allied&welcome_dwell_ms=0`,
         'Slides page feedback test from Arc 41',
         async (page) => {
+          // New intro: 3 Space presses before card appears
+          await page.keyboard.press('Space');
+          await page.waitForTimeout(200);
+          await page.keyboard.press('Space');
+          await page.waitForTimeout(200);
+          await page.keyboard.press('Space');
           // Wait for session to populate so card_index/card_count are available
-          await page.waitForSelector('.card-name, .card-image, .card-reveal-btn', { timeout: 8000 });
+          await page.waitForSelector('.card-name', { timeout: 5000 });
           await page.waitForTimeout(500);
         }
       );
