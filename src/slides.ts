@@ -9,7 +9,7 @@ import {
   REVEAL_DELAY_MS,
   ADVANCE_DELAY_MS,
 } from './session';
-import { colorEmojiMap } from './data/combos';
+import { colorEmojiMap, alliedGuilds, enemyGuilds, wedges, shards } from './data/combos';
 import { isSubgroupUnlocked, markSubgroupUnlocked, markSubgroupCompleted, getUnlockedSubgroups } from './progression';
 import { Span } from '@opentelemetry/api';
 import { wireSettings } from './ui/settings';
@@ -116,6 +116,81 @@ function stopSession(): void {
 
   doneZoneEl = null;
   navigateToAssessment(cardsShown);
+}
+
+function showIntro(subgroup: GuildSubgroup): void {
+  if (!app) return;
+
+  const levelNumber: Record<GuildSubgroup, number> = {
+    allied: 1,
+    enemy: 2,
+    wedges: 3,
+    shards: 4,
+  };
+  const subgroupCombos: Record<GuildSubgroup, { name: string }[]> = {
+    allied: alliedGuilds,
+    enemy: enemyGuilds,
+    wedges: wedges,
+    shards: shards,
+  };
+
+  const level = levelNumber[subgroup];
+  const names = subgroupCombos[subgroup].map(c => c.name);
+
+  // Build intro screen
+  const screen = document.createElement('div');
+  screen.classList.add('intro-screen');
+
+  const title = document.createElement('div');
+  title.classList.add('level-title');
+  title.textContent = `Level ${level}`;
+  screen.appendChild(title);
+
+  const scroll = document.createElement('div');
+  scroll.classList.add('name-scroll');
+  for (const name of names) {
+    const entry = document.createElement('div');
+    entry.classList.add('name-scroll-entry');
+    entry.textContent = name;
+    scroll.appendChild(entry);
+  }
+  screen.appendChild(scroll);
+
+  const hint = document.createElement('div');
+  hint.classList.add('intro-hint');
+  hint.textContent = 'Tap or press Space to begin';
+  screen.appendChild(hint);
+
+  app.innerHTML = '';
+  app.appendChild(screen);
+
+  function triggerTransition(): void {
+    // Prevent double-trigger
+    screen.style.pointerEvents = 'none';
+
+    title.classList.add('level-title--fading');
+    scroll.classList.add('name-scroll--sliding');
+
+    setTimeout(() => {
+      showCard();
+    }, 500);
+  }
+
+  screen.addEventListener('click', triggerTransition, { once: true });
+
+  // Space bar also triggers (the document-level keydown fires handleAdvance
+  // once session is running, but session hasn't started yet here, so we
+  // add a one-shot listener directly)
+  const spaceHandler = (e: KeyboardEvent) => {
+    if (e.code === 'Space') {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'TEXTAREA' || tag === 'INPUT') return;
+      e.preventDefault();
+      document.removeEventListener('keydown', spaceHandler);
+      triggerTransition();
+    }
+  };
+  document.addEventListener('keydown', spaceHandler);
 }
 
 function showCard(): void {
@@ -324,6 +399,7 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
     'session.started_from': startedFrom,
     'session.welcome_dwell_ms': welcomeDwellMs,
     'session.enemy_unlocked': isSubgroupUnlocked('enemy'),
+    'session.has_name_scroll': true,
     'app.version': APP_VERSION,
   });
 
@@ -341,7 +417,7 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
     }
   }
 
-  showCard();
+  showIntro(subgroup);
 }
 
 // When restored from bfcache (browser back button), force a full reload
