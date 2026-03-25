@@ -69,7 +69,7 @@
 /* Row 1: Names reference */
 .footer-names {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: baseline;
   padding: 0.25rem 0;
   gap: 0.5rem;
@@ -82,27 +82,29 @@
   color: rgba(224, 224, 224, 0.6);
   letter-spacing: 0.02em;
   line-height: 1.6;
-  flex: 1;
 }
 
-.footer-names-toggle {
-  font-size: 0.7rem;
-  color: #555;
+.footer-names-minimize {
+  font-size: 1rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.3);
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 0.2rem 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
   white-space: nowrap;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
-  transition: color 200ms ease;
+  transition: color 200ms ease, background 200ms ease;
   min-height: 44px;
   display: flex;
   align-items: center;
 }
 
-.footer-names-toggle:hover {
-  color: #999;
+.footer-names-minimize:hover {
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Row 2: Controls — everything right-aligned */
