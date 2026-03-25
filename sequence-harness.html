@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sequence Harness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d0d1a;
+      color: #e0e0f0;
+      font-family: 'Jost', sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: #a0b0ff;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    label {
+      color: #8090b0;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    select, input[type="number"] {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      color: #e0e0f0;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.95rem;
+      padding: 0.4rem 0.7rem;
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select:focus, input[type="number"]:focus {
+      border-color: #5060a0;
+    }
+
+    input[type="number"] {
+      width: 5rem;
+    }
+
+    button#generate-btn {
+      background: #2a3a6a;
+      border: 1px solid #4a5a9a;
+      color: #c0d0ff;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.4rem 1.2rem;
+      border-radius: 4px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    button#generate-btn:hover {
+      background: #3a4a7a;
+      border-color: #6070b0;
+    }
+
+    #output {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-width: 600px;
+    }
+
+    .sequence-row {
+      display: grid;
+      grid-template-columns: 2.5rem 1fr 3rem 4rem;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 4px 6px;
+      border-radius: 3px;
+    }
+
+    .sequence-row:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .position {
+      color: #4a5060;
+      font-variant-numeric: tabular-nums;
+      font-size: 0.8rem;
+      text-align: right;
+      font-family: monospace;
+    }
+
+    .combo-chip {
+      padding: 3px 10px;
+      border-radius: 3px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: #d0e0ff;
+      letter-spacing: 0.03em;
+    }
+
+    .combo-index {
+      color: #5060a0;
+      font-size: 0.75rem;
+      font-variant-numeric: tabular-nums;
+      font-family: monospace;
+      text-align: center;
+    }
+
+    .card-index {
+      color: #506070;
+      font-size: 0.75rem;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sequence Harness</h1>
+
+  <div class="controls">
+    <label for="subgroup-select">Subgroup</label>
+    <select id="subgroup-select">
+      <option value="allied">Allied Guilds (5)</option>
+      <option value="enemy">Enemy Guilds (5)</option>
+      <option value="wedges">Wedges (5)</option>
+      <option value="shards">Shards (5)</option>
+    </select>
+
+    <label for="length-input">Length</label>
+    <input type="number" id="length-input" value="25" min="1" max="200">
+
+    <button id="generate-btn">Generate</button>
+  </div>
+
+  <div id="output"></div>
+
+  <script type="module" src="dist/sequence-harness.js"></script>
+</body>
+</html>

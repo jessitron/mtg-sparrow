@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck",
     "serve": "serve dist",
+    "build:harness": "esbuild src/sequence-harness.ts --bundle --outfile=dist/sequence-harness.js --sourcemap --format=esm",
     "test:e2e": "node"
   },
   "dependencies": {
