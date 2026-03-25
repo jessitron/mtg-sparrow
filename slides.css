@@ -222,6 +222,105 @@
   height: clamp(64px, 10vw, 120px);
 }
 
+/* === Level Intro Slide === */
+
+@keyframes levelIntroHintPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.85; }
+}
+
+@keyframes levelIntroDismiss {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+.level-intro {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100svh;
+  min-height: 100vh; /* fallback */
+  width: 100%;
+  animation: cardEnter 250ms ease-out;
+}
+
+.level-intro--dismissing {
+  animation: levelIntroDismiss 150ms ease-in forwards;
+}
+
+.level-intro-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.level-intro-number {
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(3rem, 10vw, 5.5rem);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #f0f0f0;
+  margin: 0;
+  line-height: 1;
+}
+
+.level-intro-rule {
+  border: none;
+  border-top: 1px solid #c8b88a;
+  width: clamp(60px, 12vw, 100px);
+  margin: 0.5rem 0;
+}
+
+.level-intro-subtitle {
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  color: #c8b88a;
+  margin: 0;
+}
+
+.level-intro-names {
+  font-family: 'GoudyMediaeval', Georgia, serif;
+  font-weight: bold;
+  font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+  letter-spacing: 0.03em;
+  color: #e0e0e0;
+  margin: 0.5rem 0 0;
+  max-width: min(90vw, 480px);
+  text-align: center;
+  line-height: 1.7;
+}
+
+.level-intro-cta {
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: clamp(2rem, 5vh, 3.5rem);
+  animation: levelIntroHintPulse 2.5s ease-in-out infinite 800ms;
+}
+
+/* Mobile: scale down level intro */
+@media (max-width: 600px) {
+  .level-intro-number {
+    font-size: clamp(2.5rem, 12vw, 3.5rem);
+  }
+
+  .level-intro-subtitle {
+    font-size: 1rem;
+  }
+
+  .level-intro-names {
+    font-size: clamp(1rem, 4vw, 1.3rem);
+  }
+}
+
+/* === End Level Intro Slide === */
+
 /* Mobile: stack image above pips/name when screen is narrow */
 @media (max-width: 600px) {
   #app.app--quiz-active .card--with-image {

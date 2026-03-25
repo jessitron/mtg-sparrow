@@ -9,7 +9,7 @@ import {
   REVEAL_DELAY_MS,
   ADVANCE_DELAY_MS,
 } from './session';
-import { colorEmojiMap } from './data/combos';
+import { colorEmojiMap, alliedGuilds, enemyGuilds, wedges, shards } from './data/combos';
 import { isSubgroupUnlocked, markSubgroupUnlocked, markSubgroupCompleted, getUnlockedSubgroups } from './progression';
 import { Span } from '@opentelemetry/api';
 import { wireSettings } from './ui/settings';
@@ -308,7 +308,7 @@ function handleAdvance(): void {
   }
 }
 
-function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwellMs: number): void {
+function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwellMs: number, introDwellMs?: number): void {
   session = createSession(subgroup);
 
   // Start session root span
@@ -317,15 +317,20 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
     subgroup === 'enemy'  ? 'guild_enemy'  :
     subgroup === 'wedges' ? 'wedge'        :
     'shard';
-  sessionSpan = startSpan('session', {
+  const sessionAttrs: Record<string, string | number | boolean> = {
     'session.tier': tierLabel,
     'session.subgroup_size': 5,
     'session.card_count': session.cardCount,
     'session.started_from': startedFrom,
     'session.welcome_dwell_ms': welcomeDwellMs,
     'session.enemy_unlocked': isSubgroupUnlocked('enemy'),
+    'session.has_level_intro': introDwellMs !== undefined,
     'app.version': APP_VERSION,
-  });
+  };
+  if (introDwellMs !== undefined) {
+    sessionAttrs['session.intro_dwell_ms'] = introDwellMs;
+  }
+  sessionSpan = startSpan('session', sessionAttrs);
 
   // Store trace URL so the settings panel can display it
   if (sessionSpan) {
@@ -342,6 +347,112 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
   }
 
   showCard();
+}
+
+const levelNumberMap: Record<GuildSubgroup, number> = {
+  allied: 1,
+  enemy:  2,
+  wedges: 3,
+  shards: 4,
+};
+
+const subtitleMap: Record<GuildSubgroup, string> = {
+  allied: 'Allied Guilds',
+  enemy:  'Enemy Guilds',
+  wedges: 'Wedges',
+  shards: 'Shards',
+};
+
+const comboPoolMap: Record<GuildSubgroup, { name: string }[]> = {
+  allied: alliedGuilds,
+  enemy:  enemyGuilds,
+  wedges: wedges,
+  shards: shards,
+};
+
+function showLevelIntro(subgroup: GuildSubgroup, from: string, welcomeDwellMs: number): void {
+  if (!app) return;
+
+  const introShowTime = Date.now();
+  const levelNum = levelNumberMap[subgroup];
+  const subtitle = subtitleMap[subgroup];
+  const comboNames = comboPoolMap[subgroup].map(c => c.name).join(' · ');
+  const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+  const ctaText = isTouchDevice ? 'tap to begin' : 'tap anywhere · or press space';
+
+  // Build DOM
+  const intro = document.createElement('div');
+  intro.className = 'level-intro';
+
+  const body = document.createElement('div');
+  body.className = 'level-intro-body';
+
+  const levelNumber = document.createElement('p');
+  levelNumber.className = 'level-intro-number';
+  levelNumber.textContent = `LEVEL ${levelNum}`;
+
+  const rule = document.createElement('hr');
+  rule.className = 'level-intro-rule';
+  rule.setAttribute('aria-hidden', 'true');
+
+  const subtitleEl = document.createElement('p');
+  subtitleEl.className = 'level-intro-subtitle';
+  subtitleEl.textContent = subtitle;
+
+  const namesEl = document.createElement('p');
+  namesEl.className = 'level-intro-names';
+  namesEl.textContent = comboNames;
+
+  body.appendChild(levelNumber);
+  body.appendChild(rule);
+  body.appendChild(subtitleEl);
+  body.appendChild(namesEl);
+
+  const cta = document.createElement('p');
+  cta.className = 'level-intro-cta';
+  cta.textContent = ctaText;
+
+  intro.appendChild(body);
+  intro.appendChild(cta);
+
+  app.innerHTML = '';
+  app.appendChild(intro);
+
+  let dismissed = false;
+
+  function dismiss(): void {
+    if (dismissed) return;
+    dismissed = true;
+
+    // Remove temporary listeners
+    app!.removeEventListener('click', onIntroClick);
+    document.removeEventListener('keydown', onIntroKeydown);
+
+    const introDwellMs = Date.now() - introShowTime;
+
+    // Fade out then start session
+    intro.classList.add('level-intro--dismissing');
+    setTimeout(() => {
+      if (intro.parentNode) intro.parentNode.removeChild(intro);
+      startSession(subgroup, from, welcomeDwellMs, introDwellMs);
+    }, 150);
+  }
+
+  function onIntroClick(): void {
+    dismiss();
+  }
+
+  function onIntroKeydown(e: KeyboardEvent): void {
+    if (e.code === 'Space') {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'TEXTAREA' || tag === 'INPUT') return;
+      e.preventDefault();
+      dismiss();
+    }
+  }
+
+  app.addEventListener('click', onIntroClick);
+  document.addEventListener('keydown', onIntroKeydown);
 }
 
 // When restored from bfcache (browser back button), force a full reload
@@ -435,6 +546,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Start session immediately
-  startSession(subgroup, from, welcomeDwellMs);
+  // Show level intro before starting session
+  showLevelIntro(subgroup, from, welcomeDwellMs);
 });
