@@ -277,7 +277,7 @@
 .level-intro-subtitle {
   font-family: 'Jost', system-ui, sans-serif;
   font-weight: 400;
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   letter-spacing: 0.08em;
   color: #c8b88a;
   margin: 0;
@@ -286,7 +286,7 @@
 .level-intro-names {
   font-family: 'GoudyMediaeval', Georgia, serif;
   font-weight: bold;
-  font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
   letter-spacing: 0.03em;
   color: #e0e0e0;
   margin: 0.5rem 0 0;
@@ -298,8 +298,8 @@
 .level-intro-cta {
   font-family: 'Jost', system-ui, sans-serif;
   font-weight: 400;
-  font-size: 0.85rem;
-  color: #666;
+  font-size: 1.7rem;
+  color: var(--card-back-turquoise);
   margin-top: clamp(2rem, 5vh, 3.5rem);
   animation: levelIntroHintPulse 2.5s ease-in-out infinite 800ms;
 }
@@ -311,11 +311,11 @@
   }
 
   .level-intro-subtitle {
-    font-size: 1rem;
+    font-size: 1.3rem;
   }
 
   .level-intro-names {
-    font-size: clamp(1rem, 4vw, 1.3rem);
+    font-size: clamp(1.3rem, 5vw, 1.8rem);
   }
 }
 
