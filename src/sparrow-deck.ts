@@ -13,19 +13,26 @@ function shuffle<T>(arr: T[]): T[] {
   return arr;
 }
 
+/** A [comboIndex, cardIndex] pair, both 1-indexed. */
+export type SlideSelection = [number, number];
+
 /**
- * Build an ordered sequence of 1-indexed combo positions by shuffling
- * positions [1, comboCount] and repeating until `length` entries are produced.
- * Each number in the result is in [1, comboCount].
+ * Build an ordered sequence of [comboIndex, cardIndex] tuples by shuffling
+ * combo positions [1, comboCount] and repeating until `length` entries are produced.
+ * For each combo appearance, picks a random card index in [1, cardCounts[comboIndex-1]].
+ * If a combo has no cards (count 0), cardIndex will be 0.
  */
-export function buildSequence(comboCount: number, length: number): number[] {
+export function buildSequence(cardCounts: number[], length: number): SlideSelection[] {
+  const comboCount = cardCounts.length;
   const positions = Array.from({ length: comboCount }, (_, i) => i + 1);
-  const sequence: number[] = [];
+  const sequence: SlideSelection[] = [];
   while (sequence.length < length) {
     const batch = shuffle([...positions]);
-    for (const pos of batch) {
+    for (const comboIndex of batch) {
       if (sequence.length >= length) break;
-      sequence.push(pos);
+      const count = cardCounts[comboIndex - 1];
+      const cardIndex = count > 0 ? Math.floor(Math.random() * count) + 1 : 0;
+      sequence.push([comboIndex, cardIndex]);
     }
   }
   return sequence;
@@ -36,12 +43,11 @@ export function buildSequence(comboCount: number, length: number): number[] {
  * and repeating as needed. Each slide pre-selects a random card image.
  */
 export function buildDeck(combos: ColorCombo[], count: number): Slide[] {
-  const sequence = buildSequence(combos.length, count);
-  return sequence.map((pos) => {
-    const combo = combos[pos - 1];
-    const selectedCard = combo.cards && combo.cards.length > 0
-      ? combo.cards[Math.floor(Math.random() * combo.cards.length)]
-      : undefined;
+  const cardCounts = combos.map((c) => (c.cards ? c.cards.length : 0));
+  const sequence = buildSequence(cardCounts, count);
+  return sequence.map(([comboIndex, cardIndex]) => {
+    const combo = combos[comboIndex - 1];
+    const selectedCard = cardIndex > 0 ? combo.cards![cardIndex - 1] : undefined;
     return { ...combo, selectedCard };
   });
 }
