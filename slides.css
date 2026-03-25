@@ -290,7 +290,7 @@
   letter-spacing: 0.03em;
   color: #e0e0e0;
   margin: 0.5rem 0 0;
-  max-width: min(90vw, 480px);
+  max-width: 90vw;
   text-align: center;
   line-height: 1.7;
 }
