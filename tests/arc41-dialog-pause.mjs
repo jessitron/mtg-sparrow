@@ -36,19 +36,8 @@ function assert(condition, message) {
   }
 }
 
-/**
- * Complete the new multi-step intro (3 Space presses) and wait for pause-btn.
- * Must be called after domcontentloaded on the slides page.
- */
 async function waitForPauseBtn(page) {
-  // New intro: 3 Space presses before the card (and pause-btn) appear
-  await page.waitForTimeout(300); // let page initialize
-  await page.keyboard.press('Space');
-  await page.waitForTimeout(200);
-  await page.keyboard.press('Space');
-  await page.waitForTimeout(200);
-  await page.keyboard.press('Space');
-  await page.waitForSelector('#pause-btn', { timeout: 6000 });
+  await page.waitForSelector('#pause-btn', { timeout: 10000 });
 }
 
 async function getPauseBtnText(page) {

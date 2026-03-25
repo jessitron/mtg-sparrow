@@ -41,21 +41,6 @@ function assert(condition, message) {
 }
 
 /**
- * Skip through the new multi-step intro (3 Space presses) and wait for
- * the real card to appear. Must be called after page load.
- */
-async function skipIntro(page) {
-  await page.keyboard.press('Space');
-  await page.waitForTimeout(200);
-  await page.keyboard.press('Space');
-  await page.waitForTimeout(200);
-  await page.keyboard.press('Space');
-  // Wait for transition (500ms) + buffer
-  await page.waitForSelector('.card', { timeout: 4000 });
-  await page.waitForTimeout(200);
-}
-
-/**
  * Advance from card 1 to card 2 via two quick clicks:
  *   Click 1: reveals name early (clears revealTimer, starts advanceTimer)
  *   Click 2: advances immediately (clears advanceTimer, goes to next card)
@@ -100,19 +85,20 @@ async function run() {
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 2: Slides page loads — card appears after intro (3 Space presses)
+    // PHASE 2: Slides page loads independently — card appears automatically
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 2: Slides loads, card appears after intro ===\n');
+    console.log('\n=== Phase 2: Slides loads independently, card appears ===\n');
     {
       const page = await browser.newPage();
       await page.goto(SLIDES_URL);
       await page.waitForLoadState('domcontentloaded');
 
-      // Intro requires 3 Space presses before card appears
-      await skipIntro(page);
-
-      const cardVisible = (await page.$('.card')) !== null;
-      assert(cardVisible, 'Card appears after intro (3 Space presses)');
+      // Session starts automatically — wait for card
+      const cardVisible = await page
+        .waitForSelector('.card', { timeout: 8000 })
+        .then(() => true)
+        .catch(() => false);
+      assert(cardVisible, 'Card appears automatically on slides.html load');
 
       // Check pips
       const pipsExist = (await page.$('.card-pips')) !== null;
@@ -136,8 +122,7 @@ async function run() {
     {
       const page = await browser.newPage();
       await page.goto(SLIDES_URL);
-      await page.waitForLoadState('domcontentloaded');
-      await skipIntro(page);
+      await page.waitForSelector('.card', { timeout: 8000 });
 
       // Wait for reveal delay (3s) plus a 700ms buffer
       await page.waitForTimeout(3700);
@@ -155,8 +140,7 @@ async function run() {
     {
       const page = await browser.newPage();
       await page.goto(SLIDES_URL);
-      await page.waitForLoadState('domcontentloaded');
-      await skipIntro(page);
+      await page.waitForSelector('.card', { timeout: 8000 });
 
       // Wait 500ms so card is settled but reveal timer (~3s) has NOT fired
       await page.waitForTimeout(500);
@@ -182,8 +166,7 @@ async function run() {
     {
       const page = await browser.newPage();
       await page.goto(SLIDES_URL);
-      await page.waitForLoadState('domcontentloaded');
-      await skipIntro(page);
+      await page.waitForSelector('.card', { timeout: 8000 });
 
       // On card 1 (index 0): done-button exists but lacks button-visible class
       const doneBtnExists = (await page.$('.done-button')) !== null;
@@ -209,8 +192,7 @@ async function run() {
     {
       const page = await browser.newPage();
       await page.goto(SLIDES_URL);
-      await page.waitForLoadState('domcontentloaded');
-      await skipIntro(page);
+      await page.waitForSelector('.card', { timeout: 8000 });
 
       // Advance to card 2 to make done-button interactive
       await advanceToCard2(page);
@@ -282,8 +264,7 @@ async function run() {
     {
       const page = await browser.newPage();
       await page.goto(SLIDES_URL);
-      await page.waitForLoadState('domcontentloaded');
-      await skipIntro(page);
+      await page.waitForSelector('.card', { timeout: 8000 });
 
       const gearVisible = await page.isVisible('#menu-btn');
       assert(gearVisible, 'Settings gear button is visible on slides page');

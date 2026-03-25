@@ -9,7 +9,7 @@ import {
   REVEAL_DELAY_MS,
   ADVANCE_DELAY_MS,
 } from './session';
-import { colorEmojiMap, alliedGuilds, enemyGuilds, wedges, shards } from './data/combos';
+import { colorEmojiMap } from './data/combos';
 import { isSubgroupUnlocked, markSubgroupUnlocked, markSubgroupCompleted, getUnlockedSubgroups } from './progression';
 import { Span } from '@opentelemetry/api';
 import { wireSettings } from './ui/settings';
@@ -31,14 +31,6 @@ let nameRevealed = false;
 let currentTraceUrl: string | null = null;
 let doneZoneEl: HTMLElement | null = null;
 let currentCardName = '';
-let ongoingScroll: HTMLElement | null = null;
-
-function removeOngoingScroll(): void {
-  if (ongoingScroll && ongoingScroll.parentNode) {
-    ongoingScroll.parentNode.removeChild(ongoingScroll);
-  }
-  ongoingScroll = null;
-}
 
 function clearTimers(): void {
   if (revealTimer !== null) {
@@ -123,271 +115,13 @@ function stopSession(): void {
   session.completed = false;
 
   doneZoneEl = null;
-  removeOngoingScroll();
   navigateToAssessment(cardsShown);
-}
-
-/**
- * Build the scroll element with the given combo names.
- * Shared between the ongoing-scroll and intro-scroll.
- */
-function buildScrollElement(names: string[], extraClass?: string): HTMLElement {
-  const scroll = document.createElement('div');
-  scroll.classList.add('name-scroll');
-  if (extraClass) scroll.classList.add(extraClass);
-  for (const name of names) {
-    const entry = document.createElement('div');
-    entry.classList.add('name-scroll-entry');
-    entry.textContent = name;
-    scroll.appendChild(entry);
-  }
-  return scroll;
-}
-
-/**
- * Check if the viewport is wide enough to show the scroll alongside the slide.
- * Below this threshold we skip the scroll on mobile.
- */
-function isScrollViewport(): boolean {
-  return window.innerWidth >= 800;
-}
-
-/**
- * Render the placeholder slide state: card-back image + hidden name,
- * using the same .card--with-image grid layout so sizes are correct.
- * Also add app--quiz-active so the layout matches the real quiz state.
- */
-function renderPlaceholderCard(): HTMLElement {
-  const card = document.createElement('div');
-  card.classList.add('card', 'card--with-image');
-
-  const imgCol = document.createElement('div');
-  imgCol.classList.add('card-image-column');
-
-  const img = document.createElement('img');
-  img.classList.add('mtg-card-img');
-  img.src = 'images/card-back.png';
-  img.alt = '';
-  imgCol.appendChild(img);
-  card.appendChild(imgCol);
-
-  const quizCol = document.createElement('div');
-  quizCol.classList.add('card-quiz-column');
-
-  // Empty pips placeholder
-  const pips = document.createElement('div');
-  pips.classList.add('card-pips');
-  quizCol.appendChild(pips);
-
-  const name = document.createElement('div');
-  name.classList.add('card-name', 'card-name-hidden');
-  name.textContent = '';
-  quizCol.appendChild(name);
-
-  card.appendChild(quizCol);
-  return card;
-}
-
-/**
- * Position the ongoing-scroll to the right of the centered #app.
- * Called after the scroll becomes visible and after window resize.
- */
-function positionOngoingScroll(): void {
-  if (!ongoingScroll || !app) return;
-  if (!isScrollViewport()) {
-    ongoingScroll.style.display = 'none';
-    return;
-  }
-
-  ongoingScroll.style.display = '';
-
-  const appRect = app.getBoundingClientRect();
-  const viewportWidth = window.innerWidth;
-  const rightGap = viewportWidth - appRect.right;
-
-  // Center the scroll in the gap to the right of the slide
-  const scrollWidth = ongoingScroll.getBoundingClientRect().width;
-  const leftInGap = appRect.right + (rightGap - scrollWidth) / 2;
-
-  ongoingScroll.style.position = 'fixed';
-  ongoingScroll.style.left = `${Math.max(appRect.right + 8, leftInGap)}px`;
-  ongoingScroll.style.top = '50%';
-  ongoingScroll.style.transform = 'translateY(-50%)';
-}
-
-/**
- * showIntro: multi-step intro sequence driven by Space key.
- *
- * Step 0 (page load): placeholder card + ongoing-scroll hidden on right.
- * Step 1 (Space 1):   ongoing-scroll fades in.
- * Step 2 (Space 2):   dark modal appears with LEVEL title + intro-scroll.
- * Step 3 (Space 3):   intro-scroll flies to ongoing-scroll position;
- *                     modal fades out; showCard() starts.
- */
-function showIntro(subgroup: GuildSubgroup): void {
-  if (!app) return;
-
-  const levelNumber: Record<GuildSubgroup, number> = {
-    allied: 1,
-    enemy: 2,
-    wedges: 3,
-    shards: 4,
-  };
-  const subgroupCombos: Record<GuildSubgroup, { name: string }[]> = {
-    allied: alliedGuilds,
-    enemy: enemyGuilds,
-    wedges: wedges,
-    shards: shards,
-  };
-
-  const level = levelNumber[subgroup];
-  const names = subgroupCombos[subgroup].map(c => c.name);
-
-  // ── Step 0: render placeholder slide ──────────────────────────────────────
-  app.classList.add('app--quiz-active');
-  app.innerHTML = '';
-  const placeholder = renderPlaceholderCard();
-  app.appendChild(placeholder);
-
-  // Build ongoing-scroll (lives on body, survives app.innerHTML clears)
-  ongoingScroll = buildScrollElement(names, 'ongoing-scroll');
-  ongoingScroll.style.opacity = '0';
-  ongoingScroll.style.pointerEvents = 'none';
-  if (!isScrollViewport()) {
-    ongoingScroll.style.display = 'none';
-  }
-  document.body.appendChild(ongoingScroll);
-
-  // Position it now so getBoundingClientRect is correct later
-  positionOngoingScroll();
-
-  let introStep = 0;
-  let introModal: HTMLElement | null = null;
-
-  function handleIntroSpace(e: KeyboardEvent): void {
-    if (e.code !== 'Space') return;
-    const tag = (e.target as HTMLElement)?.tagName;
-    if (tag === 'TEXTAREA' || tag === 'INPUT') return;
-    e.preventDefault();
-    advanceIntro();
-  }
-
-  function removeIntroHandlers(): void {
-    document.removeEventListener('keydown', handleIntroSpace);
-  }
-
-  function advanceIntro(): void {
-    introStep++;
-
-    if (introStep === 1) {
-      // Step 1: show the ongoing-scroll
-      if (ongoingScroll && isScrollViewport()) {
-        positionOngoingScroll();
-        ongoingScroll.style.transition = 'opacity 300ms ease';
-        ongoingScroll.style.opacity = '1';
-        ongoingScroll.style.pointerEvents = '';
-      }
-
-    } else if (introStep === 2) {
-      // Step 2: show the modal with level title + intro-scroll
-      introModal = document.createElement('div');
-      introModal.classList.add('intro-modal');
-
-      const group = document.createElement('div');
-      group.classList.add('intro-group');
-
-      const title = document.createElement('div');
-      title.classList.add('level-title');
-      title.textContent = `Level ${level}`;
-      group.appendChild(title);
-
-      const introScrollEl = buildScrollElement(names, 'intro-scroll');
-      group.appendChild(introScrollEl);
-
-      introModal.appendChild(group);
-
-      const hint = document.createElement('div');
-      hint.classList.add('intro-hint');
-      hint.textContent = 'Tap or press Space to begin';
-      introModal.appendChild(hint);
-
-      document.body.appendChild(introModal);
-
-    } else if (introStep === 3) {
-      // Step 3: animate ongoing-scroll from intro-scroll position to natural position
-      removeIntroHandlers();
-
-      if (!introModal || !ongoingScroll) {
-        // Fallback: skip straight to cards
-        if (introModal) introModal.remove();
-        showCard();
-        return;
-      }
-
-      const introScrollEl = introModal.querySelector('.intro-scroll') as HTMLElement | null;
-
-      if (!introScrollEl || !isScrollViewport()) {
-        // No scroll to animate — just fade modal and go
-        introModal.style.transition = 'opacity 300ms ease';
-        introModal.style.opacity = '0';
-        setTimeout(() => {
-          introModal?.remove();
-          introModal = null;
-          showCard();
-        }, 350);
-        return;
-      }
-
-      // Measure both scroll positions
-      const introRect = introScrollEl.getBoundingClientRect();
-      const ongoingRect = ongoingScroll.getBoundingClientRect();
-
-      // deltaX / deltaY to move from introRect to ongoingRect
-      const dx = introRect.left - ongoingRect.left;
-      const dy = introRect.top - ongoingRect.top;
-
-      // Scale factor (intro-scroll may be same size but let's handle differences)
-      const scaleX = introRect.width / (ongoingRect.width || 1);
-      const scaleY = introRect.height / (ongoingRect.height || 1);
-
-      // Apply inverse transform to ongoing-scroll so it appears at intro position
-      ongoingScroll.style.transition = 'none';
-      ongoingScroll.style.transform = `translateY(-50%) translateX(${dx}px) translateY(${dy}px) scaleX(${scaleX}) scaleY(${scaleY})`;
-
-      // Force reflow
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      ongoingScroll.offsetWidth;
-
-      // Now transition to natural position
-      ongoingScroll.style.transition = 'transform 500ms ease-in-out';
-      ongoingScroll.style.transform = 'translateY(-50%)';
-
-      // Simultaneously fade out the modal elements
-      const titleEl = introModal.querySelector('.level-title') as HTMLElement | null;
-      if (titleEl) {
-        titleEl.style.transition = 'opacity 300ms ease';
-        titleEl.style.opacity = '0';
-      }
-      introScrollEl.style.transition = 'opacity 300ms ease';
-      introScrollEl.style.opacity = '0';
-      introModal.style.transition = 'background-color 500ms ease';
-      introModal.style.backgroundColor = 'transparent';
-
-      setTimeout(() => {
-        introModal?.remove();
-        introModal = null;
-        showCard();
-      }, 550);
-    }
-  }
-
-  document.addEventListener('keydown', handleIntroSpace);
 }
 
 function showCard(): void {
   if (!app || !session) return;
 
-  // Ensure quiz mode is active (may already be set)
+  // Expand to full-screen quiz mode
   app.classList.add('app--quiz-active');
 
   const combo = currentCard(session);
@@ -533,7 +267,6 @@ function goToNextCard(early: boolean): void {
     showCard();
   } else {
     doneZoneEl = null;
-    removeOngoingScroll();
     navigateToAssessment(session.cardCount);
   }
 }
@@ -591,7 +324,6 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
     'session.started_from': startedFrom,
     'session.welcome_dwell_ms': welcomeDwellMs,
     'session.enemy_unlocked': isSubgroupUnlocked('enemy'),
-    'session.has_name_scroll': true,
     'app.version': APP_VERSION,
   });
 
@@ -609,7 +341,7 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
     }
   }
 
-  showIntro(subgroup);
+  showCard();
 }
 
 // When restored from bfcache (browser back button), force a full reload
@@ -651,18 +383,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const from = urlParams.get('from') || 'welcome';
   const welcomeDwellMs = parseInt(urlParams.get('welcome_dwell_ms') || '0', 10) || 0;
 
-  // Click/tap to advance early — only when session is running (after intro)
+  // Click/tap to advance early
   app.addEventListener('click', () => {
     if (session) handleAdvance();
   });
 
-  // Spacebar: during session, advance card; during intro, handled inside showIntro
+  // Spacebar to advance early (skip when focus is in a text field)
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.code === 'Space' && session) {
-      // Only handle if the session is actively showing cards (not in intro phase)
-      // The intro installs its own one-shot handler; once showCard() is called
-      // the session's cardSpan will be set and handleAdvance() is appropriate.
-      if (!cardSpan) return;
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'TEXTAREA' || tag === 'INPUT') return;
       e.preventDefault();
