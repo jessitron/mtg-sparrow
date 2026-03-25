@@ -1,4 +1,4 @@
-import { buildSequence, SlideSelection } from './sparrow-deck';
+import { buildSequence, Familiarity, SlideSelection } from './sparrow-deck';
 
 // Combo labels: A, B, C, D, E, ...
 function comboLabel(comboIndex: number): string {
@@ -28,11 +28,38 @@ function getComboColor(comboIndex: number): string {
   return COMBO_COLORS[(comboIndex - 1) % COMBO_COLORS.length];
 }
 
-function renderSequence(sequence: SlideSelection[]): void {
+/**
+ * For the "new" strategy, detect which combo indices first appear at each
+ * position in the sequence. Returns a map of position → comboIndex.
+ */
+function detectIntroductions(sequence: SlideSelection[]): Map<number, number> {
+  const seen = new Set<number>();
+  const introAt = new Map<number, number>();
+  sequence.forEach(([comboIndex], position) => {
+    if (!seen.has(comboIndex)) {
+      seen.add(comboIndex);
+      introAt.set(position, comboIndex);
+    }
+  });
+  return introAt;
+}
+
+function renderSequence(sequence: SlideSelection[], familiarity: Familiarity): void {
   const output = document.getElementById('output')!;
   output.innerHTML = '';
 
+  const introductions = familiarity === 'new' ? detectIntroductions(sequence) : new Map<number, number>();
+
   sequence.forEach(([comboIndex, cardIndex], position) => {
+    // For "new" strategy, insert a visual marker when a new combo is introduced
+    const introCombo = introductions.get(position);
+    if (introCombo !== undefined) {
+      const marker = document.createElement('div');
+      marker.className = 'intro-marker';
+      marker.textContent = `── introducing ${comboLabel(introCombo)} ──`;
+      output.appendChild(marker);
+    }
+
     const row = document.createElement('div');
     row.className = 'sequence-row';
 
@@ -54,6 +81,12 @@ function renderSequence(sequence: SlideSelection[]): void {
     row.appendChild(cardEl);
     output.appendChild(row);
   });
+
+  // Show total length (especially useful for "new" where length may exceed the input)
+  const summary = document.createElement('div');
+  summary.className = 'sequence-summary';
+  summary.textContent = `Total: ${sequence.length} slides`;
+  output.appendChild(summary);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -61,14 +94,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const comboCountInput = document.getElementById('combo-count-input') as HTMLInputElement;
   const cardsPerComboInput = document.getElementById('cards-per-combo-input') as HTMLInputElement;
   const lengthInput = document.getElementById('length-input') as HTMLInputElement;
+  const familiaritySelect = document.getElementById('familiarity-select') as HTMLSelectElement;
 
   generateBtn.addEventListener('click', () => {
     const comboCount = parseInt(comboCountInput.value, 10) || 5;
     const cardsPerCombo = parseInt(cardsPerComboInput.value, 10) || 10;
     const length = parseInt(lengthInput.value, 10) || 25;
+    const familiarity = (familiaritySelect.value || 'familiar') as Familiarity;
     const cardCounts = Array.from({ length: comboCount }, () => cardsPerCombo);
-    const sequence = buildSequence(cardCounts, length);
-    renderSequence(sequence);
+    const sequence = buildSequence(cardCounts, length, familiarity);
+    renderSequence(sequence, familiarity);
   });
 
   // Generate on load with defaults
