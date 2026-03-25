@@ -94,32 +94,45 @@ function buildFamiliarSequence(cardCounts: number[], length: number): SlideSelec
   return sequence;
 }
 
+/** Count how many times comboIndex appears in the sequence. */
+function countAppearances(sequence: SlideSelection[], comboIndex: number): number {
+  let count = 0;
+  for (const [ci] of sequence) {
+    if (ci === comboIndex) count++;
+  }
+  return count;
+}
+
 /**
  * "new" strategy: gradually introduce combos.
  * - Start with combos 1 & 2 in the active pool.
- * - Every ~7 appearances total, add the next combo.
+ * - Add the next combo once the most-recently-introduced combo has appeared
+ *   at least REPS_BEFORE_NEXT times.
  * - Continue until all combos are active.
  * - Then continue with full pool until length is reached.
- * - Length is a minimum — keep going until all combos have been introduced.
+ * - Length is a minimum — keep going until all combos have been introduced
+ *   and each has had at least one full round.
  */
 function buildNewSequence(cardCounts: number[], length: number): SlideSelection[] {
   const totalCombos = cardCounts.length;
-  const INTRO_CADENCE = 7; // appearances before adding the next combo
+  const REPS_BEFORE_NEXT = 3; // times the newest combo must appear before adding the next
 
   const sequence: SlideSelection[] = [];
   let nextComboToIntroduce = 3; // combos 1 & 2 start active
+  let newestCombo = totalCombos >= 2 ? 2 : 1;
   const pool = totalCombos >= 2 ? [1, 2] : Array.from({ length: totalCombos }, (_, i) => i + 1);
 
   // Keep going until we've reached length AND introduced all combos
   while (sequence.length < length || nextComboToIntroduce <= totalCombos) {
     appendBatch(sequence, pool, cardCounts);
 
-    // Check whether it's time to introduce the next combo
+    // Introduce the next combo once the newest one has enough reps
     while (
       nextComboToIntroduce <= totalCombos &&
-      sequence.length >= (nextComboToIntroduce - 2) * INTRO_CADENCE
+      countAppearances(sequence, newestCombo) >= REPS_BEFORE_NEXT
     ) {
       pool.push(nextComboToIntroduce);
+      newestCombo = nextComboToIntroduce;
       nextComboToIntroduce++;
     }
   }
