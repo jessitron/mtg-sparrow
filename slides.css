@@ -32,6 +32,11 @@
   }
 }
 
+@keyframes cardPulse {
+  0%   { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
 .card {
   background: color-mix(in srgb, var(--bg-brown-dark) 88%, transparent);
   border-radius: 16px;
@@ -43,7 +48,10 @@
   gap: 1.5rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   user-select: none;
-  animation: cardEnter 250ms ease-out;
+}
+
+.card--transitioning {
+  animation: cardPulse 200ms ease-out;
 }
 
 .card-pips {

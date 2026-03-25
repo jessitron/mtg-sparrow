@@ -1,5 +1,5 @@
 import { initTelemetry, startSpan, startChildSpan, endSpan, emitLog, flushSpans, getTraceId } from './telemetry/telemetry';
-import { renderCard, revealName } from './ui/render';
+import { createCardShell, fillCard, revealName } from './ui/render';
 import {
   createSession,
   currentCard,
@@ -19,6 +19,7 @@ import { initDebugMode, isDebugMode } from './debug';
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
+let cardEl: HTMLElement | null = null;
 let sessionSpan: Span | null = null;
 let cardSpan: Span | null = null;
 let cardShowTime = 0;
@@ -116,6 +117,7 @@ function stopSession(): void {
   session.completed = false;
 
   doneZoneEl = null;
+  cardEl = null;
   navigateToAssessment(cardsShown);
 }
 
@@ -158,9 +160,17 @@ function showCard(): void {
     app.appendChild(cardContainer);
   }
 
-  cardContainer.innerHTML = '';
-  const card = renderCard(combo);
-  cardContainer.appendChild(card);
+  if (!cardEl) {
+    cardEl = createCardShell();
+    cardContainer.appendChild(cardEl);
+  }
+  fillCard(cardEl, combo);
+
+  // Trigger scale pulse to signal new card content
+  cardEl.classList.remove('card--transitioning');
+  // Force reflow so removing+re-adding the class actually restarts the animation
+  void cardEl.offsetWidth;
+  cardEl.classList.add('card--transitioning');
 
   // Footer below the card — names row + controls row.
   if (!doneZoneEl) {
@@ -251,7 +261,7 @@ function showCard(): void {
           revealTimer = setTimeout(() => {
             revealTimer = null;
             nameRevealed = true;
-            revealName(card);
+            if (cardEl) revealName(cardEl);
             advanceTimer = setTimeout(() => {
               advanceTimer = null;
               goToNextCard(false);
@@ -306,7 +316,7 @@ function showCard(): void {
   revealTimer = setTimeout(() => {
     revealTimer = null;
     nameRevealed = true;
-    revealName(card);
+    if (cardEl) revealName(cardEl);
 
     // Auto-advance: after ADVANCE_DELAY_MS, go to next card
     advanceTimer = setTimeout(() => {
@@ -327,6 +337,7 @@ function goToNextCard(early: boolean): void {
     showCard();
   } else {
     doneZoneEl = null;
+    cardEl = null;
     navigateToAssessment(session.cardCount);
   }
 }
@@ -353,10 +364,7 @@ function handleAdvance(): void {
     }
 
     nameRevealed = true;
-    const card = app?.querySelector('.card') as HTMLElement | null;
-    if (card) {
-      revealName(card);
-    }
+    if (cardEl) revealName(cardEl);
 
     advanceTimer = setTimeout(() => {
       advanceTimer = null;

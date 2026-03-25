@@ -1,9 +1,15 @@
 import { Slide } from '../session';
 import { renderPips } from './pips';
 
-export function renderCard(slide: Slide): HTMLElement {
+export function createCardShell(): HTMLElement {
   const card = document.createElement('div');
   card.classList.add('card');
+  return card;
+}
+
+export function fillCard(card: HTMLElement, slide: Slide): void {
+  // Clear existing content
+  card.innerHTML = '';
 
   if (slide.selectedCard) {
     card.classList.add('card--with-image');
@@ -36,6 +42,8 @@ export function renderCard(slide: Slide): HTMLElement {
 
     card.appendChild(quizCol);
   } else {
+    card.classList.remove('card--with-image');
+
     // Original layout: no card image
     card.appendChild(renderPips(slide.colors));
 
@@ -45,8 +53,6 @@ export function renderCard(slide: Slide): HTMLElement {
     name.textContent = slide.name;
     card.appendChild(name);
   }
-
-  return card;
 }
 
 export function revealName(card: HTMLElement): void {
