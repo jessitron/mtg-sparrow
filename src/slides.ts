@@ -31,6 +31,7 @@ let nameRevealed = false;
 let currentTraceUrl: string | null = null;
 let doneZoneEl: HTMLElement | null = null;
 let currentCardName = '';
+let namesEverHidden = false;
 
 function clearTimers(): void {
   if (revealTimer !== null) {
@@ -153,24 +154,81 @@ function showCard(): void {
   const card = renderCard(combo);
   app.appendChild(card);
 
-  // Controls below the card — pause, counter, done button.
+  // Footer below the card — names row + controls row.
   if (!doneZoneEl) {
     const doneZone = document.createElement('div');
     doneZone.classList.add('done-zone');
     doneZoneEl = doneZone;
 
-    // Left side: pause button + counter
-    const doneLeft = document.createElement('div');
-    doneLeft.classList.add('done-zone-left');
+    // Row 1: Names reference row
+    const namesRow = document.createElement('div');
+    namesRow.classList.add('footer-names');
 
+    const comboNames = comboPoolMap[session.subgroup].map(c => c.name).join(' \u00B7 ');
+    const namesText = document.createElement('span');
+    namesText.classList.add('footer-names-text');
+    namesText.textContent = comboNames;
+
+    const namesToggle = document.createElement('button');
+    namesToggle.classList.add('footer-names-toggle');
+
+    // Load persisted preference for this subgroup
+    const namesStorageKey = `namesHidden_${session.subgroup}`;
+    let namesHidden = localStorage.getItem(namesStorageKey) === 'true';
+    namesText.style.display = namesHidden ? 'none' : '';
+    namesToggle.textContent = namesHidden ? '[show names]' : '[hide]';
+
+    namesToggle.addEventListener('click', (e: MouseEvent) => {
+      e.stopPropagation();
+      namesHidden = !namesHidden;
+      localStorage.setItem(namesStorageKey, namesHidden ? 'true' : 'false');
+      namesText.style.display = namesHidden ? 'none' : '';
+      namesToggle.textContent = namesHidden ? '[show names]' : '[hide]';
+      if (namesHidden) {
+        namesEverHidden = true;
+        if (sessionSpan) {
+          sessionSpan.setAttribute('session.names_hidden', true);
+        }
+      }
+    });
+
+    namesRow.appendChild(namesText);
+    namesRow.appendChild(namesToggle);
+    doneZone.appendChild(namesRow);
+
+    // Row 2: Controls — right-aligned: counter, pause, exit
+    const controlsRow = document.createElement('div');
+    controlsRow.classList.add('footer-controls');
+
+    const progress = document.createElement('span');
+    progress.classList.add('progress-counter');
+    progress.textContent = `${session.currentIndex + 1} / ${session.cardCount}`;
+    controlsRow.appendChild(progress);
+
+    // Pause button — circular, styled like .gas-btn
     const pauseBtn = document.createElement('button');
     pauseBtn.id = 'pause-btn';
-    pauseBtn.classList.add('control-button');
-    pauseBtn.textContent = 'Pause';
+    pauseBtn.classList.add('footer-pause-btn');
+    pauseBtn.setAttribute('aria-label', 'Pause');
+    pauseBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
+      <rect x="3" y="2" width="4" height="14" rx="1"/>
+      <rect x="11" y="2" width="4" height="14" rx="1"/>
+    </svg>`;
+
+    const pauseSvgPause = `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
+      <rect x="3" y="2" width="4" height="14" rx="1"/>
+      <rect x="11" y="2" width="4" height="14" rx="1"/>
+    </svg>`;
+    const pauseSvgPlay = `<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
+      <polygon points="4,2 16,9 4,16"/>
+    </svg>`;
+
     pauseBtn.addEventListener('click', (e: MouseEvent) => {
       e.stopPropagation();
       paused = !paused;
-      pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+      pauseBtn.innerHTML = paused ? pauseSvgPlay : pauseSvgPause;
+      pauseBtn.setAttribute('aria-label', paused ? 'Resume' : 'Pause');
+      pauseBtn.classList.toggle('footer-pause-btn--paused', paused);
       emitLog(paused ? 'session.pause' : 'session.resume', sessionSpan ?? undefined, {
         'session.card_index': session ? session.currentIndex : 0,
       });
@@ -196,30 +254,19 @@ function showCard(): void {
         }
       }
     });
-    doneLeft.appendChild(pauseBtn);
+    controlsRow.appendChild(pauseBtn);
 
-    const progress = document.createElement('span');
-    progress.classList.add('progress-counter');
-    progress.textContent = `${session.currentIndex + 1} / ${session.cardCount}`;
-    doneLeft.appendChild(progress);
-
-    doneZone.appendChild(doneLeft);
-
-    // Right side: "Done for now" button
+    // Exit button (replaces "Done for now")
     const doneBtn = document.createElement('button');
     doneBtn.classList.add('done-button');
-    doneBtn.textContent = 'Done for now';
+    doneBtn.textContent = 'Exit';
     doneBtn.addEventListener('click', (e: MouseEvent) => {
       e.stopPropagation();
       stopSession();
     });
+    controlsRow.appendChild(doneBtn);
 
-    doneZone.appendChild(doneBtn);
-
-    // Empty spacer to balance the three-column grid
-    const spacer = document.createElement('div');
-    doneZone.appendChild(spacer);
-
+    doneZone.appendChild(controlsRow);
   }
 
   // Re-append (survives innerHTML clear) and update counter
