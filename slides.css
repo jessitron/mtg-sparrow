@@ -10,6 +10,13 @@
   justify-content: flex-start;
 }
 
+/* Lock html/body to viewport height during quiz to prevent scrollbar */
+html:has(.app--quiz-active) {
+  overflow: hidden;
+  height: 100vh;
+  height: 100svh;
+}
+
 /* Card zone: grows to fill remaining space, card centered inside */
 .card-container {
   flex: 1;

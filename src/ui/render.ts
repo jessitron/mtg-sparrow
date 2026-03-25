@@ -8,10 +8,10 @@ export function createCardShell(): HTMLElement {
 }
 
 export function fillCard(card: HTMLElement, slide: Slide): void {
-  // Clear existing content
-  card.innerHTML = '';
+  const newChildren: HTMLElement[] = [];
 
   if (slide.selectedCard) {
+    // Toggle class before replaceChildren so layout only recalculates once
     card.classList.add('card--with-image');
 
     // Left column: card image
@@ -27,7 +27,7 @@ export function fillCard(card: HTMLElement, slide: Slide): void {
       imgCol.style.display = 'none';
     };
     imgCol.appendChild(img);
-    card.appendChild(imgCol);
+    newChildren.push(imgCol);
 
     // Right column: pips + name
     const quizCol = document.createElement('div');
@@ -40,19 +40,23 @@ export function fillCard(card: HTMLElement, slide: Slide): void {
     name.textContent = slide.name;
     quizCol.appendChild(name);
 
-    card.appendChild(quizCol);
+    newChildren.push(quizCol);
   } else {
+    // Toggle class before replaceChildren so layout only recalculates once
     card.classList.remove('card--with-image');
 
     // Original layout: no card image
-    card.appendChild(renderPips(slide.colors));
+    newChildren.push(renderPips(slide.colors));
 
     const name = document.createElement('div');
     name.classList.add('card-name');
     name.classList.add('card-name-hidden');
     name.textContent = slide.name;
-    card.appendChild(name);
+    newChildren.push(name);
   }
+
+  // Atomically swap all children — no empty-card frame
+  card.replaceChildren(...newChildren);
 }
 
 export function revealName(card: HTMLElement): void {
