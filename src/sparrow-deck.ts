@@ -122,8 +122,13 @@ function buildNewSequence(cardCounts: number[], length: number): SlideSelection[
   let newestCombo = totalCombos >= 2 ? 2 : 1;
   const pool = totalCombos >= 2 ? [1, 2] : Array.from({ length: totalCombos }, (_, i) => i + 1);
 
-  // Keep going until we've reached length AND introduced all combos
-  while (sequence.length < length || nextComboToIntroduce <= totalCombos) {
+  // Keep going until we've reached length AND every combo (including the last
+  // one introduced) has had at least REPS_BEFORE_NEXT appearances
+  while (
+    sequence.length < length ||
+    nextComboToIntroduce <= totalCombos ||
+    countAppearances(sequence, newestCombo) < REPS_BEFORE_NEXT
+  ) {
     appendBatch(sequence, pool, cardCounts);
 
     // Introduce the next combo once the newest one has enough reps
