@@ -1,4 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env zsh
+set -euo pipefail
+
+function title {
+    echo -ne "\e]1;$*\a"
+}
+
 npm run build
 
+title run
 npx serve .
