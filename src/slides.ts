@@ -184,6 +184,9 @@ function showCard(): void {
       localStorage.setItem(namesStorageKey, namesHidden ? 'true' : 'false');
       namesText.style.display = namesHidden ? 'none' : '';
       namesToggle.textContent = namesHidden ? '[show names]' : '[hide]';
+      emitLog(namesHidden ? 'session.names_hide' : 'session.names_show', sessionSpan ?? undefined, {
+        'session.card_index': session ? session.currentIndex : 0,
+      });
       if (namesHidden) {
         namesEverHidden = true;
         if (sessionSpan) {
