@@ -7,12 +7,17 @@ export function renderLogo(container: HTMLElement): void {
   const outlineWidth = 2;
   const outlineColor = '#ffffff';
   const style = getComputedStyle(document.documentElement);
+  const manaColor = (name: string): string => {
+    const value = style.getPropertyValue(name).trim();
+    if (!value) throw new Error(`CSS variable ${name} is not defined`);
+    return value;
+  };
   const colors = {
-    W: style.getPropertyValue('--mana-W').trim() || '#F7EA3D',
-    U: style.getPropertyValue('--mana-U').trim() || '#0E68AB',
-    B: style.getPropertyValue('--mana-B').trim() || '#59289E',
-    R: style.getPropertyValue('--mana-R').trim() || '#D3202A',
-    G: style.getPropertyValue('--mana-G').trim() || '#00733E',
+    W: manaColor('--mana-W'),
+    U: manaColor('--mana-U'),
+    B: manaColor('--mana-B'),
+    R: manaColor('--mana-R'),
+    G: manaColor('--mana-G'),
   };
   const spiral = {
     startDeg: 35,
