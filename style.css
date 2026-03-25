@@ -23,6 +23,11 @@
   --symbol-outline-color: #272817;
   --menu-action-color: #ccc;
   --combo-name-size: clamp(1.75rem, 4vw, 3rem);
+  --mana-W: #F7EA3D;
+  --mana-U: #0E68AB;
+  --mana-B: #59289E;
+  --mana-R: #D3202A;
+  --mana-G: #00733E;
 }
 
 *,

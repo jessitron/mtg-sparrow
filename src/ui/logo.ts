@@ -6,12 +6,13 @@ export function renderLogo(container: HTMLElement): void {
   const orbitRadius = 115;
   const outlineWidth = 2;
   const outlineColor = '#ffffff';
+  const style = getComputedStyle(document.documentElement);
   const colors = {
-    W: '#F7EA3D',
-    U: '#0E68AB',
-    B: '#59289E',
-    R: '#D3202A',
-    G: '#00733E',
+    W: style.getPropertyValue('--mana-W').trim() || '#F7EA3D',
+    U: style.getPropertyValue('--mana-U').trim() || '#0E68AB',
+    B: style.getPropertyValue('--mana-B').trim() || '#59289E',
+    R: style.getPropertyValue('--mana-R').trim() || '#D3202A',
+    G: style.getPropertyValue('--mana-G').trim() || '#00733E',
   };
   const spiral = {
     startDeg: 35,
