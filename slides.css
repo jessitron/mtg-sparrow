@@ -286,7 +286,7 @@
 .level-intro-names {
   font-family: 'GoudyMediaeval', Georgia, serif;
   font-weight: bold;
-  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  font-size: clamp(1.75rem, 4vw, 3rem);
   letter-spacing: 0.03em;
   color: #e0e0e0;
   margin: 0.5rem 0 0;
@@ -315,7 +315,7 @@
   }
 
   .level-intro-names {
-    font-size: clamp(1.3rem, 5vw, 1.8rem);
+    font-size: clamp(1.5rem, 5vw, 2rem);
   }
 }
 
