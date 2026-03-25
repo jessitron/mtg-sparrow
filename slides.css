@@ -29,6 +29,12 @@ html:has(.app--quiz-active) {
   width: 100%;
 }
 
+/* Ensure card doesn't push footer out of viewport */
+.card-container .card {
+  max-height: 100%;
+  overflow: hidden;
+}
+
 @keyframes buttonFadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

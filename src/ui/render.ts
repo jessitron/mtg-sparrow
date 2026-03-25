@@ -20,6 +20,8 @@ export function fillCard(card: HTMLElement, slide: Slide): void {
 
     const img = document.createElement('img');
     img.classList.add('mtg-card-img');
+    img.width = 250;
+    img.height = 350;
     img.src = slide.selectedCard.imageUrl;
     img.alt = '';
     img.onerror = () => {
