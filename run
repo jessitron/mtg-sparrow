@@ -6,6 +6,7 @@ function title {
 }
 
 npm run build
+npm run build:harness
 
 title run
 npx serve .

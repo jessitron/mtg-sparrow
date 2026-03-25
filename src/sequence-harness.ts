@@ -1,13 +1,14 @@
-import { buildSequence } from './sparrow-deck';
-import { alliedGuilds, enemyGuilds, wedges, shards } from './data/combos';
-import type { ColorCombo } from './data/combos';
+import { buildSequence, SlideSelection } from './sparrow-deck';
 
-const subgroups: Record<string, ColorCombo[]> = {
-  allied: alliedGuilds,
-  enemy: enemyGuilds,
-  wedges: wedges,
-  shards: shards,
-};
+// Combo labels: A, B, C, D, E, ...
+function comboLabel(comboIndex: number): string {
+  return String.fromCharCode(64 + comboIndex); // 1→A, 2→B, etc.
+}
+
+// Card labels: F, G, H, ... Z (maps card index 1–21 to F–Z)
+function cardLabel(cardIndex: number): string {
+  return cardIndex > 0 ? String.fromCharCode(69 + cardIndex) : '–'; // 1→F, 2→G, etc.
+}
 
 // Distinct background colors for up to 10 combos
 const COMBO_COLORS = [
@@ -27,12 +28,11 @@ function getComboColor(comboIndex: number): string {
   return COMBO_COLORS[(comboIndex - 1) % COMBO_COLORS.length];
 }
 
-function renderSequence(sequence: ReturnType<typeof buildSequence>, combos: ColorCombo[]): void {
+function renderSequence(sequence: SlideSelection[]): void {
   const output = document.getElementById('output')!;
   output.innerHTML = '';
 
   sequence.forEach(([comboIndex, cardIndex], position) => {
-    const combo = combos[comboIndex - 1];
     const row = document.createElement('div');
     row.className = 'sequence-row';
 
@@ -43,19 +43,14 @@ function renderSequence(sequence: ReturnType<typeof buildSequence>, combos: Colo
     const comboEl = document.createElement('span');
     comboEl.className = 'combo-chip';
     comboEl.style.backgroundColor = getComboColor(comboIndex);
-    comboEl.textContent = combo ? combo.name : `Combo ${comboIndex}`;
-
-    const indexEl = document.createElement('span');
-    indexEl.className = 'combo-index';
-    indexEl.textContent = `#${comboIndex}`;
+    comboEl.textContent = comboLabel(comboIndex);
 
     const cardEl = document.createElement('span');
     cardEl.className = 'card-index';
-    cardEl.textContent = cardIndex > 0 ? `card ${cardIndex}` : 'no card';
+    cardEl.textContent = cardLabel(cardIndex);
 
     row.appendChild(positionEl);
     row.appendChild(comboEl);
-    row.appendChild(indexEl);
     row.appendChild(cardEl);
     output.appendChild(row);
   });
@@ -63,16 +58,17 @@ function renderSequence(sequence: ReturnType<typeof buildSequence>, combos: Colo
 
 document.addEventListener('DOMContentLoaded', () => {
   const generateBtn = document.getElementById('generate-btn') as HTMLButtonElement;
-  const subgroupSelect = document.getElementById('subgroup-select') as HTMLSelectElement;
+  const comboCountInput = document.getElementById('combo-count-input') as HTMLInputElement;
+  const cardsPerComboInput = document.getElementById('cards-per-combo-input') as HTMLInputElement;
   const lengthInput = document.getElementById('length-input') as HTMLInputElement;
 
   generateBtn.addEventListener('click', () => {
-    const subgroupKey = subgroupSelect.value;
-    const combos = subgroups[subgroupKey] ?? alliedGuilds;
+    const comboCount = parseInt(comboCountInput.value, 10) || 5;
+    const cardsPerCombo = parseInt(cardsPerComboInput.value, 10) || 10;
     const length = parseInt(lengthInput.value, 10) || 25;
-    const cardCounts = combos.map(c => (c.cards ? c.cards.length : 0));
+    const cardCounts = Array.from({ length: comboCount }, () => cardsPerCombo);
     const sequence = buildSequence(cardCounts, length);
-    renderSequence(sequence, combos);
+    renderSequence(sequence);
   });
 
   // Generate on load with defaults
