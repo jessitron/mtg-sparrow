@@ -2,6 +2,7 @@
 #app.app--quiz-active {
   max-width: 100%;
   padding: 1rem;
+  box-sizing: border-box;
   gap: 1rem;
   height: 100vh; /* fallback for browsers without svh support */
   height: 100svh;
@@ -22,14 +23,8 @@
 }
 
 @keyframes buttonFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes cardPulse {

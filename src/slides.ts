@@ -302,14 +302,15 @@ function showCard(): void {
   // Show "Done for now" button from card 2 onward
   const doneBtn = doneZoneEl.querySelector('.done-button');
   if (doneBtn && session.currentIndex >= 1) {
-    if (doneBtn.classList.contains('button-visible') || doneBtn.classList.contains('button-steady')) {
-      // Already revealed — hold steady, no re-animation
-      doneBtn.classList.remove('button-visible');
-      doneBtn.classList.add('button-steady');
-    } else {
-      // First reveal — animate in
+    if (!doneBtn.classList.contains('button-visible') && !doneBtn.classList.contains('button-steady')) {
+      // First reveal — animate in, then lock to steady after animation completes
       doneBtn.classList.add('button-visible');
+      doneBtn.addEventListener('animationend', () => {
+        doneBtn.classList.remove('button-visible');
+        doneBtn.classList.add('button-steady');
+      }, { once: true });
     }
+    // If already button-visible or button-steady, leave it alone — no class toggling
   }
 
   // Auto-reveal: after REVEAL_DELAY_MS, fade in the name
