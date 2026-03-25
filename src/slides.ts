@@ -150,9 +150,17 @@ function showCard(): void {
   pausedByDialog = false;
   nameRevealed = false;
 
-  app.innerHTML = '';
+  // Ensure two-zone structure: .card-container + .done-zone
+  let cardContainer = app.querySelector('.card-container') as HTMLElement | null;
+  if (!cardContainer) {
+    cardContainer = document.createElement('div');
+    cardContainer.classList.add('card-container');
+    app.appendChild(cardContainer);
+  }
+
+  cardContainer.innerHTML = '';
   const card = renderCard(combo);
-  app.appendChild(card);
+  cardContainer.appendChild(card);
 
   // Footer below the card — names row + controls row.
   if (!doneZoneEl) {
@@ -272,8 +280,10 @@ function showCard(): void {
     doneZone.appendChild(controlsRow);
   }
 
-  // Re-append (survives innerHTML clear) and update counter
-  app.appendChild(doneZoneEl);
+  // Ensure doneZoneEl is appended to app (after card-container) and update counter
+  if (!doneZoneEl.parentNode) {
+    app.appendChild(doneZoneEl);
+  }
   const progress = doneZoneEl.querySelector('.progress-counter') as HTMLElement | null;
   if (progress) {
     progress.textContent = `${session.currentIndex + 1} / ${session.cardCount}`;
