@@ -18,15 +18,18 @@ export function initDebugMode(): void {
     return;
   }
 
-  if (param === 'on' || param === 'off') {
-    console.log(`[debug] ?debug=${param} detected — switching debug mode ${param}`);
+  const enabling = param === 'on' || param === 'true';
+  const disabling = param === 'off' || param === 'false';
+
+  if (enabling || disabling) {
+    console.log(`[debug] ?debug=${param} detected — switching debug mode ${enabling ? 'on' : 'off'}`);
 
     const span = startSpan('debug.mode_changed', {
-      'debug.mode': param,
+      'debug.mode': enabling ? 'on' : 'off',
       'debug.source': 'url_param',
     });
 
-    if (param === 'on') {
+    if (enabling) {
       localStorage.setItem(DEBUG_KEY, 'true');
     } else {
       localStorage.removeItem(DEBUG_KEY);
@@ -36,7 +39,7 @@ export function initDebugMode(): void {
 
     url.searchParams.delete('debug');
     console.log(`[debug] showing debug modal, flushing spans...`);
-    showDebugModal(param === 'on' ? 'ACTIVATED' : 'DEACTIVATED');
+    showDebugModal(enabling ? 'ACTIVATED' : 'DEACTIVATED');
     flushSpans().then(() => {
       console.log(`[debug] flush complete`);
     });
@@ -45,7 +48,7 @@ export function initDebugMode(): void {
       window.location.replace(url.toString());
     }, 3000);
   } else {
-    console.log(`[debug] debug mode is ${isDebugMode() ? 'ON' : 'OFF'}. Set with ?debug=on or ?debug=off in the URL.`);
+    console.log(`[debug] debug mode is ${isDebugMode() ? 'ON' : 'OFF'}. Set with ?debug=on/true or ?debug=off/false in the URL.`);
   }
 } 
 
