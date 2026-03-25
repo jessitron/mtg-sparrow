@@ -6,7 +6,7 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-03-25)
 
-No active plan. Arc 44 (Level Intro Slide) completed 2026-03-25. No active arc.
+No active plan. Arc 44 (Level Intro Slide) completed 2026-03-25. Exploratory spaced repetition groundwork also completed 2026-03-25 (sequence module refactoring, sequence harness). No active arc.
 
 Arcs 42-43 (Name Scroll / Scroll Docks) were reverted; Arc 44 supersedes them with a simpler cinematic title card approach.
 
@@ -59,6 +59,31 @@ The separate RFP (discovery) and SOW (arc planning) stages were merged into a si
 
 ### flushSpans() Reliability
 - Current implementation calls `forceFlush()` but the OTel provider may not support it. DEC-147 documents the lesson about silent failure. Full reliable flush would require storing the `HoneycombWebSDK` instance and calling `sdk.shutdown()`. Deferred.
+
+---
+
+## Spaced Repetition Groundwork — Ready for Next Arc
+
+**Status**: Structural foundation in place. No formal plan yet.
+
+### What exists
+- `src/sparrow-deck.ts` — `shuffle`, `buildSequence`, `buildDeck`. `buildSequence` is the pure-numbers ordering layer.
+- `SlideSelection = [comboIndex, cardIndex]` — both 1-indexed tuple type, exported from `sparrow-deck.ts`.
+- `src/session.ts` — imports `buildDeck` from `sparrow-deck.ts` (local shuffle/buildDeck removed).
+- `sequence-harness.html` + `src/sequence-harness.ts` — visual inspection page for sequence aesthetics. Uses abstract labels (A-E combos, F-Z cards). Available in production.
+- `tests/test-harness.mjs` — Playwright test for the harness.
+- `npm run build:harness` — standalone build script.
+
+### What's next
+- Spaced repetition heuristics can now be implemented inside `buildSequence` without touching domain types.
+- The harness is the tool for evaluating whether a given algorithm produces aesthetically good distributions.
+- A formal plan/arc is needed before implementation begins.
+
+### Key decisions
+- DEC-165: `buildSequence` is domain-agnostic (pure numbers).
+- DEC-166: Harness uses abstract labels, not guild names.
+- DEC-167: Harness is production-accessible.
+- DEC-168: `SlideSelection` tuple, 1-indexed.
 
 ---
 

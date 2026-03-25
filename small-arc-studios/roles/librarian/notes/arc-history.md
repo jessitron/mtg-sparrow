@@ -345,6 +345,18 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 
 ---
 
+## Sequence Generation Module (Exploratory, 2026-03-25)
+
+### Refactoring: Sequence Generation — COMPLETE (2026-03-25)
+- **Type**: Structural (exploratory groundwork, not part of a formal SOW)
+- **What**: Extracted deck-building logic from `session.ts` into `src/sparrow-deck.ts`. Introduced `buildSequence(cardCounts, length)` as a pure-numbers abstraction layer where spaced repetition heuristics will live. `buildDeck` calls `buildSequence` and maps tuples to Slide objects. `SlideSelection` type (`[comboIndex, cardIndex]`, both 1-indexed) exported. Sequence harness page (`sequence-harness.html` + `src/sequence-harness.ts`) added for visual inspection of sequence aesthetics — uses abstract labels (A-E combos, F-Z cards), no domain knowledge. Harness added to deploy workflow and `npm run build:harness`. Playwright test script at `tests/test-harness.mjs`.
+- **Key decisions**: DEC-165, DEC-166, DEC-167, DEC-168
+- **Files changed**: `src/sparrow-deck.ts` (new), `src/session.ts` (import refactor), `src/sequence-harness.ts` (new), `sequence-harness.html` (new), `tests/test-harness.mjs` (new), `package.json`, `.github/workflows/deploy.yml`, `run`
+- **Purpose**: Establishes the structural foundation for spaced repetition — the pure ordering layer exists independently, can be tested aesthetically in isolation, and is ready for heuristic experimentation.
+- **Note**: No formal plan or SOW — exploratory groundwork preceding a future spaced repetition arc.
+
+---
+
 ## Level Intro Slide (Arc 44, 2026-03-25)
 
 ### Arc 44: Level Intro Slide — COMPLETE (2026-03-25)

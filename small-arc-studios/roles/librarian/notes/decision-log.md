@@ -1424,6 +1424,32 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Alternatives**: Separate `intro.view` child span; log event.
 - **Rationale**: The intro is a fixed preamble to every session, not a variable event worth its own span. Session attributes keep the trace clean and allow filtering sessions by intro presence without adding span count.
 
+## DEC-165: buildSequence Operates on Pure Numbers
+- **Date**: 2026-03-25
+- **Decision**: `buildSequence(cardCounts: number[], length: number): SlideSelection[]` operates entirely on indices (combo index, card index) — no domain types, no Slide objects, no guild names.
+- **Context**: Spaced repetition heuristics need to control the ordering of slides. Decoupling the ordering logic from domain types allows it to be tested independently of card data.
+- **Alternatives**: Pass Slide objects directly; pass ComboCard pairs.
+- **Rationale**: A pure-numbers function can be exercised in isolation with abstract test data (e.g., the sequence harness with letter labels). The mapping from indices to actual Slide objects is a separate, testable step in `buildDeck`.
+
+## DEC-166: Sequence Harness Uses Abstract Letter Labels
+- **Date**: 2026-03-25
+- **Decision**: The sequence harness (`sequence-harness.html`) displays combos as A-E and cards as F-Z — abstract letter labels with no domain knowledge (no guild names, no MTG terminology).
+- **Context**: The harness is a visual tool for inspecting sequence aesthetics: are combos well-distributed? Do cards repeat too soon? These questions are domain-agnostic.
+- **Rationale**: Keeping the harness domain-agnostic means it can be used to evaluate any sequence ordering strategy without coupling to MTG content. It tests the shape of a sequence, not its meaning.
+
+## DEC-167: Sequence Harness is Production-Accessible
+- **Date**: 2026-03-25
+- **Decision**: The sequence harness is added to the deploy workflow and built by default — it's accessible in production at `/sequence-harness.html`, not a dev-only tool.
+- **Context**: The harness has no sensitive functionality. Making it production-accessible means it's always available for quick visual inspection without a local build.
+- **Alternatives**: Dev-only page excluded from deploy; hidden behind a flag.
+- **Rationale**: No harm in public accessibility; convenience of always-on availability outweighs any concern. The harness is a pure visualization tool.
+
+## DEC-168: SlideSelection is a [comboIndex, cardIndex] Tuple, Both 1-Indexed
+- **Date**: 2026-03-25
+- **Decision**: `SlideSelection` is defined as `[number, number]` where the first element is the combo index (1-indexed) and the second is the card index within that combo (1-indexed).
+- **Context**: `buildSequence` needs a compact representation of a card position in the deck. A tuple is simpler than a named object for a pure-numbers layer.
+- **Rationale**: 1-indexed to match natural human counting in the harness display. Both elements are bounded (1..comboCount, 1..cardsPerCombo), making validation straightforward.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
