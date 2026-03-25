@@ -1,8 +1,132 @@
-# Footer Redesign Proposals — Slides Page
+# Footer Redesign — Slides Page
 
 **Date:** 2026-03-25
 **Trigger:** Client request to rearrange the footer, add combo name reference row, and consider pause button positioning.
-**Status:** Three concrete proposals for review
+**Status:** CHOSEN DIRECTION approved by client (see top section). Original proposals preserved below for context.
+
+---
+
+## Chosen Direction — Client-Approved Layout
+
+Two rows below the card.
+
+### Row 1: Names Reference
+
+```
+  Azorius · Orzhov · Boros · Selesnya · Simic        [hide]
+```
+
+- Five combo names with middle-dot separators, matching the level intro screen aesthetic
+- Font: GoudyMediaeval, bold, same as `.level-intro-names`
+- Color: muted (#e0e0e0 at ~0.6 opacity) — reference, not headline
+- `[hide]` toggle right-aligned, minimal styling (0.7rem, #555)
+- When hidden, collapses to `[show names]` left-aligned, same minimal styling
+- Default: visible on first session at a level; preference persisted to localStorage by level slug
+- **Visible from card 1** — this is reference for the session, not a reward for progress
+
+### Row 2: Controls
+
+```
+  2/25                                        [⏸]  [Done for now]
+```
+
+- **Left**: Card counter (e.g., "2/25"), muted (#888, 0.9rem) — same as current `.progress-counter`
+- **Right cluster**: Pause button, then "Done for now" button on the far right
+- Space between counter and right cluster is natural whitespace
+
+### Pause Button Styling
+
+The pause button is styled to match the home screen gas buttons (`.gas-btn`):
+
+- **Size**: 48px (scaled down from 64px to fit footer context — 64px would dominate the row)
+- **Shape**: Circular, `border-radius: 50%`
+- **Background**: `rgba(255,255,255,0.08)` (matching `.gas-btn`)
+- **Border**: `1px solid rgba(255,255,255,0.25)` (matching `.gas-btn`)
+- **Icon**: SVG pause bars (two vertical rectangles), same as `#gas-stop-btn` on the home screen
+- **Hover**: `background: rgba(255,255,255,0.2)`
+- **When paused**: border tint shifts to indicate active state (e.g., turquoise border like `rgba(100,200,200,0.6)`)
+- **Position**: In the footer grid, NOT `position: fixed` — it flows with the layout
+- **Resume state**: SVG swaps to a play triangle icon
+
+### "Done for now" Button
+
+- Unchanged from current `.done-button` styling (turquoise accent border, 1.1rem, prominent)
+- Hidden on card 1, fades in on card 2+ (existing `buttonFadeIn` animation)
+- Far right position
+
+### CSS Layout
+
+```css
+/* Names row */
+.footer-names {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+/* Controls row */
+.footer-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.footer-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+```
+
+### Desktop Layout (wider than 600px)
+
+```
+┌───────────────────────────────────────────────────┐
+│                                                   │
+│               [ CARD CONTENT ]                    │
+│                                                   │
+├───────────────────────────────────────────────────┤
+│ Azorius · Orzhov · Boros · Selesnya · Simic [hide]│  ← names row
+├───────────────────────────────────────────────────┤
+│ 2/25                                  [⏸] [Done] │  ← controls row
+└───────────────────────────────────────────────────┘
+```
+
+### Mobile Layout (under 600px)
+
+```
+┌─────────────────────────────┐
+│                             │
+│      [ CARD CONTENT ]       │
+│                             │
+├─────────────────────────────┤
+│ Azorius · Orzhov · Boros    │  ← names wrap to
+│ · Selesnya · Simic   [hide] │     two lines (OK)
+├─────────────────────────────┤
+│ 2/25            [⏸] [Done] │  ← controls row
+└─────────────────────────────┘
+```
+
+- Names may wrap to two lines on narrow screens — acceptable, row auto-sizes
+- Controls row stays single-line
+- Pause button scales to 40px on mobile for tighter fit
+- All interactive elements maintain 44px minimum touch target
+
+### Interaction Notes
+
+- All footer controls use `stopPropagation` to prevent accidental card advance
+- Counter and pause visible from card 1
+- "Done for now" fades in on card 2+
+- Pause/resume toggles the SVG icon (pause bars ↔ play triangle)
+- Names toggle is instant (no animation needed — it's reference, not drama)
+
+---
+
+## Original Proposals (for context)
+
+The following proposals were explored before the client chose the direction above.
 
 ---
 
