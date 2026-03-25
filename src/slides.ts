@@ -170,20 +170,20 @@ function showCard(): void {
     namesText.textContent = comboNames;
 
     const namesToggle = document.createElement('button');
-    namesToggle.classList.add('footer-names-toggle');
+    namesToggle.classList.add('footer-names-minimize');
 
     // Load persisted preference for this subgroup
     const namesStorageKey = `namesHidden_${session.subgroup}`;
     let namesHidden = localStorage.getItem(namesStorageKey) === 'true';
     namesText.style.display = namesHidden ? 'none' : '';
-    namesToggle.textContent = namesHidden ? '[show names]' : '[hide]';
+    namesToggle.textContent = namesHidden ? '+' : '─';
 
     namesToggle.addEventListener('click', (e: MouseEvent) => {
       e.stopPropagation();
       namesHidden = !namesHidden;
       localStorage.setItem(namesStorageKey, namesHidden ? 'true' : 'false');
       namesText.style.display = namesHidden ? 'none' : '';
-      namesToggle.textContent = namesHidden ? '[show names]' : '[hide]';
+      namesToggle.textContent = namesHidden ? '+' : '─';
       emitLog(namesHidden ? 'session.names_hide' : 'session.names_show', sessionSpan ?? undefined, {
         'session.card_index': session ? session.currentIndex : 0,
       });
