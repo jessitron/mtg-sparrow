@@ -6,7 +6,9 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-03-25)
 
-No active plan. Arc 43 (Scroll Docks as Persistent Reference) completed 2026-03-14. Cylinder prototype research also completed 2026-03-14.
+No active plan. Arc 44 (Level Intro Slide) completed 2026-03-25. No active arc.
+
+Arcs 42-43 (Name Scroll / Scroll Docks) were reverted; Arc 44 supersedes them with a simpler cinematic title card approach.
 
 ---
 
@@ -32,11 +34,11 @@ No active plan. Arc 43 (Scroll Docks as Persistent Reference) completed 2026-03-
 
 ---
 
-## Name Scroll — Delivered (Arcs 42–43)
+## Level Intro Slide — Delivered (Arc 44, supersedes Arcs 42–43)
 
-The level intro screen and docked scroll reference have been delivered. The scroll div style uses CSS divs (not the cylinder prototype animation), per the plan's non-goal of building the actual unroll animation.
+Arcs 42-43 (Name Scroll / Scroll Docks) were reverted because the scroll+dock approach didn't work. Arc 44 delivered the valuable part: a cinematic title card that previews level name, subtitle, and all five combo names (in GoudyMediaeval) before the quiz starts. Dismissed by click/tap/spacebar with a 150ms fade.
 
-The cylinder prototype lays groundwork for a future visual upgrade to the scroll animation.
+The cylinder prototype still lays groundwork for a future visual upgrade if a scroll animation is revisited.
 
 ---
 

@@ -1397,6 +1397,33 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: Previously, the button read "Learn guild names" on desktop and "Start" on mobile — two different labels for the same action.
 - **Rationale**: A single bold word is clearer and more inviting. Unified labeling removes the inconsistency between responsive breakpoints.
 
+## DEC-161: Cinematic Title Card — No Chrome
+- **Date**: 2026-03-25
+- **Decision**: Level intro uses a cinematic title card approach: content floats on the background with no card borders, no card chrome, no scroll container.
+- **Context**: Previous Arcs 42-43 used a scroll metaphor with a persistent docked reference, which was reverted because the approach didn't work. Arc 44 delivers only the upfront preview (the valuable part identified by Llewellyn Falco's advice).
+- **Alternatives**: Reviving the scroll metaphor; a bordered card frame.
+- **Rationale**: Simpler approach. The cinematic float creates presence without UI complexity. The persistent reference is cut — it was the part that didn't work.
+
+## DEC-162: GoudyMediaeval Font for Name Priming
+- **Date**: 2026-03-25
+- **Decision**: Combo names on the level intro slide are rendered in GoudyMediaeval bold — the same font used for card answer names during the quiz.
+- **Context**: The goal of the intro is to prime visual recognition before the quiz starts.
+- **Alternatives**: A different display font; plain sans-serif.
+- **Rationale**: Using the same font as the answer cards builds an immediate visual association. Learners see the name in the intro, then recognize the same letterforms when the card is revealed.
+
+## DEC-163: --combo-name-size CSS Variable as Single Source of Truth
+- **Date**: 2026-03-25
+- **Decision**: `--combo-name-size` CSS custom property extracted as the single source of truth for combo name font size, shared between level intro names and card answer names. Mobile override via `:root` reassignment at 600px.
+- **Context**: Both the intro slide and the card answers render combo names. Previously these could drift independently.
+- **Rationale**: One variable prevents size divergence between intro and quiz. Mobile override at the root level propagates to both consumers automatically.
+
+## DEC-164: Intro Telemetry as Session Span Attributes
+- **Date**: 2026-03-25
+- **Decision**: Level intro telemetry (`session.has_level_intro = true`, `session.intro_dwell_ms`) recorded as attributes on the existing session span rather than as a separate child span.
+- **Context**: The intro is a fixed preamble before the quiz, not a variable user event.
+- **Alternatives**: Separate `intro.view` child span; log event.
+- **Rationale**: The intro is a fixed preamble to every session, not a variable event worth its own span. Session attributes keep the trace clean and allow filtering sessions by intro presence without adding span count.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

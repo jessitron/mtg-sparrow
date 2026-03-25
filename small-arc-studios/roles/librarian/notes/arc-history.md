@@ -342,3 +342,17 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 - Pure CSS transitions via cubic-bezier approximation (`computeTransition({ spiralLength, stopRemaining })`)
 - Decisions: DEC-152 through DEC-159
 - See `active-notes.md` for current status.
+
+---
+
+## Level Intro Slide (Arc 44, 2026-03-25)
+
+### Arc 44: Level Intro Slide — COMPLETE (2026-03-25)
+- **Type**: User
+- **What**: Level intro slide appears before quiz cards on the slides page. Shows "LEVEL N" (Jost 800, large uppercase) with a thin khaki decorative rule, subtitle (e.g. "Allied Guilds"), and the five combo names in GoudyMediaeval bold separated by middle-dots. Click/tap/spacebar dismisses with a 150ms fade, then the quiz starts. CTA hint pulses gently in turquoise.
+- **Level mapping**: allied=1, enemy=2, wedges=3, shards=4
+- **Context**: Previous Arcs 42-43 attempted a scroll metaphor with persistent docked reference — reverted because it didn't work. Arc 44 delivers only the preview (the valuable part), not the persistent reference. Cinematic title card approach: no card chrome, no borders, content floats on background.
+- **Key decisions**: DEC-161 (cinematic title card, no chrome), DEC-162 (GoudyMediaeval for name priming), DEC-163 (--combo-name-size CSS variable as single source of truth), DEC-164 (session span attributes instead of separate span).
+- **Telemetry**: `session.has_level_intro = true` and `session.intro_dwell_ms` as attributes on the session span.
+- **Verification**: 36/36 PASS (test script: tests/test-level-intro.mjs).
+- **Files changed**: src/slides.ts, slides.css, style.css.
