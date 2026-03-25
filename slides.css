@@ -239,8 +239,8 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100svh;
-  min-height: 100vh; /* fallback */
+  min-height: 100vh;
+  min-height: 100svh; /* safe area override when supported */
   width: 100%;
   animation: cardEnter 250ms ease-out;
 }
