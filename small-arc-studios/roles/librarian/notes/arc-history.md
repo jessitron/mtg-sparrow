@@ -368,3 +368,17 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 - **Telemetry**: `session.has_level_intro = true` and `session.intro_dwell_ms` as attributes on the session span.
 - **Verification**: 36/36 PASS (test script: tests/test-level-intro.mjs).
 - **Files changed**: src/slides.ts, slides.css, style.css.
+
+---
+
+## Dual-Strategy buildSequence (Arc 46, 2026-03-25)
+
+### Arc 46: Dual-Strategy buildSequence — ACTIVE (2026-03-25)
+- **Type**: Feature (Spaced Repetition)
+- **What**: `buildSequence` gains a `familiarity: "new" | "familiar"` parameter that selects the sequencing strategy. Two strategies:
+  - **"familiar"**: Existing shuffle-and-repeat with an added minimum-gap constraint of 2 positions (prevents same combo appearing back-to-back at batch boundaries).
+  - **"new"**: Gradual introduction — starts with 2 combos in the active pool, adds one more every ~6-8 total appearances. Based on direct advice from Llewellyn Falco. `length` becomes a minimum; sequence may be longer to ensure all combos are introduced and get a full round.
+- **Research basis**: Spaced repetition research (Kornell & Bjork 2008, ARTS studies) favors all-at-once interleaving for discrimination tasks. Falco's direct experience indicates gradual introduction helps when category names are unfamiliar arbitrary proper nouns (higher cognitive load). Resolution: familiarity level selects strategy.
+- **Future signal noted**: Click-vs-timer-advance as implicit confidence signal for within-session adaptive requeue. Deferred to future arc (DEC-173).
+- **Key decisions**: DEC-169 (familiarity parameter), DEC-170 ("familiar" min-gap strategy), DEC-171 ("new" gradual introduction), DEC-172 (research basis + resolution), DEC-173 (adaptive requeue deferred).
+- **Verification**: In progress.

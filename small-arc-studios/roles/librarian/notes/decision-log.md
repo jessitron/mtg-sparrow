@@ -1452,4 +1452,42 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-169: buildSequence Gains a Familiarity Parameter
+- **Date**: 2026-03-25
+- **Arc**: 46
+- **Decision**: `buildSequence` accepts a second parameter `familiarity: "new" | "familiar"` that selects the sequencing strategy. The function remains domain-agnostic — pure numbers, no guild types.
+- **Context**: Arc 46. Two learner profiles exist: someone encountering the combo names for the first time ("new"), and someone who has seen them before ("familiar"). The right sequencing strategy differs between them.
+- **Rationale**: A single parameter cleanly selects strategy at the call site. Keeping the function domain-agnostic preserves its testability and the architectural boundary established in DEC-165.
+
+## DEC-170: "familiar" Strategy Adds Minimum-Gap Constraint
+- **Date**: 2026-03-25
+- **Arc**: 46
+- **Decision**: The "familiar" strategy is the existing shuffle-and-repeat approach, augmented with a minimum-gap constraint of 2 positions. The same combo cannot appear within 2 positions of a previous occurrence — prevents the same combo appearing back-to-back at batch boundaries.
+- **Context**: The existing shuffle-based approach is good for distributed interleaving but can produce accidental clustering at batch seams. A minimum-gap of 2 eliminates the most jarring repeats without overly constraining distribution.
+- **Rationale**: Low-overhead fix to a known aesthetic problem with the shuffle-and-repeat pattern. Gap of 2 is the minimum meaningful constraint (prevents direct adjacency).
+
+## DEC-171: "new" Strategy Uses Gradual Introduction
+- **Date**: 2026-03-25
+- **Arc**: 46
+- **Decision**: The "new" strategy starts with 2 combos in the active pool and adds one more combo every ~6-8 total appearances. The `length` parameter becomes a minimum — the sequence may be longer than requested to ensure all combos are introduced and each gets at least one full round.
+- **Context**: Direct advice from Llewellyn Falco (Sparrow Deck creator) for learning unfamiliar arbitrary proper nouns. Starting with fewer items reduces the cognitive load of tracking category names that have no semantic anchor.
+- **Alternatives rejected**: Full interleaving from the start (standard spaced repetition default — see DEC-172).
+- **Rationale**: When category names are unfamiliar arbitrary proper nouns (higher cognitive load than visual discrimination), gradual introduction reduces overwhelm and allows each name to stabilize before new ones are added. Falco's direct experience with the technique supports this.
+
+## DEC-172: Research Basis — Familiarity Level Selects Strategy
+- **Date**: 2026-03-25
+- **Arc**: 46
+- **Decision**: Use familiarity level to select sequencing strategy: "new" learners get gradual introduction; "familiar" learners get full interleaved shuffle.
+- **Context**: Spaced repetition research (Kornell & Bjork 2008, ARTS studies) generally favors all-at-once interleaving for discrimination tasks — seeing all categories from the start produces better learning outcomes. However, Falco's direct experience with the Sparrow Deck technique indicates gradual introduction helps when category names are unfamiliar arbitrary proper nouns (higher cognitive load than pure visual discrimination). The research and the practitioner advice are not contradictory — they apply to different learner states.
+- **Rationale**: Resolution by familiarity level. Returning learners ("familiar") already know the names and benefit from full interleaving. First-time learners ("new") face the additional challenge of arbitrary proper noun acquisition and benefit from gradual introduction. The `familiarity` parameter makes this explicit at the call site.
+
+## DEC-173: Click-vs-Timer-Advance as Future Confidence Signal
+- **Date**: 2026-03-25
+- **Arc**: 46
+- **Decision**: Click-vs-timer-advance (whether the user tapped early or let the timer run) is noted as a potential implicit confidence signal for within-session adaptive requeue. Not implemented in Arc 46.
+- **Context**: During Arc 46 planning, the team observed that early taps indicate higher confidence and timer advances may indicate lower confidence. This could inform adaptive spacing within a session.
+- **Rationale**: Noted for a future arc. Arc 46 scope is limited to the two fixed strategies (new/familiar). Adaptive requeue based on confidence signals is a meaningful enhancement that requires its own plan.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

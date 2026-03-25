@@ -6,7 +6,9 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-03-25)
 
-No active plan. Arc 44 (Level Intro Slide) completed 2026-03-25. Exploratory spaced repetition groundwork also completed 2026-03-25 (sequence module refactoring, sequence harness). No active arc.
+Arc 46 (Dual-Strategy buildSequence) is the active arc. Implementation underway: adding `familiarity: "new" | "familiar"` parameter to `buildSequence`, implementing both sequencing strategies, verifying via sequence harness and tests.
+
+Arc 44 (Level Intro Slide) completed 2026-03-25. Exploratory spaced repetition groundwork also completed 2026-03-25 (sequence module refactoring, sequence harness).
 
 Arcs 42-43 (Name Scroll / Scroll Docks) were reverted; Arc 44 supersedes them with a simpler cinematic title card approach.
 
@@ -62,9 +64,9 @@ The separate RFP (discovery) and SOW (arc planning) stages were merged into a si
 
 ---
 
-## Spaced Repetition Groundwork — Ready for Next Arc
+## Spaced Repetition Groundwork — Arc 46 Underway
 
-**Status**: Structural foundation in place. No formal plan yet.
+**Status**: Foundation in place (Arc 45 exploratory). Arc 46 is implementing the dual-strategy `buildSequence`.
 
 ### What exists
 - `src/sparrow-deck.ts` — `shuffle`, `buildSequence`, `buildDeck`. `buildSequence` is the pure-numbers ordering layer.
@@ -74,16 +76,19 @@ The separate RFP (discovery) and SOW (arc planning) stages were merged into a si
 - `tests/test-harness.mjs` — Playwright test for the harness.
 - `npm run build:harness` — standalone build script.
 
-### What's next
-- Spaced repetition heuristics can now be implemented inside `buildSequence` without touching domain types.
-- The harness is the tool for evaluating whether a given algorithm produces aesthetically good distributions.
-- A formal plan/arc is needed before implementation begins.
+### Arc 46: Dual-Strategy buildSequence (active)
+- `buildSequence` gains `familiarity: "new" | "familiar"` parameter (DEC-169).
+- **"familiar"** strategy: existing shuffle-and-repeat + minimum-gap constraint of 2 (DEC-170).
+- **"new"** strategy: gradual introduction — starts with 2 combos, adds one every ~6-8 appearances (DEC-171). Length becomes a minimum.
+- Strategy selection rationale: research favors interleaving, but Falco's direct experience supports gradual intro for unfamiliar proper nouns (DEC-172).
+- Future signal noted: click-vs-timer-advance as implicit confidence signal for adaptive requeue (DEC-173, deferred).
 
 ### Key decisions
 - DEC-165: `buildSequence` is domain-agnostic (pure numbers).
 - DEC-166: Harness uses abstract labels, not guild names.
 - DEC-167: Harness is production-accessible.
 - DEC-168: `SlideSelection` tuple, 1-indexed.
+- DEC-169–173: Arc 46 strategy decisions (see decision-log.md).
 
 ---
 
