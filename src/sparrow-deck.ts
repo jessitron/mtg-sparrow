@@ -17,25 +17,134 @@ function shuffle<T>(arr: T[]): T[] {
 export type SlideSelection = [number, number];
 
 /**
- * Build an ordered sequence of [comboIndex, cardIndex] tuples by shuffling
- * combo positions [1, comboCount] and repeating until `length` entries are produced.
- * For each combo appearance, picks a random card index in [1, cardCounts[comboIndex-1]].
- * If a combo has no cards (count 0), cardIndex will be 0.
+ * Whether the sequence is for a learner encountering combos for the first time
+ * ("new") or a learner who has seen all the combos before ("familiar").
  */
-export function buildSequence(cardCounts: number[], length: number): SlideSelection[] {
-  const comboCount = cardCounts.length;
-  const positions = Array.from({ length: comboCount }, (_, i) => i + 1);
+export type Familiarity = 'new' | 'familiar';
+
+/** Pick a random card index in [1, count], or 0 if count is 0. */
+function pickCard(count: number): number {
+  return count > 0 ? Math.floor(Math.random() * count) + 1 : 0;
+}
+
+/**
+ * Given a sequence so far and a candidate comboIndex, return the number of
+ * positions since this combo last appeared (-1 if it has never appeared).
+ */
+function positionsSinceLast(sequence: SlideSelection[], comboIndex: number): number {
+  for (let i = sequence.length - 1; i >= 0; i--) {
+    if (sequence[i][0] === comboIndex) {
+      return sequence.length - 1 - i;
+    }
+  }
+  return -1;
+}
+
+const MIN_GAP = 2;
+
+/**
+ * Append one shuffled batch of the given pool to sequence, enforcing MIN_GAP.
+ * If a combo would appear too soon, swap it with a later item in the batch.
+ */
+function appendBatch(
+  sequence: SlideSelection[],
+  pool: number[],
+  cardCounts: number[],
+): void {
+  const batch = shuffle([...pool]);
+
+  for (let i = 0; i < batch.length; i++) {
+    const gap = positionsSinceLast(sequence, batch[i]);
+    if (gap !== -1 && gap < MIN_GAP) {
+      // Find a later item in the batch that is far enough away
+      let swapped = false;
+      for (let j = i + 1; j < batch.length; j++) {
+        const gapJ = positionsSinceLast(sequence, batch[j]);
+        if (gapJ === -1 || gapJ >= MIN_GAP) {
+          [batch[i], batch[j]] = [batch[j], batch[i]];
+          swapped = true;
+          break;
+        }
+      }
+      // If no valid swap was found, we accept the violation rather than loop forever
+      // (can happen with very small pools)
+      if (!swapped) {
+        // leave batch[i] as-is
+      }
+    }
+    const comboIndex = batch[i];
+    sequence.push([comboIndex, pickCard(cardCounts[comboIndex - 1])]);
+  }
+}
+
+/**
+ * "familiar" strategy: shuffle-and-repeat all combos, with a minimum gap of 2
+ * between appearances of the same combo.
+ */
+function buildFamiliarSequence(cardCounts: number[], length: number): SlideSelection[] {
+  const pool = Array.from({ length: cardCounts.length }, (_, i) => i + 1);
   const sequence: SlideSelection[] = [];
   while (sequence.length < length) {
-    const batch = shuffle([...positions]);
-    for (const comboIndex of batch) {
-      if (sequence.length >= length) break;
-      const count = cardCounts[comboIndex - 1];
-      const cardIndex = count > 0 ? Math.floor(Math.random() * count) + 1 : 0;
-      sequence.push([comboIndex, cardIndex]);
+    appendBatch(sequence, pool, cardCounts);
+    // Trim to exactly length if we overshot (appendBatch adds full batches)
+    if (sequence.length > length) {
+      sequence.splice(length);
     }
   }
   return sequence;
+}
+
+/**
+ * "new" strategy: gradually introduce combos.
+ * - Start with combos 1 & 2 in the active pool.
+ * - Every ~7 appearances total, add the next combo.
+ * - Continue until all combos are active.
+ * - Then continue with full pool until length is reached.
+ * - Length is a minimum — keep going until all combos have been introduced.
+ */
+function buildNewSequence(cardCounts: number[], length: number): SlideSelection[] {
+  const totalCombos = cardCounts.length;
+  const INTRO_CADENCE = 7; // appearances before adding the next combo
+
+  const sequence: SlideSelection[] = [];
+  let nextComboToIntroduce = 3; // combos 1 & 2 start active
+  const pool = totalCombos >= 2 ? [1, 2] : Array.from({ length: totalCombos }, (_, i) => i + 1);
+
+  // Keep going until we've reached length AND introduced all combos
+  while (sequence.length < length || nextComboToIntroduce <= totalCombos) {
+    appendBatch(sequence, pool, cardCounts);
+
+    // Check whether it's time to introduce the next combo
+    while (
+      nextComboToIntroduce <= totalCombos &&
+      sequence.length >= (nextComboToIntroduce - 2) * INTRO_CADENCE
+    ) {
+      pool.push(nextComboToIntroduce);
+      nextComboToIntroduce++;
+    }
+  }
+
+  return sequence;
+}
+
+/**
+ * Build an ordered sequence of [comboIndex, cardIndex] tuples.
+ *
+ * - "familiar": shuffle all combos repeatedly with a min-gap-2 constraint.
+ * - "new": gradually introduce combos one at a time, then continue with all.
+ *
+ * The `length` parameter is a minimum. For "new", the sequence may be longer
+ * to ensure all combos are introduced.
+ */
+export function buildSequence(
+  cardCounts: number[],
+  length: number,
+  familiarity: Familiarity,
+): SlideSelection[] {
+  if (familiarity === 'new') {
+    return buildNewSequence(cardCounts, length);
+  }
+  return buildFamiliarSequence(cardCounts, length);
 }
 
 /**
@@ -44,7 +153,7 @@ export function buildSequence(cardCounts: number[], length: number): SlideSelect
  */
 export function buildDeck(combos: ColorCombo[], count: number): Slide[] {
   const cardCounts = combos.map((c) => (c.cards ? c.cards.length : 0));
-  const sequence = buildSequence(cardCounts, count);
+  const sequence = buildSequence(cardCounts, count, 'familiar');
   return sequence.map(([comboIndex, cardIndex]) => {
     const combo = combos[comboIndex - 1];
     const selectedCard = cardIndex > 0 ? combo.cards![cardIndex - 1] : undefined;
