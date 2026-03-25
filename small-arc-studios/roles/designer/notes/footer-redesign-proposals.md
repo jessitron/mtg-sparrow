@@ -20,19 +20,19 @@ Two rows below the card.
 - Font: GoudyMediaeval, bold, same as `.level-intro-names`
 - Color: muted (#e0e0e0 at ~0.6 opacity) — reference, not headline
 - `[hide]` toggle right-aligned, minimal styling (0.7rem, #555)
-- When hidden, collapses to `[show names]` left-aligned, same minimal styling
+- When hidden, names text disappears but toggle stays right-aligned in the same position, text changes to `[show names]`
 - Default: visible on first session at a level; preference persisted to localStorage by level slug
 - **Visible from card 1** — this is reference for the session, not a reward for progress
 
 ### Row 2: Controls
 
 ```
-  2/25                                        [⏸]  [Done for now]
+                                        2/25  [⏸]  [Exit]
 ```
 
-- **Left**: Card counter (e.g., "2/25"), muted (#888, 0.9rem) — same as current `.progress-counter`
-- **Right cluster**: Pause button, then "Done for now" button on the far right
-- Space between counter and right cluster is natural whitespace
+- Everything right-aligned — nothing on the left
+- **Right cluster** (left to right): Card counter ("2/25", muted #888, 0.9rem), pause button, "Exit" button
+- Counter reads as context for the controls beside it
 
 ### Pause Button Styling
 
@@ -48,11 +48,12 @@ The pause button is styled to match the home screen gas buttons (`.gas-btn`):
 - **Position**: In the footer grid, NOT `position: fixed` — it flows with the layout
 - **Resume state**: SVG swaps to a play triangle icon
 
-### "Done for now" Button
+### "Exit" Button
 
-- Unchanged from current `.done-button` styling (turquoise accent border, 1.1rem, prominent)
+- Label: "Exit" (replaces "Done for now" — shorter, clearer)
+- Styling: current `.done-button` treatment (turquoise accent border, 1.1rem, prominent)
 - Hidden on card 1, fades in on card 2+ (existing `buttonFadeIn` animation)
-- Far right position
+- Far right position in the controls cluster
 
 ### CSS Layout
 
@@ -65,18 +66,13 @@ The pause button is styled to match the home screen gas buttons (`.gas-btn`):
   padding: 0.25rem 0;
 }
 
-/* Controls row */
+/* Controls row — everything right-aligned */
 .footer-controls {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-}
-
-.footer-controls-right {
-  display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: 0.75rem;
+  padding: 0.5rem 0;
 }
 ```
 
@@ -90,7 +86,7 @@ The pause button is styled to match the home screen gas buttons (`.gas-btn`):
 ├───────────────────────────────────────────────────┤
 │ Azorius · Orzhov · Boros · Selesnya · Simic [hide]│  ← names row
 ├───────────────────────────────────────────────────┤
-│ 2/25                                  [⏸] [Done] │  ← controls row
+│                                 2/25 [⏸] [Exit]  │  ← controls row (right-aligned)
 └───────────────────────────────────────────────────┘
 ```
 
@@ -105,7 +101,7 @@ The pause button is styled to match the home screen gas buttons (`.gas-btn`):
 │ Azorius · Orzhov · Boros    │  ← names wrap to
 │ · Selesnya · Simic   [hide] │     two lines (OK)
 ├─────────────────────────────┤
-│ 2/25            [⏸] [Done] │  ← controls row
+│               2/25 [⏸] [Exit]│  ← controls (right-aligned)
 └─────────────────────────────┘
 ```
 
@@ -118,7 +114,7 @@ The pause button is styled to match the home screen gas buttons (`.gas-btn`):
 
 - All footer controls use `stopPropagation` to prevent accidental card advance
 - Counter and pause visible from card 1
-- "Done for now" fades in on card 2+
+- "Exit" fades in on card 2+
 - Pause/resume toggles the SVG icon (pause bars ↔ play triangle)
 - Names toggle is instant (no animation needed — it's reference, not drama)
 
@@ -133,6 +129,7 @@ The following proposals were explored before the client chose the direction abov
 ## Context: What Exists Now
 
 The current `.done-zone` is a 3-column grid (`1fr auto 1fr`):
+
 - Left: Pause button + progress counter ("3 / 10")
 - Center: "Done for now" button (fades in after card 2)
 - Right: Empty spacer
@@ -205,24 +202,29 @@ When names are hidden:
 ```
 
 **Visual hierarchy:**
+
 - Names row: GoudyMediaeval font (matching intro screen), muted opacity (~0.6) so it reads as reference, not headline. Middle-dot separators match the intro screen aesthetic — familiar cadence.
 - [hide] / [show names]: minimal, right-aligned, 0.7rem, #555 — nearly invisible until needed. A tap target, not a label.
 - Controls row: unchanged from current layout except the pause button moves to left, counter stays left, "Done for now" moves right (natural left-to-right reading: status → action).
 
 **Toggle behavior:**
+
 - Tap [hide] to collapse names row to a single-line stub showing [show names] at minimum tap height (44px).
 - Preference persisted to localStorage keyed by level slug.
 - No animation needed — instant collapse is fine; the names are reference, not drama.
 
 **Pause button position:**
+
 - Keep in the footer. The home-screen gas controls live in a different visual world (background animation controls). Mixing them would blur the metaphor. The footer pause fits the "session controls" mental model.
 
 **Mobile considerations:**
+
 - On narrow screens, the names may wrap to two lines. That is acceptable — the names row auto-sizes. The control row stays single-line.
 - The two-row structure adds ~40-60px of height total. On a 667px-tall iPhone SE, this is about 9% of screen height. Acceptable if the card shrinks gracefully.
 - Both rows are `position: sticky` or `fixed` — no scrolling required.
 
 **Tradeoffs:**
+
 - Pro: Clean separation of "reference" (names) vs. "controls" (pause, counter, done). They can breathe.
 - Pro: Names placement near the card is spatially logical — glance down from card to see names.
 - Con: Adds footer height. On very small phones (SE-class), this competes with card height.
@@ -257,25 +259,30 @@ When names are hidden (tap the names area to toggle):
 The middle dots become a "collapsed" indicator — three dots to suggest "there is content here." Tapping them expands to show the full names inline.
 
 **Visual hierarchy:**
+
 - Left: Pause + counter (tight cluster, small, control-button style)
 - Center: Names in GoudyMediaeval, smaller than the intro screen version (~0.8rem), muted. Center-justified in the available space. Names overflow-ellipsis or scroll on very narrow screens.
 - Right: "Done for now" button (accent border, prominent)
 - The names zone is the natural center of gravity — it draws the eye but stays quiet.
 
 **Toggle behavior:**
+
 - Tap anywhere in the names zone to toggle. The names zone has a subtle tap affordance (perhaps a very faint underline or [·] indicator).
 - Collapsed state: shows `· · ·` centered, still tappable.
 - No explicit [show] / [hide] label — the interaction is discoverable by accident and doesn't need instruction.
 
 **Pause button position:**
+
 - Remains in footer left.
 
 **Mobile considerations:**
+
 - This is aggressive on a narrow screen. Five names plus middle dots plus pause plus counter plus "Done for now" is a lot of content in a single row.
 - On screens under 375px wide, the names would need aggressive truncation: "Azorius · Orzhov ···" with the rest hidden.
 - The single-bar approach saves vertical height — only one row of footer chrome.
 
 **Tradeoffs:**
+
 - Pro: Minimum footer height — single row. Maximizes card space.
 - Pro: Unified visual feel — everything in one place.
 - Con: Overcrowded on small screens. The names are the casualty — they shrink until unreadable.
@@ -317,29 +324,34 @@ Drawer open:
 Pause button is `position: fixed; bottom: 30px; right: 30px` — same position as home screen gas controls, but a different icon (pause symbol, not a flame/freeze icon). This creates spatial consistency between sessions.
 
 **Visual hierarchy:**
+
 - Footer bar: binary. Left = where I am (counter). Right = what I can do (Done for now). Pause is in its own fixed layer, separate from session-flow controls.
 - Drawer handle: a subtle `↑ names` or just a `───` line the user can tap. Low visual weight. The closed drawer is a line, not a button.
 - Drawer open: Names in their full intro-screen treatment — GoudyMediaeval, middle dots, centered. Same font and layout as the level intro, so the reference feels like a callback to "what I was shown before this started."
 
 **Toggle behavior:**
+
 - Tap the drawer handle (the line or a small `↑` indicator) to open.
 - Tap [▼] or anywhere in the names area to close.
 - Drawer slides up with a short `200ms ease-out` transition (not elaborate, just oriented).
 - Default: open for first session at a level. Auto-closes after 10 cards if the user hasn't interacted with it (they've probably internalized the names or stopped needing reference). Only auto-close once — if the user manually reopens, don't auto-close again.
 
 **Pause button position:**
+
 - This is the proposal that actually explores the home-screen position.
 - **Argument for it:** The pause button applies to the background animation (freeze the stars/particles). Its position on the home screen is tied to that function. Moving it to the footer on the slides page would mean two different positions for "the same button" that does different things in different contexts. That inconsistency might be worse than the current inconsistency.
 - **Argument against it:** The home screen pause is for the ambient animation. The slides page pause is for the session (a very different thing). Having them in the same visual position could create confusion — "does this pause the animation or my session?"
 - **Recommendation:** Keep the pause button in the footer for the slides page. The position should match function, not form. These are not the same control.
 
 **Mobile considerations:**
+
 - The footer bar is single-row — minimum height. Most of the screen is available for the card.
 - The drawer overlay appears in front of the card when open — this is fine because the user opened it intentionally.
 - The fixed pause button at bottom-right: ensure it has at least 44px touch target and doesn't overlap with the "Done for now" button. Right: 20px, bottom: 20px with enough clearance.
 - The drawer handle needs a tall enough tap target. A 32px invisible tap zone above the footer line is sufficient.
 
 **Tradeoffs:**
+
 - Pro: Footer is as minimal as possible. Card dominates.
 - Pro: Names get their full treatment when visible — same font, same dots, same feel as the intro. This creates a strong callback ("these are the names I saw before").
 - Pro: Auto-close behavior honors the "less UI over time" principle — the reference fades as it becomes less needed.
