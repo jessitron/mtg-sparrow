@@ -122,11 +122,9 @@ function stopSession(): void {
 function buildSessionUI(): void {
   if (!app || !session) return;
 
-  // Card container + card shell
+  // Card container (cards are created dynamically in showCard)
   const cardContainer = document.createElement('div');
   cardContainer.classList.add('card-container');
-  cardEl = createCardShell();
-  cardContainer.appendChild(cardEl);
   app.appendChild(cardContainer);
 
   // Footer below the card — names row + controls row.
@@ -146,18 +144,27 @@ function buildSessionUI(): void {
   const namesToggle = document.createElement('button');
   namesToggle.classList.add('footer-names-minimize');
 
+  const eyeOpenSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const eyeClosedSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+  function setEyeIcon(hidden: boolean) {
+    namesToggle.innerHTML = hidden ? eyeClosedSvg : eyeOpenSvg;
+    namesToggle.title = hidden ? 'Show names' : 'Hide names';
+  }
+
   // Load persisted preference for this subgroup
+  // Use visibility:hidden (not display:none) so the names row keeps its height and the footer doesn't shift.
   const namesStorageKey = `namesHidden_${session.subgroup}`;
   let namesHidden = localStorage.getItem(namesStorageKey) === 'true';
-  namesText.style.display = namesHidden ? 'none' : '';
-  namesToggle.textContent = namesHidden ? '+' : '─';
+  namesText.style.visibility = namesHidden ? 'hidden' : '';
+  setEyeIcon(namesHidden);
 
   namesToggle.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
     namesHidden = !namesHidden;
     localStorage.setItem(namesStorageKey, namesHidden ? 'true' : 'false');
-    namesText.style.display = namesHidden ? 'none' : '';
-    namesToggle.textContent = namesHidden ? '+' : '─';
+    namesText.style.visibility = namesHidden ? 'hidden' : '';
+    setEyeIcon(namesHidden);
     emitLog(namesHidden ? 'session.names_hide' : 'session.names_show', sessionSpan ?? undefined, {
       'session.card_index': session ? session.currentIndex : 0,
     });
@@ -248,7 +255,10 @@ function buildSessionUI(): void {
 }
 
 function showCard(): void {
-  if (!app || !session || !cardEl || !doneZoneEl) return;
+  if (!app || !session || !doneZoneEl) return;
+
+  const cardContainer = app.querySelector('.card-container');
+  if (!cardContainer) return;
 
   // Expand to full-screen quiz mode
   app.classList.add('app--quiz-active');
@@ -278,13 +288,59 @@ function showCard(): void {
   pausedByDialog = false;
   nameRevealed = false;
 
-  fillCard(cardEl, combo);
+  // Clean up any stale cards from interrupted crossfades
+  const staleCards = cardContainer.querySelectorAll('.card');
+  staleCards.forEach(c => {
+    if (c !== cardEl) c.remove();
+  });
 
-  // Trigger scale pulse to signal new card content
-  cardEl.classList.remove('card--transitioning');
-  // Force reflow so removing+re-adding the class actually restarts the animation
-  void cardEl.offsetWidth;
-  cardEl.classList.add('card--transitioning');
+  // Create new card off-screen (opacity 0)
+  const oldCard = cardEl;
+  const newCard = createCardShell();
+  fillCard(newCard, combo);
+  cardEl = newCard;
+
+  const isFirstCard = !oldCard;
+
+  if (isFirstCard) {
+    // First card: just appear, no crossfade
+    cardContainer.appendChild(newCard);
+  } else {
+    // Subsequent cards: crossfade
+    newCard.style.opacity = '0';
+    cardContainer.appendChild(newCard);
+
+    // Fade out old card immediately
+    oldCard.style.transition = 'opacity 300ms ease';
+    oldCard.style.opacity = '0';
+    setTimeout(() => {
+      if (oldCard.parentNode) oldCard.remove();
+    }, 350);
+
+    // Wait for new card's image to load before fading in
+    const img = newCard.querySelector('.mtg-card-img') as HTMLImageElement | null;
+    const fadeInNew = () => {
+      newCard.style.transition = 'opacity 300ms ease';
+      // Force a reflow so the browser registers opacity:0 before transitioning to 1
+      void newCard.offsetWidth;
+      newCard.style.opacity = '1';
+    };
+
+    if (img && !img.complete) {
+      let resolved = false;
+      const onReady = () => {
+        if (resolved) return;
+        resolved = true;
+        fadeInNew();
+      };
+      img.addEventListener('load', onReady, { once: true });
+      img.addEventListener('error', onReady, { once: true });
+      // Fallback: don't wait more than 2s
+      setTimeout(onReady, 2000);
+    } else {
+      fadeInNew();
+    }
+  }
 
   // Update counter
   const progress = doneZoneEl.querySelector('.progress-counter') as HTMLElement | null;
@@ -304,6 +360,16 @@ function showCard(): void {
       }, { once: true });
     }
     // If already button-visible or button-steady, leave it alone — no class toggling
+  }
+
+  // Preload the next card's image so it's cached before we transition
+  const nextIndex = session.currentIndex + 1;
+  if (nextIndex < session.cardCount) {
+    const nextSlide = session.deck[nextIndex];
+    if (nextSlide.selectedCard) {
+      const preload = new Image();
+      preload.src = nextSlide.selectedCard.imageUrl;
+    }
   }
 
   // Auto-reveal: after REVEAL_DELAY_MS, fade in the name
