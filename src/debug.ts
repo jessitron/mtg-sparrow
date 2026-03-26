@@ -1,4 +1,5 @@
 import { startSpan, endSpan, flushSpans } from './telemetry/telemetry';
+import { storageSetItem, storageRemoveItem } from './storage';
 
 const DEBUG_KEY = 'mtg-sparrow.debug';
 
@@ -30,9 +31,9 @@ export function initDebugMode(): void {
     });
 
     if (enabling) {
-      localStorage.setItem(DEBUG_KEY, 'true');
+      storageSetItem(DEBUG_KEY, 'true');
     } else {
-      localStorage.removeItem(DEBUG_KEY);
+      storageRemoveItem(DEBUG_KEY);
     }
 
     endSpan(span);

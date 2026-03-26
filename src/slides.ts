@@ -1,4 +1,5 @@
 import { initTelemetry, startSpan, startChildSpan, endSpan, emitLog, flushSpans, getTraceId } from './telemetry/telemetry';
+import { storageSetItem } from './storage';
 import { createCardShell, fillCard, revealName } from './ui/render';
 import {
   createSession,
@@ -190,7 +191,7 @@ function buildSessionUI(): void {
   namesToggle.addEventListener('click', (e: MouseEvent) => {
     e.stopPropagation();
     namesHidden = !namesHidden;
-    localStorage.setItem(namesStorageKey, namesHidden ? 'true' : 'false');
+    storageSetItem(namesStorageKey, namesHidden ? 'true' : 'false');
     namesText.style.visibility = namesHidden ? 'hidden' : '';
     setEyeIcon(namesHidden);
     emitLog(namesHidden ? 'session.names_hide' : 'session.names_show', sessionSpan ?? undefined, {

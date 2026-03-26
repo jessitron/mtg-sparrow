@@ -1,4 +1,5 @@
 import { GuildSubgroup } from './session';
+import { storageSetItem } from './storage';
 
 const STORAGE_KEY = 'sparrow-deck.self-assessment';
 
@@ -16,7 +17,7 @@ function load(): SelfAssessmentState {
 
 function save(state: SelfAssessmentState): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    storageSetItem(STORAGE_KEY, JSON.stringify(state));
   } catch {}
 }
 

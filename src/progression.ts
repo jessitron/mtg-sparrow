@@ -1,3 +1,5 @@
+import { storageSetItem } from './storage';
+
 const STORAGE_KEY = 'sparrow-deck.progression';
 
 type ProgressionState = {
@@ -40,7 +42,7 @@ function loadProgression(): ProgressionState {
 
 function saveProgression(state: ProgressionState): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    storageSetItem(STORAGE_KEY, JSON.stringify(state));
   } catch {}
 }
 

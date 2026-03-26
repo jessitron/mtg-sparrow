@@ -1,4 +1,5 @@
 import { startSpan, endSpan, flushSpans, getSessionId } from '../telemetry/telemetry';
+import { storageClear } from '../storage';
 import { wireFeedback } from './feedback';
 
 /**
@@ -105,7 +106,7 @@ export function wireSettings(
     });
     endSpan(span);
     await flushSpans();
-    localStorage.clear();
+    storageClear();
     window.location.href = '.';
   });
 
