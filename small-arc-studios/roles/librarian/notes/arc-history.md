@@ -384,3 +384,15 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 - **Testing**: 800 property tests (50 trials × 16 properties). Tests use exported constants so they auto-adjust when tuning. `npm run test:sequence`.
 - **Key decisions**: DEC-169 (familiarity parameter), DEC-170 ("familiar" min-gap strategy), DEC-171 ("new" gradual introduction), DEC-172 (research basis), DEC-173 (adaptive requeue deferred), DEC-174 (REPS_BEFORE_NEXT cadence), DEC-175 (MIN_GAP by pool size), DEC-176 (generate-then-trim), DEC-177 (first section dual-combo), DEC-178 (MAX_SECTION_LENGTH + thinning), DEC-179 (dedupConsecutiveCards), DEC-180 (section boundaries exported), DEC-181 (property-based testing).
 - **Verification**: Complete. All 800 property tests pass. All 16 properties verified across both strategies.
+
+---
+
+## Mana Color Gradient Progress Bar (Arc 48, 2026-03-26)
+
+### Arc 48: Mana Color Gradient Progress Bar — COMPLETE (2026-03-26)
+- **Type**: User (Visual Enhancement)
+- **What**: The progress bar on the slides page now displays a gradient of mana colors derived from the deck sequence, revealed progressively as the user advances through cards. The full-deck gradient is precomputed once at session start and set on the track element. A `.progress-bar-cover` element (opaque, `var(--bg-brown-dark)`) sits on top and shrinks from the right to uncover the gradient — the "cover-reveal" approach.
+- **Key decisions**: DEC-182 (precompute at session start), DEC-183 (cover-reveal over growing fill), DEC-184 (opaque cover matches page color), DEC-185 (color stops at band midpoints), DEC-186 (linear constant-speed animation over full card duration), DEC-187 (tap transitions from current position to next target).
+- **Files changed**: `src/slides.ts`, `slides.css`, `tests/arc47-progress-bar.mjs`
+- **Commits**: e496d7a, 6d727b4, dc5357b, 8641f97, 7cd70eb, 91c2229
+- **Verification**: Tests updated for cover-reveal approach and passing.

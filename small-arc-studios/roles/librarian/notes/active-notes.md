@@ -6,6 +6,8 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-03-26)
 
+Arc 48 (Mana Color Gradient Progress Bar) completed 2026-03-26. Progress bar now shows a mana-color gradient from the deck sequence, revealed progressively using cover-reveal approach. Decisions DEC-182 through DEC-187.
+
 Arc 47 (Progress Bar) completed 2026-03-26. Replaced text card counter with inline progress bar on slides page. 19/19 verification checks passed.
 
 Arc 46 (Dual-Strategy buildSequence) completed 2026-03-26. Both strategies (new/familiar) implemented and verified with 800 property tests. `buildSequenceWithSections` exports section boundary metadata — future integration point for progress bar display (DEC-180).

@@ -1548,4 +1548,55 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-182: Full-Deck Gradient Precomputed at Session Start
+- **Date**: 2026-03-26
+- **Arc**: 48
+- **Decision**: The mana color gradient for the progress bar is precomputed once when the session starts and set directly on the track element's background. It does not change as cards advance.
+- **Alternatives rejected**: Recomputing the gradient on each advance — would cause band positions to shift as the "revealed" portion changed, creating a wiggle effect as the gradient rescaled.
+- **Rationale**: Precomputing the full-deck gradient means the color bands represent fixed positions in the session timeline. The cover-reveal approach then uncovers them progressively without any gradient recalculation.
+
+## DEC-183: Cover-Reveal Approach Over Growing Fill
+- **Date**: 2026-03-26
+- **Arc**: 48
+- **Decision**: Progress is revealed by shrinking a cover element (`.progress-bar-cover`) that sits on top of the gradient track, rather than growing a fill element from the left.
+- **Alternatives rejected**: Growing fill — requires the gradient to rescale as the fill width changes, which shifts color stop positions and creates visual wiggle at the leading edge.
+- **Rationale**: With a fixed-width gradient on the track and an opaque cover that shrinks from the right, the revealed colors are always correct because they reflect the pre-rendered full-deck positions. No gradient recalculation needed.
+
+## DEC-184: Cover Background Matches Page (var(--bg-brown-dark))
+- **Date**: 2026-03-26
+- **Arc**: 48
+- **Decision**: The `.progress-bar-cover` uses `var(--bg-brown-dark)` as its background color so it is visually opaque and blends with the page behind the progress bar.
+- **Alternatives rejected**: Transparent cover — would show the full gradient underneath immediately. Semi-transparent cover — would create a ghost of future colors, undermining the reveal metaphor.
+- **Rationale**: Opaque cover is the simplest correct implementation of the cover-reveal approach. The color must match the page background exactly.
+
+## DEC-185: Color Stops at Band Midpoints for Smooth Blending
+- **Date**: 2026-03-26
+- **Arc**: 48
+- **Decision**: Each color stop in the CSS gradient is positioned at the midpoint of its band (not at the start or end), so color transitions blend smoothly between adjacent mana colors.
+- **Alternatives rejected**: Stops at band boundaries — would create hard color edges between bands. Stops at band starts — same problem.
+- **Rationale**: Midpoint placement means the gradient smoothly interpolates from one mana color's center to the next, which is more visually pleasing and communicates the flow of the session deck.
+
+## DEC-186: Cover Animates at Constant Speed Over Full Card Duration
+- **Date**: 2026-03-26
+- **Arc**: 48
+- **Decision**: The cover shrinks using a CSS transition with `linear` timing over the full card duration (REVEAL_DELAY_MS + ADVANCE_DELAY_MS = 5s). This makes the bar move at a constant speed matching the card timer.
+- **Alternatives rejected**: Ease-in/ease-out transitions — would make progress speed appear non-uniform, which could be misleading about how much time is left.
+- **Rationale**: The progress bar should convey time, not just position. Constant-speed movement at the same rate as the card timer makes it readable as a clock.
+
+## DEC-187: User Tap Transitions Bar from Current Position to Next Target
+- **Date**: 2026-03-26
+- **Arc**: 48
+- **Decision**: When the user taps to advance early, the browser transitions the cover width from wherever it currently is to the next target position (rather than jumping or resetting).
+- **Rationale**: The smooth transition from the interrupted position to the next target maintains visual continuity. The user sees the bar catch up instantly (in transition terms), which acknowledges their tap without jarring visual discontinuity.
+
+---
+
+## Arc 48: Mana Color Gradient Progress Bar — COMPLETE
+- **Delivered**: 2026-03-26
+- **Outcome**: Progress bar on slides page displays a gradient of mana colors from the deck sequence, revealed progressively as the user advances through cards. Cover-reveal approach eliminates wiggle. Constant-speed animation. Smooth transitions on early tap. Tests updated for cover-reveal approach.
+- **Commits**: e496d7a, 6d727b4, dc5357b, 8641f97, 7cd70eb, 91c2229
+- **Decisions**: DEC-182, DEC-183, DEC-184, DEC-185, DEC-186, DEC-187
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
