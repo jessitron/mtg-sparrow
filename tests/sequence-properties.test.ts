@@ -372,6 +372,90 @@ for (let t = 0; t < TRIALS; t++) {
 }
 
 // ============================================================
+// Property tests: card image frequency (no [ci, card] pair appears > 2 times)
+// ============================================================
+
+section('familiar: no card image appears more than twice (standard counts)');
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const seq = buildSequence(cardCounts, 50, 'familiar');
+  const imageCounts = new Map<string, number>();
+  let allOk = true;
+  let detail = '';
+  for (const [ci, card] of seq) {
+    const key = `${ci}-${card}`;
+    const prev = imageCounts.get(key) ?? 0;
+    imageCounts.set(key, prev + 1);
+    if (prev + 1 > 2) {
+      allOk = false;
+      detail = `combo ${ci} card ${card} appeared ${prev + 1} times`;
+      break;
+    }
+  }
+  assert(`familiar trial ${t + 1}: no card image appears > 2 times (10,10,10,10,10)`, allOk, detail);
+}
+
+section('familiar: no card image appears more than twice (small counts)');
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [3, 5, 8, 2, 10];
+  const seq = buildSequence(cardCounts, 50, 'familiar');
+  const imageCounts = new Map<string, number>();
+  let allOk = true;
+  let detail = '';
+  for (const [ci, card] of seq) {
+    const key = `${ci}-${card}`;
+    const prev = imageCounts.get(key) ?? 0;
+    imageCounts.set(key, prev + 1);
+    if (prev + 1 > 2) {
+      allOk = false;
+      detail = `combo ${ci} card ${card} appeared ${prev + 1} times`;
+      break;
+    }
+  }
+  assert(`familiar trial ${t + 1}: no card image appears > 2 times (3,5,8,2,10)`, allOk, detail);
+}
+
+section('new: no card image appears more than twice (standard counts)');
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const seq = buildSequence(cardCounts, 25, 'new');
+  const imageCounts = new Map<string, number>();
+  let allOk = true;
+  let detail = '';
+  for (const [ci, card] of seq) {
+    const key = `${ci}-${card}`;
+    const prev = imageCounts.get(key) ?? 0;
+    imageCounts.set(key, prev + 1);
+    if (prev + 1 > 2) {
+      allOk = false;
+      detail = `combo ${ci} card ${card} appeared ${prev + 1} times`;
+      break;
+    }
+  }
+  assert(`new trial ${t + 1}: no card image appears > 2 times (10,10,10,10,10)`, allOk, detail);
+}
+
+section('new: no card image appears more than twice (small counts)');
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [3, 5, 8, 2, 10];
+  const seq = buildSequence(cardCounts, 25, 'new');
+  const imageCounts = new Map<string, number>();
+  let allOk = true;
+  let detail = '';
+  for (const [ci, card] of seq) {
+    const key = `${ci}-${card}`;
+    const prev = imageCounts.get(key) ?? 0;
+    imageCounts.set(key, prev + 1);
+    if (prev + 1 > 2) {
+      allOk = false;
+      detail = `combo ${ci} card ${card} appeared ${prev + 1} times`;
+      break;
+    }
+  }
+  assert(`new trial ${t + 1}: no card image appears > 2 times (3,5,8,2,10)`, allOk, detail);
+}
+
+// ============================================================
 // Summary
 // ============================================================
 
