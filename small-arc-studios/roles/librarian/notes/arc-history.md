@@ -432,3 +432,27 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 - **Key decisions**: DEC-194 (final og:image design approved).
 - **Files changed**: `public/og-image.png` (new), generation script (new), `index.html` and all page HTML files (meta tags added), `src/version.ts` (bumped to 0.32.0).
 - **Verification**: Meta tags confirmed present on all pages. og:image renders correctly in social platform preview tools. App version confirmed at v0.32.0.
+
+---
+
+## Static Combo Reference Pages (Outside Formal Arc, 2026-03-26)
+
+### Unversioned Work: Static Combo Reference Pages
+- **Type**: Feature (SEO / Reference Content)
+- **Status**: COMPLETE — delivered outside the formal arc process, no version bump applied
+- **What**: 21 static HTML pages at `combo/` — one per color combination (20 combos: allied guilds, enemy guilds, wedges, shards) plus a combo index. Each combo page shows the combo name, mana pip images, the pentagon/star SVG with highlighted connections (turquoise `#6C9FB0`), a card image gallery, and flavor description from `guild-descriptions.ts`. Index page (`combo/index.html`) presents all combos in a card grid grouped by tier (5 per subgroup), with "Learn these names" buttons.
+- **End page change**: "More X cards →" links on the end screen now point to `combo/<id>.html` instead of Scryfall. Telemetry event renamed from `end.scryfall_click` to `end.combo_page_click`.
+- **Build**: `npm run build:combos` runs `scripts/build-combos.ts` (TypeScript generator) via `scripts/build-combos.sh`. Also added: `npm run summarize:combos` (`scripts/summarize-combos.ts`) to print card data summary for debugging.
+- **Documentation**: `scripts/README.md` added documenting all available scripts.
+- **Key design decisions**:
+  - Static HTML (not SPA/query-param) for SEO crawlability — DEC-195
+  - No hamburger menu on combo pages — pure static HTML — DEC-196
+  - No visible color names ("White / Blue") — teach combo names, not color names — DEC-197
+  - Pentagon SVG highlighted in turquoise — DEC-198
+  - Mana pip images everywhere, no emoji in rendered HTML — DEC-199
+  - Generated pages checked into git for GitHub Pages — DEC-200
+  - End page links changed from Scryfall to combo pages — DEC-201
+  - Index card grid: 5/3/2 columns responsive — DEC-202
+- **Files created**: `combo.css`, `combo/index.html`, `combo/azorius.html`, `combo/dimir.html`, `combo/rakdos.html`, `combo/gruul.html`, `combo/selesnya.html`, `combo/orzhov.html`, `combo/izzet.html`, `combo/golgari.html`, `combo/boros.html`, `combo/simic.html`, `combo/abzan.html`, `combo/jeskai.html`, `combo/sultai.html`, `combo/mardu.html`, `combo/temur.html`, `combo/bant.html`, `combo/esper.html`, `combo/grixis.html`, `combo/jund.html`, `combo/naya.html`, `scripts/build-combos.ts`, `scripts/build-combos.sh`, `scripts/summarize-combos.ts`, `scripts/summarize-combos.sh`, `scripts/README.md`
+- **Files modified**: `package.json` (new npm scripts), `src/ui/guild-columns.ts` (link changed to combo pages), `README.md`
+- **Note**: No version bump — done outside formal arc process. Next formal arc should bump the version.

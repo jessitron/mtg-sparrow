@@ -1651,4 +1651,60 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-195: Static HTML for Combo Reference Pages (SEO-First)
+- **Date**: 2026-03-26
+- **Context**: 20 combo reference pages needed, one per color combination (10 guilds + 5 wedges + 5 shards). Two approaches considered: SPA with query params (e.g., `combo.html?id=azorius`) vs. static individual HTML files (`combo/azorius.html`, etc.).
+- **Decision**: Static individual HTML files generated at build time from `src/data/combos.ts` and `src/data/guild-descriptions.ts`. An index page at `combo/index.html` provides navigation.
+- **Alternatives rejected**: Query-param SPA — JavaScript-rendered content is not reliably crawled by all search engines. Dynamic routing adds complexity for content that never changes.
+- **Rationale**: Static HTML is crawlable by all search engines without JavaScript execution. Each combo gets its own URL and `<title>` tag, enabling discovery through "Azorius MTG" style searches. Generated pages are checked into git and served directly by GitHub Pages.
+
+## DEC-196: Combo Pages Use No Hamburger Menu
+- **Date**: 2026-03-26
+- **Decision**: Combo reference pages (`combo/*.html`) are pure static HTML with no hamburger menu, no JavaScript settings wiring, and no dynamic app shell.
+- **Context**: The app shell (hamburger menu, feedback modal, settings panel) is wired by entry-point TypeScript files. Combo pages are reference content, not interactive sessions.
+- **Alternatives rejected**: Injecting the menu via a shared script — would add JS dependency to ostensibly static pages, complicating the build.
+- **Rationale**: Reference pages should be fully usable without JavaScript. The primary audience is a learner or search engine, not an app user managing settings. Keeps pages lightweight and purely static.
+
+## DEC-197: No Visible Color Names on Combo Pages — Teach Combo Names
+- **Date**: 2026-03-26
+- **Decision**: Combo pages show mana pip images only — never text like "White / Blue" or "W, U". Color names appear only in `aria-label` attributes, `<meta>` description tags, and `alt` text.
+- **Context**: The site's core purpose is teaching combo names (e.g., "Azorius"), not color names. Showing "White / Blue" alongside "Azorius" undermines the learning goal by providing a color-name crutch.
+- **Rationale**: Consistent with the site's pedagogical stance. Users need to associate the mana symbols directly with the combo name. Accessibility requirements are met through aria-label and alt text, which screen readers consume but sighted users don't see by default.
+
+## DEC-198: Pentagon SVG Uses Turquoise for Highlighted Combo Lines
+- **Date**: 2026-03-26
+- **Decision**: On combo reference pages, the pentagon/star SVG highlights the relevant combo connections in turquoise (`#6C9FB0`) — the site's primary accent color.
+- **Context**: The pentagon SVG is reused from the end screen, where lines are colored by guild/shard/wedge theme (gold, red, purple, teal). On individual combo pages, only one or two connections are highlighted.
+- **Alternatives rejected**: Per-tier color theming — on a single combo page there is no need to distinguish tiers visually. The turquoise accent is more cohesive with the rest of the page.
+- **Rationale**: Consistent use of turquoise as the primary accent color. Simpler than maintaining per-tier color logic on standalone reference pages.
+
+## DEC-199: Mana Pip Images Everywhere, Never Emoji
+- **Date**: 2026-03-26
+- **Decision**: Mana pip SVG images (`images/W.svg`, etc.) are used wherever mana symbols appear on combo pages. Emoji (⬜🟦 etc.) are explicitly forbidden in rendered HTML.
+- **Context**: The existing app uses mana pip SVGs throughout the card session and end screen. Combo pages must be visually consistent.
+- **Alternatives rejected**: Emoji — visually inconsistent, platform-dependent rendering, lower quality.
+- **Rationale**: Visual consistency with the rest of the site. Note: emoji are still used in telemetry span names / values where appropriate, following existing convention.
+
+## DEC-200: Build Script Generates Combo Pages at Build Time — Checked Into Git
+- **Date**: 2026-03-26
+- **Decision**: `npm run build:combos` (via `scripts/build-combos.ts` + `scripts/build-combos.sh`) generates all 21 HTML files (`combo/index.html` + `combo/<id>.html`) and they are checked into git.
+- **Context**: GitHub Pages serves static files from the repo. Generated HTML must be present in the repo to be served. An alternative would be a CI generation step on deploy.
+- **Alternatives rejected**: CI-only generation — adds complexity to the deploy workflow. The generated files are deterministic from source data, so checking them in is low risk.
+- **Rationale**: Simplest path for GitHub Pages hosting. Generated files are deterministic and small. Checking in means the site works immediately after a clone without a build step.
+
+## DEC-201: End Page "More X Cards" Links Now Point to Combo Pages (Not Scryfall)
+- **Date**: 2026-03-26
+- **Decision**: The "More [Combo] cards →" link in each guild flavor panel on the end page now navigates to `combo/<id>.html` instead of a Scryfall search URL. Telemetry event renamed from `end.scryfall_click` to `end.combo_page_click`.
+- **Context**: Previously the link went directly to Scryfall, sending users off-site immediately. The combo reference pages are a natural landing point that keeps users in the learning context.
+- **Alternatives rejected**: Keep Scryfall link alongside combo page link — two links per guild adds clutter. Remove Scryfall entirely — valuable for learners who want to explore cards.
+- **Rationale**: The combo page gives context (flavor text, card images, color wheel) before the user decides to go to Scryfall. Keeping users on-site for an additional step improves the learning flow. Scryfall is still accessible from the combo page.
+
+## DEC-202: Combo Index Page Card Grid — 5 Columns Desktop, 3 Tablet, 2 Mobile
+- **Date**: 2026-03-26
+- **Decision**: The combo index page (`combo/index.html`) uses a CSS grid card layout grouped by level order (allied guilds, enemy guilds, wedges, shards). Grid columns: 5 on desktop, 3 on tablet (≤900px), 2 on mobile (≤600px).
+- **Context**: 20 combos fit naturally into the existing 4-tier structure. Each card in the grid shows the combo name, mana pips, and a "Learn these names" button linking to the relevant combo page.
+- **Rationale**: The tier grouping matches the learning progression. 5-column desktop accommodates the 5 combos per subgroup. Responsive column reduction maintains readability at smaller viewports.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

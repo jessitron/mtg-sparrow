@@ -6,6 +6,8 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-03-26)
 
+Static combo reference pages delivered outside formal arc process. 20 combo pages at `combo/<id>.html` + index at `combo/index.html`. Build script `npm run build:combos`. End page "More X cards →" links now point to combo pages (renamed telemetry event: `end.combo_page_click`). No version bump yet. Decisions DEC-195 through DEC-202. See arc-history.md for full details.
+
 Arc 49 (Clean Up End Page URL Parameters) completed 2026-03-26. Removed `cards`, `completed`, and `assessment` URL params from assessment→end navigation. `navigateToEnd` now passes only `subgroup`. End page simplified to read assessment from localStorage. `session.summary` span retained but carries only `session.subgroup`. Version bumped to 0.31.0. 29/29 Playwright checks PASS. Decision DEC-193.
 
 Arc 49 (localStorage Adapter) completed 2026-03-26 (earlier). All localStorage writes now routed through `src/storage.ts` adapter, emitting `localStorage.update` logs with `storage.adapter_version: "v1"`. Deliberate exception for player ID write in telemetry.ts (circular dependency). 11/11 verification checks PASS. Decisions DEC-188 through DEC-191.
@@ -104,9 +106,16 @@ The separate RFP (discovery) and SOW (arc planning) stages were merged into a si
 
 ---
 
+## Pending: Version Bump for Combo Pages
+
+The combo reference pages were delivered outside the formal arc process with **no version bump**. The current deployed version is v0.32.0. The next formal arc should bump `APP_VERSION` in `src/version.ts` (and `package.json`) before delivery to maintain the structural marker convention.
+
+---
+
 ## Future Feature Candidates (from TODO.md and prior plans)
 
 - ~~Progress dots for reel navigation~~ — replaced by Arc 47 progress bar
+- Combo reference pages — DELIVERED (outside formal arc, 2026-03-26) — 20 static pages at `combo/<id>.html` + index. Scryfall links now go through combo pages first.
 - Space-to-resume pause on slides
 - Cylinder unroll animation integration (using `cylinder-transition.js`)
 - Four-color combinations (deferred in DEC-004, still out of scope)
