@@ -193,6 +193,75 @@ function buildPage(combo: ColorCombo): string {
 `;
 }
 
+function buildIndexPage(): string {
+  const groups: { label: string; combos: ColorCombo[] }[] = [
+    { label: "Allied Guilds", combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "allied") },
+    { label: "Enemy Guilds", combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "enemy") },
+    { label: "Shards", combos: guilds.filter(g => g.tier === "shard") },
+    { label: "Wedges", combos: guilds.filter(g => g.tier === "wedge") },
+  ];
+
+  const sections = groups.map(group => {
+    const items = group.combos.map(combo => {
+      const colorEmojis = combo.colors.map(c => colorEmojiMap[c] ?? c).join("");
+      const colors = colorNames(combo);
+      const cardCount = combo.cards?.length ?? 0;
+      return `      <li class="combo-index-item">
+        <a href="${combo.id}.html" class="combo-index-link">
+          <span class="combo-index-name">${escapeHtml(combo.name)}</span>
+          <span class="combo-index-colors">${colorEmojis} ${escapeHtml(colors)}</span>
+          <span class="combo-index-count">${cardCount} cards</span>
+        </a>
+      </li>`;
+    }).join("\n");
+
+    return `    <section class="combo-index-group">
+      <h2>${group.label}</h2>
+      <ul class="combo-index-list">
+${items}
+      </ul>
+    </section>`;
+  }).join("\n\n");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Color Combinations — MTG Colors</title>
+  <meta name="description" content="Browse all 20 Magic: The Gathering color combinations — allied guilds, enemy guilds, shards, and wedges.">
+  <meta property="og:title" content="All Color Combinations — MTG Colors">
+  <meta property="og:description" content="Browse all 20 Magic: The Gathering color combinations — allied guilds, enemy guilds, shards, and wedges.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mtgcolors.quest/combo/">
+  <meta property="og:site_name" content="MTG Colors">
+  <link rel="canonical" href="https://mtgcolors.quest/combo/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap">
+  <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../combo.css">
+</head>
+<body>
+  <a href="../" class="home-spiral" title="Home"></a>
+  <main id="app">
+    <div class="combo-page">
+      <h1 class="combo-name">Color Combinations</h1>
+      <p class="combo-index-intro">All 20 Magic: The Gathering color combinations, organized by type.</p>
+
+${sections}
+
+      <footer class="combo-footer">
+        <a href="../" class="combo-home-link">Back to MTG Colors</a>
+      </footer>
+    </div>
+  </main>
+</body>
+</html>
+`;
+}
+
 // --- Main ---
 fs.mkdirSync(COMBO_DIR, { recursive: true });
 
@@ -204,4 +273,7 @@ for (const combo of guilds) {
   count++;
 }
 
-console.log(`Generated ${count} combo pages in combo/`);
+// Index page
+fs.writeFileSync(path.join(COMBO_DIR, "index.html"), buildIndexPage(), "utf-8");
+
+console.log(`Generated ${count} combo pages + index in combo/`);

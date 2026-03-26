@@ -137,6 +137,65 @@
   text-decoration: underline;
 }
 
+/* --- Index page --- */
+
+.combo-index-intro {
+  color: #aaa;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.combo-index-group {
+  margin-bottom: 2rem;
+}
+
+.combo-index-group h2 {
+  font-family: 'GoudyMediaeval', serif;
+  font-size: 1.4rem;
+  color: var(--bg-khaki);
+  margin-bottom: 0.75rem;
+}
+
+.combo-index-list {
+  list-style: none;
+}
+
+.combo-index-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.combo-index-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0.5rem;
+  text-decoration: none;
+  color: #e0e0e0;
+  transition: background 0.15s ease;
+}
+
+.combo-index-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.combo-index-name {
+  font-family: 'GoudyMediaeval', serif;
+  font-size: 1.2rem;
+  min-width: 8rem;
+}
+
+.combo-index-colors {
+  color: #aaa;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.combo-index-count {
+  color: #777;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
 /* --- Mobile --- */
 
 @media (max-width: 600px) {
