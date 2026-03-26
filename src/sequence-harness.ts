@@ -122,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateRules(familiaritySelect.value as Familiarity);
   familiaritySelect.addEventListener('change', () => {
     updateRules(familiaritySelect.value as Familiarity);
+    generateBtn.click();
   });
 
   generateBtn.addEventListener('click', () => {
