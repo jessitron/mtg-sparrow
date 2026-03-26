@@ -1,5 +1,6 @@
 /* During an active quiz session, the app fills the full viewport */
 #app.app--quiz-active {
+  width: 100%;
   max-width: 100%;
   padding: 1rem;
   box-sizing: border-box;
@@ -16,20 +17,19 @@ html:has(.app--quiz-active) {
   height: 100svh;
 }
 
-/* Card zone: grows to fill remaining space, card centered inside */
+/* Card zone: grows to fill remaining space, cards stacked for crossfade */
 .card-container {
   flex: 1;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   overflow: hidden;
   width: 100%;
 }
 
-/* Ensure card doesn't push footer out of viewport */
+/* Stack all cards in the same cell for crossfade overlay */
 .card-container .card {
+  grid-area: 1 / 1;
   max-height: 100%;
   overflow: hidden;
 }
@@ -37,11 +37,6 @@ html:has(.app--quiz-active) {
 @keyframes buttonFadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
-}
-
-@keyframes cardPulse {
-  0%   { transform: scale(0.97); }
-  100% { transform: scale(1); }
 }
 
 .card {
@@ -55,10 +50,6 @@ html:has(.app--quiz-active) {
   gap: 1.5rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   user-select: none;
-}
-
-.card--transitioning {
-  animation: cardPulse 200ms ease-out;
 }
 
 .card-pips {
@@ -133,6 +124,10 @@ html:has(.app--quiz-active) {
   align-items: center;
 }
 
+.footer-names-minimize svg {
+  transform: translateY(3px);
+}
+
 .footer-names-minimize:hover {
   color: rgba(255, 255, 255, 0.7);
   background: rgba(255, 255, 255, 0.08);
@@ -144,7 +139,6 @@ html:has(.app--quiz-active) {
   justify-content: flex-end;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.5rem 0;
 }
 
 /* Circular pause button — styled like .gas-btn */
@@ -268,13 +262,13 @@ html:has(.app--quiz-active) {
 #app.app--quiz-active .card--with-image {
   grid-template-columns: auto 1fr;
   gap: 2rem;
-  height: 100%;
+  max-height: 100%;
   align-items: center;
   border-radius: 4px;
 }
 
 #app.app--quiz-active .card-image-column {
-  height: 100%;
+  max-height: 100%;
   justify-content: center;
 }
 
