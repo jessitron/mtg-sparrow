@@ -1,4 +1,4 @@
-import { buildSequenceWithSections, Familiarity, REPS_BEFORE_NEXT, SequenceWithSections } from './sparrow-deck';
+import { buildSequenceWithSections, Familiarity, MAX_SECTION_LENGTH, REPS_BEFORE_NEXT, SequenceWithSections } from './sparrow-deck';
 
 // Combo labels: A, B, C, D, E, ...
 function comboLabel(comboIndex: number): string {
@@ -70,7 +70,7 @@ function renderSequence(result: SequenceWithSections, familiarity: Familiarity, 
   // Show total length and strategy info
   const summary = document.createElement('div');
   summary.className = 'sequence-summary';
-  const repsInfo = familiarity === 'new' ? ` · reps before next intro: ${REPS_BEFORE_NEXT}` : '';
+  const repsInfo = familiarity === 'new' ? ` · reps before next intro: ${REPS_BEFORE_NEXT} · max section length: ${MAX_SECTION_LENGTH}` : '';
   summary.textContent = `Total: ${result.sequence.length} slides${repsInfo}`;
   container.appendChild(summary);
 }

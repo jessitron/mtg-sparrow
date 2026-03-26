@@ -115,6 +115,55 @@ function countAppearances(sequence: SlideSelection[], comboIndex: number): numbe
 /** How many times the newest combo must appear before the next one is introduced. */
 export const REPS_BEFORE_NEXT = 3;
 
+/** Maximum number of slides allowed in a single section. */
+export const MAX_SECTION_LENGTH = 9;
+
+/**
+ * Thin a section to at most MAX_SECTION_LENGTH slides by removing non-target items.
+ * Finds all runs of consecutive non-target items and repeatedly removes one item
+ * from the longest run until the section is short enough or no non-target items remain.
+ * Target combo appearances are never removed.
+ */
+function thinSection(section: SlideSelection[], targetCombos: number[]): SlideSelection[] {
+  const result = [...section];
+
+  while (result.length > MAX_SECTION_LENGTH) {
+    // Find all runs of consecutive non-target items
+    type Run = { start: number; length: number };
+    const runs: Run[] = [];
+    let runStart = -1;
+
+    for (let i = 0; i <= result.length; i++) {
+      const isNonTarget = i < result.length && !targetCombos.includes(result[i][0]);
+      if (isNonTarget && runStart === -1) {
+        runStart = i;
+      } else if (!isNonTarget && runStart !== -1) {
+        runs.push({ start: runStart, length: i - runStart });
+        runStart = -1;
+      }
+    }
+
+    if (runs.length === 0) {
+      // No non-target items left to remove; stop thinning
+      break;
+    }
+
+    // Find the longest run (last one wins ties, to spread removals evenly from the end)
+    let longestRun = runs[0];
+    for (const run of runs) {
+      if (run.length >= longestRun.length) {
+        longestRun = run;
+      }
+    }
+
+    // Remove the middle item of the longest run
+    const removeIdx = longestRun.start + Math.floor(longestRun.length / 2);
+    result.splice(removeIdx, 1);
+  }
+
+  return result;
+}
+
 /**
  * Generate batches from a pool until every combo in `targetCombos` has at least
  * REPS_BEFORE_NEXT appearances, then trim to the point where the last one reached it.
@@ -148,6 +197,7 @@ function generateSection(
   }
 
   // Trim: find the earliest position where ALL targets have reached REPS_BEFORE_NEXT.
+  let trimmed = section;
   const counts = new Map(targetCombos.map(c => [c, 0]));
   for (let i = 0; i < section.length; i++) {
     const ci = section[i][0];
@@ -155,10 +205,13 @@ function generateSection(
       counts.set(ci, counts.get(ci)! + 1);
     }
     if ([...counts.values()].every(v => v >= REPS_BEFORE_NEXT)) {
-      return section.slice(0, i + 1);
+      trimmed = section.slice(0, i + 1);
+      break;
     }
   }
-  return section;
+
+  // Thin: if section exceeds MAX_SECTION_LENGTH, remove non-target items from longest runs.
+  return thinSection(trimmed, targetCombos);
 }
 
 /** A section of a sequence, produced by one call to generateSection or the fill phase. */
