@@ -75,12 +75,54 @@ function renderSequence(result: SequenceWithSections, familiarity: Familiarity, 
   container.appendChild(summary);
 }
 
+const RULES: Record<Familiarity, { title: string; items: string[] }> = {
+  familiar: {
+    title: 'Familiar strategy',
+    items: [
+      'All combos appear in every round (shuffle-and-repeat)',
+      'No immediate repeats of the same combo (min gap of 1)',
+      'No consecutive same-card for the same combo',
+      'Sequence is exactly the requested length',
+    ],
+  },
+  new: {
+    title: 'New strategy',
+    items: [
+      'Starts with combos A & B, introduces one new combo at a time',
+      `Each new combo appears ${REPS_BEFORE_NEXT} times (REPS_BEFORE_NEXT) before the next is introduced`,
+      'Combos are introduced in order (C, D, E…)',
+      'Early sections (introducing A+B, and C): repeats of the same combo are allowed',
+      'Later sections (introducing D, E, …): no immediate repeats of the same combo',
+      'No consecutive same-card for the same combo',
+      `Each introduction section is at most ${MAX_SECTION_LENGTH} slides (MAX_SECTION_LENGTH)`,
+      'Sequence length is a minimum — may be longer to fit all introductions',
+    ],
+  },
+};
+
+function updateRules(familiarity: Familiarity): void {
+  const rulesEl = document.getElementById('rules')!;
+  const rule = RULES[familiarity];
+  rulesEl.innerHTML = `
+    <h2>${rule.title}</h2>
+    <ul>
+      ${rule.items.map(item => `<li>${item.replace(/([A-Z_]{2,})/g, '<strong>$1</strong>')}</li>`).join('')}
+    </ul>
+  `;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const generateBtn = document.getElementById('generate-btn') as HTMLButtonElement;
   const comboCountInput = document.getElementById('combo-count-input') as HTMLInputElement;
   const cardsPerComboInput = document.getElementById('cards-per-combo-input') as HTMLInputElement;
   const lengthInput = document.getElementById('length-input') as HTMLInputElement;
   const familiaritySelect = document.getElementById('familiarity-select') as HTMLSelectElement;
+
+  // Show rules for the currently selected strategy, update on change
+  updateRules(familiaritySelect.value as Familiarity);
+  familiaritySelect.addEventListener('change', () => {
+    updateRules(familiaritySelect.value as Familiarity);
+  });
 
   generateBtn.addEventListener('click', () => {
     const comboCount = parseInt(comboCountInput.value, 10) || 5;
