@@ -4,9 +4,11 @@ Current state, in-progress work, and upcoming arcs.
 
 ---
 
-## Current Status (2026-03-25)
+## Current Status (2026-03-26)
 
-Arc 46 (Dual-Strategy buildSequence) is the active arc. Implementation underway: adding `familiarity: "new" | "familiar"` parameter to `buildSequence`, implementing both sequencing strategies, verifying via sequence harness and tests.
+Arc 47 (Progress Bar) completed 2026-03-26. Replaced text card counter with inline progress bar on slides page. 19/19 verification checks passed.
+
+Arc 46 (Dual-Strategy buildSequence) is in progress. Implementation underway: adding `familiarity: "new" | "familiar"` parameter to `buildSequence`, implementing both sequencing strategies, verifying via sequence harness and tests.
 
 Arc 44 (Level Intro Slide) completed 2026-03-25. Exploratory spaced repetition groundwork also completed 2026-03-25 (sequence module refactoring, sequence harness).
 
@@ -94,7 +96,7 @@ The separate RFP (discovery) and SOW (arc planning) stages were merged into a si
 
 ## Future Feature Candidates (from TODO.md and prior plans)
 
-- Progress dots for reel navigation (natural companion, Arc 25 in prior SOW plan)
+- ~~Progress dots for reel navigation~~ — replaced by Arc 47 progress bar
 - Space-to-resume pause on slides
 - Cylinder unroll animation integration (using `cylinder-transition.js`)
 - Four-color combinations (deferred in DEC-004, still out of scope)
