@@ -33,18 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const cards = parseInt(urlParams.get('cards') || '0', 10);
   const completed = urlParams.get('completed') === 'true';
 
-  async function navigateToEnd(assessment: string | null): Promise<void> {
-    const params = new URLSearchParams({
-      subgroup,
-      cards: String(cards),
-      completed: String(completed),
-    });
-    if (assessment !== null) {
-      params.set('assessment', assessment);
-    }
+  async function navigateToEnd(_assessment: string | null): Promise<void> {
     // Await flush before navigating so spans are exported before page unload
     await flushSpans();
-    window.location.href = `end?${params.toString()}`;
+    window.location.href = `end?subgroup=${subgroup}`;
   }
 
   // Skip assessment if fewer than minimum cards were shown

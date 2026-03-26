@@ -35,19 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Record session summary as a child if we arrived from a session
   const urlParams = new URLSearchParams(window.location.search);
   const subgroup = urlParams.get('subgroup');
-  const cardsParam = urlParams.get('cards');
-  const completedParam = urlParams.get('completed');
-  const assessment = urlParams.get('assessment');
 
   if (subgroup) {
-    const attrs: Record<string, string | number | boolean> = {
+    const summarySpan = startChildSpan('session.summary', pageSpan, {
       'session.subgroup': subgroup,
-    };
-    if (cardsParam !== null) attrs['session.card_count'] = parseInt(cardsParam, 10);
-    if (completedParam !== null) attrs['session.completed'] = completedParam === 'true';
-    if (assessment !== null) attrs['session.self_assessment'] = assessment;
-
-    const summarySpan = startChildSpan('session.summary', pageSpan, attrs);
+    });
     endSpan(summarySpan);
   }
 
@@ -64,9 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return {
       'feedback.unlocked_levels': getUnlockedSubgroups().join(','),
       'feedback.end.subgroup': params.get('subgroup') ?? '',
-      'feedback.end.cards': params.get('cards') ?? '',
-      'feedback.end.completed': params.get('completed') ?? '',
-      'feedback.end.assessment': params.get('assessment') ?? '',
       ...getEndPageContext(),
     };
   });
