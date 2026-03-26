@@ -44,10 +44,7 @@ function detectIntroductions(sequence: SlideSelection[]): Map<number, number> {
   return introAt;
 }
 
-function renderSequence(sequence: SlideSelection[], familiarity: Familiarity): void {
-  const output = document.getElementById('output')!;
-  output.innerHTML = '';
-
+function renderSequence(sequence: SlideSelection[], familiarity: Familiarity, container: HTMLElement): void {
   const introductions = familiarity === 'new' ? detectIntroductions(sequence) : new Map<number, number>();
 
   sequence.forEach(([comboIndex, cardIndex], position) => {
@@ -57,7 +54,7 @@ function renderSequence(sequence: SlideSelection[], familiarity: Familiarity): v
       const marker = document.createElement('div');
       marker.className = 'intro-marker';
       marker.textContent = `── introducing ${comboLabel(introCombo)} ──`;
-      output.appendChild(marker);
+      container.appendChild(marker);
     }
 
     const row = document.createElement('div');
@@ -79,7 +76,7 @@ function renderSequence(sequence: SlideSelection[], familiarity: Familiarity): v
     row.appendChild(positionEl);
     row.appendChild(comboEl);
     row.appendChild(cardEl);
-    output.appendChild(row);
+    container.appendChild(row);
   });
 
   // Show total length and strategy info
@@ -87,7 +84,7 @@ function renderSequence(sequence: SlideSelection[], familiarity: Familiarity): v
   summary.className = 'sequence-summary';
   const repsInfo = familiarity === 'new' ? ` · reps before next intro: ${REPS_BEFORE_NEXT}` : '';
   summary.textContent = `Total: ${sequence.length} slides${repsInfo}`;
-  output.appendChild(summary);
+  container.appendChild(summary);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -103,8 +100,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const length = parseInt(lengthInput.value, 10) || 25;
     const familiarity = (familiaritySelect.value || 'familiar') as Familiarity;
     const cardCounts = Array.from({ length: comboCount }, () => cardsPerCombo);
-    const sequence = buildSequence(cardCounts, length, familiarity);
-    renderSequence(sequence, familiarity);
+    const output = document.getElementById('output')!;
+    output.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const col = document.createElement('div');
+      col.className = 'sequence-column';
+      const sequence = buildSequence(cardCounts, length, familiarity);
+      renderSequence(sequence, familiarity, col);
+      output.appendChild(col);
+    }
   });
 
   // Generate on load with defaults
