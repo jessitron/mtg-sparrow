@@ -14,6 +14,7 @@ I want to get at least the first one done before handing out stickers.
 
 ## other
 
+- a cute 404 page
 - make the colors in the logo match the ones on the back of the card
 - o11y: put the session id and player ID on every span event as well.
 - o11y: add the scryfall URL to the card spans
