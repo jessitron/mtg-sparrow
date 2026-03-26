@@ -1625,6 +1625,14 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Decision**: Each adapter function wraps the `emitLog` call in a try/catch so that a telemetry failure never prevents the localStorage operation from succeeding.
 - **Rationale**: The localStorage write is the primary operation; telemetry is secondary. The adapter must not degrade reliability of state persistence, especially during app initialization when telemetry may not yet be ready.
 
+## DEC-192: Language Scope Remains English-Only Despite Multi-Language Player Base
+- **Date**: 2026-03-26
+- **Decision**: English-only scope (DEC-019) is maintained. Market research (RF-007) establishing a ~10M potential audience across 6 MTG languages does not change the current scope.
+- **Context**: Client provided market research showing 35–50M total players, ~10M in the new-player target window, and that MTG is published in 6 languages with Japanese likely the second-largest. DEC-019 had previously decided English-only.
+- **Alternatives considered**: Begin localization work (Japanese as first target). Add language detection and a "coming soon" signal.
+- **Rationale**: The English-only scope is still appropriate for initial delivery. The research establishes meaningful future opportunity — particularly Japanese — but localization is a significant scope expansion. It is recorded here as a known future consideration rather than current obligation.
+- **Future signal**: If data from Honeycomb shows significant non-English browser traffic (`browser.language`), that would be a concrete trigger to revisit.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

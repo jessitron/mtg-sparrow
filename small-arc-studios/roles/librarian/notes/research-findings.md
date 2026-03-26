@@ -355,3 +355,32 @@ Original Arc 2 ("Card Data & Deck Logic") broken into two smaller arcs, each pro
 - Tier filtering/selection: later arc
 - "Say it" prompt: polish phase
 - Shards & Wedges data: later arc (DEC-026)
+
+---
+
+## RF-007: MTG Player Base & Target Audience
+- **Date**: 2026-03-26
+- **Source**: Client (market research via AI-assisted search)
+
+### Summary
+
+Estimates of the total MTG player base and the fraction who are realistic targets for mtgcolors.quest.
+
+### Total Player Base
+- Estimated range: **35–50 million players** globally
+
+### Target Audience Framing
+- The more meaningful metric is the **rate of new players joining**, not the total base.
+- The site is useful during a window: after a player is curious enough to care about color identity names, but before they've already learned them.
+- Wikipedia (via AI search) cites that **1/3 of MTG players have been playing less than 3 years**. Most of this cohort is in the potential audience — some are too new to care yet, some have already internalized the names.
+
+### Conservative Estimate
+- Taking the low bound: 35M × 1/3 ≈ **~10 million players in the potential audience**
+- This is deliberately conservative (rounded down from 35M / 3 ≈ 11.7M).
+
+### Language Scope Implications
+- Not all players are English speakers.
+- MTG is published in **6 languages**, with English as the tournament fallback.
+- **Japanese is likely the second most common player language** after English.
+- Current DEC-019 scope is English-only. This data does not compel localization now, but establishes the scale of the non-English opportunity for future consideration.
+- See DEC-192 for the recorded decision on whether this research changes scope.
