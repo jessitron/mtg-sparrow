@@ -75,9 +75,27 @@ html:has(.app--quiz-active) {
   opacity: 0;
 }
 
-.progress-counter {
-  font-size: 0.9rem;
-  color: #888;
+.progress-bar-track {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  align-self: center;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: rgba(108, 159, 176, 0.6);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 300ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar-fill {
+    transition: none;
+  }
 }
 
 /* Footer below the card — two rows */

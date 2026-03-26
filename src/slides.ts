@@ -184,10 +184,18 @@ function buildSessionUI(): void {
   const controlsRow = document.createElement('div');
   controlsRow.classList.add('footer-controls');
 
-  const progress = document.createElement('span');
-  progress.classList.add('progress-counter');
-  progress.textContent = `1 / ${session.cardCount}`;
-  controlsRow.appendChild(progress);
+  const progressTrack = document.createElement('div');
+  progressTrack.classList.add('progress-bar-track');
+  progressTrack.setAttribute('role', 'progressbar');
+  progressTrack.setAttribute('aria-valuenow', '1');
+  progressTrack.setAttribute('aria-valuemin', '1');
+  progressTrack.setAttribute('aria-valuemax', String(session.cardCount));
+  progressTrack.setAttribute('aria-label', `Card 1 of ${session.cardCount}`);
+  const progressFill = document.createElement('div');
+  progressFill.classList.add('progress-bar-fill');
+  progressFill.style.width = (1 / session.cardCount * 100) + '%';
+  progressTrack.appendChild(progressFill);
+  controlsRow.appendChild(progressTrack);
 
   // Pause button — circular, styled like .gas-btn
   const pauseBtn = document.createElement('button');
@@ -342,10 +350,14 @@ function showCard(): void {
     }
   }
 
-  // Update counter
-  const progress = doneZoneEl.querySelector('.progress-counter') as HTMLElement | null;
-  if (progress) {
-    progress.textContent = `${session.currentIndex + 1} / ${session.cardCount}`;
+  // Update progress bar
+  const progressTrack = doneZoneEl.querySelector('.progress-bar-track') as HTMLElement | null;
+  const progressFill = doneZoneEl.querySelector('.progress-bar-fill') as HTMLElement | null;
+  if (progressTrack && progressFill) {
+    const current = session.currentIndex + 1;
+    progressFill.style.width = (current / session.cardCount * 100) + '%';
+    progressTrack.setAttribute('aria-valuenow', String(current));
+    progressTrack.setAttribute('aria-label', `Card ${current} of ${session.cardCount}`);
   }
 
   // Show "Done for now" button from card 2 onward
