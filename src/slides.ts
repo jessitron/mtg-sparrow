@@ -28,16 +28,15 @@ const MANA_COLOR_MAP: Record<string, string> = {
   G: 'var(--mana-G)',
 };
 
-function buildProgressGradient(deck: Slide[], currentIndex: number): string {
-  const count = currentIndex + 1;
-  if (count === 1) {
+function buildFullDeckGradient(deck: Slide[]): string {
+  if (deck.length <= 1) {
     const letter = deck[0]?.colors?.[0] ?? 'U';
     return MANA_COLOR_MAP[letter] ?? MANA_COLOR_MAP['U'];
   }
-  const bandWidth = 100 / count;
-  const blendZone = Math.min(1, bandWidth * 0.05); // ~5% of band, max 1%
+  const bandWidth = 100 / deck.length;
+  const blendZone = Math.min(1, bandWidth * 0.05);
   const stops: string[] = [];
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < deck.length; i++) {
     const letter = deck[i]?.colors?.[0] ?? 'U';
     const color = MANA_COLOR_MAP[letter] ?? MANA_COLOR_MAP['U'];
     const bandStart = i * bandWidth;
@@ -45,7 +44,7 @@ function buildProgressGradient(deck: Slide[], currentIndex: number): string {
     if (i === 0) {
       stops.push(`${color} 0%`);
       stops.push(`${color} ${(bandEnd - blendZone).toFixed(1)}%`);
-    } else if (i === count - 1) {
+    } else if (i === deck.length - 1) {
       stops.push(`${color} ${(bandStart + blendZone).toFixed(1)}%`);
       stops.push(`${color} 100%`);
     } else {
@@ -232,8 +231,10 @@ function buildSessionUI(): void {
   progressTrack.setAttribute('aria-label', `Card 1 of ${session.cardCount}`);
   const progressFill = document.createElement('div');
   progressFill.classList.add('progress-bar-fill');
-  progressFill.style.width = (1 / session.cardCount * 100) + '%';
-  progressFill.style.background = buildProgressGradient(session.deck, 0);
+  const fillPct = 1 / session.cardCount * 100;
+  progressFill.style.width = fillPct + '%';
+  progressFill.style.background = buildFullDeckGradient(session.deck);
+  progressFill.style.backgroundSize = `${(100 / fillPct) * 100}% 100%`;
   progressTrack.appendChild(progressFill);
   controlsRow.appendChild(progressTrack);
 
@@ -417,8 +418,9 @@ function showCard(): void {
   const progressFill = doneZoneEl.querySelector('.progress-bar-fill') as HTMLElement | null;
   if (progressTrack && progressFill) {
     const current = session.currentIndex + 1;
-    progressFill.style.width = (current / session.cardCount * 100) + '%';
-    progressFill.style.background = buildProgressGradient(session.deck, session.currentIndex);
+    const pct = current / session.cardCount * 100;
+    progressFill.style.width = pct + '%';
+    progressFill.style.backgroundSize = `${(100 / pct) * 100}% 100%`;
     progressTrack.setAttribute('aria-valuenow', String(current));
     progressTrack.setAttribute('aria-label', `Card ${current} of ${session.cardCount}`);
   }
