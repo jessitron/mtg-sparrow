@@ -170,7 +170,7 @@ function buildPage(combo: ColorCombo): string {
         <div class="combo-title-block">
           <h1 class="combo-name">${escapeHtml(combo.name)}</h1>
           <p class="combo-tier">${tier}</p>
-          <p class="combo-colors">${pips}<span class="sr-only">${escapeHtml(colors)}</span></p>
+          <p class="combo-colors" aria-label="${escapeHtml(colors)}">${pips}</p>
         </div>
       </header>
 
@@ -209,7 +209,7 @@ function buildIndexPage(): string {
       return `      <li class="combo-index-item">
         <a href="${combo.id}.html" class="combo-index-link">
           <span class="combo-index-name">${escapeHtml(combo.name)}</span>
-          <span class="combo-index-colors">${pips}<span class="sr-only">${escapeHtml(colors)}</span></span>
+          <span class="combo-index-colors" aria-label="${escapeHtml(colors)}">${pips}</span>
         </a>
       </li>`;
     }).join("\n");
