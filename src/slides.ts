@@ -12,6 +12,7 @@ import {
 import { colorEmojiMap, alliedGuilds, enemyGuilds, wedges, shards } from './data/combos';
 import { isSubgroupUnlocked, markSubgroupUnlocked, markSubgroupCompleted, getUnlockedSubgroups } from './progression';
 import { getAssessment } from './self-assessment-store';
+import { Familiarity } from './sparrow-deck';
 import { Span } from '@opentelemetry/api';
 import { wireSettings } from './ui/settings';
 import { APP_VERSION } from './version';
@@ -469,8 +470,14 @@ function handleAdvance(): void {
   }
 }
 
+function assessmentToFamiliarity(assessment: string | undefined): Familiarity {
+  return (assessment === 'getting_there' || assessment === 'nailing_it') ? 'familiar' : 'new';
+}
+
 function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwellMs: number, introDwellMs?: number): void {
-  session = createSession(subgroup);
+  const priorAssessment = getAssessment(subgroup);
+  const familiarity = assessmentToFamiliarity(priorAssessment);
+  session = createSession(subgroup, familiarity);
 
   // Start session root span
   const tierLabel =
@@ -486,9 +493,9 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
     'session.welcome_dwell_ms': welcomeDwellMs,
     'session.enemy_unlocked': isSubgroupUnlocked('enemy'),
     'session.has_level_intro': introDwellMs !== undefined,
+    'session.familiarity': familiarity,
     'app.version': APP_VERSION,
   };
-  const priorAssessment = getAssessment(subgroup);
   if (priorAssessment) {
     sessionAttrs['session.prior_assessment'] = priorAssessment;
   }

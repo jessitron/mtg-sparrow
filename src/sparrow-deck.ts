@@ -328,9 +328,9 @@ export function buildSequence(
  * Build a deck of `count` slides by shuffling the source combos
  * and repeating as needed. Each slide pre-selects a random card image.
  */
-export function buildDeck(combos: ColorCombo[], count: number): Slide[] {
+export function buildDeck(combos: ColorCombo[], count: number, familiarity: Familiarity = 'familiar'): Slide[] {
   const cardCounts = combos.map((c) => (c.cards ? c.cards.length : 0));
-  const sequence = buildSequence(cardCounts, count, 'familiar');
+  const sequence = buildSequence(cardCounts, count, familiarity);
   return sequence.map(([comboIndex, cardIndex]) => {
     const combo = combos[comboIndex - 1];
     const selectedCard = cardIndex > 0 ? combo.cards![cardIndex - 1] : undefined;

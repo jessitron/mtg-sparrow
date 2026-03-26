@@ -1,5 +1,5 @@
 import { ColorCombo, CardReference, alliedGuilds, enemyGuilds, wedges, shards } from './data/combos';
-import { buildDeck } from './sparrow-deck';
+import { buildDeck, Familiarity } from './sparrow-deck';
 
 export type Slide = ColorCombo & { selectedCard?: CardReference };
 
@@ -19,7 +19,7 @@ export type SessionState = {
   subgroup: GuildSubgroup;
 };
 
-export function createSession(subgroup: GuildSubgroup = "allied"): SessionState {
+export function createSession(subgroup: GuildSubgroup = "allied", familiarity: Familiarity = 'new'): SessionState {
   const poolMap: Record<GuildSubgroup, typeof alliedGuilds> = {
     allied: alliedGuilds,
     enemy: enemyGuilds,
@@ -28,7 +28,7 @@ export function createSession(subgroup: GuildSubgroup = "allied"): SessionState 
   };
   const pool = poolMap[subgroup];
   return {
-    deck: buildDeck(pool, SESSION_CARD_COUNT),
+    deck: buildDeck(pool, SESSION_CARD_COUNT, familiarity),
     cardCount: SESSION_CARD_COUNT,
     currentIndex: 0,
     completed: false,
