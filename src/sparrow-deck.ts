@@ -40,7 +40,7 @@ function positionsSinceLast(sequence: SlideSelection[], comboIndex: number): num
   return -1;
 }
 
-const MIN_GAP = 2;
+const MIN_GAP = 1;
 
 /**
  * Append one shuffled batch of the given pool to sequence, enforcing MIN_GAP.

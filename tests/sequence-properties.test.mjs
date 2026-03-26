@@ -17,7 +17,7 @@ function positionsSinceLast(sequence, comboIndex) {
   }
   return -1;
 }
-var MIN_GAP = 2;
+var MIN_GAP = 1;
 function appendBatch(sequence, pool, cardCounts) {
   const batch = shuffle([...pool]);
   for (let i = 0; i < batch.length; i++) {
@@ -129,9 +129,9 @@ for (let t = 0; t < TRIALS; t++) {
   const seq = buildSequence(cardCounts, 50, "familiar");
   const gap = minGap(seq);
   assert(
-    `familiar trial ${t + 1}: min gap >= 1`,
-    gap >= 1,
-    `got min gap ${gap}`
+    `familiar trial ${t + 1}: no immediate repeats`,
+    gap >= 0,
+    `got immediate repeat (gap ${gap})`
   );
 }
 section("familiar: exact length");
