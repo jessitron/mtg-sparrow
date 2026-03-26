@@ -11,6 +11,7 @@ import {
 } from './session';
 import { colorEmojiMap, alliedGuilds, enemyGuilds, wedges, shards } from './data/combos';
 import { isSubgroupUnlocked, markSubgroupUnlocked, markSubgroupCompleted, getUnlockedSubgroups } from './progression';
+import { getAssessment } from './self-assessment-store';
 import { Span } from '@opentelemetry/api';
 import { wireSettings } from './ui/settings';
 import { APP_VERSION } from './version';
@@ -487,6 +488,10 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
     'session.has_level_intro': introDwellMs !== undefined,
     'app.version': APP_VERSION,
   };
+  const priorAssessment = getAssessment(subgroup);
+  if (priorAssessment) {
+    sessionAttrs['session.prior_assessment'] = priorAssessment;
+  }
   if (introDwellMs !== undefined) {
     sessionAttrs['session.intro_dwell_ms'] = introDwellMs;
   }
