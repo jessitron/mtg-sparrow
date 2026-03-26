@@ -1,0 +1,161 @@
+/* Combo detail page — one per color combination */
+
+.combo-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+/* --- Header: pentagon + title side by side --- */
+
+.combo-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.combo-pentagon-container {
+  flex-shrink: 0;
+  width: 200px;
+}
+
+.combo-pentagon {
+  width: 100%;
+  height: auto;
+}
+
+.combo-title-block {
+  flex: 1;
+}
+
+.combo-name {
+  font-family: 'GoudyMediaeval', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: #e0e0e0;
+  margin-bottom: 0.25rem;
+}
+
+.combo-tier {
+  font-size: 1rem;
+  color: var(--bg-khaki);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.combo-colors {
+  font-size: 1.1rem;
+  color: #bbb;
+}
+
+/* --- Description --- */
+
+.combo-description {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  border-left: 3px solid var(--bg-khaki);
+}
+
+.combo-description p {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: #ccc;
+}
+
+/* --- Cards section --- */
+
+.combo-cards h2 {
+  font-family: 'GoudyMediaeval', serif;
+  font-size: 1.5rem;
+  color: #e0e0e0;
+  margin-bottom: 1rem;
+}
+
+.combo-card-count {
+  font-family: 'Jost', sans-serif;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.combo-card-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.25rem;
+}
+
+.combo-card {
+  text-align: center;
+}
+
+.combo-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.combo-card img:hover {
+  transform: scale(1.04);
+}
+
+.combo-card figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.combo-no-cards {
+  color: #888;
+  font-style: italic;
+}
+
+/* --- Footer --- */
+
+.combo-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.combo-scryfall-link,
+.combo-home-link {
+  color: var(--bg-khaki);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.combo-scryfall-link:hover,
+.combo-home-link:hover {
+  text-decoration: underline;
+}
+
+/* --- Mobile --- */
+
+@media (max-width: 600px) {
+  .combo-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .combo-pentagon-container {
+    width: 160px;
+  }
+
+  .combo-card-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .combo-page {
+    padding: 1rem 1rem 2rem;
+  }
+}
