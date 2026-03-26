@@ -57,43 +57,61 @@ function countAppearances(sequence, comboIndex) {
   return count;
 }
 var REPS_BEFORE_NEXT = 3;
-function generateSection(pool, newestCombo, cardCounts, minGap2) {
+function generateSection(pool, targetCombos, cardCounts, minGap2) {
   const section2 = [];
-  while (countAppearances(section2, newestCombo) < REPS_BEFORE_NEXT) {
+  const firstBatch = shuffle([...pool]);
+  const frontCombo = targetCombos[0];
+  const newIdx = firstBatch.indexOf(frontCombo);
+  if (newIdx > 0) {
+    firstBatch.splice(newIdx, 1);
+    firstBatch.unshift(frontCombo);
+  }
+  for (const comboIndex of firstBatch) {
+    section2.push([comboIndex, pickCard(cardCounts[comboIndex - 1])]);
+  }
+  while (targetCombos.some((c) => countAppearances(section2, c) < REPS_BEFORE_NEXT)) {
     appendBatch(section2, pool, cardCounts, minGap2);
   }
-  let seen = 0;
+  const counts = new Map(targetCombos.map((c) => [c, 0]));
   for (let i = 0; i < section2.length; i++) {
-    if (section2[i][0] === newestCombo) {
-      seen++;
-      if (seen === REPS_BEFORE_NEXT) {
-        return section2.slice(0, i + 1);
-      }
+    const ci = section2[i][0];
+    if (counts.has(ci)) {
+      counts.set(ci, counts.get(ci) + 1);
+    }
+    if ([...counts.values()].every((v) => v >= REPS_BEFORE_NEXT)) {
+      return section2.slice(0, i + 1);
     }
   }
   return section2;
 }
-function buildNewSequence(cardCounts, length) {
+function buildNewSequenceWithSections(cardCounts, length) {
   const totalCombos = cardCounts.length;
-  const sequence = [];
+  const sections = [];
   const pool = totalCombos >= 2 ? [1, 2] : Array.from({ length: totalCombos }, (_, i) => i + 1);
-  let newestCombo = totalCombos >= 2 ? 2 : 1;
-  sequence.push(...generateSection(pool, newestCombo, cardCounts, 0));
+  const startingCombos = totalCombos >= 2 ? [1, 2] : [1];
+  sections.push({ introducedCombo: startingCombos[startingCombos.length - 1], slides: generateSection(pool, startingCombos, cardCounts, 0) });
   for (let ci = 3; ci <= totalCombos; ci++) {
     pool.push(ci);
-    newestCombo = ci;
-    sequence.push(...generateSection(pool, newestCombo, cardCounts, 1));
+    sections.push({ introducedCombo: ci, slides: generateSection(pool, [ci], cardCounts, 1) });
   }
-  while (sequence.length < length) {
-    appendBatch(sequence, pool, cardCounts, 1);
+  const flat = sections.flatMap((s) => s.slides);
+  const fillSlides = [];
+  while (flat.length + fillSlides.length < length) {
+    appendBatch(fillSlides, pool, cardCounts, 1);
   }
-  return sequence;
+  sections.push({ introducedCombo: null, slides: fillSlides });
+  const sequence = sections.flatMap((s) => s.slides);
+  return { sections, sequence };
+}
+function buildSequenceWithSections(cardCounts, length, familiarity) {
+  if (familiarity === "new") {
+    return buildNewSequenceWithSections(cardCounts, length);
+  }
+  const sequence = buildFamiliarSequence(cardCounts, length);
+  return { sections: [{ introducedCombo: null, slides: sequence }], sequence };
 }
 function buildSequence(cardCounts, length, familiarity) {
-  if (familiarity === "new") {
-    return buildNewSequence(cardCounts, length);
-  }
-  return buildFamiliarSequence(cardCounts, length);
+  return buildSequenceWithSections(cardCounts, length, familiarity).sequence;
 }
 
 // tests/sequence-properties.test.ts
@@ -216,6 +234,27 @@ for (let t = 0; t < TRIALS; t++) {
     }
   }
   assert(`new trial ${t + 1}: newest gets >= 3 reps before next`, allOk, detail);
+}
+section("new: newest combo appears at most REPS_BEFORE_NEXT times in its introduction segment");
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const seq = buildSequence(cardCounts, 25, "new");
+  let allOk = true;
+  let detail = "";
+  for (let ci = 3; ci <= 5; ci++) {
+    const segStart = firstAppearance(seq, ci);
+    if (segStart === -1) continue;
+    const nextCi = ci + 1;
+    const segEnd = nextCi <= 5 ? firstAppearance(seq, nextCi) : seq.length;
+    const effectiveEnd = segEnd === -1 ? seq.length : segEnd;
+    const reps = seq.slice(segStart, effectiveEnd).filter(([c]) => c === ci).length;
+    if (reps > REPS_BEFORE_NEXT) {
+      allOk = false;
+      detail = `combo ${ci} appeared ${reps} times in its segment [${segStart}, ${effectiveEnd}) \u2014 expected at most ${REPS_BEFORE_NEXT}`;
+      break;
+    }
+  }
+  assert(`new trial ${t + 1}: newest combo <= ${REPS_BEFORE_NEXT} reps in its segment`, allOk, detail);
 }
 section("new: all combos eventually appear");
 for (let t = 0; t < TRIALS; t++) {

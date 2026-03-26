@@ -116,45 +116,46 @@ function countAppearances(sequence: SlideSelection[], comboIndex: number): numbe
 export const REPS_BEFORE_NEXT = 3;
 
 /**
- * Generate batches from a pool until the newest combo has enough reps,
- * then trim to exactly the point where it reached REPS_BEFORE_NEXT.
+ * Generate batches from a pool until every combo in `targetCombos` has at least
+ * REPS_BEFORE_NEXT appearances, then trim to the point where the last one reached it.
  *
- * The newestCombo is guaranteed to appear first in the first batch so that
- * its first appearance in the flat sequence is unambiguously at the section start,
- * enabling accurate segment boundary detection.
+ * The first targetCombo is placed first in the first batch so its first appearance
+ * is unambiguously at the section start, enabling accurate segment boundary detection.
  */
 function generateSection(
   pool: number[],
-  newestCombo: number,
+  targetCombos: number[],
   cardCounts: number[],
   minGap: number,
 ): SlideSelection[] {
   const section: SlideSelection[] = [];
 
-  // First batch: shuffle and then move newestCombo to front so it appears
-  // at the very start of this section. This ensures detectability of section boundaries.
+  // First batch: shuffle and then move first target to front.
   const firstBatch = shuffle([...pool]);
-  const newIdx = firstBatch.indexOf(newestCombo);
+  const frontCombo = targetCombos[0];
+  const newIdx = firstBatch.indexOf(frontCombo);
   if (newIdx > 0) {
     firstBatch.splice(newIdx, 1);
-    firstBatch.unshift(newestCombo);
+    firstBatch.unshift(frontCombo);
   }
   for (const comboIndex of firstBatch) {
     section.push([comboIndex, pickCard(cardCounts[comboIndex - 1])]);
   }
 
-  // Continue with regular batches until newestCombo has REPS_BEFORE_NEXT appearances.
-  while (countAppearances(section, newestCombo) < REPS_BEFORE_NEXT) {
+  // Continue until every target combo has enough reps.
+  while (targetCombos.some(c => countAppearances(section, c) < REPS_BEFORE_NEXT)) {
     appendBatch(section, pool, cardCounts, minGap);
   }
-  // Trim: find the position of the Nth appearance of newestCombo and cut there
-  let seen = 0;
+
+  // Trim: find the earliest position where ALL targets have reached REPS_BEFORE_NEXT.
+  const counts = new Map(targetCombos.map(c => [c, 0]));
   for (let i = 0; i < section.length; i++) {
-    if (section[i][0] === newestCombo) {
-      seen++;
-      if (seen === REPS_BEFORE_NEXT) {
-        return section.slice(0, i + 1);
-      }
+    const ci = section[i][0];
+    if (counts.has(ci)) {
+      counts.set(ci, counts.get(ci)! + 1);
+    }
+    if ([...counts.values()].every(v => v >= REPS_BEFORE_NEXT)) {
+      return section.slice(0, i + 1);
     }
   }
   return section;
@@ -180,14 +181,13 @@ function buildNewSequenceWithSections(cardCounts: number[], length: number): Seq
   const sections: SequenceSection[] = [];
   const pool = totalCombos >= 2 ? [1, 2] : Array.from({ length: totalCombos }, (_, i) => i + 1);
 
-  // Generate introduction sections: each adds a combo, runs until it has enough reps
-  let newestCombo = totalCombos >= 2 ? 2 : 1;
-  sections.push({ introducedCombo: newestCombo, slides: generateSection(pool, newestCombo, cardCounts, 0) });
+  // First section: both starting combos need REPS_BEFORE_NEXT appearances each
+  const startingCombos = totalCombos >= 2 ? [1, 2] : [1];
+  sections.push({ introducedCombo: startingCombos[startingCombos.length - 1], slides: generateSection(pool, startingCombos, cardCounts, 0) });
 
   for (let ci = 3; ci <= totalCombos; ci++) {
     pool.push(ci);
-    newestCombo = ci;
-    sections.push({ introducedCombo: newestCombo, slides: generateSection(pool, newestCombo, cardCounts, 1) });
+    sections.push({ introducedCombo: ci, slides: generateSection(pool, [ci], cardCounts, 1) });
   }
 
   // Collect flat sequence so far to check length

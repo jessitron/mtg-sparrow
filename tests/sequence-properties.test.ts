@@ -172,6 +172,34 @@ for (let t = 0; t < TRIALS; t++) {
   assert(`new trial ${t + 1}: newest gets >= 3 reps before next`, allOk, detail);
 }
 
+section('new: newest combo appears at most REPS_BEFORE_NEXT times in its introduction segment');
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const seq = buildSequence(cardCounts, 25, 'new');
+
+  // For combos 3, 4, 5: count appearances of combo K in [firstAppearance(K), firstAppearance(K+1))
+  // That count should be <= REPS_BEFORE_NEXT (the intro section ends right at the Nth appearance)
+  let allOk = true;
+  let detail = '';
+  for (let ci = 3; ci <= 5; ci++) {
+    const segStart = firstAppearance(seq, ci);
+    if (segStart === -1) continue; // combo not in sequence (shouldn't happen)
+
+    const nextCi = ci + 1;
+    const segEnd = nextCi <= 5 ? firstAppearance(seq, nextCi) : seq.length;
+    const effectiveEnd = segEnd === -1 ? seq.length : segEnd;
+
+    // Count appearances of combo ci in [segStart, effectiveEnd)
+    const reps = seq.slice(segStart, effectiveEnd).filter(([c]) => c === ci).length;
+    if (reps > REPS_BEFORE_NEXT) {
+      allOk = false;
+      detail = `combo ${ci} appeared ${reps} times in its segment [${segStart}, ${effectiveEnd}) — expected at most ${REPS_BEFORE_NEXT}`;
+      break;
+    }
+  }
+  assert(`new trial ${t + 1}: newest combo <= ${REPS_BEFORE_NEXT} reps in its segment`, allOk, detail);
+}
+
 section('new: all combos eventually appear');
 for (let t = 0; t < TRIALS; t++) {
   const cardCounts = [10, 10, 10, 10, 10];
