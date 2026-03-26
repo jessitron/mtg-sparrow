@@ -42,11 +42,11 @@ async function run() {
       await page.waitForLoadState('domcontentloaded');
 
       // Check the href attribute
-      const href = await page.$eval('a.end-home-link', el => el.getAttribute('href'));
+      const href = await page.$eval('a.home-spiral', el => el.getAttribute('href'));
       assert(href === './', `Home link href is "./" (got "${href}")`);
 
       // Click the link and verify we end up at the welcome page
-      await page.click('a.end-home-link');
+      await page.click('a.home-spiral');
       await page.waitForLoadState('domcontentloaded');
 
       const url = page.url();

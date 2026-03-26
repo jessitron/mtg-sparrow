@@ -1,20 +1,3 @@
-/* Persistent home link — top left corner */
-.about-top-home-link {
-  position: fixed;
-  top: 0.75rem;
-  left: 0.75rem;
-  font-family: 'GoudyMediaeval', Georgia, serif;
-  font-size: 1rem;
-  color: rgba(200, 184, 138, 0.5);
-  text-decoration: none;
-  z-index: 10;
-  transition: color 200ms ease;
-}
-
-.about-top-home-link:hover {
-  color: var(--allied-line-color);
-}
-
 .about {
   max-width: 600px;
   width: 100%;

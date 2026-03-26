@@ -94,6 +94,33 @@ body {
   }
 }
 
+/* Home spiral — top-left on every page */
+.home-spiral {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg,
+    var(--mana-W) 0deg, var(--mana-U) 72deg, var(--mana-B) 144deg,
+    var(--mana-R) 216deg, var(--mana-G) 288deg, var(--mana-W) 360deg);
+  -webkit-mask-image: url('images/spiral.svg');
+  mask-image: url('images/spiral.svg');
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  opacity: 0.45;
+  transition: opacity 200ms ease, transform 200ms ease;
+  text-decoration: none;
+  display: block;
+}
+
+.home-spiral:hover {
+  opacity: 0.85;
+  transform: scale(1.1);
+}
+
 /* Menu button — top-right on every page */
 .menu-btn {
   position: fixed;
