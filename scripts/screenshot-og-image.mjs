@@ -18,8 +18,8 @@ const outputFile = path.join(projectRoot, 'images/og-image.png');
 const browser = await chromium.launch();
 const page = await browser.newPage();
 
-// Set viewport large enough for the 1200x630 card plus page chrome
-await page.setViewportSize({ width: 1400, height: 800 });
+// Set viewport large enough for the 1200x630 card plus page chrome (body has 40px padding)
+await page.setViewportSize({ width: 1400, height: 1200 });
 
 // Load the file. file:// URLs work fine for local assets.
 await page.goto(`file://${htmlFile}`);
@@ -37,9 +37,16 @@ if (!element) {
   process.exit(1);
 }
 
-await element.screenshot({
+const box = await element.boundingBox();
+if (!box) {
+  console.error('Could not get bounding box for #og-full');
+  process.exit(1);
+}
+
+// Enforce exact 1200x630 regardless of sub-pixel rounding
+await page.screenshot({
   path: outputFile,
-  clip: { x: 0, y: 0, width: 1200, height: 630 },
+  clip: { x: box.x, y: box.y, width: 1200, height: 630 },
 });
 
 console.log(`Saved: ${outputFile}`);
