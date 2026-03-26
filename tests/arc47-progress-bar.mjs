@@ -4,13 +4,17 @@
  * The text counter ("7 / 25") has been replaced with a slim inline progress bar
  * in the .footer-controls row.
  *
+ * Implementation: cover-reveal approach — .progress-bar-track has a mana color
+ * gradient; .progress-bar-cover sits on top and shrinks from the right to reveal
+ * the gradient as the user advances through cards.
+ *
  * Acceptance criteria:
  * 1. No text counter (.progress-counter) elements exist in the DOM
  * 2. No "X / Y" text pattern visible anywhere on the slides page
  * 3. A progress bar track (.progress-bar-track) exists in the footer controls row
- * 4. A progress bar fill (.progress-bar-fill) exists inside the track
+ * 4. A progress bar cover (.progress-bar-cover) exists inside the track
  * 5. The track has role="progressbar" and appropriate aria attributes
- * 6. The fill width increases as cards advance
+ * 6. The cover width DECREASES as cards advance (revealing more gradient)
  *
  * Server must be running at http://localhost:3847 before running this script.
  * Use ./run-test-server to start and ./stop-test-server to tear down.
@@ -91,9 +95,9 @@ async function run() {
       const trackEl = await page.$('.progress-bar-track');
       assert(trackEl !== null, '.progress-bar-track element exists in the DOM');
 
-      // .progress-bar-fill exists inside the track
-      const fillEl = await page.$('.progress-bar-track .progress-bar-fill');
-      assert(fillEl !== null, '.progress-bar-fill exists inside .progress-bar-track');
+      // .progress-bar-cover exists inside the track
+      const fillEl = await page.$('.progress-bar-track .progress-bar-cover');
+      assert(fillEl !== null, '.progress-bar-cover exists inside .progress-bar-track');
 
       // .progress-bar-track is inside .footer-controls
       const trackInControls = await page.$('.footer-controls .progress-bar-track');
@@ -158,51 +162,51 @@ async function run() {
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 4: Fill width increases as cards advance
+    // PHASE 4: Cover width decreases as cards advance (revealing gradient)
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 4: Fill width increases as cards advance ===\n');
+    console.log('\n=== Phase 4: Cover width decreases as cards advance ===\n');
     {
       const page = await gotoSlidesAndDismissIntro(browser);
 
-      // Get fill width on card 1
-      const fillWidthCard1 = await page.evaluate(() => {
-        const fill = document.querySelector('.progress-bar-fill');
-        if (!fill) return null;
-        // Use computed style width as percentage of parent
+      // Get cover width on card 1
+      const coverWidthCard1 = await page.evaluate(() => {
+        const cover = document.querySelector('.progress-bar-cover');
+        if (!cover) return null;
+        // Express as a ratio of the track width
         const track = document.querySelector('.progress-bar-track');
-        const fillWidth = fill.getBoundingClientRect().width;
+        const coverWidth = cover.getBoundingClientRect().width;
         const trackWidth = track ? track.getBoundingClientRect().width : 1;
-        return trackWidth > 0 ? fillWidth / trackWidth : 0;
+        return trackWidth > 0 ? coverWidth / trackWidth : 0;
       });
 
-      assert(fillWidthCard1 !== null, '.progress-bar-fill found for width measurement (card 1)');
-      console.log(`  INFO: Fill width on card 1: ${(fillWidthCard1 * 100).toFixed(1)}% of track`);
+      assert(coverWidthCard1 !== null, '.progress-bar-cover found for width measurement (card 1)');
+      console.log(`  INFO: Cover width on card 1: ${(coverWidthCard1 * 100).toFixed(1)}% of track`);
 
       assert(
-        fillWidthCard1 > 0,
-        `Fill has nonzero width on card 1 (ratio: ${fillWidthCard1?.toFixed(4)})`,
+        coverWidthCard1 > 0,
+        `Cover has nonzero width on card 1 (ratio: ${coverWidthCard1?.toFixed(4)})`,
       );
 
       // Advance to next card: click to reveal, wait for advance
       await page.click('.card');
       await page.waitForTimeout(2500); // wait for ADVANCE_DELAY_MS (2000ms) + margin
 
-      // Get fill width on card 2
-      const fillWidthCard2 = await page.evaluate(() => {
-        const fill = document.querySelector('.progress-bar-fill');
-        if (!fill) return null;
+      // Get cover width on card 2
+      const coverWidthCard2 = await page.evaluate(() => {
+        const cover = document.querySelector('.progress-bar-cover');
+        if (!cover) return null;
         const track = document.querySelector('.progress-bar-track');
-        const fillWidth = fill.getBoundingClientRect().width;
+        const coverWidth = cover.getBoundingClientRect().width;
         const trackWidth = track ? track.getBoundingClientRect().width : 1;
-        return trackWidth > 0 ? fillWidth / trackWidth : 0;
+        return trackWidth > 0 ? coverWidth / trackWidth : 0;
       });
 
-      assert(fillWidthCard2 !== null, '.progress-bar-fill found for width measurement (card 2)');
-      console.log(`  INFO: Fill width on card 2: ${(fillWidthCard2 * 100).toFixed(1)}% of track`);
+      assert(coverWidthCard2 !== null, '.progress-bar-cover found for width measurement (card 2)');
+      console.log(`  INFO: Cover width on card 2: ${(coverWidthCard2 * 100).toFixed(1)}% of track`);
 
       assert(
-        fillWidthCard2 > fillWidthCard1,
-        `Fill width increased from card 1 to card 2 (${(fillWidthCard1 * 100).toFixed(1)}% → ${(fillWidthCard2 * 100).toFixed(1)}%)`,
+        coverWidthCard2 < coverWidthCard1,
+        `Cover width decreased from card 1 to card 2 (${(coverWidthCard1 * 100).toFixed(1)}% → ${(coverWidthCard2 * 100).toFixed(1)}%), revealing more gradient`,
       );
 
       // Also check that aria-valuenow updated
