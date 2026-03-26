@@ -17,16 +17,15 @@ function positionsSinceLast(sequence, comboIndex) {
   }
   return -1;
 }
-var MIN_GAP = 1;
-function appendBatch(sequence, pool, cardCounts) {
+function appendBatch(sequence, pool, cardCounts, minGap2) {
   const batch = shuffle([...pool]);
   for (let i = 0; i < batch.length; i++) {
     const gap = positionsSinceLast(sequence, batch[i]);
-    if (gap !== -1 && gap < MIN_GAP) {
+    if (minGap2 > 0 && gap !== -1 && gap < minGap2) {
       let swapped = false;
       for (let j = i + 1; j < batch.length; j++) {
         const gapJ = positionsSinceLast(sequence, batch[j]);
-        if (gapJ === -1 || gapJ >= MIN_GAP) {
+        if (gapJ === -1 || gapJ >= minGap2) {
           [batch[i], batch[j]] = [batch[j], batch[i]];
           swapped = true;
           break;
@@ -43,7 +42,7 @@ function buildFamiliarSequence(cardCounts, length) {
   const pool = Array.from({ length: cardCounts.length }, (_, i) => i + 1);
   const sequence = [];
   while (sequence.length < length) {
-    appendBatch(sequence, pool, cardCounts);
+    appendBatch(sequence, pool, cardCounts, 1);
     if (sequence.length > length) {
       sequence.splice(length);
     }
@@ -65,7 +64,7 @@ function buildNewSequence(cardCounts, length) {
   let newestCombo = totalCombos >= 2 ? 2 : 1;
   const pool = totalCombos >= 2 ? [1, 2] : Array.from({ length: totalCombos }, (_, i) => i + 1);
   while (sequence.length < length || nextComboToIntroduce <= totalCombos || countAppearances(sequence, newestCombo) < REPS_BEFORE_NEXT) {
-    appendBatch(sequence, pool, cardCounts);
+    appendBatch(sequence, pool, cardCounts, pool.length >= 3 ? 1 : 0);
     while (nextComboToIntroduce <= totalCombos && countAppearances(sequence, newestCombo) >= REPS_BEFORE_NEXT) {
       pool.push(nextComboToIntroduce);
       newestCombo = nextComboToIntroduce;

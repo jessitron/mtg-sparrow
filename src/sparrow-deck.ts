@@ -40,27 +40,26 @@ function positionsSinceLast(sequence: SlideSelection[], comboIndex: number): num
   return -1;
 }
 
-const MIN_GAP = 1;
-
 /**
- * Append one shuffled batch of the given pool to sequence, enforcing MIN_GAP.
+ * Append one shuffled batch of the given pool to sequence, enforcing minGap.
  * If a combo would appear too soon, swap it with a later item in the batch.
  */
 function appendBatch(
   sequence: SlideSelection[],
   pool: number[],
   cardCounts: number[],
+  minGap: number,
 ): void {
   const batch = shuffle([...pool]);
 
   for (let i = 0; i < batch.length; i++) {
     const gap = positionsSinceLast(sequence, batch[i]);
-    if (gap !== -1 && gap < MIN_GAP) {
+    if (minGap > 0 && gap !== -1 && gap < minGap) {
       // Find a later item in the batch that is far enough away
       let swapped = false;
       for (let j = i + 1; j < batch.length; j++) {
         const gapJ = positionsSinceLast(sequence, batch[j]);
-        if (gapJ === -1 || gapJ >= MIN_GAP) {
+        if (gapJ === -1 || gapJ >= minGap) {
           [batch[i], batch[j]] = [batch[j], batch[i]];
           swapped = true;
           break;
@@ -85,7 +84,7 @@ function buildFamiliarSequence(cardCounts: number[], length: number): SlideSelec
   const pool = Array.from({ length: cardCounts.length }, (_, i) => i + 1);
   const sequence: SlideSelection[] = [];
   while (sequence.length < length) {
-    appendBatch(sequence, pool, cardCounts);
+    appendBatch(sequence, pool, cardCounts, 1);
     // Trim to exactly length if we overshot (appendBatch adds full batches)
     if (sequence.length > length) {
       sequence.splice(length);
@@ -131,7 +130,7 @@ function buildNewSequence(cardCounts: number[], length: number): SlideSelection[
     nextComboToIntroduce <= totalCombos ||
     countAppearances(sequence, newestCombo) < REPS_BEFORE_NEXT
   ) {
-    appendBatch(sequence, pool, cardCounts);
+    appendBatch(sequence, pool, cardCounts, pool.length >= 3 ? 1 : 0);
 
     // Introduce the next combo once the newest one has enough reps
     while (
