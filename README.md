@@ -43,6 +43,23 @@ There is no scoring, no pass/fail, no timer. Say the name aloud — that's the w
 
 ---
 
+## Combo Pages
+
+Static reference pages for each of the 20 color combinations live in `combo/`. Each page includes the combo name, mana pips, a five-color pentagon highlighting the combo's colors, a flavor description, and a gallery of example cards.
+
+- **Index**: `combo/` — all 20 combos in a card grid, grouped by level (allied guilds, enemy guilds, wedges, shards), with "Learn these names" buttons linking to the quiz
+- **Detail**: `combo/<id>.html` (e.g., `combo/grixis.html`) — individual combo pages with full card gallery
+
+These are SEO-friendly static HTML generated from `src/data/combos.ts` and `src/data/guild-descriptions.ts`:
+
+```bash
+npm run build:combos
+```
+
+The end page links to these combo pages from each combo's description.
+
+---
+
 ## Running Locally
 
 ### Prerequisites
