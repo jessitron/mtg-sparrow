@@ -177,16 +177,35 @@ function thinSection(section: SlideSelection[], targetCombos: number[]): SlideSe
       break;
     }
 
-    // Find the longest run (last one wins ties, to spread removals evenly from the end)
-    let longestRun = runs[0];
-    for (const run of runs) {
-      if (run.length >= longestRun.length) {
-        longestRun = run;
+    // Sort runs by length descending (last one wins ties, to spread removals evenly from the end).
+    // We prefer longer runs but may need to skip a run of length 1 whose removal would create
+    // an adjacent same-combo repeat.
+    const sortedRuns = [...runs].sort((a, b) => b.length - a.length || b.start - a.start);
+
+    // Find a safe removal position: try each run in order, within each run scan for a position
+    // whose removal won't create an adjacent same-combo repeat.
+    // A removal at index i creates a repeat if result[i-1] and result[i+1] have the same combo.
+    let removeIdx = -1;
+    outer: for (const run of sortedRuns) {
+      const mid = run.start + Math.floor(run.length / 2);
+      // Try mid first, then scan outward within the run
+      for (let offset = 0; offset < run.length; offset++) {
+        for (const candidate of offset === 0 ? [mid] : [mid - offset, mid + offset]) {
+          if (candidate < run.start || candidate >= run.start + run.length) continue;
+          const leftCombo = candidate > 0 ? result[candidate - 1][0] : null;
+          const rightCombo = candidate + 1 < result.length ? result[candidate + 1][0] : null;
+          if (leftCombo === null || rightCombo === null || leftCombo !== rightCombo) {
+            removeIdx = candidate;
+            break outer;
+          }
+        }
       }
     }
 
-    // Remove the middle item of the longest run
-    const removeIdx = longestRun.start + Math.floor(longestRun.length / 2);
+    if (removeIdx === -1) {
+      // No safe removal found; stop thinning
+      break;
+    }
     result.splice(removeIdx, 1);
   }
 
