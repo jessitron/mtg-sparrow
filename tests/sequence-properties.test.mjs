@@ -96,13 +96,25 @@ function thinSection(section2, targetCombos) {
     if (runs.length === 0) {
       break;
     }
-    let longestRun = runs[0];
-    for (const run of runs) {
-      if (run.length >= longestRun.length) {
-        longestRun = run;
+    const sortedRuns = [...runs].sort((a, b) => b.length - a.length || b.start - a.start);
+    let removeIdx = -1;
+    outer: for (const run of sortedRuns) {
+      const mid = run.start + Math.floor(run.length / 2);
+      for (let offset = 0; offset < run.length; offset++) {
+        for (const candidate of offset === 0 ? [mid] : [mid - offset, mid + offset]) {
+          if (candidate < run.start || candidate >= run.start + run.length) continue;
+          const leftCombo = candidate > 0 ? result[candidate - 1][0] : null;
+          const rightCombo = candidate + 1 < result.length ? result[candidate + 1][0] : null;
+          if (leftCombo === null || rightCombo === null || leftCombo !== rightCombo) {
+            removeIdx = candidate;
+            break outer;
+          }
+        }
       }
     }
-    const removeIdx = longestRun.start + Math.floor(longestRun.length / 2);
+    if (removeIdx === -1) {
+      break;
+    }
     result.splice(removeIdx, 1);
   }
   return result;
@@ -221,7 +233,7 @@ for (let t = 0; t < TRIALS; t++) {
   const gap = minGap(seq);
   assert(
     `familiar trial ${t + 1}: no immediate repeats`,
-    gap >= 0,
+    gap >= 1,
     `got immediate repeat (gap ${gap})`
   );
 }
@@ -335,16 +347,22 @@ for (let t = 0; t < TRIALS; t++) {
     `got ${seq.length}`
   );
 }
-section("new: min-gap constraint still holds");
+section("new: no immediate repeats in sections 3+");
 for (let t = 0; t < TRIALS; t++) {
   const cardCounts = [10, 10, 10, 10, 10];
-  const seq = buildSequence(cardCounts, 25, "new");
-  const gap = minGap(seq);
-  assert(
-    `new trial ${t + 1}: min gap >= 0`,
-    gap >= 0,
-    `got min gap ${gap}`
-  );
+  const { sections } = buildSequenceWithSections(cardCounts, 25, "new");
+  let allOk = true;
+  let detail = "";
+  for (let si = 2; si < sections.length; si++) {
+    const sec = sections[si];
+    const gap = minGap(sec.slides);
+    if (gap < 1) {
+      allOk = false;
+      detail = `section ${si} (introducedCombo=${sec.introducedCombo}) has immediate repeat (gap ${gap})`;
+      break;
+    }
+  }
+  assert(`new trial ${t + 1}: no immediate repeats in sections 3+`, allOk, detail);
 }
 section("new: combos 3\u20135 introduced in order after 1 & 2");
 for (let t = 0; t < TRIALS; t++) {
