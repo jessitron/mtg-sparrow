@@ -27,9 +27,10 @@ export function createSession(subgroup: GuildSubgroup = "allied", familiarity: F
     shards,
   };
   const pool = poolMap[subgroup];
+  const deck = buildDeck(pool, SESSION_CARD_COUNT, familiarity);
   return {
-    deck: buildDeck(pool, SESSION_CARD_COUNT, familiarity),
-    cardCount: SESSION_CARD_COUNT,
+    deck,
+    cardCount: deck.length,
     currentIndex: 0,
     completed: false,
     startTime: Date.now(),
