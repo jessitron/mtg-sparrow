@@ -8,7 +8,7 @@
  * Or: npm run test:sequence
  */
 
-import { buildSequence, Familiarity, SlideSelection } from '../src/sparrow-deck';
+import { buildSequence, Familiarity, REPS_BEFORE_NEXT, SlideSelection } from '../src/sparrow-deck';
 
 // ============================================================
 // Test infrastructure
@@ -163,9 +163,9 @@ for (let t = 0; t < TRIALS; t++) {
 
     // Count how many times combo ci appeared before nextFirst
     const reps = seq.slice(0, nextFirst).filter(([c]) => c === ci).length;
-    if (reps < 3) {
+    if (reps < REPS_BEFORE_NEXT) {
       allOk = false;
-      detail = `combo ${ci} had only ${reps} reps before combo ${nextCi} appeared at position ${nextFirst}`;
+      detail = `combo ${ci} had only ${reps} reps (need ${REPS_BEFORE_NEXT}) before combo ${nextCi} appeared at position ${nextFirst}`;
       break;
     }
   }

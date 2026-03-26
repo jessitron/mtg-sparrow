@@ -57,9 +57,9 @@ function countAppearances(sequence, comboIndex) {
   }
   return count;
 }
+var REPS_BEFORE_NEXT = 3;
 function buildNewSequence(cardCounts, length) {
   const totalCombos = cardCounts.length;
-  const REPS_BEFORE_NEXT = 3;
   const sequence = [];
   let nextComboToIntroduce = 3;
   let newestCombo = totalCombos >= 2 ? 2 : 1;
@@ -194,9 +194,9 @@ for (let t = 0; t < TRIALS; t++) {
     const nextFirst = nextCi <= 5 ? firstAppearance(seq, nextCi) : seq.length;
     if (nextFirst === -1) continue;
     const reps = seq.slice(0, nextFirst).filter(([c]) => c === ci).length;
-    if (reps < 3) {
+    if (reps < REPS_BEFORE_NEXT) {
       allOk = false;
-      detail = `combo ${ci} had only ${reps} reps before combo ${nextCi} appeared at position ${nextFirst}`;
+      detail = `combo ${ci} had only ${reps} reps (need ${REPS_BEFORE_NEXT}) before combo ${nextCi} appeared at position ${nextFirst}`;
       break;
     }
   }
