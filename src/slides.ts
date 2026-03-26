@@ -229,13 +229,11 @@ function buildSessionUI(): void {
   progressTrack.setAttribute('aria-valuemin', '1');
   progressTrack.setAttribute('aria-valuemax', String(session.cardCount));
   progressTrack.setAttribute('aria-label', `Card 1 of ${session.cardCount}`);
-  const progressFill = document.createElement('div');
-  progressFill.classList.add('progress-bar-fill');
-  const fillPct = 1 / session.cardCount * 100;
-  progressFill.style.width = fillPct + '%';
-  progressFill.style.background = buildFullDeckGradient(session.deck);
-  progressFill.style.backgroundSize = `${(100 / fillPct) * 100}% 100%`;
-  progressTrack.appendChild(progressFill);
+  progressTrack.style.background = buildFullDeckGradient(session.deck);
+  const progressCover = document.createElement('div');
+  progressCover.classList.add('progress-bar-cover');
+  progressCover.style.width = ((session.cardCount - 1) / session.cardCount * 100) + '%';
+  progressTrack.appendChild(progressCover);
   controlsRow.appendChild(progressTrack);
 
   // Pause button — circular, styled like .gas-btn
@@ -413,14 +411,13 @@ function showCard(): void {
     }
   }
 
-  // Update progress bar
+  // Update progress bar — shrink the cover to reveal more gradient
   const progressTrack = doneZoneEl.querySelector('.progress-bar-track') as HTMLElement | null;
-  const progressFill = doneZoneEl.querySelector('.progress-bar-fill') as HTMLElement | null;
-  if (progressTrack && progressFill) {
+  const progressCover = doneZoneEl.querySelector('.progress-bar-cover') as HTMLElement | null;
+  if (progressTrack && progressCover) {
     const current = session.currentIndex + 1;
-    const pct = current / session.cardCount * 100;
-    progressFill.style.width = pct + '%';
-    progressFill.style.backgroundSize = `${(100 / pct) * 100}% 100%`;
+    const remainingPct = (session.cardCount - current) / session.cardCount * 100;
+    progressCover.style.width = remainingPct + '%';
     progressTrack.setAttribute('aria-valuenow', String(current));
     progressTrack.setAttribute('aria-label', `Card ${current} of ${session.cardCount}`);
   }
