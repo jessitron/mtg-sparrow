@@ -57,6 +57,22 @@ function tierLabel(combo: ColorCombo): string {
   return combo.tier;
 }
 
+function subgroupParam(combo: ColorCombo): string {
+  if (combo.tier === "guild" && combo.subgroup === "allied") return "allied";
+  if (combo.tier === "guild" && combo.subgroup === "enemy") return "enemy";
+  if (combo.tier === "wedge") return "wedges";
+  if (combo.tier === "shard") return "shards";
+  return "allied";
+}
+
+function subgroupLabel(combo: ColorCombo): string {
+  if (combo.tier === "guild" && combo.subgroup === "allied") return "allied guild";
+  if (combo.tier === "guild" && combo.subgroup === "enemy") return "enemy guild";
+  if (combo.tier === "wedge") return "wedge";
+  if (combo.tier === "shard") return "shard";
+  return combo.tier;
+}
+
 function colorNames(combo: ColorCombo): string {
   return combo.colors.map(c => colorFullName[c]).join(" / ");
 }
@@ -188,6 +204,7 @@ function buildPage(combo: ColorCombo): string {
       </section>
 
       <footer class="combo-footer">
+        <a href="../slides?subgroup=${subgroupParam(combo)}&from=combo_page" class="combo-learn-button">Learn ${subgroupLabel(combo)} names</a>
         <a href="${scryfallUrl}" target="_blank" rel="noopener noreferrer" class="combo-scryfall-link">Browse more ${combo.name} cards on Scryfall &rarr;</a>
         <a href="../" class="combo-home-link">Back to MTG Colors</a>
       </footer>
