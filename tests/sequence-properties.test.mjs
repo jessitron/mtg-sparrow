@@ -57,19 +57,35 @@ function countAppearances(sequence, comboIndex) {
   return count;
 }
 var REPS_BEFORE_NEXT = 3;
+function generateSection(pool, newestCombo, cardCounts, minGap2) {
+  const section2 = [];
+  while (countAppearances(section2, newestCombo) < REPS_BEFORE_NEXT) {
+    appendBatch(section2, pool, cardCounts, minGap2);
+  }
+  let seen = 0;
+  for (let i = 0; i < section2.length; i++) {
+    if (section2[i][0] === newestCombo) {
+      seen++;
+      if (seen === REPS_BEFORE_NEXT) {
+        return section2.slice(0, i + 1);
+      }
+    }
+  }
+  return section2;
+}
 function buildNewSequence(cardCounts, length) {
   const totalCombos = cardCounts.length;
   const sequence = [];
-  let nextComboToIntroduce = 3;
-  let newestCombo = totalCombos >= 2 ? 2 : 1;
   const pool = totalCombos >= 2 ? [1, 2] : Array.from({ length: totalCombos }, (_, i) => i + 1);
-  while (sequence.length < length || nextComboToIntroduce <= totalCombos || countAppearances(sequence, newestCombo) < REPS_BEFORE_NEXT) {
-    appendBatch(sequence, pool, cardCounts, pool.length >= 3 ? 1 : 0);
-    while (nextComboToIntroduce <= totalCombos && countAppearances(sequence, newestCombo) >= REPS_BEFORE_NEXT) {
-      pool.push(nextComboToIntroduce);
-      newestCombo = nextComboToIntroduce;
-      nextComboToIntroduce++;
-    }
+  let newestCombo = totalCombos >= 2 ? 2 : 1;
+  sequence.push(...generateSection(pool, newestCombo, cardCounts, 0));
+  for (let ci = 3; ci <= totalCombos; ci++) {
+    pool.push(ci);
+    newestCombo = ci;
+    sequence.push(...generateSection(pool, newestCombo, cardCounts, 1));
+  }
+  while (sequence.length < length) {
+    appendBatch(sequence, pool, cardCounts, 1);
   }
   return sequence;
 }

@@ -115,32 +115,51 @@ function countAppearances(sequence: SlideSelection[], comboIndex: number): numbe
 /** How many times the newest combo must appear before the next one is introduced. */
 export const REPS_BEFORE_NEXT = 3;
 
+/**
+ * Generate batches from a pool until the newest combo has enough reps,
+ * then trim to exactly the point where it reached REPS_BEFORE_NEXT.
+ */
+function generateSection(
+  pool: number[],
+  newestCombo: number,
+  cardCounts: number[],
+  minGap: number,
+): SlideSelection[] {
+  const section: SlideSelection[] = [];
+  while (countAppearances(section, newestCombo) < REPS_BEFORE_NEXT) {
+    appendBatch(section, pool, cardCounts, minGap);
+  }
+  // Trim: find the position of the Nth appearance of newestCombo and cut there
+  let seen = 0;
+  for (let i = 0; i < section.length; i++) {
+    if (section[i][0] === newestCombo) {
+      seen++;
+      if (seen === REPS_BEFORE_NEXT) {
+        return section.slice(0, i + 1);
+      }
+    }
+  }
+  return section;
+}
+
 function buildNewSequence(cardCounts: number[], length: number): SlideSelection[] {
   const totalCombos = cardCounts.length;
-
   const sequence: SlideSelection[] = [];
-  let nextComboToIntroduce = 3; // combos 1 & 2 start active
-  let newestCombo = totalCombos >= 2 ? 2 : 1;
   const pool = totalCombos >= 2 ? [1, 2] : Array.from({ length: totalCombos }, (_, i) => i + 1);
 
-  // Keep going until we've reached length AND every combo (including the last
-  // one introduced) has had at least REPS_BEFORE_NEXT appearances
-  while (
-    sequence.length < length ||
-    nextComboToIntroduce <= totalCombos ||
-    countAppearances(sequence, newestCombo) < REPS_BEFORE_NEXT
-  ) {
-    appendBatch(sequence, pool, cardCounts, pool.length >= 3 ? 1 : 0);
+  // Generate introduction sections: each adds a combo, runs until it has enough reps
+  let newestCombo = totalCombos >= 2 ? 2 : 1;
+  sequence.push(...generateSection(pool, newestCombo, cardCounts, 0));
 
-    // Introduce the next combo once the newest one has enough reps
-    while (
-      nextComboToIntroduce <= totalCombos &&
-      countAppearances(sequence, newestCombo) >= REPS_BEFORE_NEXT
-    ) {
-      pool.push(nextComboToIntroduce);
-      newestCombo = nextComboToIntroduce;
-      nextComboToIntroduce++;
-    }
+  for (let ci = 3; ci <= totalCombos; ci++) {
+    pool.push(ci);
+    newestCombo = ci;
+    sequence.push(...generateSection(pool, newestCombo, cardCounts, 1));
+  }
+
+  // Fill remaining length with full-pool shuffles
+  while (sequence.length < length) {
+    appendBatch(sequence, pool, cardCounts, 1);
   }
 
   return sequence;
