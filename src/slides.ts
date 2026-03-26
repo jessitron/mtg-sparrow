@@ -5,6 +5,7 @@ import {
   currentCard,
   advanceCard,
   SessionState,
+  Slide,
   GuildSubgroup,
   REVEAL_DELAY_MS,
   ADVANCE_DELAY_MS,
@@ -18,6 +19,42 @@ import { wireSettings } from './ui/settings';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
 import { initDebugMode, isDebugMode } from './debug';
+
+const MANA_COLOR_MAP: Record<string, string> = {
+  W: 'var(--mana-W)',
+  U: 'var(--mana-U)',
+  B: 'var(--mana-B)',
+  R: 'var(--mana-R)',
+  G: 'var(--mana-G)',
+};
+
+function buildProgressGradient(deck: Slide[], currentIndex: number): string {
+  const count = currentIndex + 1;
+  if (count === 1) {
+    const letter = deck[0]?.colors?.[0] ?? 'U';
+    return MANA_COLOR_MAP[letter] ?? MANA_COLOR_MAP['U'];
+  }
+  const bandWidth = 100 / count;
+  const blendZone = Math.min(1, bandWidth * 0.05); // ~5% of band, max 1%
+  const stops: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const letter = deck[i]?.colors?.[0] ?? 'U';
+    const color = MANA_COLOR_MAP[letter] ?? MANA_COLOR_MAP['U'];
+    const bandStart = i * bandWidth;
+    const bandEnd = (i + 1) * bandWidth;
+    if (i === 0) {
+      stops.push(`${color} 0%`);
+      stops.push(`${color} ${(bandEnd - blendZone).toFixed(1)}%`);
+    } else if (i === count - 1) {
+      stops.push(`${color} ${(bandStart + blendZone).toFixed(1)}%`);
+      stops.push(`${color} 100%`);
+    } else {
+      stops.push(`${color} ${(bandStart + blendZone).toFixed(1)}%`);
+      stops.push(`${color} ${(bandEnd - blendZone).toFixed(1)}%`);
+    }
+  }
+  return `linear-gradient(to right, ${stops.join(', ')})`;
+}
 
 let app: HTMLElement | null = null;
 let session: SessionState | null = null;
@@ -196,6 +233,7 @@ function buildSessionUI(): void {
   const progressFill = document.createElement('div');
   progressFill.classList.add('progress-bar-fill');
   progressFill.style.width = (1 / session.cardCount * 100) + '%';
+  progressFill.style.background = buildProgressGradient(session.deck, 0);
   progressTrack.appendChild(progressFill);
   controlsRow.appendChild(progressTrack);
 
@@ -380,6 +418,7 @@ function showCard(): void {
   if (progressTrack && progressFill) {
     const current = session.currentIndex + 1;
     progressFill.style.width = (current / session.cardCount * 100) + '%';
+    progressFill.style.background = buildProgressGradient(session.deck, session.currentIndex);
     progressTrack.setAttribute('aria-valuenow', String(current));
     progressTrack.setAttribute('aria-label', `Card ${current} of ${session.cardCount}`);
   }
