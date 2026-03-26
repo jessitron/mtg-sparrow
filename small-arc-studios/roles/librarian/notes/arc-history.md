@@ -419,3 +419,16 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 - **Key decisions**: DEC-193 (keep session.summary span, simplify to subgroup only).
 - **Files changed**: `src/assessment.ts`, `src/end.ts`, `src/version.ts` (bumped to 0.31.0).
 - **Verification**: 29/29 Playwright checks PASS. Honeycomb traces confirmed `session.summary` spans at v0.31.0 with `session.subgroup` only.
+
+---
+
+## Social Share Card (Arc 50, v0.32.0, 2026-03-26)
+
+### Arc 50: Social Share Card — COMPLETE (v0.32.0, 2026-03-26)
+- **Type**: User
+- **Goal**: Make shared links to mtgcolors.quest display an eye-catching preview card on social platforms (Discord, Slack, Twitter, etc.).
+- **What**: Static `og:image` (1200×630 PNG) with the real logo (conic-gradient spiral + mana pip pentagon), GoudyMediaeval title font, turquoise accent bar, and warm brown background with concentric ring decoration. `og:image` and `twitter:card` meta tags added to all pages. Playwright-based generation script produces the image at build time.
+- **Design process**: Designer created 3 initial options; client chose Option 1 (logo-centric layout). Iterated through several rounds: added real logo from About page, tried guild collage background (reverted), switched to GoudyMediaeval font, changed five-color bar to single turquoise accent bar.
+- **Key decisions**: DEC-194 (final og:image design approved).
+- **Files changed**: `public/og-image.png` (new), generation script (new), `index.html` and all page HTML files (meta tags added), `src/version.ts` (bumped to 0.32.0).
+- **Verification**: Meta tags confirmed present on all pages. og:image renders correctly in social platform preview tools. App version confirmed at v0.32.0.

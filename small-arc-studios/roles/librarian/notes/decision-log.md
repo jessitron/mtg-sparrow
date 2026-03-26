@@ -1641,6 +1641,14 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Alternatives rejected**: Remove `session.summary` entirely — it still provides useful signal that the user arrived from a completed session rather than navigating directly to the end page.
 - **Rationale**: Keeping the span maintains observability of end-page arrival context. Stripping it down to just `session.subgroup` removes the duplication of data that is already present in the assessment span, and eliminates the need for URL parameters as a data transport between pages.
 
+## DEC-194: Social Share Card Design — Option 1 with GoudyMediaeval and Turquoise Accent
+- **Date**: 2026-03-26
+- **Arc**: 50 (Social Share Card)
+- **Decision**: Approved the final `og:image` design: Option 1 layout (logo-centric) with the real spiral logo (conic-gradient + mana pip pentagon), GoudyMediaeval title font, single turquoise accent bar, and clean brown gradient background with decorative concentric rings.
+- **Context**: Social sharing discoverability — links shared on Discord, Slack, Twitter, and other platforms need a compelling visual card to drive clicks. Three initial design options were presented; the client selected Option 1. Several iteration rounds followed: real logo substituted from About page, guild collage background tried and reverted, font switched to GoudyMediaeval, five-color bar replaced with a single turquoise accent.
+- **Alternatives rejected**: Guild collage background (too busy), five-color mana bar (less distinctive than single accent color), other font choices (GoudyMediaeval best matches the app's visual identity).
+- **Rationale**: The logo-centric layout with the real spiral identifies the app immediately. GoudyMediaeval reinforces the card-game aesthetic. The turquoise accent references the app's primary UI color. The warm brown background with decorative rings is consistent with the app's overall visual style.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
