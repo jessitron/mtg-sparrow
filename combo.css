@@ -77,6 +77,18 @@
   color: #ccc;
 }
 
+/* --- Learn CTA --- */
+
+.combo-cta {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.combo-learn-button--prominent {
+  font-size: 1.1rem;
+  padding: 0.7rem 1.5rem;
+}
+
 /* --- Cards section --- */
 
 .combo-cards h2 {

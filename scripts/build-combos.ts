@@ -171,6 +171,11 @@ function buildPage(combo: ColorCombo): string {
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://mtgcolors.quest/combo/${combo.id}.html">
   <meta property="og:site_name" content="MTG Colors">
+  <meta property="og:image" content="https://mtgcolors.quest/images/combo/${combo.id}.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://mtgcolors.quest/images/combo/${combo.id}.png">
   <link rel="canonical" href="https://mtgcolors.quest/combo/${combo.id}.html">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -198,13 +203,16 @@ function buildPage(combo: ColorCombo): string {
         <p>${escapeHtml(description)}</p>
       </section>
 
+      <div class="combo-cta">
+        <a href="../slides?subgroup=${subgroupParam(combo)}&from=combo_page" class="combo-learn-button combo-learn-button--prominent">Learn ${subgroupLabel(combo)} names</a>
+      </div>
+
       <section class="combo-cards">
         <h2>Example Cards <span class="combo-card-count">(${cardCount})</span></h2>
         ${buildCardGallery(combo)}
       </section>
 
       <footer class="combo-footer">
-        <a href="../slides?subgroup=${subgroupParam(combo)}&from=combo_page" class="combo-learn-button">Learn ${subgroupLabel(combo)} names</a>
         <a href="${scryfallUrl}" target="_blank" rel="noopener noreferrer" class="combo-scryfall-link">Browse more ${combo.name} cards on Scryfall &rarr;</a>
         <a href="../" class="combo-home-link">Back to MTG Colors</a>
       </footer>
@@ -258,6 +266,11 @@ ${items}
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://mtgcolors.quest/combo/">
   <meta property="og:site_name" content="MTG Colors">
+  <meta property="og:image" content="https://mtgcolors.quest/images/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://mtgcolors.quest/images/og-image.png">
   <link rel="canonical" href="https://mtgcolors.quest/combo/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
