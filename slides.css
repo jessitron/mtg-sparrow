@@ -90,7 +90,7 @@ html:has(.app--quiz-active) {
   top: 0;
   right: 0;
   height: 100%;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-brown-dark);
   border-radius: 0 2px 2px 0;
   width: 100%;
   transition: width 300ms ease-out;
