@@ -118,6 +118,10 @@ export const REPS_BEFORE_NEXT = 3;
 /**
  * Generate batches from a pool until the newest combo has enough reps,
  * then trim to exactly the point where it reached REPS_BEFORE_NEXT.
+ *
+ * The newestCombo is guaranteed to appear first in the first batch so that
+ * its first appearance in the flat sequence is unambiguously at the section start,
+ * enabling accurate segment boundary detection.
  */
 function generateSection(
   pool: number[],
@@ -126,6 +130,20 @@ function generateSection(
   minGap: number,
 ): SlideSelection[] {
   const section: SlideSelection[] = [];
+
+  // First batch: shuffle and then move newestCombo to front so it appears
+  // at the very start of this section. This ensures detectability of section boundaries.
+  const firstBatch = shuffle([...pool]);
+  const newIdx = firstBatch.indexOf(newestCombo);
+  if (newIdx > 0) {
+    firstBatch.splice(newIdx, 1);
+    firstBatch.unshift(newestCombo);
+  }
+  for (const comboIndex of firstBatch) {
+    section.push([comboIndex, pickCard(cardCounts[comboIndex - 1])]);
+  }
+
+  // Continue with regular batches until newestCombo has REPS_BEFORE_NEXT appearances.
   while (countAppearances(section, newestCombo) < REPS_BEFORE_NEXT) {
     appendBatch(section, pool, cardCounts, minGap);
   }
@@ -142,27 +160,66 @@ function generateSection(
   return section;
 }
 
-function buildNewSequence(cardCounts: number[], length: number): SlideSelection[] {
+/** A section of a sequence, produced by one call to generateSection or the fill phase. */
+export interface SequenceSection {
+  /** The combo being introduced in this section, or null for the fill phase. */
+  introducedCombo: number | null;
+  /** The slides in this section. */
+  slides: SlideSelection[];
+}
+
+/** Structured result from buildSequenceWithSections when you need section boundaries. */
+export interface SequenceWithSections {
+  sections: SequenceSection[];
+  /** The flat sequence (concatenation of all sections' slides). */
+  sequence: SlideSelection[];
+}
+
+function buildNewSequenceWithSections(cardCounts: number[], length: number): SequenceWithSections {
   const totalCombos = cardCounts.length;
-  const sequence: SlideSelection[] = [];
+  const sections: SequenceSection[] = [];
   const pool = totalCombos >= 2 ? [1, 2] : Array.from({ length: totalCombos }, (_, i) => i + 1);
 
   // Generate introduction sections: each adds a combo, runs until it has enough reps
   let newestCombo = totalCombos >= 2 ? 2 : 1;
-  sequence.push(...generateSection(pool, newestCombo, cardCounts, 0));
+  sections.push({ introducedCombo: newestCombo, slides: generateSection(pool, newestCombo, cardCounts, 0) });
 
   for (let ci = 3; ci <= totalCombos; ci++) {
     pool.push(ci);
     newestCombo = ci;
-    sequence.push(...generateSection(pool, newestCombo, cardCounts, 1));
+    sections.push({ introducedCombo: newestCombo, slides: generateSection(pool, newestCombo, cardCounts, 1) });
   }
+
+  // Collect flat sequence so far to check length
+  const flat: SlideSelection[] = sections.flatMap((s) => s.slides);
 
   // Fill remaining length with full-pool shuffles
-  while (sequence.length < length) {
-    appendBatch(sequence, pool, cardCounts, 1);
+  const fillSlides: SlideSelection[] = [];
+  while (flat.length + fillSlides.length < length) {
+    appendBatch(fillSlides, pool, cardCounts, 1);
   }
+  sections.push({ introducedCombo: null, slides: fillSlides });
 
-  return sequence;
+  const sequence = sections.flatMap((s) => s.slides);
+  return { sections, sequence };
+}
+
+/**
+ * Build an ordered sequence of [comboIndex, cardIndex] tuples, exposing section boundaries.
+ *
+ * - "familiar": returns a single section with introducedCombo: null.
+ * - "new": returns one section per introduced combo, plus a fill section.
+ */
+export function buildSequenceWithSections(
+  cardCounts: number[],
+  length: number,
+  familiarity: Familiarity,
+): SequenceWithSections {
+  if (familiarity === 'new') {
+    return buildNewSequenceWithSections(cardCounts, length);
+  }
+  const sequence = buildFamiliarSequence(cardCounts, length);
+  return { sections: [{ introducedCombo: null, slides: sequence }], sequence };
 }
 
 /**
@@ -179,10 +236,7 @@ export function buildSequence(
   length: number,
   familiarity: Familiarity,
 ): SlideSelection[] {
-  if (familiarity === 'new') {
-    return buildNewSequence(cardCounts, length);
-  }
-  return buildFamiliarSequence(cardCounts, length);
+  return buildSequenceWithSections(cardCounts, length, familiarity).sequence;
 }
 
 /**
