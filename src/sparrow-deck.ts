@@ -27,6 +27,35 @@ function pickCard(count: number): number {
   return count > 0 ? Math.floor(Math.random() * count) + 1 : 0;
 }
 
+/** Pick a random card index in [1, count] that differs from `avoid`. */
+function pickDifferentCard(count: number, avoid: number): number {
+  if (count <= 1) return count > 0 ? 1 : 0;
+  let card: number;
+  do {
+    card = Math.floor(Math.random() * count) + 1;
+  } while (card === avoid);
+  return card;
+}
+
+/**
+ * Walk a sequence of sections and ensure no combo shows the same card
+ * on consecutive appearances. State carries across section boundaries.
+ * Mutates the slides in place.
+ */
+function dedupConsecutiveCards(sections: SequenceSection[], cardCounts: number[]): void {
+  const lastCard = new Map<number, number>(); // comboIndex → last cardIndex shown
+  for (const section of sections) {
+    for (const slide of section.slides) {
+      const [comboIndex, cardIndex] = slide;
+      const prev = lastCard.get(comboIndex);
+      if (prev !== undefined && prev === cardIndex) {
+        slide[1] = pickDifferentCard(cardCounts[comboIndex - 1], prev);
+      }
+      lastCard.set(comboIndex, slide[1]);
+    }
+  }
+}
+
 /**
  * Given a sequence so far and a candidate comboIndex, return the number of
  * positions since this combo last appeared (-1 if it has never appeared).
@@ -253,6 +282,7 @@ function buildNewSequenceWithSections(cardCounts: number[], length: number): Seq
   }
   sections.push({ introducedCombo: null, slides: fillSlides });
 
+  dedupConsecutiveCards(sections, cardCounts);
   const sequence = sections.flatMap((s) => s.slides);
   return { sections, sequence };
 }
@@ -272,7 +302,9 @@ export function buildSequenceWithSections(
     return buildNewSequenceWithSections(cardCounts, length);
   }
   const sequence = buildFamiliarSequence(cardCounts, length);
-  return { sections: [{ introducedCombo: null, slides: sequence }], sequence };
+  const sections: SequenceSection[] = [{ introducedCombo: null, slides: sequence }];
+  dedupConsecutiveCards(sections, cardCounts);
+  return { sections, sequence };
 }
 
 /**

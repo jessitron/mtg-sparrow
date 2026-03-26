@@ -324,6 +324,50 @@ for (let t = 0; t < TRIALS; t++) {
 }
 
 // ============================================================
+// Property tests: card dedup (both strategies)
+// ============================================================
+
+section('familiar: no consecutive same-card for same combo');
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const seq = buildSequence(cardCounts, 50, 'familiar');
+  const lastCard = new Map<number, number>();
+  let allOk = true;
+  let detail = '';
+  for (let i = 0; i < seq.length; i++) {
+    const [ci, card] = seq[i];
+    const prev = lastCard.get(ci);
+    if (prev !== undefined && prev === card) {
+      allOk = false;
+      detail = `combo ${ci} showed card ${card} twice in a row (positions ${i - 1}+)`;
+      break;
+    }
+    lastCard.set(ci, card);
+  }
+  assert(`familiar trial ${t + 1}: no consecutive same-card`, allOk, detail);
+}
+
+section('new: no consecutive same-card for same combo');
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const seq = buildSequence(cardCounts, 25, 'new');
+  const lastCard = new Map<number, number>();
+  let allOk = true;
+  let detail = '';
+  for (let i = 0; i < seq.length; i++) {
+    const [ci, card] = seq[i];
+    const prev = lastCard.get(ci);
+    if (prev !== undefined && prev === card) {
+      allOk = false;
+      detail = `combo ${ci} showed card ${card} twice in a row (positions ${i - 1}+)`;
+      break;
+    }
+    lastCard.set(ci, card);
+  }
+  assert(`new trial ${t + 1}: no consecutive same-card`, allOk, detail);
+}
+
+// ============================================================
 // Summary
 // ============================================================
 

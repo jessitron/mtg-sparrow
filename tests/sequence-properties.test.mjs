@@ -9,6 +9,27 @@ function shuffle(arr) {
 function pickCard(count2) {
   return count2 > 0 ? Math.floor(Math.random() * count2) + 1 : 0;
 }
+function pickDifferentCard(count2, avoid) {
+  if (count2 <= 1) return count2 > 0 ? 1 : 0;
+  let card;
+  do {
+    card = Math.floor(Math.random() * count2) + 1;
+  } while (card === avoid);
+  return card;
+}
+function dedupConsecutiveCards(sections, cardCounts) {
+  const lastCard = /* @__PURE__ */ new Map();
+  for (const section2 of sections) {
+    for (const slide of section2.slides) {
+      const [comboIndex, cardIndex] = slide;
+      const prev = lastCard.get(comboIndex);
+      if (prev !== void 0 && prev === cardIndex) {
+        slide[1] = pickDifferentCard(cardCounts[comboIndex - 1], prev);
+      }
+      lastCard.set(comboIndex, slide[1]);
+    }
+  }
+}
 function positionsSinceLast(sequence, comboIndex) {
   for (let i = sequence.length - 1; i >= 0; i--) {
     if (sequence[i][0] === comboIndex) {
@@ -131,6 +152,7 @@ function buildNewSequenceWithSections(cardCounts, length) {
     appendBatch(fillSlides, pool, cardCounts, 1);
   }
   sections.push({ introducedCombo: null, slides: fillSlides });
+  dedupConsecutiveCards(sections, cardCounts);
   const sequence = sections.flatMap((s) => s.slides);
   return { sections, sequence };
 }
@@ -139,7 +161,9 @@ function buildSequenceWithSections(cardCounts, length, familiarity) {
     return buildNewSequenceWithSections(cardCounts, length);
   }
   const sequence = buildFamiliarSequence(cardCounts, length);
-  return { sections: [{ introducedCombo: null, slides: sequence }], sequence };
+  const sections = [{ introducedCombo: null, slides: sequence }];
+  dedupConsecutiveCards(sections, cardCounts);
+  return { sections, sequence };
 }
 function buildSequence(cardCounts, length, familiarity) {
   return buildSequenceWithSections(cardCounts, length, familiarity).sequence;
@@ -387,6 +411,44 @@ for (let t = 0; t < TRIALS; t++) {
     ok,
     ok ? "" : `combo 1: ${combo1Count}, combo 2: ${combo2Count}`
   );
+}
+section("familiar: no consecutive same-card for same combo");
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const seq = buildSequence(cardCounts, 50, "familiar");
+  const lastCard = /* @__PURE__ */ new Map();
+  let allOk = true;
+  let detail = "";
+  for (let i = 0; i < seq.length; i++) {
+    const [ci, card] = seq[i];
+    const prev = lastCard.get(ci);
+    if (prev !== void 0 && prev === card) {
+      allOk = false;
+      detail = `combo ${ci} showed card ${card} twice in a row (positions ${i - 1}+)`;
+      break;
+    }
+    lastCard.set(ci, card);
+  }
+  assert(`familiar trial ${t + 1}: no consecutive same-card`, allOk, detail);
+}
+section("new: no consecutive same-card for same combo");
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const seq = buildSequence(cardCounts, 25, "new");
+  const lastCard = /* @__PURE__ */ new Map();
+  let allOk = true;
+  let detail = "";
+  for (let i = 0; i < seq.length; i++) {
+    const [ci, card] = seq[i];
+    const prev = lastCard.get(ci);
+    if (prev !== void 0 && prev === card) {
+      allOk = false;
+      detail = `combo ${ci} showed card ${card} twice in a row (positions ${i - 1}+)`;
+      break;
+    }
+    lastCard.set(ci, card);
+  }
+  assert(`new trial ${t + 1}: no consecutive same-card`, allOk, detail);
 }
 console.log(`
   \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`);
