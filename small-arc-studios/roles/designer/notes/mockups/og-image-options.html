@@ -7,6 +7,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    @font-face {
+      font-family: 'GoudyMediaeval';
+      src: url('../../../../../font/goudy-medieval/Goudy Mediaeval Regular.ttf') format('truetype');
+      font-weight: normal;
+    }
+    @font-face {
+      font-family: 'GoudyMediaeval';
+      src: url('../../../../../font/goudy-medieval/Goudy Mediaeval DemiBold.ttf') format('truetype');
+      font-weight: bold;
+    }
+
     body {
       font-family: 'Jost', system-ui, sans-serif;
       background: #1a1a1a;
@@ -70,18 +81,24 @@
       height: 630px;
       position: relative;
       overflow: hidden;
-      background: radial-gradient(ellipse at 50% 50%, #8D6137 0%, #7D572D 40%, #272817 100%);
     }
 
-    /* Guild watermark texture layer */
+    /* Background gradient — from Option 3, off-center warm brown */
+    .og-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 65% 50%, #5a3f1f 0%, #3a2810 50%, #1c1a10 100%);
+    }
+
+    /* Guild watermark texture layer — Option 3 values */
     .og-guilds {
       position: absolute;
       inset: 0;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       grid-template-rows: repeat(2, 1fr);
-      opacity: 0.08;
-      filter: saturate(0.4) brightness(1.3);
+      opacity: 0.12;
+      filter: saturate(0.5) brightness(1.2);
     }
     .og-guilds img {
       width: 100%;
@@ -89,16 +106,11 @@
       object-fit: cover;
     }
 
-    /* Vignette over guilds — stronger toward edges */
+    /* Vignette — Option 3's off-center atmospheric version */
     .og-vignette {
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse at 50% 48%,
-        rgba(39,40,23,0.0) 0%,
-        rgba(39,40,23,0.25) 45%,
-        rgba(39,40,23,0.75) 80%,
-        rgba(39,40,23,0.95) 100%
-      );
+      background: radial-gradient(ellipse at 30% 50%, rgba(39,40,23,0.2) 0%, rgba(39,40,23,0.65) 70%);
     }
 
     /* Content layout — centered column */
@@ -142,20 +154,18 @@
       /* The spiral SVG is used as a CSS mask — see the inline style with data URI below */
     }
 
-    /* Mana pip circles in pentagon around spiral */
+    /* Mana pip symbols in pentagon around spiral — plain black silhouettes, no colored bg */
     .og-pip {
       position: absolute;
       width: 52px;
       height: 52px;
-      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
     }
     .og-pip img {
-      width: 34px;
-      height: 34px;
+      width: 52px;
+      height: 52px;
       display: block;
     }
 
@@ -165,15 +175,15 @@
     /* B: lower-right  (0.5878, 0.809)  => cx=160+67.6=227.6, cy=160+93.0=253.0 => left=202, top=227 */
     /* R: lower-left   (-0.5878, 0.809) => cx=160-67.6=92.4,  cy=160+93.0=253.0 => left=66, top=227 */
     /* G: upper-left   (-0.9511, -0.309) => cx=160-109.4=50.6, cy=160-35.5=124.5 => left=25, top=98 */
-    .og-pip-W { left: 134px; top: 19px;  background: #E2CD77; }
-    .og-pip-U { left: 243px; top: 98px;  background: #56A8BA; }
-    .og-pip-B { left: 202px; top: 227px; background: #6E6689; }
-    .og-pip-R { left: 66px;  top: 227px; background: #CD5D2C; }
-    .og-pip-G { left: 25px;  top: 98px;  background: #819A2F; }
+    .og-pip-W { left: 134px; top: 19px; }
+    .og-pip-U { left: 243px; top: 98px; }
+    .og-pip-B { left: 202px; top: 227px; }
+    .og-pip-R { left: 66px;  top: 227px; }
+    .og-pip-G { left: 25px;  top: 98px; }
 
     /* Title text */
     .og-title {
-      font-family: 'Georgia', 'Times New Roman', serif;
+      font-family: 'GoudyMediaeval', 'Georgia', 'Times New Roman', serif;
       font-size: 84px;
       font-weight: bold;
       color: #e0e0e0;
@@ -247,11 +257,12 @@
 <div class="section-desc">
   The real spiral is rendered via CSS conic-gradient masked by the spiral.svg path.
   Five mana pips orbit in a pentagon arrangement matching logo.ts coordinates.
-  Guild watermarks tile the background at ~8% opacity with desaturation and a radial vignette.
+  Guild watermarks tile the background at 12% opacity with Option 3's atmospheric off-center vignette.
 </div>
 
 <div class="card-wrapper">
   <div class="og-card" id="og-full">
+    <div class="og-bg"></div>
     <!-- Guild watermark texture -->
     <div class="og-guilds">
       <img src="../../../../../images/azorius.png" alt="">
@@ -301,6 +312,7 @@
 <div class="thumbnail-label">Thumbnail preview (600 x 315) — how it appears in most social feeds</div>
 <div class="thumbnail-wrapper">
   <div class="og-card">
+    <div class="og-bg"></div>
     <div class="og-guilds">
       <img src="../../../../../images/azorius.png" alt="">
       <img src="../../../../../images/dimir.png" alt="">
@@ -343,14 +355,14 @@
     <li><strong>Logo fidelity:</strong> This uses the exact same technique as <code>src/ui/logo.ts</code> — a conic-gradient circle
       (W gold -> U teal -> B purple -> R orange -> G green) masked by the spiral SVG path from <code>images/spiral.svg</code>.
       The five mana pip symbols are positioned in a pentagon using the same cosine/sine offsets as the source.</li>
-    <li><strong>Background:</strong> The 10 guild watermarks tile in a 5x2 grid at 8% opacity with desaturation, overlaid
-      with a strong radial vignette that keeps the center clear for the logo. This gives the "world-building" texture
-      the client loved from Option 3 without competing with the logo.</li>
-    <li><strong>Text hierarchy:</strong> "MTG Colors" at 84px Georgia (sub for GoudyMediaeval), then a 26px Jost tagline
-      in khaki (#c8b88a). Both remain legible at thumbnail size.</li>
+    <li><strong>Background:</strong> Restored Option 3's exact background values — off-center radial gradient (#5a3f1f -> #3a2810 -> #1c1a10),
+      guild watermarks at 12% opacity with saturate(0.5) brightness(1.2), and the atmospheric off-center vignette (ellipse at 30% 50%).</li>
+    <li><strong>Mana pips:</strong> Plain black silhouettes with no colored circle backgrounds, matching the About page logo exactly.</li>
+    <li><strong>Text hierarchy:</strong> "MTG Colors" at 84px GoudyMediaeval (the site's actual display font, loaded via @font-face),
+      then a 26px Jost tagline in khaki (#c8b88a). Both remain legible at thumbnail size.</li>
     <li><strong>Accent bar:</strong> Five 80px segments in WUBRG order — a subtle color key at the bottom of the composition.</li>
     <li><strong>For final PNG generation:</strong> Use Puppeteer or html-to-image to render this at 1200x630.
-      Swap Georgia for the actual GoudyMediaeval font file. The CSS mask technique works in all modern browsers.</li>
+      GoudyMediaeval is now loaded via @font-face from the project font directory. The CSS mask technique works in all modern browsers.</li>
   </ul>
 </div>
 
