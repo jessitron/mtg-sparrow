@@ -1,4 +1,4 @@
-import { buildSequence, Familiarity, REPS_BEFORE_NEXT, SlideSelection } from './sparrow-deck';
+import { buildSequenceWithSections, Familiarity, REPS_BEFORE_NEXT, SequenceWithSections } from './sparrow-deck';
 
 // Combo labels: A, B, C, D, E, ...
 function comboLabel(comboIndex: number): string {
@@ -28,62 +28,50 @@ function getComboColor(comboIndex: number): string {
   return COMBO_COLORS[(comboIndex - 1) % COMBO_COLORS.length];
 }
 
-/**
- * For the "new" strategy, detect which combo indices first appear at each
- * position in the sequence. Returns a map of position → comboIndex.
- */
-function detectIntroductions(sequence: SlideSelection[]): Map<number, number> {
-  const seen = new Set<number>();
-  const introAt = new Map<number, number>();
-  sequence.forEach(([comboIndex], position) => {
-    if (!seen.has(comboIndex)) {
-      seen.add(comboIndex);
-      introAt.set(position, comboIndex);
+function renderSequence(result: SequenceWithSections, familiarity: Familiarity, container: HTMLElement): void {
+  let position = 0;
+
+  result.sections.forEach((section) => {
+    // Insert a section marker before each section
+    const marker = document.createElement('div');
+    marker.className = 'intro-marker';
+    if (section.introducedCombo !== null) {
+      marker.textContent = `── introducing ${comboLabel(section.introducedCombo)} ──`;
+    } else {
+      marker.textContent = '── full pool ──';
     }
-  });
-  return introAt;
-}
+    container.appendChild(marker);
 
-function renderSequence(sequence: SlideSelection[], familiarity: Familiarity, container: HTMLElement): void {
-  const introductions = familiarity === 'new' ? detectIntroductions(sequence) : new Map<number, number>();
+    section.slides.forEach(([comboIndex, cardIndex]) => {
+      const row = document.createElement('div');
+      row.className = 'sequence-row';
 
-  sequence.forEach(([comboIndex, cardIndex], position) => {
-    // For "new" strategy, insert a visual marker when a new combo is introduced
-    const introCombo = introductions.get(position);
-    if (introCombo !== undefined) {
-      const marker = document.createElement('div');
-      marker.className = 'intro-marker';
-      marker.textContent = `── introducing ${comboLabel(introCombo)} ──`;
-      container.appendChild(marker);
-    }
+      const positionEl = document.createElement('span');
+      positionEl.className = 'position';
+      positionEl.textContent = String(position + 1).padStart(3, ' ');
 
-    const row = document.createElement('div');
-    row.className = 'sequence-row';
+      const comboEl = document.createElement('span');
+      comboEl.className = 'combo-chip';
+      comboEl.style.backgroundColor = getComboColor(comboIndex);
+      comboEl.textContent = comboLabel(comboIndex);
 
-    const positionEl = document.createElement('span');
-    positionEl.className = 'position';
-    positionEl.textContent = String(position + 1).padStart(3, ' ');
+      const cardEl = document.createElement('span');
+      cardEl.className = 'card-index';
+      cardEl.textContent = cardLabel(cardIndex);
 
-    const comboEl = document.createElement('span');
-    comboEl.className = 'combo-chip';
-    comboEl.style.backgroundColor = getComboColor(comboIndex);
-    comboEl.textContent = comboLabel(comboIndex);
-
-    const cardEl = document.createElement('span');
-    cardEl.className = 'card-index';
-    cardEl.textContent = cardLabel(cardIndex);
-
-    row.appendChild(positionEl);
-    row.appendChild(comboEl);
-    row.appendChild(cardEl);
-    container.appendChild(row);
+      row.appendChild(positionEl);
+      row.appendChild(comboEl);
+      row.appendChild(cardEl);
+      container.appendChild(row);
+      position++;
+    });
   });
 
   // Show total length and strategy info
   const summary = document.createElement('div');
   summary.className = 'sequence-summary';
   const repsInfo = familiarity === 'new' ? ` · reps before next intro: ${REPS_BEFORE_NEXT}` : '';
-  summary.textContent = `Total: ${sequence.length} slides${repsInfo}`;
+  summary.textContent = `Total: ${result.sequence.length} slides${repsInfo}`;
   container.appendChild(summary);
 }
 
@@ -105,8 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < 5; i++) {
       const col = document.createElement('div');
       col.className = 'sequence-column';
-      const sequence = buildSequence(cardCounts, length, familiarity);
-      renderSequence(sequence, familiarity, col);
+      const result = buildSequenceWithSections(cardCounts, length, familiarity);
+      renderSequence(result, familiarity, col);
       output.appendChild(col);
     }
   });
