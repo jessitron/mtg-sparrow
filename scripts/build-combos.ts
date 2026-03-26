@@ -188,6 +188,7 @@ function buildPage(combo: ColorCombo): string {
   <a href="../" class="home-spiral" title="Home"></a>
   <main id="app">
     <article class="combo-page">
+      <nav class="combo-breadcrumb"><a href="./">All combinations</a> &rsaquo; ${escapeHtml(combo.name)}</nav>
       <header class="combo-header">
         <div class="combo-pentagon-container">
           ${buildPentagonSvg(combo.colors)}

@@ -6,6 +6,23 @@
   padding: 2rem 1.5rem 3rem;
 }
 
+/* --- Breadcrumb --- */
+
+.combo-breadcrumb {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 1rem;
+}
+
+.combo-breadcrumb a {
+  color: var(--bg-khaki);
+  text-decoration: none;
+}
+
+.combo-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
 /* --- Header: pentagon + title side by side --- */
 
 .combo-header {
@@ -84,8 +101,8 @@
   margin-bottom: 2.5rem;
 }
 
-.combo-learn-button--prominent {
-  font-size: 1.1rem;
+.combo-learn-button.combo-learn-button--prominent {
+  font-size: 1.5rem;
   padding: 0.7rem 1.5rem;
 }
 
