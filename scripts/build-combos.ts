@@ -63,7 +63,8 @@ function colorNames(combo: ColorCombo): string {
 
 function buildPentagonSvg(activeColors: string[]): string {
   const activeSet = new Set(activeColors);
-  const lineColor = "#c8b88a"; // matches --allied-line-color / --enemy-line-color
+  const dimLineColor = "#c8b88a";
+  const activeLineColor = "#6C9FB0"; // --card-back-turquoise — pops against the dim khaki
 
   function isLineActive(a: string, b: string): boolean {
     return activeSet.has(a) && activeSet.has(b);
@@ -76,7 +77,7 @@ function buildPentagonSvg(activeColors: string[]): string {
     const na = colorNodes.find(n => n.id === a)!;
     const nb = colorNodes.find(n => n.id === b)!;
     const active = isLineActive(a, b);
-    lines += `<line x1="${na.cx}" y1="${na.cy}" x2="${nb.cx}" y2="${nb.cy}" stroke="${lineColor}" stroke-width="8" opacity="${active ? 0.75 : 0.2}" />\n`;
+    lines += `<line x1="${na.cx}" y1="${na.cy}" x2="${nb.cx}" y2="${nb.cy}" stroke="${active ? activeLineColor : dimLineColor}" stroke-width="8" opacity="${active ? 0.85 : 0.2}" />\n`;
   }
 
   // Enemy (star) lines
@@ -84,7 +85,7 @@ function buildPentagonSvg(activeColors: string[]): string {
     const na = colorNodes.find(n => n.id === a)!;
     const nb = colorNodes.find(n => n.id === b)!;
     const active = isLineActive(a, b);
-    lines += `<line x1="${na.cx}" y1="${na.cy}" x2="${nb.cx}" y2="${nb.cy}" stroke="${lineColor}" stroke-width="8" opacity="${active ? 0.75 : 0.2}" />\n`;
+    lines += `<line x1="${na.cx}" y1="${na.cy}" x2="${nb.cx}" y2="${nb.cy}" stroke="${active ? activeLineColor : dimLineColor}" stroke-width="8" opacity="${active ? 0.85 : 0.2}" />\n`;
   }
 
   // Mana symbol images — no circles, just the SVG icons at 68x68 (matches end page)
@@ -169,7 +170,7 @@ function buildPage(combo: ColorCombo): string {
         <div class="combo-title-block">
           <h1 class="combo-name">${escapeHtml(combo.name)}</h1>
           <p class="combo-tier">${tier}</p>
-          <p class="combo-colors">${pips} ${escapeHtml(colors)}</p>
+          <p class="combo-colors">${pips}<span class="sr-only">${escapeHtml(colors)}</span></p>
         </div>
       </header>
 
@@ -209,7 +210,7 @@ function buildIndexPage(): string {
       return `      <li class="combo-index-item">
         <a href="${combo.id}.html" class="combo-index-link">
           <span class="combo-index-name">${escapeHtml(combo.name)}</span>
-          <span class="combo-index-colors">${pips} ${escapeHtml(colors)}</span>
+          <span class="combo-index-colors">${pips}<span class="sr-only">${escapeHtml(colors)}</span></span>
           <span class="combo-index-count">${cardCount} cards</span>
         </a>
       </li>`;
