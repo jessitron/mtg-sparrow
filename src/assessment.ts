@@ -4,6 +4,8 @@ import { wireSettings } from './ui/settings';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
 import { getUnlockedSubgroups } from './progression';
+import { saveAssessment } from './self-assessment-store';
+import { GuildSubgroup } from './session';
 
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'assessment', 'multi_page');
@@ -55,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!app) return;
 
   const assessmentSection = buildSelfAssessment((value: string) => {
+    saveAssessment(subgroup as GuildSubgroup, value);
     const span = startSpan('assessment', {
       'session.self_assessment': value,
       'session.subgroup': subgroup,
