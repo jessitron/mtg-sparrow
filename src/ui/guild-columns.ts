@@ -650,7 +650,7 @@ function buildAlliedColumn(
 
     const explanation = document.createElement('p');
     explanation.classList.add('level-section-explanation');
-    explanation.textContent = "Allied guilds are pairs of neighboring colors.";
+    explanation.textContent = "Allied guilds are pairs of neighboring colors. Hover or click for deets.";
     summary.appendChild(explanation);
 
     summary.appendChild(buildGuildList(alliedGuilds));

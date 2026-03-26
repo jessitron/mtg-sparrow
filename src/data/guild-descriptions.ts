@@ -27,7 +27,7 @@ export const guildDescriptions: GuildDescription[] = [
   {
     id: "gruul",
     description:
-      "Once the wild heart of Ravnica, now its open wound. The Gruul believe civilization is violence done slowly. Feral,and furious, they smash what civilization builds and call it liberation. In their ruins, nature breathes again.",
+      "Once the wild heart of Ravnica, now its open wound. The Gruul believe civilization is violence done slowly. Feral and furious, they smash what civilization builds and call it liberation. In their ruins, nature breathes again.",
     scryfallUrl: "https://scryfall.com/search?q=c%3Drg+-set%3Asld+-is%3Aub+legal%3Atimeless",
   },
   {
