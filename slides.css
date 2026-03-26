@@ -93,7 +93,7 @@ html:has(.app--quiz-active) {
   background: var(--bg-brown-dark);
   border-radius: 0 2px 2px 0;
   width: 100%;
-  transition: width 300ms ease-out;
+  /* transition set dynamically in JS based on card timing */
 }
 
 @media (prefers-reduced-motion: reduce) {

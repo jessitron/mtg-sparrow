@@ -222,7 +222,7 @@ function buildSessionUI(): void {
   progressTrack.style.background = buildFullDeckGradient(session.deck);
   const progressCover = document.createElement('div');
   progressCover.classList.add('progress-bar-cover');
-  progressCover.style.width = ((session.cardCount - 1) / session.cardCount * 100) + '%';
+  progressCover.style.width = '100%';
   progressTrack.appendChild(progressCover);
   controlsRow.appendChild(progressTrack);
 
@@ -401,12 +401,14 @@ function showCard(): void {
     }
   }
 
-  // Update progress bar — shrink the cover to reveal more gradient
+  // Update progress bar — smoothly shrink the cover to reveal more gradient
   const progressTrack = doneZoneEl.querySelector('.progress-bar-track') as HTMLElement | null;
   const progressCover = doneZoneEl.querySelector('.progress-bar-cover') as HTMLElement | null;
   if (progressTrack && progressCover) {
     const current = session.currentIndex + 1;
     const remainingPct = (session.cardCount - current) / session.cardCount * 100;
+    const cardDuration = REVEAL_DELAY_MS + ADVANCE_DELAY_MS;
+    progressCover.style.transition = `width ${cardDuration}ms linear`;
     progressCover.style.width = remainingPct + '%';
     progressTrack.setAttribute('aria-valuenow', String(current));
     progressTrack.setAttribute('aria-label', `Card ${current} of ${session.cardCount}`);
