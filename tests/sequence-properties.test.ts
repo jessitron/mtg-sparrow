@@ -91,7 +91,7 @@ for (let t = 0; t < TRIALS; t++) {
   const gap = minGap(seq);
   assert(
     `familiar trial ${t + 1}: no immediate repeats`,
-    gap >= 0,
+    gap >= 1,
     `got immediate repeat (gap ${gap})`
   );
 }
@@ -230,19 +230,23 @@ for (let t = 0; t < TRIALS; t++) {
   );
 }
 
-section('new: min-gap constraint still holds');
+section('new: no immediate repeats in sections 3+');
 for (let t = 0; t < TRIALS; t++) {
   const cardCounts = [10, 10, 10, 10, 10];
-  const seq = buildSequence(cardCounts, 25, 'new');
-  const gap = minGap(seq);
-  // With pool size 2, min-gap-2 can't always be enforced (only 2 items to swap),
-  // so we check for gap >= 0 (no immediate repeats when pool > 2)
-  // Actually with pool=2, the gap enforcement gracefully degrades
-  assert(
-    `new trial ${t + 1}: min gap >= 0`,
-    gap >= 0,
-    `got min gap ${gap}`
-  );
+  const { sections } = buildSequenceWithSections(cardCounts, 25, 'new');
+  let allOk = true;
+  let detail = '';
+  // Sections at index 0 and 1 may have repeats (small pool); check index 2+
+  for (let si = 2; si < sections.length; si++) {
+    const sec = sections[si];
+    const gap = minGap(sec.slides);
+    if (gap < 1) {
+      allOk = false;
+      detail = `section ${si} (introducedCombo=${sec.introducedCombo}) has immediate repeat (gap ${gap})`;
+      break;
+    }
+  }
+  assert(`new trial ${t + 1}: no immediate repeats in sections 3+`, allOk, detail);
 }
 
 section('new: combos 3–5 introduced in order after 1 & 2');
