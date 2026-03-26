@@ -198,8 +198,8 @@ function buildIndexPage(): string {
   const groups: { label: string; subgroup: string; combos: ColorCombo[] }[] = [
     { label: "Allied Guilds", subgroup: "allied", combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "allied") },
     { label: "Enemy Guilds", subgroup: "enemy", combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "enemy") },
-    { label: "Shards", subgroup: "shards", combos: guilds.filter(g => g.tier === "shard") },
     { label: "Wedges", subgroup: "wedges", combos: guilds.filter(g => g.tier === "wedge") },
+    { label: "Shards", subgroup: "shards", combos: guilds.filter(g => g.tier === "shard") },
   ];
 
   const sections = groups.map(group => {
