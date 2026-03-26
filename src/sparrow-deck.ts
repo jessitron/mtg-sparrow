@@ -113,9 +113,11 @@ function countAppearances(sequence: SlideSelection[], comboIndex: number): numbe
  * - Length is a minimum — keep going until all combos have been introduced
  *   and each has had at least one full round.
  */
+/** How many times the newest combo must appear before the next one is introduced. */
+export const REPS_BEFORE_NEXT = 3;
+
 function buildNewSequence(cardCounts: number[], length: number): SlideSelection[] {
   const totalCombos = cardCounts.length;
-  const REPS_BEFORE_NEXT = 3; // times the newest combo must appear before adding the next
 
   const sequence: SlideSelection[] = [];
   let nextComboToIntroduce = 3; // combos 1 & 2 start active
