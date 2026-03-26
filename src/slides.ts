@@ -311,8 +311,30 @@ function showCard(): void {
   const isFirstCard = !oldCard;
 
   if (isFirstCard) {
-    // First card: just appear, no crossfade
+    // First card: wait for image to load before revealing
+    newCard.style.opacity = '0';
     cardContainer.appendChild(newCard);
+
+    const firstImg = newCard.querySelector('.mtg-card-img') as HTMLImageElement | null;
+    const revealFirst = () => {
+      newCard.style.transition = 'opacity 300ms ease';
+      void newCard.offsetWidth;
+      newCard.style.opacity = '1';
+    };
+
+    if (firstImg && !firstImg.complete) {
+      let resolved = false;
+      const onReady = () => {
+        if (resolved) return;
+        resolved = true;
+        revealFirst();
+      };
+      firstImg.addEventListener('load', onReady, { once: true });
+      firstImg.addEventListener('error', onReady, { once: true });
+      setTimeout(onReady, 2000);
+    } else {
+      revealFirst();
+    }
   } else {
     // Subsequent cards: crossfade
     newCard.style.opacity = '0';
