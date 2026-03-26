@@ -16,6 +16,9 @@ function shuffle<T>(arr: T[]): T[] {
 /** A [comboIndex, cardIndex] pair, both 1-indexed. */
 export type SlideSelection = [number, number];
 
+/** Minimum number of cards required per color combo when building a deck. */
+export const MIN_CARDS_PER_COMBO = 10;
+
 /**
  * Whether the sequence is for a learner encountering combos for the first time
  * ("new") or a learner who has seen all the combos before ("familiar").
@@ -355,6 +358,13 @@ export function buildDeck(combos: ColorCombo[], count: number, familiarity: Fami
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   const cardCounts = shuffled.map((c) => (c.cards ? c.cards.length : 0));
+  for (let i = 0; i < shuffled.length; i++) {
+    if (cardCounts[i] < MIN_CARDS_PER_COMBO) {
+      throw new Error(
+        `Color combo "${shuffled[i].name}" has only ${cardCounts[i]} cards; at least ${MIN_CARDS_PER_COMBO} are required.`
+      );
+    }
+  }
   const sequence = buildSequence(cardCounts, count, familiarity);
   return sequence.map(([comboIndex, cardIndex]) => {
     const combo = shuffled[comboIndex - 1];
