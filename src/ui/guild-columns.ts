@@ -138,13 +138,11 @@ function buildFlavorPanel(
 
       const link = document.createElement('a');
       link.classList.add('level-section-scryfall-link');
-      link.href = desc.scryfallUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
+      link.href = `combo/${guild.id}.html`;
       link.textContent = `More ${guild.name} cards →`;
       link.addEventListener('click', (e: Event) => {
         e.stopPropagation();
-        const span = startChildSpan('end.scryfall_click', sectionSpanRef.current, { 'guild.id': guild.id });
+        const span = startChildSpan('end.combo_page_click', sectionSpanRef.current, { 'guild.id': guild.id });
         endSpan(span);
       });
       entry.appendChild(link);
