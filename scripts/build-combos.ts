@@ -6,7 +6,7 @@
  * and semantic content visible without JS.
  */
 
-import { guilds, ColorCombo, colorEmojiMap } from "../src/data/combos.js";
+import { guilds, ColorCombo } from "../src/data/combos.js";
 import { guildDescriptionMap } from "../src/data/guild-descriptions.js";
 import * as fs from "fs";
 import * as path from "path";
@@ -14,12 +14,13 @@ import * as path from "path";
 const COMBO_DIR = path.join(process.cwd(), "combo");
 
 // Pentagon geometry — matches guild-columns.ts
+// Matches guild-columns.ts node positions exactly
 const colorNodes = [
-  { id: "W", label: "White", cx: 200, cy: 50 },
-  { id: "U", label: "Blue", cx: 342.66, cy: 153.65 },
-  { id: "B", label: "Black", cx: 288.17, cy: 321.35 },
-  { id: "R", label: "Red", cx: 111.83, cy: 321.35 },
-  { id: "G", label: "Green", cx: 57.34, cy: 153.65 },
+  { id: "W", label: "White", cx: 200, cy: 50, imgX: 166, imgY: 16 },
+  { id: "U", label: "Blue", cx: 342.66, cy: 153.65, imgX: 308.66, imgY: 119.65 },
+  { id: "B", label: "Black", cx: 288.17, cy: 321.35, imgX: 254.17, imgY: 287.35 },
+  { id: "R", label: "Red", cx: 111.83, cy: 321.35, imgX: 77.83, imgY: 287.35 },
+  { id: "G", label: "Green", cx: 57.34, cy: 153.65, imgX: 23.34, imgY: 119.65 },
 ];
 
 const manaColors: Record<string, string> = {
@@ -62,46 +63,39 @@ function colorNames(combo: ColorCombo): string {
 
 function buildPentagonSvg(activeColors: string[]): string {
   const activeSet = new Set(activeColors);
-  const r = 30; // node radius
-  const dimColor = "#3a3a3a";
-  const dimLineColor = "#2a2a2a";
-  const activeLineColor = "#c8b88a";
+  const lineColor = "#c8b88a"; // matches --allied-line-color / --enemy-line-color
 
-  // Determine which lines to draw and whether they're active
   function isLineActive(a: string, b: string): boolean {
     return activeSet.has(a) && activeSet.has(b);
   }
 
   let lines = "";
 
-  // Draw all allied (edge) lines
+  // Allied (edge) lines — matching end page: stroke-width 8, opacity 0.75 active / 0.2 dim
   for (const [a, b] of alliedPairs) {
     const na = colorNodes.find(n => n.id === a)!;
     const nb = colorNodes.find(n => n.id === b)!;
     const active = isLineActive(a, b);
-    lines += `<line x1="${na.cx}" y1="${na.cy}" x2="${nb.cx}" y2="${nb.cy}" stroke="${active ? activeLineColor : dimLineColor}" stroke-width="${active ? 3 : 1.5}" opacity="${active ? 1 : 0.3}" />\n`;
+    lines += `<line x1="${na.cx}" y1="${na.cy}" x2="${nb.cx}" y2="${nb.cy}" stroke="${lineColor}" stroke-width="8" opacity="${active ? 0.75 : 0.2}" />\n`;
   }
 
-  // Draw all enemy (star) lines
+  // Enemy (star) lines
   for (const [a, b] of enemyPairs) {
     const na = colorNodes.find(n => n.id === a)!;
     const nb = colorNodes.find(n => n.id === b)!;
     const active = isLineActive(a, b);
-    lines += `<line x1="${na.cx}" y1="${na.cy}" x2="${nb.cx}" y2="${nb.cy}" stroke="${active ? activeLineColor : dimLineColor}" stroke-width="${active ? 3 : 1.5}" stroke-dasharray="${active ? "none" : "6 4"}" opacity="${active ? 1 : 0.3}" />\n`;
+    lines += `<line x1="${na.cx}" y1="${na.cy}" x2="${nb.cx}" y2="${nb.cy}" stroke="${lineColor}" stroke-width="8" opacity="${active ? 0.75 : 0.2}" />\n`;
   }
 
-  // Draw nodes
+  // Mana symbol images — no circles, just the SVG icons at 68x68 (matches end page)
   let nodes = "";
   for (const node of colorNodes) {
     const active = activeSet.has(node.id);
-    const fill = active ? manaColors[node.id] : dimColor;
-    const opacity = active ? 1 : 0.4;
-    nodes += `<circle cx="${node.cx}" cy="${node.cy}" r="${r}" fill="${fill}" opacity="${opacity}" stroke="${active ? "#fff" : "#555"}" stroke-width="${active ? 2 : 1}" />\n`;
-    // Mana symbol image
-    nodes += `<image href="../images/${node.id}.svg" x="${node.cx - 20}" y="${node.cy - 20}" width="40" height="40" opacity="${opacity}" />\n`;
+    const opacity = active ? 1 : 0.3;
+    nodes += `<image href="../images/${node.id}.svg" x="${node.imgX}" y="${node.imgY}" width="68" height="68" opacity="${opacity}" />\n`;
   }
 
-  return `<svg viewBox="0 0 400 380" xmlns="http://www.w3.org/2000/svg" class="combo-pentagon" role="img" aria-label="Five-color pentagon highlighting ${activeColors.map(c => colorFullName[c]).join(" and ")}">
+  return `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" class="combo-pentagon" role="img" aria-label="Five-color pentagon highlighting ${activeColors.map(c => colorFullName[c]).join(" and ")}">
 ${lines}
 ${nodes}
 </svg>`;
@@ -117,6 +111,12 @@ ${cards.map(card => `  <figure class="combo-card">
     <figcaption>${escapeHtml(card.name)}</figcaption>
   </figure>`).join("\n")}
 </div>`;
+}
+
+function manaPips(colors: string[], size = 24): string {
+  return colors.map(c =>
+    `<img src="../images/${c}.svg" alt="${colorFullName[c]}" width="${size}" height="${size}" class="mana-pip-inline" />`
+  ).join("");
 }
 
 function escapeHtml(s: string): string {
@@ -136,7 +136,7 @@ function buildPage(combo: ColorCombo): string {
   const colors = colorNames(combo);
   const cardCount = combo.cards?.length ?? 0;
   const metaDesc = `${combo.name} — ${tier} (${colors}). ${description.slice(0, 120)}`;
-  const colorEmojis = combo.colors.map(c => colorEmojiMap[c] ?? c).join("");
+  const pips = manaPips(combo.colors);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -169,7 +169,7 @@ function buildPage(combo: ColorCombo): string {
         <div class="combo-title-block">
           <h1 class="combo-name">${escapeHtml(combo.name)}</h1>
           <p class="combo-tier">${tier}</p>
-          <p class="combo-colors">${colorEmojis} ${escapeHtml(colors)}</p>
+          <p class="combo-colors">${pips} ${escapeHtml(colors)}</p>
         </div>
       </header>
 
@@ -203,13 +203,13 @@ function buildIndexPage(): string {
 
   const sections = groups.map(group => {
     const items = group.combos.map(combo => {
-      const colorEmojis = combo.colors.map(c => colorEmojiMap[c] ?? c).join("");
+      const pips = manaPips(combo.colors);
       const colors = colorNames(combo);
       const cardCount = combo.cards?.length ?? 0;
       return `      <li class="combo-index-item">
         <a href="${combo.id}.html" class="combo-index-link">
           <span class="combo-index-name">${escapeHtml(combo.name)}</span>
-          <span class="combo-index-colors">${colorEmojis} ${escapeHtml(colors)}</span>
+          <span class="combo-index-colors">${pips} ${escapeHtml(colors)}</span>
           <span class="combo-index-count">${cardCount} cards</span>
         </a>
       </li>`;

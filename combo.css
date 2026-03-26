@@ -47,6 +47,13 @@
 .combo-colors {
   font-size: 1.1rem;
   color: #bbb;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.mana-pip-inline {
+  vertical-align: middle;
 }
 
 /* --- Description --- */
@@ -188,6 +195,9 @@
   color: #aaa;
   font-size: 0.95rem;
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .combo-index-count {
