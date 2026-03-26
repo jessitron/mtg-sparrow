@@ -206,12 +206,10 @@ function buildIndexPage(): string {
     const items = group.combos.map(combo => {
       const pips = manaPips(combo.colors);
       const colors = colorNames(combo);
-      const cardCount = combo.cards?.length ?? 0;
       return `      <li class="combo-index-item">
         <a href="${combo.id}.html" class="combo-index-link">
           <span class="combo-index-name">${escapeHtml(combo.name)}</span>
           <span class="combo-index-colors">${pips}<span class="sr-only">${escapeHtml(colors)}</span></span>
-          <span class="combo-index-count">${cardCount} cards</span>
         </a>
       </li>`;
     }).join("\n");
