@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OG Image Options — MTG Colors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Jost', system-ui, sans-serif;
+      background: #1a1a1a;
+      color: #e0e0e0;
+      padding: 40px;
+      margin: 0;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      color: #E2CD77;
+    }
+    .intro {
+      color: #aaa;
+      margin-bottom: 48px;
+      font-size: 0.95rem;
+    }
+    .option-section {
+      margin-bottom: 80px;
+    }
+    .option-label {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #6C9FB0;
+      margin-bottom: 6px;
+    }
+    .option-desc {
+      color: #999;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+    .card-wrapper {
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+      border: 2px solid #444;
+      border-radius: 4px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    /* Thumbnail preview */
+    .thumbnail-label {
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    .thumbnail-wrapper {
+      width: 600px;
+      height: 315px;
+      overflow: hidden;
+      border: 1px solid #333;
+      margin-top: 4px;
+    }
+    .thumbnail-wrapper .card-inner {
+      transform: scale(0.5);
+      transform-origin: top left;
+    }
+
+    /* =============================================
+       SHARED SPIRAL SVG (favicon.svg paths, scaled)
+       The spiral is the colored-stroke version.
+       We embed it inline as an SVG element.
+       ============================================= */
+
+    /* =============================================
+       OPTION 1: Logo-centric
+       ============================================= */
+    .opt1 {
+      width: 1200px;
+      height: 630px;
+      background: radial-gradient(ellipse at center, #8D6137 0%, #7D572D 40%, #272817 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .opt1-bg-rings {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.07;
+    }
+    .opt1-spiral {
+      margin-bottom: 24px;
+      filter: drop-shadow(0 0 40px rgba(226,205,119,0.3));
+    }
+    .opt1-title {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 96px;
+      font-weight: bold;
+      color: #e0e0e0;
+      letter-spacing: 0.06em;
+      text-shadow: 2px 4px 12px rgba(0,0,0,0.7), 0 0 60px rgba(226,205,119,0.15);
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+    .opt1-tagline {
+      font-family: 'Jost', system-ui, sans-serif;
+      font-size: 28px;
+      color: #c8b88a;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-shadow: 1px 2px 8px rgba(0,0,0,0.6);
+    }
+    .opt1-accent-bar {
+      display: flex;
+      gap: 0;
+      margin-top: 32px;
+    }
+    .opt1-accent-bar span {
+      display: block;
+      height: 4px;
+      width: 80px;
+    }
+    .opt1-url {
+      position: absolute;
+      bottom: 28px;
+      right: 40px;
+      font-family: 'Jost', system-ui, sans-serif;
+      font-size: 18px;
+      color: #6C9FB0;
+      letter-spacing: 0.08em;
+      opacity: 0.85;
+    }
+
+    /* =============================================
+       OPTION 2: Mana pips showcase
+       ============================================= */
+    .opt2 {
+      width: 1200px;
+      height: 630px;
+      background: #272817;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .opt2-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #1a1a10 0%, #272817 45%, #1e1a10 100%);
+    }
+    .opt2-glow-strip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to right, #E2CD77, #56A8BA, #6E6689, #CD5D2C, #819A2F);
+    }
+    .opt2-glow-strip-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to right, #819A2F, #CD5D2C, #6E6689, #56A8BA, #E2CD77);
+    }
+    .opt2-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .opt2-top-row {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      margin-bottom: 32px;
+    }
+    .opt2-spiral {
+      flex-shrink: 0;
+    }
+    .opt2-title-block {
+      display: flex;
+      flex-direction: column;
+    }
+    .opt2-title {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 88px;
+      font-weight: bold;
+      color: #e0e0e0;
+      line-height: 0.95;
+      letter-spacing: 0.04em;
+      text-shadow: 2px 4px 16px rgba(0,0,0,0.8);
+    }
+    .opt2-title span.mtg {
+      color: #c8b88a;
+    }
+    .opt2-tagline {
+      font-family: 'Jost', system-ui, sans-serif;
+      font-size: 22px;
+      color: #a0a090;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
+    .opt2-pips {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    .opt2-pip-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .opt2-pip-label {
+      font-family: 'Jost', system-ui, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.75;
+    }
+    .opt2-url {
+      position: absolute;
+      bottom: 28px;
+      right: 40px;
+      font-family: 'Jost', system-ui, sans-serif;
+      font-size: 18px;
+      color: #6C9FB0;
+      letter-spacing: 0.08em;
+      opacity: 0.75;
+    }
+
+    /* =============================================
+       OPTION 3: Guild collage
+       ============================================= */
+    .opt3 {
+      width: 1200px;
+      height: 630px;
+      background: #272817;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .opt3-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 65% 50%, #5a3f1f 0%, #3a2810 50%, #1c1a10 100%);
+    }
+    /* Guild watermark grid behind everything */
+    .opt3-guilds {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      opacity: 0.12;
+      filter: saturate(0.5) brightness(1.2);
+    }
+    .opt3-guilds img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    /* Dark vignette over the guild grid */
+    .opt3-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(39,40,23,0.2) 0%, rgba(39,40,23,0.65) 70%);
+    }
+    .opt3-left-panel {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 50px 60px 80px;
+      flex: 0 0 auto;
+      max-width: 700px;
+    }
+    .opt3-eyebrow {
+      font-family: 'Jost', system-ui, sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #6C9FB0;
+      margin-bottom: 16px;
+    }
+    .opt3-title {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 104px;
+      font-weight: bold;
+      color: #e0e0e0;
+      line-height: 0.9;
+      letter-spacing: 0.03em;
+      text-shadow: 2px 4px 20px rgba(0,0,0,0.9), 0 0 80px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+    }
+    .opt3-tagline {
+      font-family: 'Jost', system-ui, sans-serif;
+      font-size: 24px;
+      color: #c8b88a;
+      line-height: 1.4;
+      max-width: 480px;
+      text-shadow: 1px 2px 8px rgba(0,0,0,0.8);
+    }
+    .opt3-divider {
+      width: 300px;
+      height: 2px;
+      background: linear-gradient(to right, #E2CD77, #56A8BA, #6E6689, #CD5D2C, #819A2F);
+      margin: 20px 0;
+    }
+    .opt3-right-panel {
+      position: absolute;
+      right: 60px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .opt3-spiral-container {
+      filter: drop-shadow(0 0 30px rgba(200,184,138,0.25));
+    }
+    .opt3-url {
+      font-family: 'Jost', system-ui, sans-serif;
+      font-size: 16px;
+      color: #6C9FB0;
+      letter-spacing: 0.12em;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+<h1>OG Image Design Options — MTG Colors</h1>
+<p class="intro">
+  Three design directions for the og:image (1200×630px). Each shown at full size and at thumbnail scale (600×315).
+  These images appear when someone shares <strong>mtgcolors.quest</strong> on Discord, Slack, Twitter/X, iMessage, etc.
+</p>
+
+<!-- ============================================================
+     OPTION 1: LOGO-CENTRIC
+     Large spiral centered, site name below, mana color accent bar
+     ============================================================ -->
+<div class="option-section">
+  <div class="option-label">Option 1 — Logo-Centric</div>
+  <div class="option-desc">
+    Large spiral dominates. Clean, minimal. The spiral is the identity — everything else serves it.
+    Strong at any scale. The five-color accent bar grounds the mana-color theme without complexity.
+  </div>
+  <div class="card-wrapper">
+    <div class="opt1" id="opt1">
+      <!-- Background decorative rings -->
+      <div class="opt1-bg-rings">
+        <svg width="900" height="900" viewBox="0 0 900 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="450" cy="450" r="380" stroke="#c8b88a" stroke-width="1"/>
+          <circle cx="450" cy="450" r="300" stroke="#c8b88a" stroke-width="1"/>
+          <circle cx="450" cy="450" r="220" stroke="#c8b88a" stroke-width="1"/>
+          <circle cx="450" cy="450" r="140" stroke="#c8b88a" stroke-width="1"/>
+        </svg>
+      </div>
+
+      <!-- Scaled spiral (favicon.svg paths, scaled 10x from 32px viewBox to ~340px display) -->
+      <div class="opt1-spiral">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="260" height="260" style="filter: drop-shadow(0 0 20px rgba(86,168,186,0.3));">
+          <path d="M8.2,4.9 L7.6,5.3 L7.1,5.8 L6.6,6.3 L6.2,6.8 L5.7,7.4 L5.3,7.9 L4.9,8.5 L4.6,9.1 L4.3,9.8 L4.0,10.4 L3.7,11.0 L3.5,11.7 L3.4,12.4 L3.2,13.0 L3.1,13.7 L3.0,14.4 L3.0,15.1 L3.0,15.8 L3.1,16.5 L3.1,17.1 L3.2,17.8 L3.4,18.5 L3.6,19.1 L3.8,19.7" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+          <path d="M3.8,19.7 L4.0,20.4 L4.3,21.0 L4.6,21.6 L4.9,22.1 L5.3,22.7 L5.7,23.2 L6.1,23.7 L6.6,24.2 L7.0,24.7 L7.5,25.1 L8.0,25.5 L8.6,25.9 L9.1,26.2 L9.7,26.5 L10.2,26.8 L10.8,27.1 L11.4,27.3 L12.0,27.5 L12.7,27.7 L13.3,27.8 L13.9,27.9 L14.5,27.9 L15.2,28.0 L15.8,28.0" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+          <path d="M15.8,28.0 L16.4,27.9 L17.0,27.8 L17.6,27.7 L18.3,27.6 L18.9,27.4 L19.4,27.2 L20.0,27.0 L20.6,26.8 L21.1,26.5 L21.6,26.2 L22.1,25.8 L22.6,25.5 L23.1,25.1 L23.5,24.7 L23.9,24.2 L24.3,23.8 L24.7,23.3 L25.1,22.8 L25.4,22.3 L25.7,21.8 L25.9,21.3 L26.2,20.7 L26.4,20.2 L26.5,19.6" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+          <path d="M26.5,19.6 L26.7,19.1 L26.8,18.5 L26.9,17.9 L26.9,17.3 L26.9,16.8 L26.9,16.2 L26.9,15.6 L26.8,15.1 L26.7,14.5 L26.6,13.9 L26.4,13.4 L26.3,12.9 L26.0,12.3 L25.8,11.8 L25.5,11.3 L25.3,10.9 L25.0,10.4 L24.6,10.0 L24.3,9.5 L23.9,9.1 L23.5,8.8 L23.1,8.4 L22.7,8.1 L22.2,7.8" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+          <path d="M22.2,7.8 L21.7,7.5 L21.3,7.2 L20.8,7.0 L20.3,6.8 L19.8,6.6 L19.3,6.4 L18.8,6.3 L18.3,6.2 L17.7,6.1 L17.2,6.1 L16.7,6.1 L16.2,6.1 L15.7,6.1 L15.1,6.2 L14.6,6.3 L14.1,6.4 L13.6,6.6 L13.2,6.7 L12.7,6.9 L12.2,7.1 L11.8,7.4 L11.4,7.6 L11.0,7.9 L10.6,8.2" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+          <path d="M10.6,8.2 L10.2,8.5 L9.8,8.9 L9.5,9.2 L9.2,9.6 L8.9,10.0 L8.6,10.4 L8.3,10.8 L8.1,11.3 L7.9,11.7 L7.7,12.1 L7.5,12.6 L7.4,13.0 L7.3,13.5 L7.2,14.0 L7.2,14.4 L7.1,14.9 L7.1,15.4 L7.1,15.8 L7.2,16.3 L7.2,16.8 L7.3,17.2 L7.4,17.7 L7.6,18.1 L7.7,18.5" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+          <path d="M7.7,18.5 L7.9,19.0 L8.1,19.4 L8.3,19.8 L8.5,20.1 L8.8,20.5 L9.1,20.9 L9.4,21.2 L9.7,21.5 L10.0,21.8 L10.3,22.1 L10.7,22.4 L11.0,22.6 L11.4,22.8 L11.8,23.0 L12.2,23.2 L12.6,23.4 L13.0,23.5 L13.4,23.6 L13.8,23.7 L14.2,23.8 L14.6,23.8 L15.0,23.9 L15.4,23.9 L15.9,23.8" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+          <path d="M15.9,23.8 L16.3,23.8 L16.7,23.8 L17.1,23.7 L17.5,23.6 L17.9,23.5 L18.2,23.3 L18.6,23.2 L19.0,23.0 L19.3,22.8 L19.6,22.6 L20.0,22.3 L20.3,22.1 L20.6,21.8 L20.8,21.6 L21.1,21.3 L21.3,21.0 L21.6,20.7 L21.8,20.4 L22.0,20.0 L22.1,19.7 L22.3,19.3 L22.4,19.0 L22.5,18.6 L22.6,18.3" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+          <path d="M22.6,18.3 L22.7,17.9 L22.8,17.6 L22.8,17.2 L22.8,16.8 L22.8,16.5 L22.8,16.1 L22.8,15.8 L22.7,15.4 L22.7,15.1 L22.6,14.7 L22.5,14.4 L22.3,14.1 L22.2,13.7 L22.0,13.4 L21.9,13.1 L21.7,12.9 L21.5,12.6 L21.3,12.3 L21.0,12.1 L20.8,11.8 L20.5,11.6 L20.3,11.4 L20.0,11.2 L19.7,11.0" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+          <path d="M19.7,11.0 L19.5,10.9 L19.2,10.7 L18.9,10.6 L18.6,10.5 L18.3,10.4 L18.0,10.3 L17.6,10.3 L17.3,10.2 L17.0,10.2 L16.7,10.2 L16.4,10.2 L16.1,10.2 L15.8,10.2 L15.5,10.3 L15.2,10.4 L14.9,10.4 L14.6,10.5 L14.4,10.7 L14.1,10.8 L13.8,10.9 L13.6,11.1 L13.4,11.2 L13.1,11.4 L12.9,11.6" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12.9,11.6 L12.7,11.8 L12.5,12.0 L12.3,12.2 L12.2,12.4 L12.0,12.6 L11.9,12.9 L11.7,13.1 L11.6,13.4 L11.5,13.6 L11.4,13.9 L11.4,14.1 L11.3,14.4 L11.2,14.6 L11.2,14.9 L11.2,15.2 L11.2,15.4 L11.2,15.7 L11.2,15.9 L11.3,16.2 L11.3,16.4 L11.4,16.6 L11.5,16.9 L11.5,17.1 L11.6,17.3" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+          <path d="M11.6,17.3 L11.7,17.5 L11.9,17.8 L12.0,18.0 L12.1,18.1 L12.3,18.3 L12.4,18.5 L12.6,18.7 L12.8,18.8 L12.9,19.0 L13.1,19.1 L13.3,19.2 L13.5,19.3 L13.7,19.4 L13.9,19.5 L14.1,19.6 L14.3,19.6 L14.5,19.7 L14.7,19.7 L14.9,19.8 L15.1,19.8 L15.3,19.8 L15.5,19.8 L15.7,19.8 L15.9,19.7" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+          <path d="M15.9,19.7 L16.1,19.7 L16.3,19.7 L16.5,19.6 L16.7,19.5 L16.9,19.5 L17.0,19.4 L17.2,19.3 L17.4,19.2 L17.5,19.1 L17.6,19.0 L17.8,18.9 L17.9,18.7 L18.0,18.6 L18.1,18.5 L18.2,18.3 L18.3,18.2 L18.4,18.0 L18.5,17.9 L18.6,17.7 L18.6,17.6 L18.7,17.4 L18.7,17.3 L18.7,17.1 L18.8,17.0" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18.8,17.0 L18.8,16.8 L18.8,16.6 L18.8,16.5 L18.7,16.2 L18.7,16.0 L18.7,15.9 L18.6,15.8 L18.6,15.6 L18.5,15.5 L18.5,15.4 L18.4,15.3 L18.3,15.2 L18.2,15.0 L18.2,14.9 L18.1,14.8 L18.0,14.8 L17.9,14.7 L17.8,14.6 L17.7,14.5 L17.6,14.5 L17.5,14.4 L17.4,14.4 L17.3,14.3" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+          <path d="M17.3,14.3 L17.2,14.3 L17.0,14.3 L16.9,14.2 L16.8,14.2 L16.7,14.2 L16.6,14.2 L16.5,14.2 L16.4,14.2 L16.3,14.2 L16.2,14.3 L16.1,14.3 L16.0,14.3 L15.9,14.3 L15.9,14.4 L15.8,14.4 L15.7,14.5 L15.6,14.5 L15.6,14.6 L15.5,14.6 L15.4,14.7 L15.4,14.8 L15.3,14.8 L15.3,14.9 L15.3,15.0" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="opt1-title">MTG Colors</div>
+      <div class="opt1-tagline">Learn the color combinations of Magic</div>
+      <div class="opt1-accent-bar">
+        <span style="background:#E2CD77;"></span>
+        <span style="background:#56A8BA;"></span>
+        <span style="background:#6E6689;"></span>
+        <span style="background:#CD5D2C;"></span>
+        <span style="background:#819A2F;"></span>
+      </div>
+
+      <div class="opt1-url">mtgcolors.quest</div>
+    </div>
+  </div>
+  <div class="thumbnail-label">Thumbnail preview (600×315)</div>
+  <div class="thumbnail-wrapper">
+    <div class="card-inner">
+      <div class="opt1">
+        <div class="opt1-bg-rings">
+          <svg width="900" height="900" viewBox="0 0 900 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="450" cy="450" r="380" stroke="#c8b88a" stroke-width="1"/>
+            <circle cx="450" cy="450" r="300" stroke="#c8b88a" stroke-width="1"/>
+            <circle cx="450" cy="450" r="220" stroke="#c8b88a" stroke-width="1"/>
+            <circle cx="450" cy="450" r="140" stroke="#c8b88a" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="opt1-spiral">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="260" height="260" style="filter: drop-shadow(0 0 20px rgba(86,168,186,0.3));">
+            <path d="M8.2,4.9 L7.6,5.3 L7.1,5.8 L6.6,6.3 L6.2,6.8 L5.7,7.4 L5.3,7.9 L4.9,8.5 L4.6,9.1 L4.3,9.8 L4.0,10.4 L3.7,11.0 L3.5,11.7 L3.4,12.4 L3.2,13.0 L3.1,13.7 L3.0,14.4 L3.0,15.1 L3.0,15.8 L3.1,16.5 L3.1,17.1 L3.2,17.8 L3.4,18.5 L3.6,19.1 L3.8,19.7" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+            <path d="M3.8,19.7 L4.0,20.4 L4.3,21.0 L4.6,21.6 L4.9,22.1 L5.3,22.7 L5.7,23.2 L6.1,23.7 L6.6,24.2 L7.0,24.7 L7.5,25.1 L8.0,25.5 L8.6,25.9 L9.1,26.2 L9.7,26.5 L10.2,26.8 L10.8,27.1 L11.4,27.3 L12.0,27.5 L12.7,27.7 L13.3,27.8 L13.9,27.9 L14.5,27.9 L15.2,28.0 L15.8,28.0" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+            <path d="M15.8,28.0 L16.4,27.9 L17.0,27.8 L17.6,27.7 L18.3,27.6 L18.9,27.4 L19.4,27.2 L20.0,27.0 L20.6,26.8 L21.1,26.5 L21.6,26.2 L22.1,25.8 L22.6,25.5 L23.1,25.1 L23.5,24.7 L23.9,24.2 L24.3,23.8 L24.7,23.3 L25.1,22.8 L25.4,22.3 L25.7,21.8 L25.9,21.3 L26.2,20.7 L26.4,20.2 L26.5,19.6" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+            <path d="M26.5,19.6 L26.7,19.1 L26.8,18.5 L26.9,17.9 L26.9,17.3 L26.9,16.8 L26.9,16.2 L26.9,15.6 L26.8,15.1 L26.7,14.5 L26.6,13.9 L26.4,13.4 L26.3,12.9 L26.0,12.3 L25.8,11.8 L25.5,11.3 L25.3,10.9 L25.0,10.4 L24.6,10.0 L24.3,9.5 L23.9,9.1 L23.5,8.8 L23.1,8.4 L22.7,8.1 L22.2,7.8" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+            <path d="M22.2,7.8 L21.7,7.5 L21.3,7.2 L20.8,7.0 L20.3,6.8 L19.8,6.6 L19.3,6.4 L18.8,6.3 L18.3,6.2 L17.7,6.1 L17.2,6.1 L16.7,6.1 L16.2,6.1 L15.7,6.1 L15.1,6.2 L14.6,6.3 L14.1,6.4 L13.6,6.6 L13.2,6.7 L12.7,6.9 L12.2,7.1 L11.8,7.4 L11.4,7.6 L11.0,7.9 L10.6,8.2" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+            <path d="M10.6,8.2 L10.2,8.5 L9.8,8.9 L9.5,9.2 L9.2,9.6 L8.9,10.0 L8.6,10.4 L8.3,10.8 L8.1,11.3 L7.9,11.7 L7.7,12.1 L7.5,12.6 L7.4,13.0 L7.3,13.5 L7.2,14.0 L7.2,14.4 L7.1,14.9 L7.1,15.4 L7.1,15.8 L7.2,16.3 L7.2,16.8 L7.3,17.2 L7.4,17.7 L7.6,18.1 L7.7,18.5" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7.7,18.5 L7.9,19.0 L8.1,19.4 L8.3,19.8 L8.5,20.1 L8.8,20.5 L9.1,20.9 L9.4,21.2 L9.7,21.5 L10.0,21.8 L10.3,22.1 L10.7,22.4 L11.0,22.6 L11.4,22.8 L11.8,23.0 L12.2,23.2 L12.6,23.4 L13.0,23.5 L13.4,23.6 L13.8,23.7 L14.2,23.8 L14.6,23.8 L15.0,23.9 L15.4,23.9 L15.9,23.8" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+            <path d="M15.9,23.8 L16.3,23.8 L16.7,23.8 L17.1,23.7 L17.5,23.6 L17.9,23.5 L18.2,23.3 L18.6,23.2 L19.0,23.0 L19.3,22.8 L19.6,22.6 L20.0,22.3 L20.3,22.1 L20.6,21.8 L20.8,21.6 L21.1,21.3 L21.3,21.0 L21.6,20.7 L21.8,20.4 L22.0,20.0 L22.1,19.7 L22.3,19.3 L22.4,19.0 L22.5,18.6 L22.6,18.3" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+            <path d="M22.6,18.3 L22.7,17.9 L22.8,17.6 L22.8,17.2 L22.8,16.8 L22.8,16.5 L22.8,16.1 L22.8,15.8 L22.7,15.4 L22.7,15.1 L22.6,14.7 L22.5,14.4 L22.3,14.1 L22.2,13.7 L22.0,13.4 L21.9,13.1 L21.7,12.9 L21.5,12.6 L21.3,12.3 L21.0,12.1 L20.8,11.8 L20.5,11.6 L20.3,11.4 L20.0,11.2 L19.7,11.0" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+            <path d="M19.7,11.0 L19.5,10.9 L19.2,10.7 L18.9,10.6 L18.6,10.5 L18.3,10.4 L18.0,10.3 L17.6,10.3 L17.3,10.2 L17.0,10.2 L16.7,10.2 L16.4,10.2 L16.1,10.2 L15.8,10.2 L15.5,10.3 L15.2,10.4 L14.9,10.4 L14.6,10.5 L14.4,10.7 L14.1,10.8 L13.8,10.9 L13.6,11.1 L13.4,11.2 L13.1,11.4 L12.9,11.6" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12.9,11.6 L12.7,11.8 L12.5,12.0 L12.3,12.2 L12.2,12.4 L12.0,12.6 L11.9,12.9 L11.7,13.1 L11.6,13.4 L11.5,13.6 L11.4,13.9 L11.4,14.1 L11.3,14.4 L11.2,14.6 L11.2,14.9 L11.2,15.2 L11.2,15.4 L11.2,15.7 L11.2,15.9 L11.3,16.2 L11.3,16.4 L11.4,16.6 L11.5,16.9 L11.5,17.1 L11.6,17.3" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+            <path d="M11.6,17.3 L11.7,17.5 L11.9,17.8 L12.0,18.0 L12.1,18.1 L12.3,18.3 L12.4,18.5 L12.6,18.7 L12.8,18.8 L12.9,19.0 L13.1,19.1 L13.3,19.2 L13.5,19.3 L13.7,19.4 L13.9,19.5 L14.1,19.6 L14.3,19.6 L14.5,19.7 L14.7,19.7 L14.9,19.8 L15.1,19.8 L15.3,19.8 L15.5,19.8 L15.7,19.8 L15.9,19.7" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+            <path d="M15.9,19.7 L16.1,19.7 L16.3,19.7 L16.5,19.6 L16.7,19.5 L16.9,19.5 L17.0,19.4 L17.2,19.3 L17.4,19.2 L17.5,19.1 L17.6,19.0 L17.8,18.9 L17.9,18.7 L18.0,18.6 L18.1,18.5 L18.2,18.3 L18.3,18.2 L18.4,18.0 L18.5,17.9 L18.6,17.7 L18.6,17.6 L18.7,17.4 L18.7,17.3 L18.7,17.1 L18.8,17.0" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18.8,17.0 L18.8,16.8 L18.8,16.6 L18.8,16.5 L18.7,16.2 L18.7,16.0 L18.7,15.9 L18.6,15.8 L18.6,15.6 L18.5,15.5 L18.5,15.4 L18.4,15.3 L18.3,15.2 L18.2,15.0 L18.2,14.9 L18.1,14.8 L18.0,14.8 L17.9,14.7 L17.8,14.6 L17.7,14.5 L17.6,14.5 L17.5,14.4 L17.4,14.4 L17.3,14.3" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+            <path d="M17.3,14.3 L17.2,14.3 L17.0,14.3 L16.9,14.2 L16.8,14.2 L16.7,14.2 L16.6,14.2 L16.5,14.2 L16.4,14.2 L16.3,14.2 L16.2,14.3 L16.1,14.3 L16.0,14.3 L15.9,14.3 L15.9,14.4 L15.8,14.4 L15.7,14.5 L15.6,14.5 L15.6,14.6 L15.5,14.6 L15.4,14.7 L15.4,14.8 L15.3,14.8 L15.3,14.9 L15.3,15.0" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="opt1-title">MTG Colors</div>
+        <div class="opt1-tagline">Learn the color combinations of Magic</div>
+        <div class="opt1-accent-bar">
+          <span style="background:#E2CD77;"></span>
+          <span style="background:#56A8BA;"></span>
+          <span style="background:#6E6689;"></span>
+          <span style="background:#CD5D2C;"></span>
+          <span style="background:#819A2F;"></span>
+        </div>
+        <div class="opt1-url">mtgcolors.quest</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     OPTION 2: MANA PIPS SHOWCASE
+     Five pips in a row, spiral + title at top, more colorful
+     ============================================================ -->
+<div class="option-section">
+  <div class="option-label">Option 2 — Mana Pips Showcase</div>
+  <div class="option-desc">
+    The five mana pips take center stage. More colorful and immediately legible to any Magic player.
+    The rainbow strip top and bottom echoes the MTG card frame aesthetic. Spiral + title in the upper section.
+  </div>
+  <div class="card-wrapper">
+    <div class="opt2">
+      <div class="opt2-bg"></div>
+      <div class="opt2-glow-strip"></div>
+      <div class="opt2-glow-strip-bottom"></div>
+
+      <div class="opt2-content">
+        <div class="opt2-top-row">
+          <div class="opt2-spiral">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="130" height="130">
+              <path d="M8.2,4.9 L7.6,5.3 L7.1,5.8 L6.6,6.3 L6.2,6.8 L5.7,7.4 L5.3,7.9 L4.9,8.5 L4.6,9.1 L4.3,9.8 L4.0,10.4 L3.7,11.0 L3.5,11.7 L3.4,12.4 L3.2,13.0 L3.1,13.7 L3.0,14.4 L3.0,15.1 L3.0,15.8 L3.1,16.5 L3.1,17.1 L3.2,17.8 L3.4,18.5 L3.6,19.1 L3.8,19.7" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+              <path d="M3.8,19.7 L4.0,20.4 L4.3,21.0 L4.6,21.6 L4.9,22.1 L5.3,22.7 L5.7,23.2 L6.1,23.7 L6.6,24.2 L7.0,24.7 L7.5,25.1 L8.0,25.5 L8.6,25.9 L9.1,26.2 L9.7,26.5 L10.2,26.8 L10.8,27.1 L11.4,27.3 L12.0,27.5 L12.7,27.7 L13.3,27.8 L13.9,27.9 L14.5,27.9 L15.2,28.0 L15.8,28.0" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+              <path d="M15.8,28.0 L16.4,27.9 L17.0,27.8 L17.6,27.7 L18.3,27.6 L18.9,27.4 L19.4,27.2 L20.0,27.0 L20.6,26.8 L21.1,26.5 L21.6,26.2 L22.1,25.8 L22.6,25.5 L23.1,25.1 L23.5,24.7 L23.9,24.2 L24.3,23.8 L24.7,23.3 L25.1,22.8 L25.4,22.3 L25.7,21.8 L25.9,21.3 L26.2,20.7 L26.4,20.2 L26.5,19.6" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+              <path d="M26.5,19.6 L26.7,19.1 L26.8,18.5 L26.9,17.9 L26.9,17.3 L26.9,16.8 L26.9,16.2 L26.9,15.6 L26.8,15.1 L26.7,14.5 L26.6,13.9 L26.4,13.4 L26.3,12.9 L26.0,12.3 L25.8,11.8 L25.5,11.3 L25.3,10.9 L25.0,10.4 L24.6,10.0 L24.3,9.5 L23.9,9.1 L23.5,8.8 L23.1,8.4 L22.7,8.1 L22.2,7.8" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+              <path d="M22.2,7.8 L21.7,7.5 L21.3,7.2 L20.8,7.0 L20.3,6.8 L19.8,6.6 L19.3,6.4 L18.8,6.3 L18.3,6.2 L17.7,6.1 L17.2,6.1 L16.7,6.1 L16.2,6.1 L15.7,6.1 L15.1,6.2 L14.6,6.3 L14.1,6.4 L13.6,6.6 L13.2,6.7 L12.7,6.9 L12.2,7.1 L11.8,7.4 L11.4,7.6 L11.0,7.9 L10.6,8.2" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+              <path d="M10.6,8.2 L10.2,8.5 L9.8,8.9 L9.5,9.2 L9.2,9.6 L8.9,10.0 L8.6,10.4 L8.3,10.8 L8.1,11.3 L7.9,11.7 L7.7,12.1 L7.5,12.6 L7.4,13.0 L7.3,13.5 L7.2,14.0 L7.2,14.4 L7.1,14.9 L7.1,15.4 L7.1,15.8 L7.2,16.3 L7.2,16.8 L7.3,17.2 L7.4,17.7 L7.6,18.1 L7.7,18.5" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7.7,18.5 L7.9,19.0 L8.1,19.4 L8.3,19.8 L8.5,20.1 L8.8,20.5 L9.1,20.9 L9.4,21.2 L9.7,21.5 L10.0,21.8 L10.3,22.1 L10.7,22.4 L11.0,22.6 L11.4,22.8 L11.8,23.0 L12.2,23.2 L12.6,23.4 L13.0,23.5 L13.4,23.6 L13.8,23.7 L14.2,23.8 L14.6,23.8 L15.0,23.9 L15.4,23.9 L15.9,23.8" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+              <path d="M15.9,23.8 L16.3,23.8 L16.7,23.8 L17.1,23.7 L17.5,23.6 L17.9,23.5 L18.2,23.3 L18.6,23.2 L19.0,23.0 L19.3,22.8 L19.6,22.6 L20.0,22.3 L20.3,22.1 L20.6,21.8 L20.8,21.6 L21.1,21.3 L21.3,21.0 L21.6,20.7 L21.8,20.4 L22.0,20.0 L22.1,19.7 L22.3,19.3 L22.4,19.0 L22.5,18.6 L22.6,18.3" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+              <path d="M22.6,18.3 L22.7,17.9 L22.8,17.6 L22.8,17.2 L22.8,16.8 L22.8,16.5 L22.8,16.1 L22.8,15.8 L22.7,15.4 L22.7,15.1 L22.6,14.7 L22.5,14.4 L22.3,14.1 L22.2,13.7 L22.0,13.4 L21.9,13.1 L21.7,12.9 L21.5,12.6 L21.3,12.3 L21.0,12.1 L20.8,11.8 L20.5,11.6 L20.3,11.4 L20.0,11.2 L19.7,11.0" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+              <path d="M19.7,11.0 L19.5,10.9 L19.2,10.7 L18.9,10.6 L18.6,10.5 L18.3,10.4 L18.0,10.3 L17.6,10.3 L17.3,10.2 L17.0,10.2 L16.7,10.2 L16.4,10.2 L16.1,10.2 L15.8,10.2 L15.5,10.3 L15.2,10.4 L14.9,10.4 L14.6,10.5 L14.4,10.7 L14.1,10.8 L13.8,10.9 L13.6,11.1 L13.4,11.2 L13.1,11.4 L12.9,11.6" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12.9,11.6 L12.7,11.8 L12.5,12.0 L12.3,12.2 L12.2,12.4 L12.0,12.6 L11.9,12.9 L11.7,13.1 L11.6,13.4 L11.5,13.6 L11.4,13.9 L11.4,14.1 L11.3,14.4 L11.2,14.6 L11.2,14.9 L11.2,15.2 L11.2,15.4 L11.2,15.7 L11.2,15.9 L11.3,16.2 L11.3,16.4 L11.4,16.6 L11.5,16.9 L11.5,17.1 L11.6,17.3" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+              <path d="M11.6,17.3 L11.7,17.5 L11.9,17.8 L12.0,18.0 L12.1,18.1 L12.3,18.3 L12.4,18.5 L12.6,18.7 L12.8,18.8 L12.9,19.0 L13.1,19.1 L13.3,19.2 L13.5,19.3 L13.7,19.4 L13.9,19.5 L14.1,19.6 L14.3,19.6 L14.5,19.7 L14.7,19.7 L14.9,19.8 L15.1,19.8 L15.3,19.8 L15.5,19.8 L15.7,19.8 L15.9,19.7" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+              <path d="M15.9,19.7 L16.1,19.7 L16.3,19.7 L16.5,19.6 L16.7,19.5 L16.9,19.5 L17.0,19.4 L17.2,19.3 L17.4,19.2 L17.5,19.1 L17.6,19.0 L17.8,18.9 L17.9,18.7 L18.0,18.6 L18.1,18.5 L18.2,18.3 L18.3,18.2 L18.4,18.0 L18.5,17.9 L18.6,17.7 L18.6,17.6 L18.7,17.4 L18.7,17.3 L18.7,17.1 L18.8,17.0" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+              <path d="M18.8,17.0 L18.8,16.8 L18.8,16.6 L18.8,16.5 L18.7,16.2 L18.7,16.0 L18.7,15.9 L18.6,15.8 L18.6,15.6 L18.5,15.5 L18.5,15.4 L18.4,15.3 L18.3,15.2 L18.2,15.0 L18.2,14.9 L18.1,14.8 L18.0,14.8 L17.9,14.7 L17.8,14.6 L17.7,14.5 L17.6,14.5 L17.5,14.4 L17.4,14.4 L17.3,14.3" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+              <path d="M17.3,14.3 L17.2,14.3 L17.0,14.3 L16.9,14.2 L16.8,14.2 L16.7,14.2 L16.6,14.2 L16.5,14.2 L16.4,14.2 L16.3,14.2 L16.2,14.3 L16.1,14.3 L16.0,14.3 L15.9,14.3 L15.9,14.4 L15.8,14.4 L15.7,14.5 L15.6,14.5 L15.6,14.6 L15.5,14.6 L15.4,14.7 L15.4,14.8 L15.3,14.8 L15.3,14.9 L15.3,15.0" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="opt2-title-block">
+            <div class="opt2-title"><span class="mtg">MTG</span> Colors</div>
+            <div class="opt2-tagline">Know your guilds, shards &amp; wedges</div>
+          </div>
+        </div>
+
+        <!-- Five mana pips as inline SVG circles with icons -->
+        <div class="opt2-pips">
+          <!-- W pip -->
+          <div class="opt2-pip-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+              <circle cx="50" cy="50" r="48" fill="#E2CD77" stroke="#c8a830" stroke-width="2"/>
+              <text x="50" y="67" text-anchor="middle" font-family="serif" font-size="58" font-weight="bold" fill="#3a3010">W</text>
+            </svg>
+            <div class="opt2-pip-label" style="color:#E2CD77;">White</div>
+          </div>
+          <!-- U pip -->
+          <div class="opt2-pip-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+              <circle cx="50" cy="50" r="48" fill="#56A8BA" stroke="#2a7a8a" stroke-width="2"/>
+              <text x="50" y="67" text-anchor="middle" font-family="serif" font-size="58" font-weight="bold" fill="#0a2030">U</text>
+            </svg>
+            <div class="opt2-pip-label" style="color:#56A8BA;">Blue</div>
+          </div>
+          <!-- B pip -->
+          <div class="opt2-pip-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+              <circle cx="50" cy="50" r="48" fill="#6E6689" stroke="#4a4468" stroke-width="2"/>
+              <text x="50" y="67" text-anchor="middle" font-family="serif" font-size="58" font-weight="bold" fill="#1a1020">B</text>
+            </svg>
+            <div class="opt2-pip-label" style="color:#6E6689;">Black</div>
+          </div>
+          <!-- R pip -->
+          <div class="opt2-pip-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+              <circle cx="50" cy="50" r="48" fill="#CD5D2C" stroke="#9a3810" stroke-width="2"/>
+              <text x="50" y="67" text-anchor="middle" font-family="serif" font-size="58" font-weight="bold" fill="#2a0c04">R</text>
+            </svg>
+            <div class="opt2-pip-label" style="color:#CD5D2C;">Red</div>
+          </div>
+          <!-- G pip -->
+          <div class="opt2-pip-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+              <circle cx="50" cy="50" r="48" fill="#819A2F" stroke="#556818" stroke-width="2"/>
+              <text x="50" y="67" text-anchor="middle" font-family="serif" font-size="58" font-weight="bold" fill="#0f1e06">G</text>
+            </svg>
+            <div class="opt2-pip-label" style="color:#819A2F;">Green</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opt2-url">mtgcolors.quest</div>
+    </div>
+  </div>
+  <div class="thumbnail-label">Thumbnail preview (600×315)</div>
+  <div class="thumbnail-wrapper">
+    <div class="card-inner">
+      <div class="opt2">
+        <div class="opt2-bg"></div>
+        <div class="opt2-glow-strip"></div>
+        <div class="opt2-glow-strip-bottom"></div>
+        <div class="opt2-content">
+          <div class="opt2-top-row">
+            <div class="opt2-spiral">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="130" height="130">
+                <path d="M8.2,4.9 L7.6,5.3 L7.1,5.8 L6.6,6.3 L6.2,6.8 L5.7,7.4 L5.3,7.9 L4.9,8.5 L4.6,9.1 L4.3,9.8 L4.0,10.4 L3.7,11.0 L3.5,11.7 L3.4,12.4 L3.2,13.0 L3.1,13.7 L3.0,14.4 L3.0,15.1 L3.0,15.8 L3.1,16.5 L3.1,17.1 L3.2,17.8 L3.4,18.5 L3.6,19.1 L3.8,19.7" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+                <path d="M3.8,19.7 L4.0,20.4 L4.3,21.0 L4.6,21.6 L4.9,22.1 L5.3,22.7 L5.7,23.2 L6.1,23.7 L6.6,24.2 L7.0,24.7 L7.5,25.1 L8.0,25.5 L8.6,25.9 L9.1,26.2 L9.7,26.5 L10.2,26.8 L10.8,27.1 L11.4,27.3 L12.0,27.5 L12.7,27.7 L13.3,27.8 L13.9,27.9 L14.5,27.9 L15.2,28.0 L15.8,28.0" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+                <path d="M15.8,28.0 L16.4,27.9 L17.0,27.8 L17.6,27.7 L18.3,27.6 L18.9,27.4 L19.4,27.2 L20.0,27.0 L20.6,26.8 L21.1,26.5 L21.6,26.2 L22.1,25.8 L22.6,25.5 L23.1,25.1 L23.5,24.7 L23.9,24.2 L24.3,23.8 L24.7,23.3 L25.1,22.8 L25.4,22.3 L25.7,21.8 L25.9,21.3 L26.2,20.7 L26.4,20.2 L26.5,19.6" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+                <path d="M26.5,19.6 L26.7,19.1 L26.8,18.5 L26.9,17.9 L26.9,17.3 L26.9,16.8 L26.9,16.2 L26.9,15.6 L26.8,15.1 L26.7,14.5 L26.6,13.9 L26.4,13.4 L26.3,12.9 L26.0,12.3 L25.8,11.8 L25.5,11.3 L25.3,10.9 L25.0,10.4 L24.6,10.0 L24.3,9.5 L23.9,9.1 L23.5,8.8 L23.1,8.4 L22.7,8.1 L22.2,7.8" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+                <path d="M22.2,7.8 L21.7,7.5 L21.3,7.2 L20.8,7.0 L20.3,6.8 L19.8,6.6 L19.3,6.4 L18.8,6.3 L18.3,6.2 L17.7,6.1 L17.2,6.1 L16.7,6.1 L16.2,6.1 L15.7,6.1 L15.1,6.2 L14.6,6.3 L14.1,6.4 L13.6,6.6 L13.2,6.7 L12.7,6.9 L12.2,7.1 L11.8,7.4 L11.4,7.6 L11.0,7.9 L10.6,8.2" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+                <path d="M10.6,8.2 L10.2,8.5 L9.8,8.9 L9.5,9.2 L9.2,9.6 L8.9,10.0 L8.6,10.4 L8.3,10.8 L8.1,11.3 L7.9,11.7 L7.7,12.1 L7.5,12.6 L7.4,13.0 L7.3,13.5 L7.2,14.0 L7.2,14.4 L7.1,14.9 L7.1,15.4 L7.1,15.8 L7.2,16.3 L7.2,16.8 L7.3,17.2 L7.4,17.7 L7.6,18.1 L7.7,18.5" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7.7,18.5 L7.9,19.0 L8.1,19.4 L8.3,19.8 L8.5,20.1 L8.8,20.5 L9.1,20.9 L9.4,21.2 L9.7,21.5 L10.0,21.8 L10.3,22.1 L10.7,22.4 L11.0,22.6 L11.4,22.8 L11.8,23.0 L12.2,23.2 L12.6,23.4 L13.0,23.5 L13.4,23.6 L13.8,23.7 L14.2,23.8 L14.6,23.8 L15.0,23.9 L15.4,23.9 L15.9,23.8" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+                <path d="M15.9,23.8 L16.3,23.8 L16.7,23.8 L17.1,23.7 L17.5,23.6 L17.9,23.5 L18.2,23.3 L18.6,23.2 L19.0,23.0 L19.3,22.8 L19.6,22.6 L20.0,22.3 L20.3,22.1 L20.6,21.8 L20.8,21.6 L21.1,21.3 L21.3,21.0 L21.6,20.7 L21.8,20.4 L22.0,20.0 L22.1,19.7 L22.3,19.3 L22.4,19.0 L22.5,18.6 L22.6,18.3" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+                <path d="M22.6,18.3 L22.7,17.9 L22.8,17.6 L22.8,17.2 L22.8,16.8 L22.8,16.5 L22.8,16.1 L22.8,15.8 L22.7,15.4 L22.7,15.1 L22.6,14.7 L22.5,14.4 L22.3,14.1 L22.2,13.7 L22.0,13.4 L21.9,13.1 L21.7,12.9 L21.5,12.6 L21.3,12.3 L21.0,12.1 L20.8,11.8 L20.5,11.6 L20.3,11.4 L20.0,11.2 L19.7,11.0" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+                <path d="M19.7,11.0 L19.5,10.9 L19.2,10.7 L18.9,10.6 L18.6,10.5 L18.3,10.4 L18.0,10.3 L17.6,10.3 L17.3,10.2 L17.0,10.2 L16.7,10.2 L16.4,10.2 L16.1,10.2 L15.8,10.2 L15.5,10.3 L15.2,10.4 L14.9,10.4 L14.6,10.5 L14.4,10.7 L14.1,10.8 L13.8,10.9 L13.6,11.1 L13.4,11.2 L13.1,11.4 L12.9,11.6" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12.9,11.6 L12.7,11.8 L12.5,12.0 L12.3,12.2 L12.2,12.4 L12.0,12.6 L11.9,12.9 L11.7,13.1 L11.6,13.4 L11.5,13.6 L11.4,13.9 L11.4,14.1 L11.3,14.4 L11.2,14.6 L11.2,14.9 L11.2,15.2 L11.2,15.4 L11.2,15.7 L11.2,15.9 L11.3,16.2 L11.3,16.4 L11.4,16.6 L11.5,16.9 L11.5,17.1 L11.6,17.3" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+                <path d="M11.6,17.3 L11.7,17.5 L11.9,17.8 L12.0,18.0 L12.1,18.1 L12.3,18.3 L12.4,18.5 L12.6,18.7 L12.8,18.8 L12.9,19.0 L13.1,19.1 L13.3,19.2 L13.5,19.3 L13.7,19.4 L13.9,19.5 L14.1,19.6 L14.3,19.6 L14.5,19.7 L14.7,19.7 L14.9,19.8 L15.1,19.8 L15.3,19.8 L15.5,19.8 L15.7,19.8 L15.9,19.7" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+                <path d="M15.9,19.7 L16.1,19.7 L16.3,19.7 L16.5,19.6 L16.7,19.5 L16.9,19.5 L17.0,19.4 L17.2,19.3 L17.4,19.2 L17.5,19.1 L17.6,19.0 L17.8,18.9 L17.9,18.7 L18.0,18.6 L18.1,18.5 L18.2,18.3 L18.3,18.2 L18.4,18.0 L18.5,17.9 L18.6,17.7 L18.6,17.6 L18.7,17.4 L18.7,17.3 L18.7,17.1 L18.8,17.0" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+                <path d="M18.8,17.0 L18.8,16.8 L18.8,16.6 L18.8,16.5 L18.7,16.2 L18.7,16.0 L18.7,15.9 L18.6,15.8 L18.6,15.6 L18.5,15.5 L18.5,15.4 L18.4,15.3 L18.3,15.2 L18.2,15.0 L18.2,14.9 L18.1,14.8 L18.0,14.8 L17.9,14.7 L17.8,14.6 L17.7,14.5 L17.6,14.5 L17.5,14.4 L17.4,14.4 L17.3,14.3" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+                <path d="M17.3,14.3 L17.2,14.3 L17.0,14.3 L16.9,14.2 L16.8,14.2 L16.7,14.2 L16.6,14.2 L16.5,14.2 L16.4,14.2 L16.3,14.2 L16.2,14.3 L16.1,14.3 L16.0,14.3 L15.9,14.3 L15.9,14.4 L15.8,14.4 L15.7,14.5 L15.6,14.5 L15.6,14.6 L15.5,14.6 L15.4,14.7 L15.4,14.8 L15.3,14.8 L15.3,14.9 L15.3,15.0" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="opt2-title-block">
+              <div class="opt2-title"><span class="mtg">MTG</span> Colors</div>
+              <div class="opt2-tagline">Know your guilds, shards &amp; wedges</div>
+            </div>
+          </div>
+          <div class="opt2-pips">
+            <div class="opt2-pip-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><circle cx="50" cy="50" r="48" fill="#E2CD77" stroke="#c8a830" stroke-width="2"/><text x="50" y="67" text-anchor="middle" font-family="serif" font-size="58" font-weight="bold" fill="#3a3010">W</text></svg>
+              <div class="opt2-pip-label" style="color:#E2CD77;">White</div>
+            </div>
+            <div class="opt2-pip-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><circle cx="50" cy="50" r="48" fill="#56A8BA" stroke="#2a7a8a" stroke-width="2"/><text x="50" y="67" text-anchor="middle" font-family="serif" font-size="58" font-weight="bold" fill="#0a2030">U</text></svg>
+              <div class="opt2-pip-label" style="color:#56A8BA;">Blue</div>
+            </div>
+            <div class="opt2-pip-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><circle cx="50" cy="50" r="48" fill="#6E6689" stroke="#4a4468" stroke-width="2"/><text x="50" y="67" text-anchor="middle" font-family="serif" font-size="58" font-weight="bold" fill="#1a1020">B</text></svg>
+              <div class="opt2-pip-label" style="color:#6E6689;">Black</div>
+            </div>
+            <div class="opt2-pip-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><circle cx="50" cy="50" r="48" fill="#CD5D2C" stroke="#9a3810" stroke-width="2"/><text x="50" y="67" text-anchor="middle" font-family="serif" font-size="58" font-weight="bold" fill="#2a0c04">R</text></svg>
+              <div class="opt2-pip-label" style="color:#CD5D2C;">Red</div>
+            </div>
+            <div class="opt2-pip-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><circle cx="50" cy="50" r="48" fill="#819A2F" stroke="#556818" stroke-width="2"/><text x="50" y="67" text-anchor="middle" font-family="serif" font-size="58" font-weight="bold" fill="#0f1e06">G</text></svg>
+              <div class="opt2-pip-label" style="color:#819A2F;">Green</div>
+            </div>
+          </div>
+        </div>
+        <div class="opt2-url">mtgcolors.quest</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     OPTION 3: GUILD COLLAGE
+     Guild watermarks as bg texture, logo + text overlay
+     ============================================================ -->
+<div class="option-section">
+  <div class="option-label">Option 3 — Guild Collage</div>
+  <div class="option-desc">
+    Guild watermarks fill the right side as texture. Left-aligned title with strong hierarchy.
+    Most "world-building" of the three — immediately signals that the site has a lot of content.
+    The five-color divider bar anchors the mana identity theme.
+  </div>
+  <div class="card-wrapper">
+    <div class="opt3">
+      <div class="opt3-bg"></div>
+      <!-- Guild watermarks as texture -->
+      <div class="opt3-guilds">
+        <img src="../../../../../images/azorius.png" alt="">
+        <img src="../../../../../images/dimir.png" alt="">
+        <img src="../../../../../images/rakdos.png" alt="">
+        <img src="../../../../../images/gruul.png" alt="">
+        <img src="../../../../../images/selesnya.png" alt="">
+        <img src="../../../../../images/orzhov.png" alt="">
+        <img src="../../../../../images/izzet.png" alt="">
+        <img src="../../../../../images/golgari.png" alt="">
+        <img src="../../../../../images/boros.png" alt="">
+        <img src="../../../../../images/simic.png" alt="">
+      </div>
+      <div class="opt3-vignette"></div>
+
+      <!-- Left: main text content -->
+      <div class="opt3-left-panel">
+        <div class="opt3-eyebrow">A Learning Tool</div>
+        <div class="opt3-title">MTG<br>Colors</div>
+        <div class="opt3-divider"></div>
+        <div class="opt3-tagline">Master guild names, shard names, and wedge names — all five colors of Magic.</div>
+      </div>
+
+      <!-- Right: spiral + url -->
+      <div class="opt3-right-panel">
+        <div class="opt3-spiral-container">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="200" height="200">
+            <path d="M8.2,4.9 L7.6,5.3 L7.1,5.8 L6.6,6.3 L6.2,6.8 L5.7,7.4 L5.3,7.9 L4.9,8.5 L4.6,9.1 L4.3,9.8 L4.0,10.4 L3.7,11.0 L3.5,11.7 L3.4,12.4 L3.2,13.0 L3.1,13.7 L3.0,14.4 L3.0,15.1 L3.0,15.8 L3.1,16.5 L3.1,17.1 L3.2,17.8 L3.4,18.5 L3.6,19.1 L3.8,19.7" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+            <path d="M3.8,19.7 L4.0,20.4 L4.3,21.0 L4.6,21.6 L4.9,22.1 L5.3,22.7 L5.7,23.2 L6.1,23.7 L6.6,24.2 L7.0,24.7 L7.5,25.1 L8.0,25.5 L8.6,25.9 L9.1,26.2 L9.7,26.5 L10.2,26.8 L10.8,27.1 L11.4,27.3 L12.0,27.5 L12.7,27.7 L13.3,27.8 L13.9,27.9 L14.5,27.9 L15.2,28.0 L15.8,28.0" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+            <path d="M15.8,28.0 L16.4,27.9 L17.0,27.8 L17.6,27.7 L18.3,27.6 L18.9,27.4 L19.4,27.2 L20.0,27.0 L20.6,26.8 L21.1,26.5 L21.6,26.2 L22.1,25.8 L22.6,25.5 L23.1,25.1 L23.5,24.7 L23.9,24.2 L24.3,23.8 L24.7,23.3 L25.1,22.8 L25.4,22.3 L25.7,21.8 L25.9,21.3 L26.2,20.7 L26.4,20.2 L26.5,19.6" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+            <path d="M26.5,19.6 L26.7,19.1 L26.8,18.5 L26.9,17.9 L26.9,17.3 L26.9,16.8 L26.9,16.2 L26.9,15.6 L26.8,15.1 L26.7,14.5 L26.6,13.9 L26.4,13.4 L26.3,12.9 L26.0,12.3 L25.8,11.8 L25.5,11.3 L25.3,10.9 L25.0,10.4 L24.6,10.0 L24.3,9.5 L23.9,9.1 L23.5,8.8 L23.1,8.4 L22.7,8.1 L22.2,7.8" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+            <path d="M22.2,7.8 L21.7,7.5 L21.3,7.2 L20.8,7.0 L20.3,6.8 L19.8,6.6 L19.3,6.4 L18.8,6.3 L18.3,6.2 L17.7,6.1 L17.2,6.1 L16.7,6.1 L16.2,6.1 L15.7,6.1 L15.1,6.2 L14.6,6.3 L14.1,6.4 L13.6,6.6 L13.2,6.7 L12.7,6.9 L12.2,7.1 L11.8,7.4 L11.4,7.6 L11.0,7.9 L10.6,8.2" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+            <path d="M10.6,8.2 L10.2,8.5 L9.8,8.9 L9.5,9.2 L9.2,9.6 L8.9,10.0 L8.6,10.4 L8.3,10.8 L8.1,11.3 L7.9,11.7 L7.7,12.1 L7.5,12.6 L7.4,13.0 L7.3,13.5 L7.2,14.0 L7.2,14.4 L7.1,14.9 L7.1,15.4 L7.1,15.8 L7.2,16.3 L7.2,16.8 L7.3,17.2 L7.4,17.7 L7.6,18.1 L7.7,18.5" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+            <path d="M7.7,18.5 L7.9,19.0 L8.1,19.4 L8.3,19.8 L8.5,20.1 L8.8,20.5 L9.1,20.9 L9.4,21.2 L9.7,21.5 L10.0,21.8 L10.3,22.1 L10.7,22.4 L11.0,22.6 L11.4,22.8 L11.8,23.0 L12.2,23.2 L12.6,23.4 L13.0,23.5 L13.4,23.6 L13.8,23.7 L14.2,23.8 L14.6,23.8 L15.0,23.9 L15.4,23.9 L15.9,23.8" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+            <path d="M15.9,23.8 L16.3,23.8 L16.7,23.8 L17.1,23.7 L17.5,23.6 L17.9,23.5 L18.2,23.3 L18.6,23.2 L19.0,23.0 L19.3,22.8 L19.6,22.6 L20.0,22.3 L20.3,22.1 L20.6,21.8 L20.8,21.6 L21.1,21.3 L21.3,21.0 L21.6,20.7 L21.8,20.4 L22.0,20.0 L22.1,19.7 L22.3,19.3 L22.4,19.0 L22.5,18.6 L22.6,18.3" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+            <path d="M22.6,18.3 L22.7,17.9 L22.8,17.6 L22.8,17.2 L22.8,16.8 L22.8,16.5 L22.8,16.1 L22.8,15.8 L22.7,15.4 L22.7,15.1 L22.6,14.7 L22.5,14.4 L22.3,14.1 L22.2,13.7 L22.0,13.4 L21.9,13.1 L21.7,12.9 L21.5,12.6 L21.3,12.3 L21.0,12.1 L20.8,11.8 L20.5,11.6 L20.3,11.4 L20.0,11.2 L19.7,11.0" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+            <path d="M19.7,11.0 L19.5,10.9 L19.2,10.7 L18.9,10.6 L18.6,10.5 L18.3,10.4 L18.0,10.3 L17.6,10.3 L17.3,10.2 L17.0,10.2 L16.7,10.2 L16.4,10.2 L16.1,10.2 L15.8,10.2 L15.5,10.3 L15.2,10.4 L14.9,10.4 L14.6,10.5 L14.4,10.7 L14.1,10.8 L13.8,10.9 L13.6,11.1 L13.4,11.2 L13.1,11.4 L12.9,11.6" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12.9,11.6 L12.7,11.8 L12.5,12.0 L12.3,12.2 L12.2,12.4 L12.0,12.6 L11.9,12.9 L11.7,13.1 L11.6,13.4 L11.5,13.6 L11.4,13.9 L11.4,14.1 L11.3,14.4 L11.2,14.6 L11.2,14.9 L11.2,15.2 L11.2,15.4 L11.2,15.7 L11.2,15.9 L11.3,16.2 L11.3,16.4 L11.4,16.6 L11.5,16.9 L11.5,17.1 L11.6,17.3" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+            <path d="M11.6,17.3 L11.7,17.5 L11.9,17.8 L12.0,18.0 L12.1,18.1 L12.3,18.3 L12.4,18.5 L12.6,18.7 L12.8,18.8 L12.9,19.0 L13.1,19.1 L13.3,19.2 L13.5,19.3 L13.7,19.4 L13.9,19.5 L14.1,19.6 L14.3,19.6 L14.5,19.7 L14.7,19.7 L14.9,19.8 L15.1,19.8 L15.3,19.8 L15.5,19.8 L15.7,19.8 L15.9,19.7" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+            <path d="M15.9,19.7 L16.1,19.7 L16.3,19.7 L16.5,19.6 L16.7,19.5 L16.9,19.5 L17.0,19.4 L17.2,19.3 L17.4,19.2 L17.5,19.1 L17.6,19.0 L17.8,18.9 L17.9,18.7 L18.0,18.6 L18.1,18.5 L18.2,18.3 L18.3,18.2 L18.4,18.0 L18.5,17.9 L18.6,17.7 L18.6,17.6 L18.7,17.4 L18.7,17.3 L18.7,17.1 L18.8,17.0" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18.8,17.0 L18.8,16.8 L18.8,16.6 L18.8,16.5 L18.7,16.2 L18.7,16.0 L18.7,15.9 L18.6,15.8 L18.6,15.6 L18.5,15.5 L18.5,15.4 L18.4,15.3 L18.3,15.2 L18.2,15.0 L18.2,14.9 L18.1,14.8 L18.0,14.8 L17.9,14.7 L17.8,14.6 L17.7,14.5 L17.6,14.5 L17.5,14.4 L17.4,14.4 L17.3,14.3" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+            <path d="M17.3,14.3 L17.2,14.3 L17.0,14.3 L16.9,14.2 L16.8,14.2 L16.7,14.2 L16.6,14.2 L16.5,14.2 L16.4,14.2 L16.3,14.2 L16.2,14.3 L16.1,14.3 L16.0,14.3 L15.9,14.3 L15.9,14.4 L15.8,14.4 L15.7,14.5 L15.6,14.5 L15.6,14.6 L15.5,14.6 L15.4,14.7 L15.4,14.8 L15.3,14.8 L15.3,14.9 L15.3,15.0" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="opt3-url">mtgcolors.quest</div>
+      </div>
+    </div>
+  </div>
+  <div class="thumbnail-label">Thumbnail preview (600×315)</div>
+  <div class="thumbnail-wrapper">
+    <div class="card-inner">
+      <div class="opt3">
+        <div class="opt3-bg"></div>
+        <div class="opt3-guilds">
+          <img src="../../../../../images/azorius.png" alt="">
+          <img src="../../../../../images/dimir.png" alt="">
+          <img src="../../../../../images/rakdos.png" alt="">
+          <img src="../../../../../images/gruul.png" alt="">
+          <img src="../../../../../images/selesnya.png" alt="">
+          <img src="../../../../../images/orzhov.png" alt="">
+          <img src="../../../../../images/izzet.png" alt="">
+          <img src="../../../../../images/golgari.png" alt="">
+          <img src="../../../../../images/boros.png" alt="">
+          <img src="../../../../../images/simic.png" alt="">
+        </div>
+        <div class="opt3-vignette"></div>
+        <div class="opt3-left-panel">
+          <div class="opt3-eyebrow">A Learning Tool</div>
+          <div class="opt3-title">MTG<br>Colors</div>
+          <div class="opt3-divider"></div>
+          <div class="opt3-tagline">Master guild names, shard names, and wedge names — all five colors of Magic.</div>
+        </div>
+        <div class="opt3-right-panel">
+          <div class="opt3-spiral-container">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="200" height="200">
+              <path d="M8.2,4.9 L7.6,5.3 L7.1,5.8 L6.6,6.3 L6.2,6.8 L5.7,7.4 L5.3,7.9 L4.9,8.5 L4.6,9.1 L4.3,9.8 L4.0,10.4 L3.7,11.0 L3.5,11.7 L3.4,12.4 L3.2,13.0 L3.1,13.7 L3.0,14.4 L3.0,15.1 L3.0,15.8 L3.1,16.5 L3.1,17.1 L3.2,17.8 L3.4,18.5 L3.6,19.1 L3.8,19.7" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+              <path d="M3.8,19.7 L4.0,20.4 L4.3,21.0 L4.6,21.6 L4.9,22.1 L5.3,22.7 L5.7,23.2 L6.1,23.7 L6.6,24.2 L7.0,24.7 L7.5,25.1 L8.0,25.5 L8.6,25.9 L9.1,26.2 L9.7,26.5 L10.2,26.8 L10.8,27.1 L11.4,27.3 L12.0,27.5 L12.7,27.7 L13.3,27.8 L13.9,27.9 L14.5,27.9 L15.2,28.0 L15.8,28.0" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+              <path d="M15.8,28.0 L16.4,27.9 L17.0,27.8 L17.6,27.7 L18.3,27.6 L18.9,27.4 L19.4,27.2 L20.0,27.0 L20.6,26.8 L21.1,26.5 L21.6,26.2 L22.1,25.8 L22.6,25.5 L23.1,25.1 L23.5,24.7 L23.9,24.2 L24.3,23.8 L24.7,23.3 L25.1,22.8 L25.4,22.3 L25.7,21.8 L25.9,21.3 L26.2,20.7 L26.4,20.2 L26.5,19.6" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+              <path d="M26.5,19.6 L26.7,19.1 L26.8,18.5 L26.9,17.9 L26.9,17.3 L26.9,16.8 L26.9,16.2 L26.9,15.6 L26.8,15.1 L26.7,14.5 L26.6,13.9 L26.4,13.4 L26.3,12.9 L26.0,12.3 L25.8,11.8 L25.5,11.3 L25.3,10.9 L25.0,10.4 L24.6,10.0 L24.3,9.5 L23.9,9.1 L23.5,8.8 L23.1,8.4 L22.7,8.1 L22.2,7.8" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+              <path d="M22.2,7.8 L21.7,7.5 L21.3,7.2 L20.8,7.0 L20.3,6.8 L19.8,6.6 L19.3,6.4 L18.8,6.3 L18.3,6.2 L17.7,6.1 L17.2,6.1 L16.7,6.1 L16.2,6.1 L15.7,6.1 L15.1,6.2 L14.6,6.3 L14.1,6.4 L13.6,6.6 L13.2,6.7 L12.7,6.9 L12.2,7.1 L11.8,7.4 L11.4,7.6 L11.0,7.9 L10.6,8.2" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+              <path d="M10.6,8.2 L10.2,8.5 L9.8,8.9 L9.5,9.2 L9.2,9.6 L8.9,10.0 L8.6,10.4 L8.3,10.8 L8.1,11.3 L7.9,11.7 L7.7,12.1 L7.5,12.6 L7.4,13.0 L7.3,13.5 L7.2,14.0 L7.2,14.4 L7.1,14.9 L7.1,15.4 L7.1,15.8 L7.2,16.3 L7.2,16.8 L7.3,17.2 L7.4,17.7 L7.6,18.1 L7.7,18.5" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7.7,18.5 L7.9,19.0 L8.1,19.4 L8.3,19.8 L8.5,20.1 L8.8,20.5 L9.1,20.9 L9.4,21.2 L9.7,21.5 L10.0,21.8 L10.3,22.1 L10.7,22.4 L11.0,22.6 L11.4,22.8 L11.8,23.0 L12.2,23.2 L12.6,23.4 L13.0,23.5 L13.4,23.6 L13.8,23.7 L14.2,23.8 L14.6,23.8 L15.0,23.9 L15.4,23.9 L15.9,23.8" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+              <path d="M15.9,23.8 L16.3,23.8 L16.7,23.8 L17.1,23.7 L17.5,23.6 L17.9,23.5 L18.2,23.3 L18.6,23.2 L19.0,23.0 L19.3,22.8 L19.6,22.6 L20.0,22.3 L20.3,22.1 L20.6,21.8 L20.8,21.6 L21.1,21.3 L21.3,21.0 L21.6,20.7 L21.8,20.4 L22.0,20.0 L22.1,19.7 L22.3,19.3 L22.4,19.0 L22.5,18.6 L22.6,18.3" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+              <path d="M22.6,18.3 L22.7,17.9 L22.8,17.6 L22.8,17.2 L22.8,16.8 L22.8,16.5 L22.8,16.1 L22.8,15.8 L22.7,15.4 L22.7,15.1 L22.6,14.7 L22.5,14.4 L22.3,14.1 L22.2,13.7 L22.0,13.4 L21.9,13.1 L21.7,12.9 L21.5,12.6 L21.3,12.3 L21.0,12.1 L20.8,11.8 L20.5,11.6 L20.3,11.4 L20.0,11.2 L19.7,11.0" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+              <path d="M19.7,11.0 L19.5,10.9 L19.2,10.7 L18.9,10.6 L18.6,10.5 L18.3,10.4 L18.0,10.3 L17.6,10.3 L17.3,10.2 L17.0,10.2 L16.7,10.2 L16.4,10.2 L16.1,10.2 L15.8,10.2 L15.5,10.3 L15.2,10.4 L14.9,10.4 L14.6,10.5 L14.4,10.7 L14.1,10.8 L13.8,10.9 L13.6,11.1 L13.4,11.2 L13.1,11.4 L12.9,11.6" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12.9,11.6 L12.7,11.8 L12.5,12.0 L12.3,12.2 L12.2,12.4 L12.0,12.6 L11.9,12.9 L11.7,13.1 L11.6,13.4 L11.5,13.6 L11.4,13.9 L11.4,14.1 L11.3,14.4 L11.2,14.6 L11.2,14.9 L11.2,15.2 L11.2,15.4 L11.2,15.7 L11.2,15.9 L11.3,16.2 L11.3,16.4 L11.4,16.6 L11.5,16.9 L11.5,17.1 L11.6,17.3" fill="none" stroke="#E2CD77" stroke-width="2" stroke-linecap="round"/>
+              <path d="M11.6,17.3 L11.7,17.5 L11.9,17.8 L12.0,18.0 L12.1,18.1 L12.3,18.3 L12.4,18.5 L12.6,18.7 L12.8,18.8 L12.9,19.0 L13.1,19.1 L13.3,19.2 L13.5,19.3 L13.7,19.4 L13.9,19.5 L14.1,19.6 L14.3,19.6 L14.5,19.7 L14.7,19.7 L14.9,19.8 L15.1,19.8 L15.3,19.8 L15.5,19.8 L15.7,19.8 L15.9,19.7" fill="none" stroke="#56A8BA" stroke-width="2" stroke-linecap="round"/>
+              <path d="M15.9,19.7 L16.1,19.7 L16.3,19.7 L16.5,19.6 L16.7,19.5 L16.9,19.5 L17.0,19.4 L17.2,19.3 L17.4,19.2 L17.5,19.1 L17.6,19.0 L17.8,18.9 L17.9,18.7 L18.0,18.6 L18.1,18.5 L18.2,18.3 L18.3,18.2 L18.4,18.0 L18.5,17.9 L18.6,17.7 L18.6,17.6 L18.7,17.4 L18.7,17.3 L18.7,17.1 L18.8,17.0" fill="none" stroke="#6E6689" stroke-width="2" stroke-linecap="round"/>
+              <path d="M18.8,17.0 L18.8,16.8 L18.8,16.6 L18.8,16.5 L18.7,16.2 L18.7,16.0 L18.7,15.9 L18.6,15.8 L18.6,15.6 L18.5,15.5 L18.5,15.4 L18.4,15.3 L18.3,15.2 L18.2,15.0 L18.2,14.9 L18.1,14.8 L18.0,14.8 L17.9,14.7 L17.8,14.6 L17.7,14.5 L17.6,14.5 L17.5,14.4 L17.4,14.4 L17.3,14.3" fill="none" stroke="#CD5D2C" stroke-width="2" stroke-linecap="round"/>
+              <path d="M17.3,14.3 L17.2,14.3 L17.0,14.3 L16.9,14.2 L16.8,14.2 L16.7,14.2 L16.6,14.2 L16.5,14.2 L16.4,14.2 L16.3,14.2 L16.2,14.3 L16.1,14.3 L16.0,14.3 L15.9,14.3 L15.9,14.4 L15.8,14.4 L15.7,14.5 L15.6,14.5 L15.6,14.6 L15.5,14.6 L15.4,14.7 L15.4,14.8 L15.3,14.8 L15.3,14.9 L15.3,15.0" fill="none" stroke="#819A2F" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="opt3-url">mtgcolors.quest</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 40px; padding: 20px; border: 1px solid #333; border-radius: 4px; background: #111; font-size: 0.85rem; color: #888; max-width: 900px;">
+  <strong style="color:#c8b88a;">Designer notes:</strong>
+  <ul style="margin-top: 8px; padding-left: 20px; line-height: 1.8;">
+    <li><strong style="color:#e0e0e0;">Option 1</strong> is the safest choice — timeless, clean, legible at all sizes. Best for initial deployment.</li>
+    <li><strong style="color:#e0e0e0;">Option 2</strong> is most immediately "MTG" to players — they recognize the pip symbols instantly. Most colorful.</li>
+    <li><strong style="color:#e0e0e0;">Option 3</strong> has the richest texture and most world-building. The guild collage signals depth of content. May need stronger vignette if guild PNGs have light backgrounds.</li>
+    <li>All options use the colored spiral from favicon.svg. The og:image will need to be generated as a static PNG — these HTML mockups are for design review only.</li>
+    <li>Font note: GoudyMediaeval is not loaded here (would need the TTF files). Georgia is used as a close substitute for design review. The final PNG generation would need the actual font.</li>
+  </ul>
+</div>
+
+</body>
+</html>
