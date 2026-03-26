@@ -8,7 +8,14 @@
  * Or: npm run test:sequence
  */
 
-import { buildSequence, Familiarity, REPS_BEFORE_NEXT, SlideSelection } from '../src/sparrow-deck';
+import {
+  buildSequence,
+  buildSequenceWithSections,
+  Familiarity,
+  MAX_SECTION_LENGTH,
+  REPS_BEFORE_NEXT,
+  SlideSelection,
+} from '../src/sparrow-deck';
 
 // ============================================================
 // Test infrastructure
@@ -259,6 +266,61 @@ for (let t = 0; t < TRIALS; t++) {
     }
   }
   assert(`new trial ${t + 1}: combos 3–5 introduced in order`, inOrder, detail);
+}
+
+// ============================================================
+// Property tests: NEW strategy — section-level (buildSequenceWithSections)
+// ============================================================
+
+section('new: no introduction section exceeds MAX_SECTION_LENGTH');
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const { sections } = buildSequenceWithSections(cardCounts, 25, 'new');
+  let allOk = true;
+  let detail = '';
+  for (const sec of sections) {
+    if (sec.introducedCombo !== null && sec.slides.length > MAX_SECTION_LENGTH) {
+      allOk = false;
+      detail = `section introducing combo ${sec.introducedCombo} has ${sec.slides.length} slides (max ${MAX_SECTION_LENGTH})`;
+      break;
+    }
+  }
+  assert(`new trial ${t + 1}: no intro section exceeds MAX_SECTION_LENGTH`, allOk, detail);
+}
+
+section('new: thinning preserves all target combo appearances');
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const { sections } = buildSequenceWithSections(cardCounts, 25, 'new');
+  let allOk = true;
+  let detail = '';
+  for (const sec of sections) {
+    if (sec.introducedCombo === null) continue;
+    const targetCount = count(sec.slides, sec.introducedCombo);
+    if (targetCount !== REPS_BEFORE_NEXT) {
+      allOk = false;
+      detail = `section introducing combo ${sec.introducedCombo} has ${targetCount} appearances of target (expected ${REPS_BEFORE_NEXT})`;
+      break;
+    }
+  }
+  assert(`new trial ${t + 1}: each intro section has exactly REPS_BEFORE_NEXT target appearances`, allOk, detail);
+}
+
+section('new: first section has both combos 1 and 2 at REPS_BEFORE_NEXT appearances');
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const { sections } = buildSequenceWithSections(cardCounts, 25, 'new');
+  // The first intro section is the one whose introducedCombo is the last of the starting pair.
+  // Both combo 1 and combo 2 should appear REPS_BEFORE_NEXT times in it.
+  const firstSection = sections[0];
+  const combo1Count = count(firstSection.slides, 1);
+  const combo2Count = count(firstSection.slides, 2);
+  const ok = combo1Count >= REPS_BEFORE_NEXT && combo2Count >= REPS_BEFORE_NEXT;
+  assert(
+    `new trial ${t + 1}: first section has >= ${REPS_BEFORE_NEXT} appearances each of combos 1 and 2`,
+    ok,
+    ok ? '' : `combo 1: ${combo1Count}, combo 2: ${combo2Count}`,
+  );
 }
 
 // ============================================================
