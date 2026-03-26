@@ -1599,4 +1599,32 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-188: localStorage Adapter Pattern — Centralize Writes via src/storage.ts
+- **Date**: 2026-03-26
+- **Arc**: 49
+- **Decision**: All production localStorage writes in `src/` are routed through a thin adapter module (`src/storage.ts`) that exports `storageSetItem`, `storageRemoveItem`, and `storageClear`. Each function performs the operation then emits a `localStorage.update` log via `emitLog`.
+- **Alternatives rejected**: Monkey-patching `localStorage` globally — harder to test and fragile. Inline `emitLog` calls at each call site — no compile-time enforcement and easy to miss.
+- **Rationale**: The adapter provides compile-time safety (TypeScript enforces usage) and greppability (all storage writes are visible in one file). Telemetry is guaranteed for every write without trusting individual developers to remember.
+
+## DEC-189: Deliberate Exception — Player ID Write in telemetry.ts Stays Direct
+- **Date**: 2026-03-26
+- **Arc**: 49
+- **Decision**: `src/telemetry/telemetry.ts` keeps a direct `localStorage.setItem` call for writing the player ID rather than using the adapter.
+- **Rationale**: The adapter calls `emitLog`, which is defined in telemetry.ts — using the adapter from telemetry.ts would create a circular dependency (storage.ts → telemetry.ts → storage.ts). This write also happens before telemetry is initialized. Acceptable because the player ID is already visible as a resource attribute on every trace.
+
+## DEC-190: Adapter Logs Are Standalone — No Parent Span
+- **Date**: 2026-03-26
+- **Arc**: 49
+- **Decision**: The adapter calls `emitLog(body, undefined, attrs)` — no parent span is passed. Storage mutation logs arrive without trace context.
+- **Alternatives rejected**: Passing an optional span parameter at every call site — adds complexity and most call sites don't have a convenient span reference.
+- **Rationale**: Keeps the adapter simple and decoupled from calling context. Storage mutations are independently queryable in Honeycomb by key, value, and operation. Future enhancement could add an optional span parameter if trace correlation becomes necessary.
+
+## DEC-191: try/catch Around emitLog in Adapter
+- **Date**: 2026-03-26
+- **Arc**: 49
+- **Decision**: Each adapter function wraps the `emitLog` call in a try/catch so that a telemetry failure never prevents the localStorage operation from succeeding.
+- **Rationale**: The localStorage write is the primary operation; telemetry is secondary. The adapter must not degrade reliability of state persistence, especially during app initialization when telemetry may not yet be ready.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

@@ -6,6 +6,8 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-03-26)
 
+Arc 49 (localStorage Adapter) completed 2026-03-26. All localStorage writes now routed through `src/storage.ts` adapter, emitting `localStorage.update` logs with `storage.adapter_version: "v1"`. Deliberate exception for player ID write in telemetry.ts (circular dependency). 11/11 verification checks PASS. Decisions DEC-188 through DEC-191.
+
 Arc 48 (Mana Color Gradient Progress Bar) completed 2026-03-26. Progress bar now shows a mana-color gradient from the deck sequence, revealed progressively using cover-reveal approach. Decisions DEC-182 through DEC-187.
 
 Arc 47 (Progress Bar) completed 2026-03-26. Replaced text card counter with inline progress bar on slides page. 19/19 verification checks passed.

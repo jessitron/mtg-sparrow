@@ -387,6 +387,18 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 
 ---
 
+## localStorage Adapter (Arc 49, 2026-03-26)
+
+### Arc 49: localStorage Adapter — COMPLETE (2026-03-26)
+- **Type**: Structural + Operator
+- **What**: Centralized all localStorage writes through a telemetry-emitting adapter. `src/storage.ts` exports `storageSetItem`, `storageRemoveItem`, and `storageClear`. Each function performs the localStorage operation then emits a `localStorage.update` log via `emitLog` with attributes: `storage.key`, `storage.value`, `storage.operation`, `storage.adapter_version`. All production `src/` files migrated to use the adapter. Structural marker: `storage.adapter_version: "v1"` on every log.
+- **Deliberate exception**: `src/telemetry/telemetry.ts` keeps direct `localStorage.setItem` for player ID — would cause circular dependency; write also happens before telemetry is initialized (DEC-189).
+- **Key decisions**: DEC-188 (adapter pattern), DEC-189 (telemetry.ts exception), DEC-190 (standalone logs, no parent span), DEC-191 (try/catch around emitLog).
+- **Files changed**: `src/storage.ts` (new), all production `src/` files that called localStorage directly
+- **Verification**: Tester confirmed 11/11 checks PASS. Honeycomb shows `localStorage.update` logs with correct attributes. 800/800 sequence property tests pass.
+
+---
+
 ## Mana Color Gradient Progress Bar (Arc 48, 2026-03-26)
 
 ### Arc 48: Mana Color Gradient Progress Bar — COMPLETE (2026-03-26)
