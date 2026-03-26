@@ -408,3 +408,14 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 - **Files changed**: `src/slides.ts`, `slides.css`, `tests/arc47-progress-bar.mjs`
 - **Commits**: e496d7a, 6d727b4, dc5357b, 8641f97, 7cd70eb, 91c2229
 - **Verification**: Tests updated for cover-reveal approach and passing.
+
+---
+
+## Clean URL Parameters (Arc 49, v0.31.0, 2026-03-26)
+
+### Arc 49: Clean Up End Page URL Parameters — COMPLETE (v0.31.0, 2026-03-26)
+- **Type**: Structural (Cleanup)
+- **What**: Removed `cards`, `completed`, and `assessment` URL parameters from the assessment→end navigation. `navigateToEnd` in `src/assessment.ts` now passes only `subgroup`. `src/end.ts` no longer reads `cards`, `completed`, or `assessment` from the URL — assessment is in localStorage, and the telemetry for those values was already captured in the assessment page's span. `session.summary` span on the end page retained but simplified to `session.subgroup` only (no `card_count` or `self_assessment` attributes). `feedback.context` similarly stripped of those attributes.
+- **Key decisions**: DEC-193 (keep session.summary span, simplify to subgroup only).
+- **Files changed**: `src/assessment.ts`, `src/end.ts`, `src/version.ts` (bumped to 0.31.0).
+- **Verification**: 29/29 Playwright checks PASS. Honeycomb traces confirmed `session.summary` spans at v0.31.0 with `session.subgroup` only.

@@ -1633,6 +1633,14 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Rationale**: The English-only scope is still appropriate for initial delivery. The research establishes meaningful future opportunity — particularly Japanese — but localization is a significant scope expansion. It is recorded here as a known future consideration rather than current obligation.
 - **Future signal**: If data from Honeycomb shows significant non-English browser traffic (`browser.language`), that would be a concrete trigger to revisit.
 
+## DEC-193: Keep session.summary Span on End Page, Simplified to Subgroup Only
+- **Date**: 2026-03-26
+- **Arc**: 49 (Clean Up End Page URL Parameters)
+- **Decision**: The `session.summary` span on the end page is retained but simplified. It now carries only `session.subgroup` as an attribute (no `card_count` or `self_assessment`).
+- **Context**: The end page previously read `cards`, `completed`, and `assessment` from URL parameters to populate a `session.summary` span. With assessment now persisted in localStorage, those URL params are redundant. The card count and self-assessment data were already captured in the assessment page's span.
+- **Alternatives rejected**: Remove `session.summary` entirely — it still provides useful signal that the user arrived from a completed session rather than navigating directly to the end page.
+- **Rationale**: Keeping the span maintains observability of end-page arrival context. Stripping it down to just `session.subgroup` removes the duplication of data that is already present in the assessment span, and eliminates the need for URL parameters as a data transport between pages.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
