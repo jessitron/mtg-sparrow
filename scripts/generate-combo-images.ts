@@ -9,7 +9,7 @@
  *   - Pentagon SVG with highlighted colors for this combo
  *   - Combo name in GoudyMediaeval
  *   - Tier label in Jost
- *   - Color names with mana pip images
+ *   - Mana pip icons (no color name text — the whole point is learning the combo names!)
  *   - Turquoise accent bar
  *   - "mtgcolors.quest" URL watermark
  */
@@ -122,9 +122,12 @@ function buildComboCardHtml(combo: ColorCombo, projectRootUrl: string): string {
   const imageBaseUrl = `${projectRootUrl}/images`;
   const fontBaseUrl = `${projectRootUrl}/font/goudy-medieval`;
   const tier = tierLabel(combo);
-  const colors = colorNames(combo);
   const pentagon = buildPentagonSvgInline(combo.colors, imageBaseUrl);
   const pips = buildManaPips(combo.colors, imageBaseUrl);
+  const hasGuildLogo = combo.tier === "guild";
+  const guildLogoHtml = hasGuildLogo
+    ? `<img src="${imageBaseUrl}/${combo.id}.png" alt="" width="80" height="80" style="opacity:0.6;filter:brightness(1.5);margin-top:4px;" />`
+    : "";
 
   // Dominant active color for subtle accent glow
   const firstColor = combo.colors[0];
@@ -222,9 +225,6 @@ function buildComboCardHtml(combo: ColorCombo, projectRootUrl: string): string {
       align-items: center;
       gap: 10px;
     }
-    .og-colors-text {
-      margin-left: 4px;
-    }
     .og-accent-bar {
       width: 360px;
       height: 4px;
@@ -265,9 +265,9 @@ function buildComboCardHtml(combo: ColorCombo, projectRootUrl: string): string {
     <div class="og-text">
       <div class="og-name">${combo.name}</div>
       <div class="og-tier">${tier}</div>
+      ${guildLogoHtml}
       <div class="og-colors">
         ${pips}
-        <span class="og-colors-text">${colors}</span>
       </div>
       <div class="og-accent-bar"></div>
     </div>
