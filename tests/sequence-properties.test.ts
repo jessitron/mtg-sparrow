@@ -13,6 +13,7 @@ import {
   buildSequenceWithSections,
   Familiarity,
   MAX_SECTION_LENGTH,
+  MIN_CARDS_PER_COMBO,
   REPS_BEFORE_NEXT,
   SlideSelection,
 } from '../src/sparrow-deck';
@@ -81,6 +82,16 @@ function distinctCombosInRange(seq: SlideSelection[], start: number, end: number
 }
 
 // ============================================================
+// Precondition: all test card counts satisfy MIN_CARDS_PER_COMBO
+// ============================================================
+
+// Realistic counts used in "varied" tests — all >= MIN_CARDS_PER_COMBO
+const VARIED_CARD_COUNTS = [10, 12, 10, 11, 15];
+if (!VARIED_CARD_COUNTS.every((n) => n >= MIN_CARDS_PER_COMBO)) {
+  throw new Error(`Test setup error: VARIED_CARD_COUNTS contains values below MIN_CARDS_PER_COMBO (${MIN_CARDS_PER_COMBO})`);
+}
+
+// ============================================================
 // Property tests: FAMILIAR strategy
 // ============================================================
 
@@ -122,7 +133,7 @@ for (let t = 0; t < TRIALS; t++) {
 
 section('familiar: card indices in range');
 for (let t = 0; t < TRIALS; t++) {
-  const cardCounts = [3, 5, 8, 2, 10];
+  const cardCounts = VARIED_CARD_COUNTS;
   const seq = buildSequence(cardCounts, 30, 'familiar');
   let allValid = true;
   let detail = '';
@@ -395,9 +406,9 @@ for (let t = 0; t < TRIALS; t++) {
   assert(`familiar trial ${t + 1}: no card image appears > 2 times (10,10,10,10,10)`, allOk, detail);
 }
 
-section('familiar: no card image appears more than twice (small counts)');
+section('familiar: no card image appears more than twice (varied counts)');
 for (let t = 0; t < TRIALS; t++) {
-  const cardCounts = [3, 5, 8, 2, 10];
+  const cardCounts = VARIED_CARD_COUNTS;
   const seq = buildSequence(cardCounts, 50, 'familiar');
   const imageCounts = new Map<string, number>();
   let allOk = true;
@@ -412,7 +423,7 @@ for (let t = 0; t < TRIALS; t++) {
       break;
     }
   }
-  assert(`familiar trial ${t + 1}: no card image appears > 2 times (3,5,8,2,10)`, allOk, detail);
+  assert(`familiar trial ${t + 1}: no card image appears > 2 times (10,12,10,11,15)`, allOk, detail);
 }
 
 section('new: no card image appears more than twice (standard counts)');
@@ -435,9 +446,9 @@ for (let t = 0; t < TRIALS; t++) {
   assert(`new trial ${t + 1}: no card image appears > 2 times (10,10,10,10,10)`, allOk, detail);
 }
 
-section('new: no card image appears more than twice (small counts)');
+section('new: no card image appears more than twice (varied counts)');
 for (let t = 0; t < TRIALS; t++) {
-  const cardCounts = [3, 5, 8, 2, 10];
+  const cardCounts = VARIED_CARD_COUNTS;
   const seq = buildSequence(cardCounts, 25, 'new');
   const imageCounts = new Map<string, number>();
   let allOk = true;
@@ -452,7 +463,7 @@ for (let t = 0; t < TRIALS; t++) {
       break;
     }
   }
-  assert(`new trial ${t + 1}: no card image appears > 2 times (3,5,8,2,10)`, allOk, detail);
+  assert(`new trial ${t + 1}: no card image appears > 2 times (10,12,10,11,15)`, allOk, detail);
 }
 
 // ============================================================

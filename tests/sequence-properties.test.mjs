@@ -6,6 +6,7 @@ function shuffle(arr) {
   }
   return arr;
 }
+var MIN_CARDS_PER_COMBO = 10;
 function pickCard(count2) {
   return count2 > 0 ? Math.floor(Math.random() * count2) + 1 : 0;
 }
@@ -226,6 +227,10 @@ function distinctCombosInRange(seq, start, end) {
   }
   return s;
 }
+var VARIED_CARD_COUNTS = [10, 12, 10, 11, 15];
+if (!VARIED_CARD_COUNTS.every((n) => n >= MIN_CARDS_PER_COMBO)) {
+  throw new Error(`Test setup error: VARIED_CARD_COUNTS contains values below MIN_CARDS_PER_COMBO (${MIN_CARDS_PER_COMBO})`);
+}
 section("familiar: min-gap constraint");
 for (let t = 0; t < TRIALS; t++) {
   const cardCounts = [10, 10, 10, 10, 10];
@@ -261,7 +266,7 @@ for (let t = 0; t < TRIALS; t++) {
 }
 section("familiar: card indices in range");
 for (let t = 0; t < TRIALS; t++) {
-  const cardCounts = [3, 5, 8, 2, 10];
+  const cardCounts = VARIED_CARD_COUNTS;
   const seq = buildSequence(cardCounts, 30, "familiar");
   let allValid = true;
   let detail = "";
@@ -467,6 +472,82 @@ for (let t = 0; t < TRIALS; t++) {
     lastCard.set(ci, card);
   }
   assert(`new trial ${t + 1}: no consecutive same-card`, allOk, detail);
+}
+section("familiar: no card image appears more than twice (standard counts)");
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const seq = buildSequence(cardCounts, 50, "familiar");
+  const imageCounts = /* @__PURE__ */ new Map();
+  let allOk = true;
+  let detail = "";
+  for (const [ci, card] of seq) {
+    const key = `${ci}-${card}`;
+    const prev = imageCounts.get(key) ?? 0;
+    imageCounts.set(key, prev + 1);
+    if (prev + 1 > 2) {
+      allOk = false;
+      detail = `combo ${ci} card ${card} appeared ${prev + 1} times`;
+      break;
+    }
+  }
+  assert(`familiar trial ${t + 1}: no card image appears > 2 times (10,10,10,10,10)`, allOk, detail);
+}
+section("familiar: no card image appears more than twice (varied counts)");
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = VARIED_CARD_COUNTS;
+  const seq = buildSequence(cardCounts, 50, "familiar");
+  const imageCounts = /* @__PURE__ */ new Map();
+  let allOk = true;
+  let detail = "";
+  for (const [ci, card] of seq) {
+    const key = `${ci}-${card}`;
+    const prev = imageCounts.get(key) ?? 0;
+    imageCounts.set(key, prev + 1);
+    if (prev + 1 > 2) {
+      allOk = false;
+      detail = `combo ${ci} card ${card} appeared ${prev + 1} times`;
+      break;
+    }
+  }
+  assert(`familiar trial ${t + 1}: no card image appears > 2 times (10,12,10,11,15)`, allOk, detail);
+}
+section("new: no card image appears more than twice (standard counts)");
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const seq = buildSequence(cardCounts, 25, "new");
+  const imageCounts = /* @__PURE__ */ new Map();
+  let allOk = true;
+  let detail = "";
+  for (const [ci, card] of seq) {
+    const key = `${ci}-${card}`;
+    const prev = imageCounts.get(key) ?? 0;
+    imageCounts.set(key, prev + 1);
+    if (prev + 1 > 2) {
+      allOk = false;
+      detail = `combo ${ci} card ${card} appeared ${prev + 1} times`;
+      break;
+    }
+  }
+  assert(`new trial ${t + 1}: no card image appears > 2 times (10,10,10,10,10)`, allOk, detail);
+}
+section("new: no card image appears more than twice (varied counts)");
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = VARIED_CARD_COUNTS;
+  const seq = buildSequence(cardCounts, 25, "new");
+  const imageCounts = /* @__PURE__ */ new Map();
+  let allOk = true;
+  let detail = "";
+  for (const [ci, card] of seq) {
+    const key = `${ci}-${card}`;
+    const prev = imageCounts.get(key) ?? 0;
+    imageCounts.set(key, prev + 1);
+    if (prev + 1 > 2) {
+      allOk = false;
+      detail = `combo ${ci} card ${card} appeared ${prev + 1} times`;
+      break;
+    }
+  }
+  assert(`new trial ${t + 1}: no card image appears > 2 times (10,12,10,11,15)`, allOk, detail);
 }
 console.log(`
   \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`);
