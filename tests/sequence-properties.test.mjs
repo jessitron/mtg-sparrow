@@ -6,8 +6,8 @@ function shuffle(arr) {
   }
   return arr;
 }
-function pickCard(count) {
-  return count > 0 ? Math.floor(Math.random() * count) + 1 : 0;
+function pickCard(count2) {
+  return count2 > 0 ? Math.floor(Math.random() * count2) + 1 : 0;
 }
 function positionsSinceLast(sequence, comboIndex) {
   for (let i = sequence.length - 1; i >= 0; i--) {
@@ -50,13 +50,42 @@ function buildFamiliarSequence(cardCounts, length) {
   return sequence;
 }
 function countAppearances(sequence, comboIndex) {
-  let count = 0;
+  let count2 = 0;
   for (const [ci] of sequence) {
-    if (ci === comboIndex) count++;
+    if (ci === comboIndex) count2++;
   }
-  return count;
+  return count2;
 }
 var REPS_BEFORE_NEXT = 3;
+var MAX_SECTION_LENGTH = 9;
+function thinSection(section2, targetCombos) {
+  const result = [...section2];
+  while (result.length > MAX_SECTION_LENGTH) {
+    const runs = [];
+    let runStart = -1;
+    for (let i = 0; i <= result.length; i++) {
+      const isNonTarget = i < result.length && !targetCombos.includes(result[i][0]);
+      if (isNonTarget && runStart === -1) {
+        runStart = i;
+      } else if (!isNonTarget && runStart !== -1) {
+        runs.push({ start: runStart, length: i - runStart });
+        runStart = -1;
+      }
+    }
+    if (runs.length === 0) {
+      break;
+    }
+    let longestRun = runs[0];
+    for (const run of runs) {
+      if (run.length >= longestRun.length) {
+        longestRun = run;
+      }
+    }
+    const removeIdx = longestRun.start + Math.floor(longestRun.length / 2);
+    result.splice(removeIdx, 1);
+  }
+  return result;
+}
 function generateSection(pool, targetCombos, cardCounts, minGap2) {
   const section2 = [];
   const firstBatch = shuffle([...pool]);
@@ -72,6 +101,7 @@ function generateSection(pool, targetCombos, cardCounts, minGap2) {
   while (targetCombos.some((c) => countAppearances(section2, c) < REPS_BEFORE_NEXT)) {
     appendBatch(section2, pool, cardCounts, minGap2);
   }
+  let trimmed = section2;
   const counts = new Map(targetCombos.map((c) => [c, 0]));
   for (let i = 0; i < section2.length; i++) {
     const ci = section2[i][0];
@@ -79,10 +109,11 @@ function generateSection(pool, targetCombos, cardCounts, minGap2) {
       counts.set(ci, counts.get(ci) + 1);
     }
     if ([...counts.values()].every((v) => v >= REPS_BEFORE_NEXT)) {
-      return section2.slice(0, i + 1);
+      trimmed = section2.slice(0, i + 1);
+      break;
     }
   }
-  return section2;
+  return thinSection(trimmed, targetCombos);
 }
 function buildNewSequenceWithSections(cardCounts, length) {
   const totalCombos = cardCounts.length;
@@ -132,6 +163,9 @@ function section(name) {
 }
 function comboIndices(seq) {
   return seq.map(([ci]) => ci);
+}
+function count(seq, comboIndex) {
+  return seq.filter(([ci]) => ci === comboIndex).length;
 }
 function minGap(seq) {
   const lastSeen = /* @__PURE__ */ new Map();
@@ -307,6 +341,52 @@ for (let t = 0; t < TRIALS; t++) {
     }
   }
   assert(`new trial ${t + 1}: combos 3\u20135 introduced in order`, inOrder, detail);
+}
+section("new: no introduction section exceeds MAX_SECTION_LENGTH");
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const { sections } = buildSequenceWithSections(cardCounts, 25, "new");
+  let allOk = true;
+  let detail = "";
+  for (const sec of sections) {
+    if (sec.introducedCombo !== null && sec.slides.length > MAX_SECTION_LENGTH) {
+      allOk = false;
+      detail = `section introducing combo ${sec.introducedCombo} has ${sec.slides.length} slides (max ${MAX_SECTION_LENGTH})`;
+      break;
+    }
+  }
+  assert(`new trial ${t + 1}: no intro section exceeds MAX_SECTION_LENGTH`, allOk, detail);
+}
+section("new: thinning preserves all target combo appearances");
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const { sections } = buildSequenceWithSections(cardCounts, 25, "new");
+  let allOk = true;
+  let detail = "";
+  for (const sec of sections) {
+    if (sec.introducedCombo === null) continue;
+    const targetCount = count(sec.slides, sec.introducedCombo);
+    if (targetCount !== REPS_BEFORE_NEXT) {
+      allOk = false;
+      detail = `section introducing combo ${sec.introducedCombo} has ${targetCount} appearances of target (expected ${REPS_BEFORE_NEXT})`;
+      break;
+    }
+  }
+  assert(`new trial ${t + 1}: each intro section has exactly REPS_BEFORE_NEXT target appearances`, allOk, detail);
+}
+section("new: first section has both combos 1 and 2 at REPS_BEFORE_NEXT appearances");
+for (let t = 0; t < TRIALS; t++) {
+  const cardCounts = [10, 10, 10, 10, 10];
+  const { sections } = buildSequenceWithSections(cardCounts, 25, "new");
+  const firstSection = sections[0];
+  const combo1Count = count(firstSection.slides, 1);
+  const combo2Count = count(firstSection.slides, 2);
+  const ok = combo1Count >= REPS_BEFORE_NEXT && combo2Count >= REPS_BEFORE_NEXT;
+  assert(
+    `new trial ${t + 1}: first section has >= ${REPS_BEFORE_NEXT} appearances each of combos 1 and 2`,
+    ok,
+    ok ? "" : `combo 1: ${combo1Count}, combo 2: ${combo2Count}`
+  );
 }
 console.log(`
   \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`);
