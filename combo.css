@@ -156,11 +156,34 @@
   margin-bottom: 2rem;
 }
 
+.combo-index-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
 .combo-index-group h2 {
   font-family: 'GoudyMediaeval', serif;
   font-size: 1.4rem;
   color: var(--bg-khaki);
-  margin-bottom: 0.75rem;
+}
+
+.combo-learn-button {
+  font-size: 0.85rem;
+  color: #e0e0e0;
+  background: color-mix(in srgb, var(--card-back-turquoise) 20%, transparent);
+  border: 1px solid var(--card-back-turquoise);
+  border-radius: 8px;
+  padding: 0.4rem 0.9rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.combo-learn-button:hover {
+  background: color-mix(in srgb, var(--card-back-turquoise) 35%, transparent);
 }
 
 .combo-index-list {

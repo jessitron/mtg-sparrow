@@ -195,11 +195,11 @@ function buildPage(combo: ColorCombo): string {
 }
 
 function buildIndexPage(): string {
-  const groups: { label: string; combos: ColorCombo[] }[] = [
-    { label: "Allied Guilds", combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "allied") },
-    { label: "Enemy Guilds", combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "enemy") },
-    { label: "Shards", combos: guilds.filter(g => g.tier === "shard") },
-    { label: "Wedges", combos: guilds.filter(g => g.tier === "wedge") },
+  const groups: { label: string; subgroup: string; combos: ColorCombo[] }[] = [
+    { label: "Allied Guilds", subgroup: "allied", combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "allied") },
+    { label: "Enemy Guilds", subgroup: "enemy", combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "enemy") },
+    { label: "Shards", subgroup: "shards", combos: guilds.filter(g => g.tier === "shard") },
+    { label: "Wedges", subgroup: "wedges", combos: guilds.filter(g => g.tier === "wedge") },
   ];
 
   const sections = groups.map(group => {
@@ -215,7 +215,10 @@ function buildIndexPage(): string {
     }).join("\n");
 
     return `    <section class="combo-index-group">
-      <h2>${group.label}</h2>
+      <div class="combo-index-group-header">
+        <h2>${group.label}</h2>
+        <a href="../slides?subgroup=${group.subgroup}&from=combo_index" class="combo-learn-button">Learn these names</a>
+      </div>
       <ul class="combo-index-list">
 ${items}
       </ul>
