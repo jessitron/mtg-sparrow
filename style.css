@@ -124,8 +124,8 @@ body {
 /* Menu button — top-right on every page */
 .menu-btn {
   position: fixed;
-  top: 16px;
-  right: 16px;
+  top: 12px;
+  right: 12px;
   z-index: 2;
   background: transparent;
   border: none;
