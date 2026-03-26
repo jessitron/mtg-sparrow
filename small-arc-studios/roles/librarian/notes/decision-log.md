@@ -1490,4 +1490,62 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-174: REPS_BEFORE_NEXT Cadence — Triggered by New Combo Appearance Count
+- **Date**: 2026-03-26
+- **Arc**: 46
+- **Decision**: Introduction of the next combo is gated on the most-recently-introduced combo having appeared at least N times (REPS_BEFORE_NEXT, currently 3), not on total slides elapsed.
+- **Context**: An earlier approach counted total slides elapsed since the last introduction. The client identified this as wrong — the cadence should be about learning the new arrival, not how much total content has passed.
+- **Rationale**: Tracking appearances of the newest combo directly measures the exposure needed for it to stick. Total elapsed slides could vary widely based on pool size, causing the new combo to be underrepresented or overrepresented.
+
+## DEC-175: MIN_GAP = 0 for Pool of 2, MIN_GAP = 1 for Pool >= 3
+- **Date**: 2026-03-26
+- **Arc**: 46
+- **Decision**: With only 2 combos in the pool, MIN_GAP is 0 (immediate repeats allowed). Once 3+ combos are in the pool, MIN_GAP = 1 (same combo cannot appear back-to-back).
+- **Context**: The client observed that with pool=3 and min-gap=2, the shuffle was fully deterministic — only CBA or CAB patterns could repeat. This eliminated meaningful randomness. Reducing to min-gap=1 restored it. With only 2 combos (A and B), enforcing any gap is unnecessarily constraining since alternating is the only non-repeat option anyway.
+- **Rationale**: Minimum gap should prevent boring/obvious repetition without making the sequence deterministic. Pool size determines what "non-deterministic" means.
+
+## DEC-176: Generate-Then-Trim Approach for Section Construction
+- **Date**: 2026-03-26
+- **Arc**: 46
+- **Decision**: Each introduction section is generated with extra batches, then trimmed at the exact point where the target combo(s) reach REPS_BEFORE_NEXT appearances. Item-by-item generation with mid-batch pool expansion was not used.
+- **Context**: The client suggested this directly: "It's OK to change the sequence after it's generated." Generate-then-trim is simpler to reason about than tracking mid-batch state.
+- **Rationale**: Generating surplus then trimming is a clean functional approach — produce more than needed, cut precisely. Mid-batch expansion would require stateful generation logic that's harder to test and reason about.
+
+## DEC-177: First Section Requires Both Starting Combos to Reach REPS_BEFORE_NEXT
+- **Date**: 2026-03-26
+- **Arc**: 46
+- **Decision**: The first section introduces two combos simultaneously (A and B). Both must reach REPS_BEFORE_NEXT appearances before the section ends and the third combo (C) is introduced. Neither is shortchanged.
+- **Context**: The first section is special — it has two target combos rather than one. The question was whether to gate on the first or both reaching N reps.
+- **Rationale**: Both combos are new in the first section. Gating on both ensures equal treatment and prevents one combo from being underexposed relative to the other before more content is added.
+
+## DEC-178: MAX_SECTION_LENGTH = 9 with Thinning
+- **Date**: 2026-03-26
+- **Arc**: 46
+- **Decision**: After trimming at REPS_BEFORE_NEXT, if a section exceeds 9 slides, non-target items are removed from the longest runs of consecutive non-target items (removing from the middle of each run) until the section is <= 9.
+- **Context**: With larger pool sizes, sections can grow long with many non-target filler items between target appearances.
+- **Rationale**: Long sections with many filler items dilute focus on the new combo being introduced. Thinning by removing from the middle of the longest non-target runs preserves variety (keeps items near the edges of runs) while reducing total length. Target items are never removed.
+
+## DEC-179: No Consecutive Same-Card for Same Combo (dedupConsecutiveCards)
+- **Date**: 2026-03-26
+- **Arc**: 46
+- **Decision**: A post-processing pass (dedupConsecutiveCards) ensures that when a combo appears twice in the sequence, it does not show the same card image both times in a row. If a repeat would occur, a different card index is substituted. Applies across section boundaries. Applies to BOTH familiar and new strategies.
+- **Context**: With small card sets per combo and low min-gap values, the same card image could appear twice consecutively for the same combo, which would look like a stuck deck rather than purposeful repetition.
+- **Rationale**: Visual variety within repetition is important for the perceptual learning effect. Showing the same image twice in a row undermines the sense of seeing the name from different angles. This is a pure quality-of-experience improvement.
+
+## DEC-180: Section Boundaries Exported via buildSequenceWithSections
+- **Date**: 2026-03-26
+- **Arc**: 46
+- **Decision**: The API returns `SequenceSection[]` alongside the flat sequence. Each section records its `introducedCombo` (or null for the fill phase). The flat sequence remains the primary consumer interface; sections are supplementary metadata.
+- **Context**: During implementation, section structure was an internal detail. The client noted it might be useful later for progress bar display — "getting cute with the progress bar."
+- **Rationale**: Exporting the section boundaries costs nothing and creates a seam for future UI enhancements. The flat sequence API remains unchanged for current consumers.
+
+## DEC-181: Property-Based Testing for Sequence Generation (800 Tests)
+- **Date**: 2026-03-26
+- **Arc**: 46
+- **Decision**: 800 property tests (50 trials × 16 properties) verify both strategies. Tests use exported constants (REPS_BEFORE_NEXT, MAX_SECTION_LENGTH) so they auto-adjust when tuning constants. Run via `npm run test:sequence`.
+- **Context**: Sequence generation involves randomness, making example-based tests insufficient — a specific example might pass by luck. Properties that must hold across all random trials are more meaningful.
+- **Rationale**: Property-based testing is appropriate for randomized algorithms. Key properties: no immediate repeats, exact/minimum length, all combos appear, valid card indices, no consecutive same-card, ordered introduction, segment trimming, max section length, thinning preserves targets, first section dual-combo coverage.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

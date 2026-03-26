@@ -373,12 +373,14 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 
 ## Dual-Strategy buildSequence (Arc 46, 2026-03-25)
 
-### Arc 46: Dual-Strategy buildSequence — ACTIVE (2026-03-25)
+### Arc 46: Dual-Strategy buildSequence — COMPLETE (2026-03-25–2026-03-26)
 - **Type**: Feature (Spaced Repetition)
-- **What**: `buildSequence` gains a `familiarity: "new" | "familiar"` parameter that selects the sequencing strategy. Two strategies:
-  - **"familiar"**: Existing shuffle-and-repeat with an added minimum-gap constraint of 2 positions (prevents same combo appearing back-to-back at batch boundaries).
-  - **"new"**: Gradual introduction — starts with 2 combos in the active pool, adds one more every ~6-8 total appearances. Based on direct advice from Llewellyn Falco. `length` becomes a minimum; sequence may be longer to ensure all combos are introduced and get a full round.
-- **Research basis**: Spaced repetition research (Kornell & Bjork 2008, ARTS studies) favors all-at-once interleaving for discrimination tasks. Falco's direct experience indicates gradual introduction helps when category names are unfamiliar arbitrary proper nouns (higher cognitive load). Resolution: familiarity level selects strategy.
-- **Future signal noted**: Click-vs-timer-advance as implicit confidence signal for within-session adaptive requeue. Deferred to future arc (DEC-173).
-- **Key decisions**: DEC-169 (familiarity parameter), DEC-170 ("familiar" min-gap strategy), DEC-171 ("new" gradual introduction), DEC-172 (research basis + resolution), DEC-173 (adaptive requeue deferred).
-- **Verification**: In progress.
+- **What**: `buildSequence` gains a `familiarity: "new" | "familiar"` parameter selecting the sequencing strategy. Two strategies delivered:
+  - **"familiar"**: Shuffle-and-repeat with MIN_GAP=1 (pool >= 3) or 0 (pool=2) to prevent same-combo back-to-back without making the sequence deterministic.
+  - **"new"**: Gradual introduction — starts with 2 combos, adds one when the most-recently-introduced combo has appeared REPS_BEFORE_NEXT (=3) times. Generate-then-trim approach: sections are over-generated then trimmed at exactly N reps. First section requires BOTH starting combos to reach N. MAX_SECTION_LENGTH=9 with thinning of non-target runs.
+- **Post-processing**: `dedupConsecutiveCards` pass ensures no same card image repeats consecutively for the same combo. Applies to both strategies and across section boundaries.
+- **API**: `buildSequenceWithSections` returns `SequenceSection[]` alongside flat sequence. Each section records `introducedCombo` (or null for fill phase). Seam for future progress bar enhancement.
+- **Research basis**: Kornell & Bjork 2008 / ARTS studies favor all-at-once interleaving for discrimination tasks. Llewellyn Falco (technique creator) advised gradual intro for unfamiliar arbitrary proper nouns. Resolution: familiarity level drives strategy choice.
+- **Testing**: 800 property tests (50 trials × 16 properties). Tests use exported constants so they auto-adjust when tuning. `npm run test:sequence`.
+- **Key decisions**: DEC-169 (familiarity parameter), DEC-170 ("familiar" min-gap strategy), DEC-171 ("new" gradual introduction), DEC-172 (research basis), DEC-173 (adaptive requeue deferred), DEC-174 (REPS_BEFORE_NEXT cadence), DEC-175 (MIN_GAP by pool size), DEC-176 (generate-then-trim), DEC-177 (first section dual-combo), DEC-178 (MAX_SECTION_LENGTH + thinning), DEC-179 (dedupConsecutiveCards), DEC-180 (section boundaries exported), DEC-181 (property-based testing).
+- **Verification**: Complete. All 800 property tests pass. All 16 properties verified across both strategies.

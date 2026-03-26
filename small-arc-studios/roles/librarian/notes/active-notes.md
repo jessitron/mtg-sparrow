@@ -8,7 +8,7 @@ Current state, in-progress work, and upcoming arcs.
 
 Arc 47 (Progress Bar) completed 2026-03-26. Replaced text card counter with inline progress bar on slides page. 19/19 verification checks passed.
 
-Arc 46 (Dual-Strategy buildSequence) is in progress. Implementation underway: adding `familiarity: "new" | "familiar"` parameter to `buildSequence`, implementing both sequencing strategies, verifying via sequence harness and tests.
+Arc 46 (Dual-Strategy buildSequence) completed 2026-03-26. Both strategies (new/familiar) implemented and verified with 800 property tests. `buildSequenceWithSections` exports section boundary metadata — future integration point for progress bar display (DEC-180).
 
 Arc 44 (Level Intro Slide) completed 2026-03-25. Exploratory spaced repetition groundwork also completed 2026-03-25 (sequence module refactoring, sequence harness).
 
@@ -66,31 +66,35 @@ The separate RFP (discovery) and SOW (arc planning) stages were merged into a si
 
 ---
 
-## Spaced Repetition Groundwork — Arc 46 Underway
+## Spaced Repetition — Arc 46 Complete
 
-**Status**: Foundation in place (Arc 45 exploratory). Arc 46 is implementing the dual-strategy `buildSequence`.
+**Status**: Arc 45 (exploratory groundwork) and Arc 46 (dual-strategy buildSequence) both complete.
 
 ### What exists
-- `src/sparrow-deck.ts` — `shuffle`, `buildSequence`, `buildDeck`. `buildSequence` is the pure-numbers ordering layer.
+- `src/sparrow-deck.ts` — `shuffle`, `buildSequence`, `buildDeck`, `buildSequenceWithSections`. `buildSequence` is the pure-numbers ordering layer.
 - `SlideSelection = [comboIndex, cardIndex]` — both 1-indexed tuple type, exported from `sparrow-deck.ts`.
 - `src/session.ts` — imports `buildDeck` from `sparrow-deck.ts` (local shuffle/buildDeck removed).
 - `sequence-harness.html` + `src/sequence-harness.ts` — visual inspection page for sequence aesthetics. Uses abstract labels (A-E combos, F-Z cards). Available in production.
 - `tests/test-harness.mjs` — Playwright test for the harness.
 - `npm run build:harness` — standalone build script.
+- `npm run test:sequence` — 800 property tests (50 trials × 16 properties) for both strategies.
 
-### Arc 46: Dual-Strategy buildSequence (active)
-- `buildSequence` gains `familiarity: "new" | "familiar"` parameter (DEC-169).
-- **"familiar"** strategy: existing shuffle-and-repeat + minimum-gap constraint of 2 (DEC-170).
-- **"new"** strategy: gradual introduction — starts with 2 combos, adds one every ~6-8 appearances (DEC-171). Length becomes a minimum.
-- Strategy selection rationale: research favors interleaving, but Falco's direct experience supports gradual intro for unfamiliar proper nouns (DEC-172).
-- Future signal noted: click-vs-timer-advance as implicit confidence signal for adaptive requeue (DEC-173, deferred).
+### Arc 46 summary
+- `buildSequence` takes `familiarity: "new" | "familiar"` (DEC-169).
+- **"familiar"**: shuffle-and-repeat, MIN_GAP=1 for pool>=3 (DEC-170, DEC-175).
+- **"new"**: gradual introduction, generate-then-trim, REPS_BEFORE_NEXT=3, MAX_SECTION_LENGTH=9 with thinning (DEC-171, DEC-174, DEC-176, DEC-177, DEC-178).
+- **Both strategies**: `dedupConsecutiveCards` post-processing (DEC-179).
+- `buildSequenceWithSections` exports `SequenceSection[]` — future integration point for progress bar (DEC-180).
+
+### Future integration point
+- Section boundaries (`SequenceSection[]` from `buildSequenceWithSections`) carry `introducedCombo` per section. Could power a progress bar that shows which combo is being introduced. Client noted this as a "getting cute" opportunity (DEC-180).
 
 ### Key decisions
 - DEC-165: `buildSequence` is domain-agnostic (pure numbers).
 - DEC-166: Harness uses abstract labels, not guild names.
 - DEC-167: Harness is production-accessible.
 - DEC-168: `SlideSelection` tuple, 1-indexed.
-- DEC-169–173: Arc 46 strategy decisions (see decision-log.md).
+- DEC-169–181: Arc 46 strategy and implementation decisions (see decision-log.md).
 
 ---
 
