@@ -34,23 +34,13 @@ function buildFullDeckGradient(deck: Slide[]): string {
     return MANA_COLOR_MAP[letter] ?? MANA_COLOR_MAP['U'];
   }
   const bandWidth = 100 / deck.length;
-  const blendZone = Math.min(1, bandWidth * 0.05);
   const stops: string[] = [];
   for (let i = 0; i < deck.length; i++) {
     const letter = deck[i]?.colors?.[0] ?? 'U';
     const color = MANA_COLOR_MAP[letter] ?? MANA_COLOR_MAP['U'];
-    const bandStart = i * bandWidth;
-    const bandEnd = (i + 1) * bandWidth;
-    if (i === 0) {
-      stops.push(`${color} 0%`);
-      stops.push(`${color} ${(bandEnd - blendZone).toFixed(1)}%`);
-    } else if (i === deck.length - 1) {
-      stops.push(`${color} ${(bandStart + blendZone).toFixed(1)}%`);
-      stops.push(`${color} 100%`);
-    } else {
-      stops.push(`${color} ${(bandStart + blendZone).toFixed(1)}%`);
-      stops.push(`${color} ${(bandEnd - blendZone).toFixed(1)}%`);
-    }
+    // Place each color at the midpoint of its band for smooth blending
+    const midpoint = (i + 0.5) * bandWidth;
+    stops.push(`${color} ${midpoint.toFixed(1)}%`);
   }
   return `linear-gradient(to right, ${stops.join(', ')})`;
 }
