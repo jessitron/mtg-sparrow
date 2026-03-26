@@ -456,3 +456,20 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 - **Files created**: `combo.css`, `combo/index.html`, `combo/azorius.html`, `combo/dimir.html`, `combo/rakdos.html`, `combo/gruul.html`, `combo/selesnya.html`, `combo/orzhov.html`, `combo/izzet.html`, `combo/golgari.html`, `combo/boros.html`, `combo/simic.html`, `combo/abzan.html`, `combo/jeskai.html`, `combo/sultai.html`, `combo/mardu.html`, `combo/temur.html`, `combo/bant.html`, `combo/esper.html`, `combo/grixis.html`, `combo/jund.html`, `combo/naya.html`, `scripts/build-combos.ts`, `scripts/build-combos.sh`, `scripts/summarize-combos.ts`, `scripts/summarize-combos.sh`, `scripts/README.md`
 - **Files modified**: `package.json` (new npm scripts), `src/ui/guild-columns.ts` (link changed to combo pages), `README.md`
 - **Note**: No version bump — done outside formal arc process. Next formal arc should bump the version.
+
+---
+
+## Per-Combo Social Share Cards (Arc 51, v0.33.0, 2026-03-26)
+
+### Arc 51: Per-Combo Social Share Cards — COMPLETE (v0.33.0, 2026-03-26)
+- **Type**: User
+- **Goal**: Each combo page (e.g., `mtgcolors.quest/combo/azorius.html`) gets its own unique `og:image` showing the pentagon with highlighted colors, combo name, and tier — so shared links display combo-specific preview cards on social platforms (Discord, Slack, Twitter, etc.).
+- **What**:
+  - 20 unique `og:image` PNGs (1200×630) generated via Playwright, one per combo, stored in `images/combo/`
+  - Generation script separate from HTML build — runs independently since images change less often than page content
+  - `og:image` + `twitter:card` meta tags added to `build-combos.ts` template, pointing to combo-specific images
+  - Combo index page uses the site-wide generic `og:image` (no combo-specific image for the index)
+- **Design**: Reuses Arc 50's visual style — brown gradient background, concentric ring decoration, GoudyMediaeval font, turquoise accent bar — for visual consistency across share cards.
+- **Key decisions**: DEC-203 (separate build step for combo og:images).
+- **Files changed**: `images/combo/` (20 new PNGs), generation script (new), `scripts/build-combos.ts` (og:image meta tags), `src/version.ts` (bumped to 0.33.0).
+- **Verification**: og:image meta tags confirmed on all combo pages. Images render correctly in social platform preview tools. App version confirmed at v0.33.0.
