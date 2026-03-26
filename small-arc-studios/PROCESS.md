@@ -139,6 +139,7 @@ An arc is complete when:
 - We can answer at least one meaningful new question about the system.
 - Acceptance criteria are satisfied.
 - Decisions are recorded.
+- `APP_VERSION` in `src/version.ts` is bumped — this is a structural marker visible in traces and the settings panel.
 
 To demonstrate this to the user:
 
