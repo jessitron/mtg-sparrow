@@ -348,10 +348,16 @@ export function buildSequence(
  * and repeating as needed. Each slide pre-selects a random card image.
  */
 export function buildDeck(combos: ColorCombo[], count: number, familiarity: Familiarity = 'familiar'): Slide[] {
-  const cardCounts = combos.map((c) => (c.cards ? c.cards.length : 0));
+  // Shuffle combos so the introduction order (for "new" strategy) is random
+  const shuffled = [...combos];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  const cardCounts = shuffled.map((c) => (c.cards ? c.cards.length : 0));
   const sequence = buildSequence(cardCounts, count, familiarity);
   return sequence.map(([comboIndex, cardIndex]) => {
-    const combo = combos[comboIndex - 1];
+    const combo = shuffled[comboIndex - 1];
     const selectedCard = cardIndex > 0 ? combo.cards![cardIndex - 1] : undefined;
     return { ...combo, selectedCard };
   });
