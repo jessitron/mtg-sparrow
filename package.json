@@ -11,7 +11,8 @@
     "serve": "serve dist",
     "build:harness": "esbuild src/sequence-harness.ts --bundle --outfile=dist/sequence-harness.js --sourcemap --format=esm",
     "test:sequence": "esbuild tests/sequence-properties.test.ts --bundle --outfile=tests/sequence-properties.test.mjs --format=esm --platform=node && node tests/sequence-properties.test.mjs",
-    "test:e2e": "node"
+    "test:e2e": "node",
+    "summarize:combos": "scripts/summarize-combos.sh"
   },
   "dependencies": {
     "@honeycombio/opentelemetry-web": "^1.3.0",
