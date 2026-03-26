@@ -31,6 +31,40 @@ function dedupConsecutiveCards(sections, cardCounts) {
     }
   }
 }
+function enforceMaxCardAppearances(sections, cardCounts, maxAppearances) {
+  const appearances = /* @__PURE__ */ new Map();
+  const lastCard = /* @__PURE__ */ new Map();
+  for (const section2 of sections) {
+    for (const slide of section2.slides) {
+      const [comboIndex] = slide;
+      let cardIndex = slide[1];
+      const key = `${comboIndex}-${cardIndex}`;
+      const count2 = appearances.get(key) ?? 0;
+      if (count2 >= maxAppearances) {
+        const totalCards = cardCounts[comboIndex - 1];
+        const prev = lastCard.get(comboIndex);
+        let found = false;
+        for (let attempt = 1; attempt <= totalCards; attempt++) {
+          const candidate = attempt;
+          if (candidate === cardIndex) continue;
+          if (candidate === prev) continue;
+          const candidateKey = `${comboIndex}-${candidate}`;
+          if ((appearances.get(candidateKey) ?? 0) < maxAppearances) {
+            slide[1] = candidate;
+            cardIndex = candidate;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+        }
+      }
+      const finalKey = `${comboIndex}-${slide[1]}`;
+      appearances.set(finalKey, (appearances.get(finalKey) ?? 0) + 1);
+      lastCard.set(comboIndex, slide[1]);
+    }
+  }
+}
 function positionsSinceLast(sequence, comboIndex) {
   for (let i = sequence.length - 1; i >= 0; i--) {
     if (sequence[i][0] === comboIndex) {
@@ -165,7 +199,10 @@ function buildNewSequenceWithSections(cardCounts, length) {
     appendBatch(fillSlides, pool, cardCounts, 1);
   }
   sections.push({ introducedCombo: null, slides: fillSlides });
-  dedupConsecutiveCards(sections, cardCounts);
+  for (let pass = 0; pass < 5; pass++) {
+    dedupConsecutiveCards(sections, cardCounts);
+    enforceMaxCardAppearances(sections, cardCounts, 2);
+  }
   const sequence = sections.flatMap((s) => s.slides);
   return { sections, sequence };
 }
@@ -175,7 +212,10 @@ function buildSequenceWithSections(cardCounts, length, familiarity) {
   }
   const sequence = buildFamiliarSequence(cardCounts, length);
   const sections = [{ introducedCombo: null, slides: sequence }];
-  dedupConsecutiveCards(sections, cardCounts);
+  for (let pass = 0; pass < 5; pass++) {
+    dedupConsecutiveCards(sections, cardCounts);
+    enforceMaxCardAppearances(sections, cardCounts, 2);
+  }
   return { sections, sequence };
 }
 function buildSequence(cardCounts, length, familiarity) {

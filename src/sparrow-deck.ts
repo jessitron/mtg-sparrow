@@ -60,6 +60,61 @@ function dedupConsecutiveCards(sections: SequenceSection[], cardCounts: number[]
 }
 
 /**
+ * Walk a sequence of sections and ensure no card image (identified by
+ * [comboIndex, cardIndex]) appears more than maxAppearances times total.
+ * When a card would exceed the limit, pick a different card index for that
+ * combo that is still under the limit and different from the previous card
+ * shown for that combo (to preserve the consecutive-dedup property).
+ * Mutates the slides in place.
+ */
+function enforceMaxCardAppearances(
+  sections: SequenceSection[],
+  cardCounts: number[],
+  maxAppearances: number,
+): void {
+  const appearances = new Map<string, number>(); // "comboIndex-cardIndex" → count
+  const lastCard = new Map<number, number>(); // comboIndex → last cardIndex shown
+
+  for (const section of sections) {
+    for (const slide of section.slides) {
+      const [comboIndex] = slide;
+      let cardIndex = slide[1];
+      const key = `${comboIndex}-${cardIndex}`;
+      const count = appearances.get(key) ?? 0;
+
+      if (count >= maxAppearances) {
+        // This card has hit its limit — find an alternative
+        const totalCards = cardCounts[comboIndex - 1];
+        const prev = lastCard.get(comboIndex);
+        let found = false;
+        // Try all possible card indices in order; pick first one under the limit and not consecutive
+        for (let attempt = 1; attempt <= totalCards; attempt++) {
+          const candidate = attempt;
+          if (candidate === cardIndex) continue; // already at limit
+          if (candidate === prev) continue; // would create consecutive repeat
+          const candidateKey = `${comboIndex}-${candidate}`;
+          if ((appearances.get(candidateKey) ?? 0) < maxAppearances) {
+            slide[1] = candidate;
+            cardIndex = candidate;
+            found = true;
+            break;
+          }
+        }
+        // If no valid candidate found (extremely unlikely with 10+ cards),
+        // leave as-is rather than infinite loop
+        if (!found) {
+          // accept the violation
+        }
+      }
+
+      const finalKey = `${comboIndex}-${slide[1]}`;
+      appearances.set(finalKey, (appearances.get(finalKey) ?? 0) + 1);
+      lastCard.set(comboIndex, slide[1]);
+    }
+  }
+}
+
+/**
  * Given a sequence so far and a candidate comboIndex, return the number of
  * positions since this combo last appeared (-1 if it has never appeared).
  */
@@ -304,7 +359,11 @@ function buildNewSequenceWithSections(cardCounts: number[], length: number): Seq
   }
   sections.push({ introducedCombo: null, slides: fillSlides });
 
-  dedupConsecutiveCards(sections, cardCounts);
+  // Run both passes until stable. In practice converges in 1–2 iterations.
+  for (let pass = 0; pass < 5; pass++) {
+    dedupConsecutiveCards(sections, cardCounts);
+    enforceMaxCardAppearances(sections, cardCounts, 2);
+  }
   const sequence = sections.flatMap((s) => s.slides);
   return { sections, sequence };
 }
@@ -325,7 +384,11 @@ export function buildSequenceWithSections(
   }
   const sequence = buildFamiliarSequence(cardCounts, length);
   const sections: SequenceSection[] = [{ introducedCombo: null, slides: sequence }];
-  dedupConsecutiveCards(sections, cardCounts);
+  // Run both passes until stable. In practice converges in 1–2 iterations.
+  for (let pass = 0; pass < 5; pass++) {
+    dedupConsecutiveCards(sections, cardCounts);
+    enforceMaxCardAppearances(sections, cardCounts, 2);
+  }
   return { sections, sequence };
 }
 
