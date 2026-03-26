@@ -29,6 +29,11 @@
   flex: 1;
 }
 
+.combo-guild-logo {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
 .combo-name {
   font-family: 'GoudyMediaeval', serif;
   font-size: clamp(2rem, 5vw, 3.5rem);

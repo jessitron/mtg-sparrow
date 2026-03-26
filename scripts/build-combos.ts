@@ -138,6 +138,10 @@ function buildPage(combo: ColorCombo): string {
   const cardCount = combo.cards?.length ?? 0;
   const metaDesc = `${combo.name} — ${tier} (${colors}). ${description.slice(0, 120)}`;
   const pips = manaPips(combo.colors);
+  const hasGuildLogo = combo.tier === "guild";
+  const guildLogoHtml = hasGuildLogo
+    ? `\n          <img src="../images/${combo.id}.png" alt="${combo.name} guild crest" class="combo-guild-logo" width="80" height="80" />`
+    : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -171,7 +175,7 @@ function buildPage(combo: ColorCombo): string {
           <h1 class="combo-name">${escapeHtml(combo.name)}</h1>
           <p class="combo-tier">${tier}</p>
           <p class="combo-colors" aria-label="${escapeHtml(colors)}">${pips}</p>
-        </div>
+        </div>${guildLogoHtml}
       </header>
 
       <section class="combo-description">
