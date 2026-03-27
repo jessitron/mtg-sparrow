@@ -126,7 +126,7 @@ function buildComboCardHtml(combo: ColorCombo, projectRootUrl: string): string {
   const pips = buildManaPips(combo.colors, imageBaseUrl);
   const hasGuildLogo = combo.tier === "guild";
   const guildLogoHtml = hasGuildLogo
-    ? `<img src="${imageBaseUrl}/${combo.id}.png" alt="" width="80" height="80" style="opacity:0.6;filter:brightness(1.5);margin-top:4px;" />`
+    ? `<div class="og-guild-logo"><img src="${imageBaseUrl}/${combo.id}.png" alt="" width="120" height="120" /></div>`
     : "";
 
   // Dominant active color for subtle accent glow
@@ -225,6 +225,14 @@ function buildComboCardHtml(combo: ColorCombo, projectRootUrl: string): string {
       align-items: center;
       gap: 10px;
     }
+    .og-guild-logo {
+      position: absolute;
+      right: 80px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.5;
+      filter: brightness(1.5);
+    }
     .og-accent-bar {
       width: 360px;
       height: 4px;
@@ -265,7 +273,6 @@ function buildComboCardHtml(combo: ColorCombo, projectRootUrl: string): string {
     <div class="og-text">
       <div class="og-name">${combo.name}</div>
       <div class="og-tier">${tier}</div>
-      ${guildLogoHtml}
       <div class="og-colors">
         ${pips}
       </div>
@@ -273,6 +280,7 @@ function buildComboCardHtml(combo: ColorCombo, projectRootUrl: string): string {
     </div>
   </div>
 
+  ${guildLogoHtml}
   <div class="og-url">mtgcolors.quest</div>
 </div>
 </body>
