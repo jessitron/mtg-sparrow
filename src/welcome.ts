@@ -1,5 +1,5 @@
-import { initTelemetry, sendStartupSpan, startSpan, startChildSpan, endSpan, getTraceId, flushSpans } from './telemetry/telemetry';
-import { wireSettings } from './ui/settings';
+import { initTelemetry, sendStartupSpan, startSpan, startChildSpan, endSpan, emitLog, getTraceId, flushSpans, getSessionId } from './telemetry/telemetry';
+import { wireMenu } from './ui/menu';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
 import { getUnlockedSubgroups } from './progression';
@@ -15,9 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Long-lived page span — parent for all welcome page activity
   const pageSpan = startSpan('welcome.page_view', { 'app.version': APP_VERSION });
 
-  wireSettings(APP_VERSION);
-
   const debugMode = isDebugMode();
+  const recordEvent = (name: string, attrs?: Record<string, string | number | boolean>) => {
+    emitLog(name, pageSpan, attrs);
+  };
+  wireMenu({ appVersion: APP_VERSION, recordEvent, getSessionId, showResetProgress: true, showTraceLink: true });
 
   setFeedbackContextProvider(() => ({
     'feedback.unlocked_levels': getUnlockedSubgroups().join(','),

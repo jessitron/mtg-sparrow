@@ -1,6 +1,6 @@
-import { initTelemetry, startSpan, endSpan, flushSpans } from './telemetry/telemetry';
+import { initTelemetry, startSpan, endSpan, emitLog, flushSpans, getSessionId } from './telemetry/telemetry';
 import { buildSelfAssessment, SELF_ASSESSMENT_MIN_CARDS } from './ui/self-assessment';
-import { wireSettings } from './ui/settings';
+import { wireMenu } from './ui/menu';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
 import { getUnlockedSubgroups } from './progression';
@@ -10,7 +10,10 @@ import { GuildSubgroup } from './session';
 document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'assessment', 'multi_page');
 
-  wireSettings(APP_VERSION);
+  const recordEvent = (name: string, attrs?: Record<string, string | number | boolean>) => {
+    emitLog(name, undefined, attrs);
+  };
+  wireMenu({ appVersion: APP_VERSION, recordEvent, getSessionId, showResetProgress: true, showTraceLink: false });
 
   setFeedbackContextProvider(() => {
     const urlParams = new URLSearchParams(window.location.search);

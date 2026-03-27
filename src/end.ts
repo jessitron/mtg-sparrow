@@ -1,7 +1,7 @@
-import { initTelemetry, startSpan, startChildSpan, endSpan, flushSpans, getTraceId } from './telemetry/telemetry';
+import { initTelemetry, startSpan, startChildSpan, endSpan, emitLog, flushSpans, getTraceId, getSessionId } from './telemetry/telemetry';
 import { showSessionEndColumns, getEndPageContext } from './ui/guild-columns';
 import { isSubgroupUnlocked, isEnemyUnlocked, getUnlockedSubgroups } from './progression';
-import { wireSettings } from './ui/settings';
+import { wireMenu } from './ui/menu';
 import { GuildSubgroup } from './session';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
@@ -11,8 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initTelemetry(APP_VERSION, 'end', 'multi_page');
   initDebugMode(); // reloads if ?debug param present; otherwise no-op
 
-  wireSettings(APP_VERSION);
-
   const debugMode = isDebugMode();
 
   // Root span for the entire end-page visit — stays open until the user leaves
@@ -21,7 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
     'end.layout_version': 'reel_v2',
   });
 
-  // Wire trace link in settings panel
+  const recordEvent = (name: string, attrs?: Record<string, string | number | boolean>) => {
+    emitLog(name, pageSpan, attrs);
+  };
+  wireMenu({ appVersion: APP_VERSION, recordEvent, getSessionId, showResetProgress: true, showTraceLink: true });
+
+  // Wire trace link in settings panel (must be after wireMenu which injects the DOM)
   const traceId = getTraceId(pageSpan);
   const traceLink = document.getElementById('settings-trace-link') as HTMLAnchorElement | null;
   const traceContainer = document.getElementById('settings-trace-container');

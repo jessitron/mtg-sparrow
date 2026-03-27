@@ -1,5 +1,5 @@
-import { initTelemetry, sendStartupSpan, startSpan, startChildSpan, endSpan, flushSpans, getTraceId } from './telemetry/telemetry';
-import { wireSettings } from './ui/settings';
+import { initTelemetry, sendStartupSpan, startSpan, startChildSpan, endSpan, emitLog, flushSpans, getTraceId, getSessionId } from './telemetry/telemetry';
+import { wireMenu } from './ui/menu';
 import { renderLogo } from './ui/logo';
 import { APP_VERSION } from './version';
 import { initDebugMode, isDebugMode } from './debug';
@@ -17,9 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
     'about.has_signup_form': hasSignupForm,
   });
 
-  wireSettings(APP_VERSION);
-
   const debugMode = isDebugMode();
+  const recordEvent = (name: string, attrs?: Record<string, string | number | boolean>) => {
+    emitLog(name, pageSpan, attrs);
+  };
+  wireMenu({ appVersion: APP_VERSION, recordEvent, getSessionId, showResetProgress: true, showTraceLink: true });
 
   const logoContainer = document.getElementById('about-logo');
   if (logoContainer) {

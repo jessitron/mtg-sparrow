@@ -1,4 +1,4 @@
-import { initTelemetry, startSpan, startChildSpan, endSpan, emitLog, flushSpans, getTraceId } from './telemetry/telemetry';
+import { initTelemetry, startSpan, startChildSpan, endSpan, emitLog, flushSpans, getTraceId, getSessionId } from './telemetry/telemetry';
 import { storageSetItem } from './storage';
 import { createCardShell, fillCard, revealName } from './ui/render';
 import {
@@ -16,7 +16,7 @@ import { isSubgroupUnlocked, markSubgroupUnlocked, markSubgroupCompleted, getUnl
 import { getAssessment } from './self-assessment-store';
 import { Familiarity } from './sparrow-deck';
 import { Span } from '@opentelemetry/api';
-import { wireSettings } from './ui/settings';
+import { wireMenu } from './ui/menu';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
 import { initDebugMode, isDebugMode } from './debug';
@@ -672,7 +672,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Do NOT call sendStartupSpan — welcome page only
   initDebugMode(); // reloads if ?debug param present; otherwise no-op
 
-  wireSettings(APP_VERSION);
+  // sessionSpan is a module-level var set later by startNewSession; lazy closure captures it
+  const recordEvent = (name: string, attrs?: Record<string, string | number | boolean>) => {
+    emitLog(name, sessionSpan ?? undefined, attrs);
+  };
+  wireMenu({ appVersion: APP_VERSION, recordEvent, getSessionId, showResetProgress: true, showTraceLink: true });
 
   setFeedbackContextProvider(() => {
     const ctx: Record<string, string | number | boolean> = {
