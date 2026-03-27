@@ -78,9 +78,9 @@ wireMenu({
   showTraceLink: false,
 });
 
-// Inject pronunciation play button next to the combo name
+// Inject pronunciation play button inline with the combo name (skip on index page)
 const comboNameEl = document.querySelector('.combo-name');
-if (comboNameEl) {
+if (comboNameEl && comboId !== 'index') {
   const playBtn = document.createElement('button');
   playBtn.className = 'combo-play-btn';
   playBtn.title = `Hear "${comboNameEl.textContent}" pronounced`;
@@ -101,5 +101,5 @@ if (comboNameEl) {
     });
   });
 
-  comboNameEl.insertAdjacentElement('afterend', playBtn);
+  comboNameEl.appendChild(playBtn);
 }

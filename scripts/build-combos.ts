@@ -240,7 +240,7 @@ function buildIndexPage(): string {
       const pips = manaPips(combo.colors);
       const colors = colorNames(combo);
       return `      <li class="combo-index-item">
-        <a href="${combo.id}.html" class="combo-index-link">
+        <a href="/combo/${combo.id}.html" class="combo-index-link">
           <span class="combo-index-name">${escapeHtml(combo.name)}</span>
           <span class="combo-index-colors" aria-label="${escapeHtml(colors)}">${pips}</span>
         </a>
@@ -283,7 +283,8 @@ ${items}
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../combo.css">
 </head>
-<body>
+<body data-combo-id="index">
+  <script type="module" src="../dist/combo-telemetry.js"></script>
   <a href="../" class="home-spiral" title="Home"></a>
   <main id="app">
     <div class="combo-page">

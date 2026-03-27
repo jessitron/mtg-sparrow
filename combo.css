@@ -76,7 +76,7 @@
   transition: color 200ms ease, border-color 200ms ease, background 200ms ease;
   -webkit-tap-highlight-color: transparent;
   vertical-align: middle;
-  margin-top: 0.25rem;
+  margin-left: 0.5rem;
 }
 
 .combo-play-btn:hover {
