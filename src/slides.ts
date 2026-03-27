@@ -18,6 +18,7 @@ import { Familiarity } from './sparrow-deck';
 import { Span } from '@opentelemetry/api';
 import { wireMenu } from './ui/menu';
 import { wireSoundToggle } from './ui/sound-toggle';
+import { isSoundEnabled, playComboAudio } from './audio';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
 import { initDebugMode, isDebugMode } from './debug';
@@ -63,6 +64,20 @@ let currentTraceUrl: string | null = null;
 let doneZoneEl: HTMLElement | null = null;
 let currentCardName = '';
 let namesEverHidden = false;
+
+function playRevealAudio(): void {
+  if (!session) return;
+  const combo = currentCard(session);
+  const enabled = isSoundEnabled();
+  if (cardSpan) {
+    cardSpan.setAttribute('sound.enabled', enabled);
+  }
+  playComboAudio(combo.id).then((result) => {
+    if (cardSpan) {
+      cardSpan.setAttribute('sound.play_result', result);
+    }
+  });
+}
 
 function clearTimers(): void {
   if (revealTimer !== null) {
@@ -264,6 +279,7 @@ function buildSessionUI(): void {
           revealTimer = null;
           nameRevealed = true;
           if (cardEl) revealName(cardEl);
+          playRevealAudio();
           advanceTimer = setTimeout(() => {
             advanceTimer = null;
             goToNextCard(false);
@@ -445,6 +461,7 @@ function showCard(): void {
     revealTimer = null;
     nameRevealed = true;
     if (cardEl) revealName(cardEl);
+    playRevealAudio();
 
     // Auto-advance: after ADVANCE_DELAY_MS, go to next card
     advanceTimer = setTimeout(() => {
@@ -491,6 +508,7 @@ function handleAdvance(): void {
 
     nameRevealed = true;
     if (cardEl) revealName(cardEl);
+    playRevealAudio();
 
     advanceTimer = setTimeout(() => {
       advanceTimer = null;

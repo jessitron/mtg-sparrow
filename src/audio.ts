@@ -16,3 +16,21 @@ export function setSoundEnabled(enabled: boolean, recordEvent: RecordEvent): voi
     'sound.enabled': enabled,
   });
 }
+
+/**
+ * Play the pronunciation audio for a combo.
+ * Returns 'success', 'disabled', or 'error' for use as a span attribute.
+ */
+export async function playComboAudio(comboId: string): Promise<'success' | 'disabled' | 'error'> {
+  if (!isSoundEnabled()) {
+    return 'disabled';
+  }
+
+  try {
+    const audio = new Audio(`/audio/${comboId}.mp3`);
+    await audio.play();
+    return 'success';
+  } catch {
+    return 'error';
+  }
+}
