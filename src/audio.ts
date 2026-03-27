@@ -23,14 +23,21 @@ export function setSoundEnabled(enabled: boolean, recordEvent: RecordEvent): voi
 const audioEl = new Audio();
 
 /**
- * Play the pronunciation audio for a combo.
- * Returns 'success', 'disabled', or 'error' for use as a span attribute.
+ * Play pronunciation audio, but only if sound is enabled.
+ * For automatic playback (e.g. slide reveal).
  */
 export async function playComboAudio(comboId: string): Promise<'success' | 'disabled' | 'error'> {
   if (!isSoundEnabled()) {
     return 'disabled';
   }
+  return playAudio(comboId);
+}
 
+/**
+ * Play pronunciation audio unconditionally.
+ * For explicit user actions (e.g. combo page play button).
+ */
+export async function playAudio(comboId: string): Promise<'success' | 'error'> {
   try {
     audioEl.pause();
     audioEl.src = `/audio/${comboId}.mp3`;

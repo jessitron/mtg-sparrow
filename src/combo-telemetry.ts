@@ -9,7 +9,7 @@ import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-docu
 import { logs, SeverityNumber } from '@opentelemetry/api-logs';
 import { APP_VERSION } from './version.js';
 import { wireMenu } from './ui/menu.js';
-import { playComboAudio } from './audio.js';
+import { playAudio } from './audio.js';
 
 declare global {
   interface Window {
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     playBtn.addEventListener('click', (e: MouseEvent) => {
       e.stopPropagation();
-      playComboAudio(comboId).then((result) => {
+      playAudio(comboId).then((result) => {
         recordEvent('sound.play', {
           'sound.combo_id': comboId,
           'sound.context': 'combo-page',
