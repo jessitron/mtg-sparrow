@@ -3,7 +3,6 @@ import { storageSetItem } from './storage';
 const STORAGE_KEY = 'sparrow-deck.progression';
 
 type ProgressionState = {
-  enemyUnlocked?: boolean; // legacy, migrated on load
   unlockedSubgroups?: string[];
   completedSubgroups?: string[];
 };
@@ -12,29 +11,7 @@ function loadProgression(): ProgressionState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw);
-      // Migrate legacy enemyUnlocked field
-      if (parsed.enemyUnlocked === true || (parsed.completedSubgroups ?? []).length > 0) {
-        const unlockedSubgroups: string[] = parsed.unlockedSubgroups ?? [];
-        // Seed from old enemyUnlocked flag
-        if (parsed.enemyUnlocked === true && !unlockedSubgroups.includes('enemy')) {
-          unlockedSubgroups.push('enemy');
-        }
-        // Completed subgroups imply unlocked
-        for (const sub of (parsed.completedSubgroups ?? [])) {
-          if (!unlockedSubgroups.includes(sub)) {
-            unlockedSubgroups.push(sub);
-          }
-        }
-        const migrated: ProgressionState = {
-          unlockedSubgroups,
-          completedSubgroups: parsed.completedSubgroups,
-        };
-        saveProgression(migrated);
-        return migrated;
-      }
-      // Return as-is if already in new format
-      return parsed as ProgressionState;
+      return JSON.parse(raw) as ProgressionState;
     }
   } catch {}
   return {};
