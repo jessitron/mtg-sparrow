@@ -17,13 +17,8 @@ export function setSoundEnabled(enabled: boolean, recordEvent: RecordEvent): voi
   });
 }
 
-// Single reusable Audio element — Firefox blocks play() on newly created
-// Audio elements even from click handlers. Reusing one element with
-// changing src avoids this and also prevents GC mid-playback.
-const audioEl = new Audio();
-
 /**
- * Play pronunciation audio, but only if sound is enabled.
+ * Play pronunciation audio, only if sound is enabled.
  * For automatic playback (e.g. slide reveal).
  */
 export async function playComboAudio(comboId: string): Promise<'success' | 'disabled' | 'error'> {
@@ -39,9 +34,8 @@ export async function playComboAudio(comboId: string): Promise<'success' | 'disa
  */
 export async function playAudio(comboId: string): Promise<'success' | 'error'> {
   try {
-    audioEl.pause();
-    audioEl.src = `/audio/${comboId}.mp3`;
-    await audioEl.play();
+    const audio = new Audio(`/audio/${comboId}.mp3`);
+    await audio.play();
     return 'success';
   } catch {
     return 'error';
