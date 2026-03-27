@@ -33,6 +33,8 @@ Shell scripts and utilities for the MTG Sparrow project. Most have corresponding
 | `summarize-combos.ts` | — | Source for the combo summary (bundled by the .sh) |
 | `build-combos.sh` | `npm run build:combos` | Generate static HTML pages in `combo/` for each color combo |
 | `build-combos.ts` | — | Source for the combo page generator (bundled by the .sh) |
+| `lookup-card.sh` | — | Look up a single card's Scryfall image URL |
+| `batch-lookup-cards.sh` | — | Pipe in card names, get back TypeScript CardReference entries |
 
 ## Ops
 
