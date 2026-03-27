@@ -17,6 +17,10 @@ export function setSoundEnabled(enabled: boolean, recordEvent: RecordEvent): voi
   });
 }
 
+// Reusable Audio element — prevents garbage collection mid-playback
+// and avoids overlapping plays
+let activeAudio: HTMLAudioElement | null = null;
+
 /**
  * Play the pronunciation audio for a combo.
  * Returns 'success', 'disabled', or 'error' for use as a span attribute.
@@ -27,8 +31,12 @@ export async function playComboAudio(comboId: string): Promise<'success' | 'disa
   }
 
   try {
-    const audio = new Audio(`/audio/${comboId}.mp3`);
-    await audio.play();
+    if (activeAudio) {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+    }
+    activeAudio = new Audio(`/audio/${comboId}.mp3`);
+    await activeAudio.play();
     return 'success';
   } catch {
     return 'error';
