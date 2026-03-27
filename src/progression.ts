@@ -38,15 +38,6 @@ export function markSubgroupUnlocked(subgroup: string): boolean {
   return false;
 }
 
-// Backward-compatible aliases
-export function isEnemyUnlocked(): boolean {
-  return isSubgroupUnlocked('enemy');
-}
-
-export function markEnemyUnlocked(): boolean {
-  return markSubgroupUnlocked('enemy');
-}
-
 export function hasCompletedSubgroup(subgroup: string): boolean {
   const state = loadProgression();
   return (state.completedSubgroups ?? []).includes(subgroup);
