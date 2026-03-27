@@ -2,8 +2,7 @@
 
 ## other
 
-- an og:image for sharing
-- why am I not getting documentLoad spans in Honeycomb?
+- the logs for local storage updates are not showing in the context of the page trace
 - a cute 404 page
 - o11y: put the session id and player ID on every span event as well.
 - o11y: add the scryfall URL to the card spans
