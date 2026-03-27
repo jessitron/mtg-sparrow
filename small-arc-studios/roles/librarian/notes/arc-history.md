@@ -473,3 +473,21 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 - **Key decisions**: DEC-203 (separate build step for combo og:images).
 - **Files changed**: `images/combo/` (20 new PNGs), generation script (new), `scripts/build-combos.ts` (og:image meta tags), `src/version.ts` (bumped to 0.33.0).
 - **Verification**: og:image meta tags confirmed on all combo pages. Images render correctly in social platform preview tools. App version confirmed at v0.33.0.
+
+---
+
+## Search Engine & LLM Discoverability (Arc 52, v0.34.0, 2026-03-26)
+
+### Arc 52: Search Engine & LLM Discoverability — COMPLETE (v0.34.0, 2026-03-26)
+- **Type**: User
+- **Goal**: Make mtgcolors.quest findable and useful to search engines and AI crawlers.
+- **Context**: The combo pages (built outside formal arc process) provide rich, crawlable textual content. This arc ensures crawlers can find and understand it.
+- **What**:
+  - `robots.txt` — allows all crawlers, points to sitemap
+  - `sitemap.xml` — all 27 user-facing pages: 5 top-level pages + combo index + 20 combo pages
+  - `llms.txt` — structured plain-text site description following llmstxt.org convention; includes full reference of all 20 color combinations so LLMs can answer questions about MTG color names directly
+  - `README.md` updated to note these discoverability files and remind maintainers to update them when adding pages
+- **Key decisions**: DEC-204 (static discoverability files, not generated).
+- **Files created**: `robots.txt`, `sitemap.xml`, `llms.txt`.
+- **Files modified**: `README.md`, `src/version.ts` (bumped to v0.34.0).
+- **Verification**: All three files present and well-formed. sitemap covers all 27 user-facing URLs. llms.txt lists all 20 combo names with color identities.
