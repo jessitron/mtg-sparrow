@@ -225,6 +225,7 @@ export const guilds: ColorCombo[] = [
       { name: "Lotleth Troll", imageUrl: "https://cards.scryfall.io/normal/front/c/c/cc138550-a797-4a57-91b3-626aac1b1edd.jpg?1673148893" },
       { name: "Catacomb Sifter", imageUrl: "https://cards.scryfall.io/normal/front/6/c/6c3b220b-e699-45b0-8ec1-1022c1f50329.jpg?1562920494" },
       { name: "Ygra, Eater of All", imageUrl: "https://cards.scryfall.io/normal/front/b/9/b9ac7673-eae8-4c4b-889e-5025213a6151.jpg?1721427242" },
+      { name: "Chatterfang, Squirrel General", flavor: "Ygra's best friend. Or lunch.", imageUrl: "https://cards.scryfall.io/normal/front/1/7/1785cf85-1ac0-4246-9b89-1a8221a8e1b2.jpg?1626097239" },
     ],
   },
   {
