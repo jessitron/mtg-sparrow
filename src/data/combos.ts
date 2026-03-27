@@ -71,7 +71,7 @@ export const guilds: ColorCombo[] = [
       { name: "Dimir Signet", flavor:"Colorless, with a Dimir color identity. Found in Dimir decks", imageUrl: "https://cards.scryfall.io/normal/front/c/3/c3af24ce-b1ab-4137-9222-a4080acae928.jpg?1706240208" },
       { name: "Phenax, God of Deception", imageUrl: "https://cards.scryfall.io/normal/front/8/d/8dfcb129-4665-40e4-b5cb-a79f3f40ae5c.jpg?1593092799" },
       { name: "Shadowmage Infiltrator", imageUrl: "https://cards.scryfall.io/normal/front/2/a/2ac920d7-013f-40ad-b79f-0bb59062d42a.jpg?1712354775" },
-      { name: "Umbris, Fear Manifest", flavor: "The Furby edition. A personal favorite.", imageUrl: "https://cards.scryfall.io/normal/front/c/f/cf0ce486-58be-4d35-b48c-45eafc62a44e.jpg?1759235074" },
+      { name: "Umbris, Fear Manifest", flavor: "The most terrifying card of all.", imageUrl: "https://cards.scryfall.io/normal/front/c/f/cf0ce486-58be-4d35-b48c-45eafc62a44e.jpg?1759235074" },
     ],
   },
   {
@@ -219,11 +219,12 @@ export const guilds: ColorCombo[] = [
       { name: "Golgari Signet", imageUrl: "https://cards.scryfall.io/normal/front/9/5/95103b4c-d0c0-40fa-9ddd-c7416455ca0c.jpg?1728606720" },
       { name: "Mazirek, Kraul Death Priest", imageUrl: "https://cards.scryfall.io/normal/front/1/5/1522122b-e4bf-4dba-b22c-efa18bc6c33b.jpg?1752945005" },
       { name: "Meren of Clan Nel Toth", imageUrl: "https://cards.scryfall.io/normal/front/5/0/508b1442-bf2c-4ad6-9bcf-bd894e081ab6.jpg?1743207181" },
-      { name: "Casualties of War", imageUrl: "https://cards.scryfall.io/normal/front/c/d/cde12c36-f49b-4065-987f-981ca32d536d.jpg?1743206062" },
+      { name: "Casualties of War", flavor:"This card has a theme.", imageUrl: "https://cards.scryfall.io/normal/front/c/d/cde12c36-f49b-4065-987f-981ca32d536d.jpg?1743206062" },
       { name: "Grim Flayer", imageUrl: "https://cards.scryfall.io/normal/front/b/2/b29e5af4-feb6-485a-a631-bfc42fa1b13a.jpg?1731721066" },
       { name: "Izoni, Thousand-Eyed", imageUrl: "https://cards.scryfall.io/normal/front/7/5/75955b0e-12d6-40ba-aab5-b7b7e2bde121.jpg?1572893685" },
       { name: "Lotleth Troll", imageUrl: "https://cards.scryfall.io/normal/front/c/c/cc138550-a797-4a57-91b3-626aac1b1edd.jpg?1673148893" },
       { name: "Catacomb Sifter", imageUrl: "https://cards.scryfall.io/normal/front/6/c/6c3b220b-e699-45b0-8ec1-1022c1f50329.jpg?1562920494" },
+      { name: "Ygra, Eater of All", imageUrl: "https://cards.scryfall.io/normal/front/b/9/b9ac7673-eae8-4c4b-889e-5025213a6151.jpg?1721427242" },
     ],
   },
   {
