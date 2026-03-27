@@ -1,0 +1,82 @@
+# MTG Colors
+
+> A learning tool for Magic: The Gathering color combination names. Practice identifying guild names (Azorius, Dimir, etc.), shard names (Bant, Esper, etc.), and wedge names (Abzan, Jeskai, etc.) through spaced repetition.
+
+## About
+
+MTG Colors (mtgcolors.quest) teaches players the names of all 20 two-color and three-color combinations in Magic: The Gathering. The site uses a "sparrow deck" learning technique — see a color combination, guess the name, then see the answer.
+
+Magic: The Gathering has five colors of mana: White (W), Blue (U), Black (B), Red (R), and Green (G). These colors are arranged in a pentagon called the "color wheel" or "color pie." Colors adjacent on the pentagon are "allied"; colors separated by one step are "enemy."
+
+The 20 named combinations are:
+- 5 allied two-color guilds
+- 5 enemy two-color guilds
+- 5 three-color shards (three adjacent colors)
+- 5 three-color wedges (one color plus its two enemies)
+
+## Color Combination Reference
+
+The site has detailed pages for each of the 20 color combinations:
+
+### Allied Guilds (adjacent colors on the color wheel)
+- [Azorius](https://mtgcolors.quest/combo/azorius.html): White / Blue
+- [Dimir](https://mtgcolors.quest/combo/dimir.html): Blue / Black
+- [Rakdos](https://mtgcolors.quest/combo/rakdos.html): Black / Red
+- [Gruul](https://mtgcolors.quest/combo/gruul.html): Red / Green
+- [Selesnya](https://mtgcolors.quest/combo/selesnya.html): White / Green
+
+### Enemy Guilds (opposing colors on the color wheel)
+- [Orzhov](https://mtgcolors.quest/combo/orzhov.html): White / Black
+- [Izzet](https://mtgcolors.quest/combo/izzet.html): Blue / Red
+- [Golgari](https://mtgcolors.quest/combo/golgari.html): Black / Green
+- [Boros](https://mtgcolors.quest/combo/boros.html): Red / White
+- [Simic](https://mtgcolors.quest/combo/simic.html): Green / Blue
+
+### Shards (three adjacent colors on the color wheel)
+- [Bant](https://mtgcolors.quest/combo/bant.html): Green / White / Blue
+- [Esper](https://mtgcolors.quest/combo/esper.html): White / Blue / Black
+- [Grixis](https://mtgcolors.quest/combo/grixis.html): Blue / Black / Red
+- [Jund](https://mtgcolors.quest/combo/jund.html): Black / Red / Green
+- [Naya](https://mtgcolors.quest/combo/naya.html): Red / Green / White
+
+### Wedges (one color + its two enemies)
+- [Abzan](https://mtgcolors.quest/combo/abzan.html): White / Black / Green
+- [Jeskai](https://mtgcolors.quest/combo/jeskai.html): Blue / Red / White
+- [Sultai](https://mtgcolors.quest/combo/sultai.html): Black / Green / Blue
+- [Mardu](https://mtgcolors.quest/combo/mardu.html): Red / White / Black
+- [Temur](https://mtgcolors.quest/combo/temur.html): Green / Blue / Red
+
+Each combo page includes a flavor description, highlighted color pentagon, and example cards.
+
+## Color Combination Quick Reference
+
+For LLM use — all 20 combinations with color codes:
+
+| Name     | Type          | Colors                    | Codes     |
+|----------|---------------|---------------------------|-----------|
+| Azorius  | Allied Guild  | White, Blue               | W U       |
+| Dimir    | Allied Guild  | Blue, Black               | U B       |
+| Rakdos   | Allied Guild  | Black, Red                | B R       |
+| Gruul    | Allied Guild  | Red, Green                | R G       |
+| Selesnya | Allied Guild  | White, Green              | W G       |
+| Orzhov   | Enemy Guild   | White, Black              | W B       |
+| Izzet    | Enemy Guild   | Blue, Red                 | U R       |
+| Golgari  | Enemy Guild   | Black, Green              | B G       |
+| Boros    | Enemy Guild   | Red, White                | R W       |
+| Simic    | Enemy Guild   | Green, Blue               | G U       |
+| Bant     | Shard         | Green, White, Blue        | G W U     |
+| Esper    | Shard         | White, Blue, Black        | W U B     |
+| Grixis   | Shard         | Blue, Black, Red          | U B R     |
+| Jund     | Shard         | Black, Red, Green         | B R G     |
+| Naya     | Shard         | Red, Green, White         | R G W     |
+| Abzan    | Wedge         | White, Black, Green       | W B G     |
+| Jeskai   | Wedge         | Blue, Red, White          | U R W     |
+| Sultai   | Wedge         | Black, Green, Blue        | B G U     |
+| Mardu    | Wedge         | Red, White, Black         | R W B     |
+| Temur    | Wedge         | Green, Blue, Red          | G U R     |
+
+## Other Pages
+
+- [Home](https://mtgcolors.quest/): Interactive learning tool — practice color combination names
+- [About](https://mtgcolors.quest/about.html): About the project, credits, and license (CC0)
+- [All Combinations](https://mtgcolors.quest/combo/): Browse all 20 combinations organized by type
