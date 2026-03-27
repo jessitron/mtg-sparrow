@@ -4,6 +4,7 @@
 
 - Add a progress marker to the end screen, like some dots at the left that shows where you are and that you could move up or down. I think they defined an arc for this but then we got distracted in a different direction
 - a cute 404 page
+- next/previous buttons on the static combo pages
 - o11y: put the session id and player ID on every log.
 - o11y: add the scryfall URL to the card spans
 - on the home page, pushing 'pause' or 'fan' should make a log.
