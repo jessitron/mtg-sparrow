@@ -9,9 +9,13 @@
 /* --- Breadcrumb --- */
 
 .combo-breadcrumb {
+  position: fixed;
+  top: 12px;
+  left: 52px;
+  z-index: 10;
   font-size: 0.85rem;
   color: #888;
-  margin-bottom: 1rem;
+  line-height: 32px;
 }
 
 .combo-breadcrumb a {
