@@ -17,9 +17,10 @@ export function setSoundEnabled(enabled: boolean, recordEvent: RecordEvent): voi
   });
 }
 
-// Reusable Audio element — prevents garbage collection mid-playback
-// and avoids overlapping plays
-let activeAudio: HTMLAudioElement | null = null;
+// Single reusable Audio element — Firefox blocks play() on newly created
+// Audio elements even from click handlers. Reusing one element with
+// changing src avoids this and also prevents GC mid-playback.
+const audioEl = new Audio();
 
 /**
  * Play the pronunciation audio for a combo.
@@ -31,12 +32,9 @@ export async function playComboAudio(comboId: string): Promise<'success' | 'disa
   }
 
   try {
-    if (activeAudio) {
-      activeAudio.pause();
-      activeAudio.currentTime = 0;
-    }
-    activeAudio = new Audio(`/audio/${comboId}.mp3`);
-    await activeAudio.play();
+    audioEl.pause();
+    audioEl.src = `/audio/${comboId}.mp3`;
+    await audioEl.play();
     return 'success';
   } catch {
     return 'error';
