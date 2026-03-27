@@ -9,6 +9,7 @@ import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-docu
 import { logs, SeverityNumber } from '@opentelemetry/api-logs';
 import { APP_VERSION } from './version.js';
 import { wireMenu } from './ui/menu.js';
+import { playComboAudio } from './audio.js';
 
 declare global {
   interface Window {
@@ -76,3 +77,29 @@ wireMenu({
   showResetProgress: false,
   showTraceLink: false,
 });
+
+// Inject pronunciation play button next to the combo name
+const comboNameEl = document.querySelector('.combo-name');
+if (comboNameEl) {
+  const playBtn = document.createElement('button');
+  playBtn.className = 'combo-play-btn';
+  playBtn.title = `Hear "${comboNameEl.textContent}" pronounced`;
+  playBtn.setAttribute('aria-label', `Play pronunciation of ${comboNameEl.textContent}`);
+  playBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+  </svg>`;
+
+  playBtn.addEventListener('click', (e: MouseEvent) => {
+    e.stopPropagation();
+    playComboAudio(comboId).then((result) => {
+      recordEvent('sound.play', {
+        'sound.combo_id': comboId,
+        'sound.context': 'combo-page',
+        'sound.play_result': result,
+      });
+    });
+  });
+
+  comboNameEl.insertAdjacentElement('afterend', playBtn);
+}
