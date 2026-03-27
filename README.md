@@ -60,6 +60,16 @@ The end page links to these combo pages from each combo's description.
 
 ---
 
+## Discoverability
+
+- `robots.txt` — allows all crawlers, points to sitemap
+- `sitemap.xml` — all user-facing pages with priorities
+- `llms.txt` — structured site description for AI crawlers ([llmstxt.org](https://llmstxt.org) convention)
+
+These are static files. Update them when adding new pages.
+
+---
+
 ## Running Locally
 
 ### Prerequisites
