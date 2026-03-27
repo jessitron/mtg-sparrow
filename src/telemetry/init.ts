@@ -1,4 +1,5 @@
 import { HoneycombWebSDK } from '@honeycombio/opentelemetry-web';
+import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load';
 
 let sdk: HoneycombWebSDK | null = null;
 
@@ -8,7 +9,7 @@ export function init(version: string, sessionId: string, resourceAttrs?: Record<
   sdk = new HoneycombWebSDK({
     apiKey: 'hcaik_01khj5r4wm0ffgsz59cdn42zvxn4rrt4kgny3zbc8zehs115ccwtntdsbh',
     serviceName: 'sparrow-deck',
-    instrumentations: [], // Manual instrumentation only (DEC-020)
+    instrumentations: [new DocumentLoadInstrumentation()],
     resourceAttributes: {
       'service.version': version,
       'browser.language': navigator.language,
