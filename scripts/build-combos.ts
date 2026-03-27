@@ -184,7 +184,8 @@ function buildPage(combo: ColorCombo): string {
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../combo.css">
 </head>
-<body>
+<body data-combo-id="${combo.id}">
+  <script type="module" src="../dist/combo-telemetry.js"></script>
   <a href="../" class="home-spiral" title="Home"></a>
   <main id="app">
     <article class="combo-page">
