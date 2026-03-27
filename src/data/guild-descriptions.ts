@@ -18,6 +18,7 @@ export const guildDescriptions: GuildDescription[] = [
     description:
       "Dimir understands that information, properly controlled, is the ultimate power. In the shadows,  knowledge is currency and identity a resource to be borrowed. Most of Ravnica doesn't believe they exist — exactly as they prefer. Every move serves a hidden agenda you'll understand when it's too late.",
     scryfallUrl: "https://scryfall.com/search?q=c%3Dub+-set%3Asld+-is%3Aub+legal%3Atimeless",
+    flavor: "Infiltrators, tricksters, thieves and hostage takers; whispered disinformation, multifarious masterminds--what's not to like?? I have a Dimir deck made of Horrors and Furbies, captained by Umbris, Fear Manifest. People hate it.",
   },
   {
     id: "rakdos",
@@ -56,6 +57,7 @@ export const guildDescriptions: GuildDescription[] = [
     description:
       "Patient, pragmatic, and unashamed of death, the Golgari understand: decay is generative, death feeds life, and nothing is wasted. They sustain Ravnica's food supply through rot, reclamation, and reanimation. Grim but not cruel, they find power in what everyone else throws away.",
     scryfallUrl: "https://scryfall.com/search?q=c%3Dbg+-set%3Asld+-is%3Aub+legal%3Atimeless",
+    flavor: "There is no life without death. Golgari makes sense to me. I know there's more to this guild than making squirrels and eating them, but I'm not tired of Ygra yet.",
   },
   {
     id: "boros",
