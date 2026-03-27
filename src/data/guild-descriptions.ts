@@ -2,6 +2,7 @@ export type GuildDescription = {
   id: string; // matches ColorCombo.id in combos.ts
   description: string; // 3-5 sentences of philosophy and flavor
   scryfallUrl: string; // link to "More [Guild] cards"
+  flavor?: string; // editorial commentary from the client
 };
 
 export const guildDescriptions: GuildDescription[] = [

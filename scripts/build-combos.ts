@@ -148,6 +148,7 @@ function escapeHtml(s: string): string {
 function buildPage(combo: ColorCombo): string {
   const desc = guildDescriptionMap[combo.id];
   const description = desc?.description ?? "";
+  const flavor = desc?.flavor ?? "";
   const scryfallUrl = desc?.scryfallUrl ?? "";
   const tier = tierLabel(combo);
   const colors = colorNames(combo);
@@ -202,7 +203,8 @@ function buildPage(combo: ColorCombo): string {
       </header>
 
       <section class="combo-description">
-        <p>${escapeHtml(description)}</p>
+        <p>${escapeHtml(description)}</p>${flavor ? `
+        <p class="combo-flavor">${escapeHtml(flavor)}</p>` : ""}
       </section>
 
       <div class="combo-cta">
