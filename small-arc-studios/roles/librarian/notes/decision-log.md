@@ -159,6 +159,7 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
 
 ## DEC-020: Honeycomb Web SDK, Wrapped in App Module
 - **Date**: 2026-02-15
+- **Revised**: 2026-03-26 (Arc 53)
 - **Decision**: Use the Honeycomb Web SDK (not raw OpenTelemetry Web SDK) for browser telemetry. All Honeycomb calls must be wrapped in the app's own telemetry module — no direct Honeycomb imports scattered through the codebase.
 - **Context**: Client recommendation. The Honeycomb Web SDK is a higher-level wrapper around OTel that simplifies browser instrumentation. Wrapping it in our own module (e.g., `src/telemetry/tracing.ts`) provides an abstraction boundary: the rest of the app calls our helpers, not Honeycomb directly.
 - **Implications**:
@@ -166,6 +167,7 @@ Decisions are recorded as they are made. Each entry includes context, alternativ
   - App code calls our own span/trace helpers
   - If the telemetry backend changes, only one module changes
   - This is an architectural constraint, not just a preference
+- **Revision (Arc 53)**: `instrumentations` parameter changed from `[]` to `[new DocumentLoadInstrumentation()]` in `src/telemetry/init.ts`. The original "manual only" approach left out page load waterfall data. All pages now explicitly use `[DocumentLoadInstrumentation]` for consistency. Combo pages use the same list in their standalone bundle.
 - **Amends**: DEC-008 (SDK choice refined)
 
 ## DEC-021: Fixed Card Count Per Session, Not Timer
@@ -1718,6 +1720,27 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: Arc 52 adds SEO and LLM discoverability files. The list of user-facing pages (5 top-level + combo index + 20 combo pages) is mostly stable. Generating the sitemap alongside combo pages was considered.
 - **Alternatives considered**: Generating `sitemap.xml` as part of `npm run build:combos` — rejected because only the combo URLs come from data; the 5 top-level pages are a manual list either way, so a script adds complexity for minimal benefit.
 - **Rationale**: Static files are simpler to maintain at this scale. The sitemap and llms.txt are small and change infrequently. README updated to remind maintainers to update these files when adding new pages.
+
+## DEC-205: Combo Pages Get Standalone Telemetry Bundle
+- **Date**: 2026-03-26
+- **Arc**: 53
+- **Decision**: Static combo pages use a separate standalone telemetry entry point (`src/combo-telemetry.ts` → `dist/combo-telemetry.js`) rather than sharing the main app's telemetry bundle.
+- **Context**: Combo pages are fully static HTML — no SPA routing, no session logic, no deck management. They need only DocumentLoadInstrumentation and a minimal span for page identity.
+- **Rationale**: Keeps combo pages lightweight and self-contained while still providing observability. Avoids coupling static reference pages to the main app's initialization logic.
+
+## DEC-206: window.recordEvent Bridge on Combo Pages
+- **Date**: 2026-03-26
+- **Arc**: 53
+- **Decision**: `combo-telemetry.ts` exposes `window.recordEvent(name, attrs)` as a global function for future inline interactivity on combo pages (e.g., share buttons).
+- **Context**: Combo pages are static HTML — no bundled JS other than the telemetry script. Future interactivity (share buttons) would need a bridge to emit telemetry without requiring a full bundle.
+- **Rationale**: Zero-cost seam. The function is registered at init time; if nothing calls it, it's harmless. Avoids the need to add a full bundle later just to emit one span.
+
+## DEC-207: CWV Comes from Separate SDK Path — Independent of instrumentations Array
+- **Date**: 2026-03-26
+- **Arc**: 53
+- **Decision**: Core Web Vitals (CWV) arrive via `WebVitalsInstrumentation`, which the Honeycomb Web SDK adds automatically regardless of what's in the `instrumentations` array — unless explicitly disabled with `webVitalsInstrumentationConfig: { enabled: false }`.
+- **Context**: Discovered during Arc 53 investigation. The SDK's `instrumentations` parameter controls auto-instrumentation plugins (like DocumentLoadInstrumentation), but CWV is a separate, always-on SDK path.
+- **Rationale**: Recorded for future reference — if CWV data ever needs to be disabled or debugged, the mechanism is separate from DocumentLoadInstrumentation.
 
 ---
 

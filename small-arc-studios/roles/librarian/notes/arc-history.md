@@ -476,6 +476,22 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 
 ---
 
+## documentLoad Telemetry (Arc 53, v0.35.0, 2026-03-26)
+
+### Arc 53: documentLoad Telemetry — COMPLETE (v0.35.0, 2026-03-26)
+- **Type**: Operator
+- **What**:
+  1. Revised DEC-020 — added `DocumentLoadInstrumentation` to `src/telemetry/init.ts`. Previously `instrumentations: []`, now `instrumentations: [new DocumentLoadInstrumentation()]` — gives page load waterfall visibility (DNS, TLS, request, response timing).
+  2. Created `src/combo-telemetry.ts` — standalone entry point for static combo pages. Initializes own HoneycombWebSDK with DocumentLoadInstrumentation, sets `app.page: "combo"` and `combo.id` as resource attributes, exposes `window.recordEvent(name, attrs)` for future interactivity (share buttons).
+  3. Updated `scripts/build-combos.ts` to inject `<script type="module" src="../dist/combo-telemetry.js">` and `data-combo-id` attribute into all 20 combo pages.
+  4. Added `combo-telemetry` entry to esbuild build and dev scripts in `package.json`.
+  5. Bumped `APP_VERSION` to 0.35.0.
+- **Key decisions**: DEC-020 REVISED (DocumentLoadInstrumentation added), DEC-205 (combo pages get standalone telemetry bundle), DEC-206 (window.recordEvent bridge for future interactivity), DEC-207 (CWV from separate SDK path, independent of instrumentations array).
+- **Verification**: Tester confirmed 10/10 checks PASS. documentLoad spans arriving in Honeycomb with correct attributes. Trace: 18 spans (documentLoad → documentFetch → 16 resourceFetch).
+- **Commits**: 0937d3f, e2c07c6, 596b6ca, 0a89053
+
+---
+
 ## Search Engine & LLM Discoverability (Arc 52, v0.34.0, 2026-03-26)
 
 ### Arc 52: Search Engine & LLM Discoverability — COMPLETE (v0.34.0, 2026-03-26)
