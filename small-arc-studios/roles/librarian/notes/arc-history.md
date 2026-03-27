@@ -510,6 +510,44 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 
 ---
 
+## Audio Pronunciation Feature — Arc 55 IN PROGRESS (2026-03-27)
+
+### Arc 55: Sound Toggle UI & Persistence — IN PROGRESS
+- **Type**: User + Structural
+- **Goal**: Add a speaker icon toggle on welcome and slides pages that persists the learner's sound preference in localStorage.
+- **Acceptance Criteria**:
+  - Speaker icon button visible on welcome page (fixed position)
+  - Speaker icon button visible on slides page (fixed position)
+  - Toggle state persists across sessions via localStorage
+  - Default: sound ON
+  - `sound.toggle` event emitted on each toggle (with on/off direction)
+  - APP_VERSION bumped
+- **Architecture**:
+  - `src/audio.ts` — sound preference state + playback logic
+  - `src/ui/sound-toggle.ts` — toggle button UI, accepts `recordEvent` callback
+- **Key decisions**: DEC-213 (plan approved), DEC-214 (toggle not in hamburger), DEC-215 (default ON), DEC-216 (localStorage persistence), DEC-217 (sound.toggle event), DEC-220 (module architecture)
+- **Status**: Planned — not yet started
+
+### Arc 56: Slides Audio on Reveal — PLANNED
+- **Type**: User
+- **Goal**: Auto-play pronunciation MP3 when a combo name is revealed on the slides page, respecting the sound toggle.
+- **Acceptance Criteria**:
+  - Audio plays automatically when combo name is revealed
+  - Respects sound.enabled toggle
+  - `sound.enabled` and `sound.play_result` attributes on slide span
+  - 20 MP3 files in `audio/` directory (client records)
+- **Key decisions**: DEC-218 (attributes on slide span), DEC-219 (MP3 files, client records), DEC-221 (path: ../audio/{id}.mp3)
+
+### Arc 57: Combo Page Play Button — PLANNED
+- **Type**: User
+- **Goal**: Manual play button near combo name on combo reference pages so learners can hear pronunciation on demand.
+- **Acceptance Criteria**:
+  - Play button visible near combo name on each combo page
+  - Plays correct MP3 for that combo
+  - References audio files as `../audio/{id}.mp3`
+
+---
+
 ## Search Engine & LLM Discoverability (Arc 52, v0.34.0, 2026-03-26)
 
 ### Arc 52: Search Engine & LLM Discoverability — COMPLETE (v0.34.0, 2026-03-26)

@@ -1777,6 +1777,70 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: Part of the same dependency-inversion pattern as DEC-208. Feedback needed both event recording and session ID access, both of which depend on the telemetry context of the calling page.
 - **Rationale**: Consistent with the menu module design (DEC-208). Feedback is a UI component and should not own the decision of how to record events.
 
+## DEC-213: Audio Pronunciation Feature — Approved, Three-Arc Plan
+- **Date**: 2026-03-27
+- **Arc**: 55 (planned)
+- **Decision**: Add audio pronunciation for combo names. Planned as three arcs: Arc 55 (sound toggle UI + persistence), Arc 56 (auto-play on slide reveal), Arc 57 (manual play button on combo pages).
+- **Context**: Learners see combo names but don't know how to say them. Audio reinforces memory. Client approved the plan.
+- **Rationale**: Pronunciation aids retention; the Sparrow Deck technique benefits from multi-modal reinforcement. Three arcs isolates the toggle infrastructure, the learning-flow integration, and the reference-page integration independently.
+
+## DEC-214: Sound Toggle Is a Standalone Fixed Button — Not in Hamburger Menu
+- **Date**: 2026-03-27
+- **Arc**: 55
+- **Decision**: The sound toggle is a standalone fixed button on welcome and slides pages only — NOT a hamburger menu item.
+- **Context**: Sound is a per-session, in-the-moment preference that learners need to change quickly. The hamburger menu is for navigation and feedback, not in-session controls.
+- **Rationale**: Placing sound control in the hamburger menu would require too many taps mid-session. A fixed button (like a speaker icon) is immediately accessible and matches the conventions of media player controls.
+
+## DEC-215: Sound Default Is ON
+- **Date**: 2026-03-27
+- **Arc**: 55
+- **Decision**: Sound is ON by default. The toggle allows learners to mute it.
+- **Context**: Audio reinforces memory — the default should support learning. Users who don't want sound can turn it off.
+- **Rationale**: Defaulting to off would hide the feature from most users. Defaulting to on ensures audio has a chance to reinforce learning on first use.
+
+## DEC-216: Sound Preference Persisted in localStorage
+- **Date**: 2026-03-27
+- **Arc**: 55
+- **Decision**: Sound preference (on/off) is stored in localStorage so it persists across sessions.
+- **Context**: Learners who mute audio once should not have to mute it again each session.
+- **Rationale**: Consistent with how other preferences (e.g., player ID) are handled. Low friction for returning users.
+
+## DEC-217: Sound Toggle Emits sound.toggle Telemetry Event
+- **Date**: 2026-03-27
+- **Arc**: 55
+- **Decision**: The sound toggle emits a `sound.toggle` event (not a span attribute) each time it is activated.
+- **Context**: We want to know how often learners toggle sound, and in which direction.
+- **Rationale**: An event per toggle is the right signal — it captures user intent at the moment it happens.
+
+## DEC-218: Audio Telemetry on Slide Span — Attributes Not Separate Events
+- **Date**: 2026-03-27
+- **Arc**: 56
+- **Decision**: Audio success/failure and whether sound is enabled are recorded as attributes on the existing slide span — not as separate events.
+- **Context**: Audio playback is an outcome of the slide reveal, not a separate user action. The slide span is the right home.
+- **Attributes**: `sound.enabled` (bool), `sound.play_result` ("success" | "error" | "skipped").
+- **Rationale**: Keeps telemetry cohesive. The slide span already captures the reveal event; audio outcome belongs there.
+
+## DEC-219: 20 MP3 Files in audio/ Directory — One Per Combo, Named {combo-id}.mp3
+- **Date**: 2026-03-27
+- **Arc**: 56 (dependency)
+- **Decision**: Audio files are 20 static MP3s stored in the `audio/` directory, named `{combo-id}.mp3` (e.g., `dimir.mp3`, `gruul.mp3`). Client will record them.
+- **Context**: One pronunciation file per combo. Static files served directly from GitHub Pages.
+- **Rationale**: MP3 is universally supported. Naming by combo ID makes lookup trivial. Client recording ensures authentic, accurate pronunciation.
+
+## DEC-220: Audio Architecture — src/audio.ts + src/ui/sound-toggle.ts
+- **Date**: 2026-03-27
+- **Arc**: 55
+- **Decision**: Audio feature split into two modules: `src/audio.ts` (sound preference state + playback logic) and `src/ui/sound-toggle.ts` (toggle button UI).
+- **Context**: Consistent with the project's pattern of separating UI from logic (e.g., `menu.ts` accepts a `recordEvent` callback rather than owning telemetry).
+- **Rationale**: Clean separation of concerns. The sound toggle UI should not own the audio playback implementation, and neither should own the telemetry decisions.
+
+## DEC-221: Combo Page Audio Path — ../audio/{id}.mp3
+- **Date**: 2026-03-27
+- **Arc**: 57
+- **Decision**: Combo pages reference audio files as `../audio/{id}.mp3` (relative to the `combo/` directory).
+- **Context**: Combo pages live at `combo/<id>.html`. Audio files live at `audio/<id>.mp3`. Relative path resolves correctly from that location.
+- **Rationale**: Consistent with how combo pages already reference assets (e.g., mana pip images). Static paths that work on GitHub Pages.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

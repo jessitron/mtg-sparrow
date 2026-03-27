@@ -4,7 +4,30 @@ Current state, in-progress work, and upcoming arcs.
 
 ---
 
-## Current Status (2026-03-26)
+## Current Status (2026-03-27)
+
+### Active Arc: Arc 55 — Sound Toggle UI & Persistence
+
+**Problem**: Learners see combo names but don't know how to say them. Audio reinforces memory.
+
+**Arc 55 goal**: Speaker icon on welcome and slides pages, localStorage persistence, default ON, `sound.toggle` event.
+
+**Upcoming**:
+- Arc 56: Auto-play pronunciation on slide reveal (respects toggle; attributes on slide span)
+- Arc 57: Manual play button on combo reference pages
+
+**Architecture planned**:
+- `src/audio.ts` — preference state + playback
+- `src/ui/sound-toggle.ts` — toggle button UI
+- `audio/` directory — 20 MP3 files (client records), named `{combo-id}.mp3`
+
+**Dependency**: Client must record 20 MP3 files before Arc 56 can be verified end-to-end.
+
+**Decisions**: DEC-213 through DEC-221.
+
+---
+
+## Previous Status (2026-03-26)
 
 Static combo reference pages delivered outside formal arc process. 20 combo pages at `combo/<id>.html` + index at `combo/index.html`. Build script `npm run build:combos`. End page "More X cards →" links now point to combo pages (renamed telemetry event: `end.combo_page_click`). No version bump yet. Decisions DEC-195 through DEC-202. See arc-history.md for full details.
 
@@ -119,6 +142,6 @@ The combo reference pages were delivered outside the formal arc process with **n
 - Space-to-resume pause on slides
 - Cylinder unroll animation integration (using `cylinder-transition.js`)
 - Four-color combinations (deferred in DEC-004, still out of scope)
-- Pronunciation audio for combo names (DEC-018, still deferred)
+- ~~Pronunciation audio for combo names~~ — ACTIVE PLAN (Arcs 55–57, DEC-213 through DEC-221)
 - Adaptive pacing based on observability data
 - `mana-gas-encounter` CustomEvent wired to Honeycomb telemetry
