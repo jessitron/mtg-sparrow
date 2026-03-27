@@ -1742,6 +1742,41 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: Discovered during Arc 53 investigation. The SDK's `instrumentations` parameter controls auto-instrumentation plugins (like DocumentLoadInstrumentation), but CWV is a separate, always-on SDK path.
 - **Rationale**: Recorded for future reference — if CWV data ever needs to be disabled or debugged, the mechanism is separate from DocumentLoadInstrumentation.
 
+## DEC-208: Menu Module Accepts recordEvent Callback — Zero Telemetry Imports
+- **Date**: 2026-03-26
+- **Arc**: 54
+- **Decision**: `src/ui/menu.ts` accepts a `recordEvent` callback and `MenuOptions` config rather than importing telemetry directly. The menu module has zero telemetry imports.
+- **Context**: Previously `settings.ts` imported telemetry directly, coupling the UI to the telemetry implementation. The goal was to make the menu reusable across pages (main app and combo pages) with different telemetry contexts.
+- **Rationale**: Dependency inversion — UI components should not know about telemetry internals. Each page decides how events are recorded (with or without trace context) and passes the appropriate callback. Makes the menu independently testable.
+
+## DEC-209: Menu Telemetry Uses OTel Logs (emitLog) Not Zero-Duration Spans
+- **Date**: 2026-03-26
+- **Arc**: 54
+- **Decision**: Share (`share.copy_link`) and Feedback (`feedback.submit`) actions emit via `emitLog` (OTel Logs API) instead of zero-duration `startSpan`/`endSpan` spans. On main app pages, logs carry trace context (linked to the page's root span). On combo pages, they are standalone logs.
+- **Alternatives rejected**: Zero-duration spans — semantically wrong for instant events with no duration. Span events — harder to query independently in Honeycomb.
+- **Rationale**: Logs are the correct OTel primitive for instant events. This is consistent with the pattern established in Arc 34 (DEC-112). Using emitLog ensures immediate delivery via SimpleLogRecordProcessor rather than waiting for parent span end.
+
+## DEC-210: Combo Page Menu Scope — Share, Feedback, Nav Links Only
+- **Date**: 2026-03-26
+- **Arc**: 54
+- **Decision**: The hamburger menu on combo pages includes Share, Feedback, and nav links (Home, Levels, About). Excludes Reset Progress (no progression state on static pages) and trace link (no debug mode).
+- **Context**: Combo pages are static reference pages with no session state. Reset Progress would be a no-op. Trace link requires a debug-mode session.
+- **Rationale**: Menus should only show actions that are meaningful on the current page. Including Reset Progress would confuse users and suggest state that doesn't exist.
+
+## DEC-211: src/ui/settings.ts Deleted — Fully Replaced by src/ui/menu.ts
+- **Date**: 2026-03-26
+- **Arc**: 54
+- **Decision**: `src/ui/settings.ts` deleted after all functionality was migrated to `src/ui/menu.ts`. No backwards-compatibility shim retained.
+- **Context**: `settings.ts` was the original menu/settings module. Arc 54 extracted its responsibilities into `menu.ts` (UI) and moved telemetry decisions to each page's entry point.
+- **Rationale**: Dead code. No callers remained after migration. Clean deletion is preferable to maintaining an unused file.
+
+## DEC-212: feedback.ts Refactored — Accepts recordEvent/getSessionId Params
+- **Date**: 2026-03-26
+- **Arc**: 54
+- **Decision**: `wireFeedback` in `src/ui/feedback.ts` now accepts `recordEvent` and `getSessionId` as parameters instead of importing telemetry directly.
+- **Context**: Part of the same dependency-inversion pattern as DEC-208. Feedback needed both event recording and session ID access, both of which depend on the telemetry context of the calling page.
+- **Rationale**: Consistent with the menu module design (DEC-208). Feedback is a UI component and should not own the decision of how to record events.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

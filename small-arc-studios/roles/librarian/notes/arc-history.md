@@ -492,6 +492,24 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 
 ---
 
+## Shared Menu with Event-Based Telemetry (Arc 54, v0.36.0, 2026-03-26)
+
+### Arc 54: Shared Menu with Event-Based Telemetry — COMPLETE (v0.36.0, 2026-03-26)
+- **Type**: Structural + User
+- **What**:
+  1. **Extracted menu module** (`src/ui/menu.ts`) from `src/ui/settings.ts`. Accepts a `recordEvent` callback and `MenuOptions` config — zero direct telemetry imports.
+  2. **Refactored menu telemetry from zero-duration spans to logs.** Share (`share.copy_link`) and Feedback (`feedback.submit`) actions now emit via `emitLog` (OTel log API). On main app pages, logs carry trace context (linked to page's root span). On combo pages, standalone logs.
+  3. **Refactored `feedback.ts`** — `wireFeedback` now accepts `recordEvent` and `getSessionId` as parameters instead of importing telemetry directly.
+  4. **Updated all main app page entry points** (welcome.ts, slides.ts, assessment.ts, end.ts, about.ts) to use `wireMenu()` with a page-specific `recordEvent` wrapping `emitLog` with the page's root span.
+  5. **Wired menu into combo pages** via `combo-telemetry.ts`. Combo pages now have hamburger menu with Share, Feedback, Home, Levels, About. No Reset Progress or trace link.
+  6. **Deleted `src/ui/settings.ts`** — dead code after extraction.
+  7. **Bumped APP_VERSION to 0.36.0.**
+- **Key decisions**: DEC-208 (menu accepts recordEvent callback), DEC-209 (menu telemetry via emitLog not spans), DEC-210 (combo menu scope), DEC-211 (settings.ts deleted), DEC-212 (feedback.ts decoupled from telemetry).
+- **Verification**: Tester confirmed 23/23 checks PASS. Honeycomb confirmed `share.copy_link` as log (`meta.signal_type = "log"`). `service.version = 0.36.0`, `app.page = combo`, `combo.id = rakdos` all confirmed. Query: https://ui.honeycomb.io/modernity/environments/sparrow-deck/datasets/sparrow-deck/result/fH5RJWZQoWS
+- **Commits**: Multiple (menu extraction, page updates, combo wiring, version bump); 7e9a563 (delete dead settings.ts); 6cfdff3 (tester script and notes).
+
+---
+
 ## Search Engine & LLM Discoverability (Arc 52, v0.34.0, 2026-03-26)
 
 ### Arc 52: Search Engine & LLM Discoverability — COMPLETE (v0.34.0, 2026-03-26)
