@@ -1,4 +1,4 @@
-import { startSpan, endSpan, flushSpans, getSessionId } from '../telemetry/telemetry';
+type RecordEvent = (name: string, attrs?: Record<string, string | number | boolean>) => void;
 
 let contextProvider: (() => Record<string, string | number | boolean>) | null = null;
 
@@ -8,9 +8,12 @@ export function setFeedbackContextProvider(fn: () => Record<string, string | num
 
 /**
  * Wire the feedback button in the settings menu.
- * Opens a modal where users can submit feedback as a telemetry span.
+ * Opens a modal where users can submit feedback recorded via recordEvent.
  */
-export function wireFeedback(): void {
+export function wireFeedback(
+  recordEvent: RecordEvent,
+  getSessionId: () => string,
+): void {
   const feedbackBtn = document.getElementById('settings-feedback-btn');
   if (!feedbackBtn) return;
 
@@ -86,14 +89,14 @@ export function wireFeedback(): void {
     modalBackdrop.addEventListener('click', closeModal);
     document.addEventListener('keydown', onKeyDown);
 
-    submitBtn.addEventListener('click', async () => {
+    submitBtn.addEventListener('click', () => {
       const message = textarea.value.trim();
       const email = emailInput.value.trim();
 
       submitBtn.disabled = true;
 
       const extraContext = contextProvider ? contextProvider() : {};
-      const span = startSpan('feedback.submit', {
+      recordEvent('feedback.submit', {
         'feedback.message': message,
         'feedback.email': email,
         'feedback.page': window.location.pathname,
@@ -101,8 +104,6 @@ export function wireFeedback(): void {
         'feedback.message_length': message.length,
         ...extraContext,
       });
-      endSpan(span);
-      await flushSpans();
 
       // Hide form elements, show thanks
       textarea.hidden = true;
