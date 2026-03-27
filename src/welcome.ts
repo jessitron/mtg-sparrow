@@ -1,5 +1,6 @@
 import { initTelemetry, sendStartupSpan, startSpan, startChildSpan, endSpan, emitLog, getTraceId, flushSpans, getSessionId } from './telemetry/telemetry';
 import { wireMenu } from './ui/menu';
+import { setStorageRecordEvent } from './storage';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
 import { getUnlockedSubgroups } from './progression';
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     emitLog(name, pageSpan, attrs);
   };
   wireMenu({ appVersion: APP_VERSION, recordEvent, getSessionId, showResetProgress: true, showTraceLink: true });
+  setStorageRecordEvent(recordEvent);
 
   setFeedbackContextProvider(() => ({
     'feedback.unlocked_levels': getUnlockedSubgroups().join(','),

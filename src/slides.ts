@@ -1,5 +1,5 @@
 import { initTelemetry, startSpan, startChildSpan, endSpan, emitLog, flushSpans, getTraceId, getSessionId } from './telemetry/telemetry';
-import { storageSetItem } from './storage';
+import { storageSetItem, setStorageRecordEvent } from './storage';
 import { createCardShell, fillCard, revealName } from './ui/render';
 import {
   createSession,
@@ -677,6 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
     emitLog(name, sessionSpan ?? undefined, attrs);
   };
   wireMenu({ appVersion: APP_VERSION, recordEvent, getSessionId, showResetProgress: true, showTraceLink: true });
+  setStorageRecordEvent(recordEvent);
 
   setFeedbackContextProvider(() => {
     const ctx: Record<string, string | number | boolean> = {

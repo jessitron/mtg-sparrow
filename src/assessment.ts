@@ -1,6 +1,7 @@
 import { initTelemetry, startSpan, endSpan, emitLog, flushSpans, getSessionId } from './telemetry/telemetry';
 import { buildSelfAssessment, SELF_ASSESSMENT_MIN_CARDS } from './ui/self-assessment';
 import { wireMenu } from './ui/menu';
+import { setStorageRecordEvent } from './storage';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
 import { getUnlockedSubgroups } from './progression';
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     emitLog(name, undefined, attrs);
   };
   wireMenu({ appVersion: APP_VERSION, recordEvent, getSessionId, showResetProgress: true, showTraceLink: false });
+  setStorageRecordEvent(recordEvent);
 
   setFeedbackContextProvider(() => {
     const urlParams = new URLSearchParams(window.location.search);

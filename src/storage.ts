@@ -1,9 +1,15 @@
-import { emitLog } from './telemetry/telemetry';
+type RecordEvent = (name: string, attrs?: Record<string, string | number | boolean>) => void;
+
+let recordEvent: RecordEvent = () => {};
+
+export function setStorageRecordEvent(fn: RecordEvent): void {
+  recordEvent = fn;
+}
 
 export function storageSetItem(key: string, value: string): void {
   localStorage.setItem(key, value);
   try {
-    emitLog('localStorage.update', undefined, {
+    recordEvent('localStorage.update', {
       'storage.key': key,
       'storage.value': value,
       'storage.operation': 'setItem',
@@ -15,7 +21,7 @@ export function storageSetItem(key: string, value: string): void {
 export function storageRemoveItem(key: string): void {
   localStorage.removeItem(key);
   try {
-    emitLog('localStorage.update', undefined, {
+    recordEvent('localStorage.update', {
       'storage.key': key,
       'storage.operation': 'removeItem',
       'storage.adapter_version': 'v1',
@@ -26,7 +32,7 @@ export function storageRemoveItem(key: string): void {
 export function storageClear(): void {
   localStorage.clear();
   try {
-    emitLog('localStorage.update', undefined, {
+    recordEvent('localStorage.update', {
       'storage.key': '*',
       'storage.operation': 'clear',
       'storage.adapter_version': 'v1',

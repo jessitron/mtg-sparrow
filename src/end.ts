@@ -2,6 +2,7 @@ import { initTelemetry, startSpan, startChildSpan, endSpan, emitLog, flushSpans,
 import { showSessionEndColumns, getEndPageContext } from './ui/guild-columns';
 import { isSubgroupUnlocked, isEnemyUnlocked, getUnlockedSubgroups } from './progression';
 import { wireMenu } from './ui/menu';
+import { setStorageRecordEvent } from './storage';
 import { GuildSubgroup } from './session';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     emitLog(name, pageSpan, attrs);
   };
   wireMenu({ appVersion: APP_VERSION, recordEvent, getSessionId, showResetProgress: true, showTraceLink: true });
+  setStorageRecordEvent(recordEvent);
 
   // Wire trace link in settings panel (must be after wireMenu which injects the DOM)
   const traceId = getTraceId(pageSpan);
