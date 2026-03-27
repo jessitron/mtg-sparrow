@@ -79,27 +79,30 @@ wireMenu({
 });
 
 // Inject pronunciation play button inline with the combo name (skip on index page)
-const comboNameEl = document.querySelector('.combo-name');
-if (comboNameEl && comboId !== 'index') {
-  const playBtn = document.createElement('button');
-  playBtn.className = 'combo-play-btn';
-  playBtn.title = `Hear "${comboNameEl.textContent}" pronounced`;
-  playBtn.setAttribute('aria-label', `Play pronunciation of ${comboNameEl.textContent}`);
-  playBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-  </svg>`;
+// Must wait for DOM — the script tag is above .combo-name in the HTML
+document.addEventListener('DOMContentLoaded', () => {
+  const comboNameEl = document.querySelector('.combo-name');
+  if (comboNameEl && comboId !== 'index') {
+    const playBtn = document.createElement('button');
+    playBtn.className = 'combo-play-btn';
+    playBtn.title = `Hear "${comboNameEl.textContent}" pronounced`;
+    playBtn.setAttribute('aria-label', `Play pronunciation of ${comboNameEl.textContent}`);
+    playBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    </svg>`;
 
-  playBtn.addEventListener('click', (e: MouseEvent) => {
-    e.stopPropagation();
-    playComboAudio(comboId).then((result) => {
-      recordEvent('sound.play', {
-        'sound.combo_id': comboId,
-        'sound.context': 'combo-page',
-        'sound.play_result': result,
+    playBtn.addEventListener('click', (e: MouseEvent) => {
+      e.stopPropagation();
+      playComboAudio(comboId).then((result) => {
+        recordEvent('sound.play', {
+          'sound.combo_id': comboId,
+          'sound.context': 'combo-page',
+          'sound.play_result': result,
+        });
       });
     });
-  });
 
-  comboNameEl.appendChild(playBtn);
-}
+    comboNameEl.appendChild(playBtn);
+  }
+});
