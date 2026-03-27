@@ -1,5 +1,6 @@
 import { initTelemetry, sendStartupSpan, startSpan, startChildSpan, endSpan, emitLog, flushSpans, getTraceId, getSessionId } from './telemetry/telemetry';
 import { wireMenu } from './ui/menu';
+import { wireSoundToggle } from './ui/sound-toggle';
 import { setStorageRecordEvent } from './storage';
 import { renderLogo } from './ui/logo';
 import { APP_VERSION } from './version';
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     emitLog(name, pageSpan, attrs);
   };
   wireMenu({ appVersion: APP_VERSION, recordEvent, getSessionId, showResetProgress: true, showTraceLink: true });
+  wireSoundToggle(recordEvent);
   setStorageRecordEvent(recordEvent);
 
   const logoContainer = document.getElementById('about-logo');

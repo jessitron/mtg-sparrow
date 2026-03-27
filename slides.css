@@ -451,3 +451,26 @@ html:has(.app--quiz-active) {
     height: clamp(40px, 8vw, 64px);
   }
 }
+
+/* Sound toggle on slides — larger and higher-contrast, matching pause button */
+.sound-toggle-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ccc;
+  padding: 0;
+}
+
+.sound-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ccc;
+}
+
+@media (max-width: 600px) {
+  .sound-toggle-btn {
+    width: 40px;
+    height: 40px;
+  }
+}
