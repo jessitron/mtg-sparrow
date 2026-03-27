@@ -69,6 +69,7 @@ export const guilds: ColorCombo[] = [
       { name: "Zareth San, the Trickster", imageUrl: "https://cards.scryfall.io/normal/front/9/c/9cfe4fbe-277f-410c-9eee-f7617f4cb850.jpg?1604200662" },
       { name: "Dimir Signet", imageUrl: "https://cards.scryfall.io/normal/front/c/3/c3af24ce-b1ab-4137-9222-a4080acae928.jpg?1706240208" },
       { name: "Phenax, God of Deception", imageUrl: "https://cards.scryfall.io/normal/front/8/d/8dfcb129-4665-40e4-b5cb-a79f3f40ae5c.jpg?1593092799" },
+      { name: "Shadowmage Infiltrator", imageUrl: "https://cards.scryfall.io/normal/front/2/a/2ac920d7-013f-40ad-b79f-0bb59062d42a.jpg?1712354775" },
     ],
   },
   {
@@ -93,6 +94,7 @@ export const guilds: ColorCombo[] = [
       { name: "Blood Crypt", imageUrl: "https://cards.scryfall.io/normal/front/6/d/6da63cc5-4624-4491-abd9-9b600c3fefe2.jpg?1759144844" },
       { name: "Kroxa, Titan of Death's Hunger", imageUrl: "https://cards.scryfall.io/normal/front/c/e/cee0459b-9aac-4d2f-abe4-4d5fedde7eb8.jpg?1581481096" },
       { name: "Ob Nixilis, the Adversary", imageUrl: "https://cards.scryfall.io/normal/front/8/0/80226520-6b0a-48ea-a868-a29eb3fbd403.jpg?1664413416" },
+      { name: "Exava, Rakdos Blood Witch", imageUrl: "https://cards.scryfall.io/normal/front/6/c/6cb72a64-89e7-4b0e-a3d3-1309829071d2.jpg?1562915205" },
     ],
   },
   {
@@ -117,6 +119,7 @@ export const guilds: ColorCombo[] = [
       { name: "Zhur-Taa Goblin", imageUrl: "https://cards.scryfall.io/normal/front/1/3/13070db2-cf89-4552-8b6c-76426274321a.jpg?1584831944" },
       { name: "Grumgully, the Generous", imageUrl: "https://cards.scryfall.io/normal/front/3/a/3aa40ce2-76df-43bd-a59e-7cf6e4f46a1d.jpg?1674142476" },
       { name: "Svella, Ice Shaper", imageUrl: "https://cards.scryfall.io/normal/front/a/7/a7054d48-5ed3-43a1-85e5-9f306b081b4f.jpg?1631051907" },
+      { name: "Ghor-Clan Rampager", imageUrl: "https://cards.scryfall.io/normal/front/4/a/4aae3f29-dde8-4880-b675-75468d53b3f4.jpg?1599707962" },
     ],
   },
   {
@@ -243,6 +246,7 @@ export const guilds: ColorCombo[] = [
       { name: "Integrity // Intervention", imageUrl: "https://cards.scryfall.io/normal/front/5/4/54756398-5217-4771-b647-15920cf23fe5.jpg?1743960873" },
       { name: "Response // Resurgence", imageUrl: "https://cards.scryfall.io/normal/front/2/5/2502d3bf-1956-4294-b4d5-38eee79eeda1.jpg?1744102800" },
       { name: "Iroas, God of Victory", imageUrl: "https://cards.scryfall.io/normal/front/b/4/b4036bb7-835d-4690-aca1-1ab566776e9a.jpg?1562415955" },
+      { name: "Foundry Champion", imageUrl: "https://cards.scryfall.io/normal/front/8/4/84e39703-db78-4d3d-aacd-5396848253ed.jpg?1561834632" },
     ],
   },
   {
@@ -293,6 +297,8 @@ export const guilds: ColorCombo[] = [
       { name: "Ivorytusk Fortress", imageUrl: "https://cards.scryfall.io/normal/front/7/5/75a8df73-0141-4c07-87d8-b1f34a4b374b.jpg?1562788730" },
       { name: "Mythos of Nethroi", imageUrl: "https://cards.scryfall.io/normal/front/6/a/6abc24e1-e721-471a-9efd-547f320675b0.jpg?1591226925" },
       { name: "Duneblast", imageUrl: "https://cards.scryfall.io/normal/front/4/a/4a38e37b-d458-402a-8b36-13a0e0a115ce.jpg?1673305503" },
+      { name: "Armament Corps", imageUrl: "https://cards.scryfall.io/normal/front/a/5/a5c69876-809d-4af3-9fd6-3bac41541dad.jpg?1562791520" },
+      { name: "Abzan Guide", imageUrl: "https://cards.scryfall.io/normal/front/1/b/1b7f7158-4a31-4a1c-bf3b-574c0b09276a.jpg?1562783275" },
     ],
   },
   {
@@ -317,6 +323,7 @@ export const guilds: ColorCombo[] = [
       { name: "Zedruu the Greathearted", imageUrl: "https://cards.scryfall.io/normal/front/e/9/e9ea2a6b-5aaf-4178-b945-f409fe83c41a.jpg?1562424565" },
       { name: "Shu Yun, the Silent Tempest", imageUrl: "https://cards.scryfall.io/normal/front/b/d/bd79e83a-a34b-472c-9317-12af4ed2ca28.jpg?1562829332" },
       { name: "Warden of the Eye", imageUrl: "https://cards.scryfall.io/normal/front/0/4/04135bf7-2bcf-4a92-80f0-6d5eefca551b.jpg?1562781945" },
+      { name: "Hinata, Dawn-Crowned", imageUrl: "https://cards.scryfall.io/normal/front/f/2/f25aff90-56fd-4f70-bb3b-cabf2900c391.jpg?1654568472" },
     ],
   },
   {
@@ -339,6 +346,7 @@ export const guilds: ColorCombo[] = [
       { name: "Kadena, Slinking Sorcerer", imageUrl: "https://cards.scryfall.io/normal/front/6/8/68a144f1-df18-4dc5-81c3-dff2af27527f.jpg?1767960020" },
       { name: "Tatyova, Benthic Druid", imageUrl: "https://cards.scryfall.io/normal/front/e/a/eabc978a-0666-472d-bdc6-d4b29d29eca4.jpg?1730489527" },
       { name: "Torrent Elemental", imageUrl: "https://cards.scryfall.io/normal/front/d/c/dc4850e4-acb9-458d-952f-b3952cab2a5b.jpg?1562830569" },
+      { name: "Rakshasa Vizier", imageUrl: "https://cards.scryfall.io/normal/front/c/b/cb39e674-919d-4db6-9ac1-cfa1cca02207.jpg?1699601238" },
       { name: "Sultai Soothsayer", imageUrl: "https://cards.scryfall.io/normal/front/6/d/6dcc4f4b-a1bd-4581-858f-bbd3ff6a9d7a.jpg?1673149159" },
       { name: "Bring to Light", imageUrl: "https://cards.scryfall.io/normal/front/e/3/e3399260-a81a-475c-9b87-1efb1a13f8d6.jpg?1673148415" },
     ],
@@ -365,6 +373,7 @@ export const guilds: ColorCombo[] = [
       { name: "Ankle Shanker", imageUrl: "https://cards.scryfall.io/normal/front/5/4/544a06f8-75fe-41b6-81dc-c9a0358f03c5.jpg?1562400164" },
       { name: "Kaalia, Zenith Seeker", imageUrl: "https://cards.scryfall.io/normal/front/1/f/1f400655-f495-4b21-ab9e-57fe4d845d45.jpg?1592517520" },
       { name: "Syr Gwyn, Hero of Ashvale", imageUrl: "https://cards.scryfall.io/normal/front/a/3/a33add37-379d-4a90-9c04-529dff676986.jpg?1571282693" },
+      { name: "Tariel, Reckoner of Souls", imageUrl: "https://cards.scryfall.io/normal/front/b/5/b588dc15-68e6-4cbb-9345-a921c10f862d.jpg?1673149174" },
     ],
   },
   {
@@ -388,6 +397,8 @@ export const guilds: ColorCombo[] = [
       { name: "Volo, Guide to Monsters", imageUrl: "https://cards.scryfall.io/normal/front/c/9/c9ae01f9-7461-47b4-aa1e-93bd6ff1bf9e.jpg?1627709617" },
       { name: "Progenitor Mimic", imageUrl: "https://cards.scryfall.io/normal/front/a/c/acba72e1-3f7f-4e5c-af3f-dfe37b5d61f9.jpg?1599708250" },
       { name: "Avalanche Tusker", imageUrl: "https://cards.scryfall.io/normal/front/4/0/408e3f12-53d5-45f4-8ccc-6c00f8a9c6fe.jpg?1562785458" },
+      { name: "Trap Essence", imageUrl: "https://cards.scryfall.io/normal/front/2/b/2bb37bd9-10a0-48d5-87f0-23a03b5c1072.jpg?1562784208" },
+      { name: "Bear's Companion", imageUrl: "https://cards.scryfall.io/normal/front/2/8/28194ca7-3b2a-49b8-8f03-56a2c97859d9.jpg?1673148369" },
     ],
   },
 
@@ -413,6 +424,8 @@ export const guilds: ColorCombo[] = [
       { name: "Treva, the Renewer", imageUrl: "https://cards.scryfall.io/normal/front/7/4/74ee66b2-5b69-461b-9590-1143adc692af.jpg?1562916678" },
       { name: "Finest Hour", imageUrl: "https://cards.scryfall.io/normal/front/a/d/ad89ace6-b872-4a56-8128-795119ceb972.jpg?1592711097" },
       { name: "Amareth, the Lustrous", imageUrl: "https://cards.scryfall.io/normal/front/2/f/2fbea010-de77-468e-be39-1717070c9303.jpg?1608911014" },
+      { name: "Spell Queller", imageUrl: "https://cards.scryfall.io/normal/front/a/9/a9364b43-ab2e-4433-91e8-88a0d5d5965c.jpg?1736468546" },
+      { name: "Fleetfoot Panther", imageUrl: "https://cards.scryfall.io/normal/front/0/2/02db0f8e-5f87-427f-a3ff-0f261da679cd.jpg?1562895705" },
     ],
   },
   {
@@ -512,6 +525,7 @@ export const guilds: ColorCombo[] = [
       { name: "Hazezon Tamar", imageUrl: "https://cards.scryfall.io/normal/front/4/c/4cd43773-2a6f-4f03-bcee-de32049561e5.jpg?1562911124" },
       { name: "Samut, Voice of Dissent", imageUrl: "https://cards.scryfall.io/normal/front/6/0/60f2d8f1-43a9-438a-830c-9d6b5701f950.jpg?1543676097" },
       { name: "Ghired, Conclave Exile", imageUrl: "https://cards.scryfall.io/normal/front/d/0/d0825bcd-8cf8-498a-a61e-406f136e1f3f.jpg?1568003672" },
+      { name: "Mayael's Aria", imageUrl: "https://cards.scryfall.io/normal/front/a/5/a53170fe-7f18-47ef-b501-1ed398306419.jpg?1673148961" },
     ],
   },
 ];
