@@ -124,7 +124,7 @@ function buildCardGallery(combo: ColorCombo): string {
 
   return `<div class="combo-card-gallery">
 ${cards.map(card => `  <figure class="combo-card">
-    <img src="${card.imageUrl}" alt="${escapeHtml(card.name)}" loading="lazy" width="240" height="340" />
+    <img src="${card.imageUrl}" alt="${escapeHtml(card.flavor ?? card.name)}" loading="lazy" width="240" height="340" />
     <figcaption>${escapeHtml(card.name)}</figcaption>
   </figure>`).join("\n")}
 </div>`;

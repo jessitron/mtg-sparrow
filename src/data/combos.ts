@@ -1,6 +1,7 @@
 export type CardReference = {
   name: string;
   imageUrl: string;
+  flavor?: string; // snarky alt text for the card image
 };
 
 export type ColorCombo = {
