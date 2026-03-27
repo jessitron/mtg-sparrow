@@ -9,6 +9,7 @@ export function setStorageRecordEvent(fn: RecordEvent): void {
 export function storageSetItem(key: string, value: string): void {
   const before = localStorage.getItem(key) ?? '';
   localStorage.setItem(key, value);
+  if (before === value) return;
   try {
     recordEvent('localStorage.update', {
       'storage.key': key,
