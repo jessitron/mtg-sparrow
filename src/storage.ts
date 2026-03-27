@@ -7,11 +7,13 @@ export function setStorageRecordEvent(fn: RecordEvent): void {
 }
 
 export function storageSetItem(key: string, value: string): void {
+  const before = localStorage.getItem(key) ?? '';
   localStorage.setItem(key, value);
   try {
     recordEvent('localStorage.update', {
       'storage.key': key,
-      'storage.value': value,
+      'storage.before': before,
+      'storage.after': value,
       'storage.operation': 'setItem',
       'storage.adapter_version': 'v1',
     });
@@ -19,10 +21,13 @@ export function storageSetItem(key: string, value: string): void {
 }
 
 export function storageRemoveItem(key: string): void {
+  const before = localStorage.getItem(key) ?? '';
   localStorage.removeItem(key);
   try {
     recordEvent('localStorage.update', {
       'storage.key': key,
+      'storage.before': before,
+      'storage.after': '',
       'storage.operation': 'removeItem',
       'storage.adapter_version': 'v1',
     });
