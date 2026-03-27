@@ -3,6 +3,7 @@ import { wireMenu } from './ui/menu';
 import { setStorageRecordEvent } from './storage';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
+import { wireSoundToggle } from './ui/sound-toggle';
 import { getUnlockedSubgroups } from './progression';
 import { initDebugMode, isDebugMode } from './debug';
 
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     emitLog(name, pageSpan, attrs);
   };
   wireMenu({ appVersion: APP_VERSION, recordEvent, getSessionId, showResetProgress: true, showTraceLink: true });
+  wireSoundToggle(recordEvent);
   setStorageRecordEvent(recordEvent);
 
   setFeedbackContextProvider(() => ({

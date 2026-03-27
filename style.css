@@ -149,6 +149,34 @@ body {
   transform: scale(0.92);
 }
 
+/* Sound toggle button — to the left of menu button */
+.sound-toggle-btn {
+  position: fixed;
+  top: 12px;
+  right: 48px;
+  z-index: 2;
+  background: transparent;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 200ms ease, background 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sound-toggle-btn:hover {
+  color: #c8b88a;
+  background: rgba(200, 184, 138, 0.1);
+}
+
+.sound-toggle-btn:active {
+  transform: scale(0.92);
+}
+
 /* Settings backdrop */
 .settings-backdrop {
   position: fixed;

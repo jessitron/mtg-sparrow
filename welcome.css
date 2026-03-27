@@ -130,7 +130,8 @@
   }
 }
 
-/* Menu button needs more visibility over the mana gas background */
-.menu-btn {
+/* Menu button and sound toggle need more visibility over the mana gas background */
+.menu-btn,
+.sound-toggle-btn {
   color: rgba(255, 255, 255, 0.6);
 }

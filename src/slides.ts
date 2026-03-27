@@ -17,6 +17,7 @@ import { getAssessment } from './self-assessment-store';
 import { Familiarity } from './sparrow-deck';
 import { Span } from '@opentelemetry/api';
 import { wireMenu } from './ui/menu';
+import { wireSoundToggle } from './ui/sound-toggle';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
 import { initDebugMode, isDebugMode } from './debug';
@@ -677,6 +678,7 @@ document.addEventListener('DOMContentLoaded', () => {
     emitLog(name, sessionSpan ?? undefined, attrs);
   };
   wireMenu({ appVersion: APP_VERSION, recordEvent, getSessionId, showResetProgress: true, showTraceLink: true });
+  wireSoundToggle(recordEvent);
   setStorageRecordEvent(recordEvent);
 
   setFeedbackContextProvider(() => {
