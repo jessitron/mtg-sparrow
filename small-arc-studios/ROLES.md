@@ -229,6 +229,36 @@ We maintain coherence through record.
 
 ---
 
+# DevOps Engineer
+
+## Purpose
+
+Deploy, maintain, and operate infrastructure so the team's work reaches production reliably.
+
+## Responsibilities
+
+- Deploy and maintain infrastructure components (collectors, pipelines, services)
+- Manage container orchestration and Kubernetes resources
+- Write and maintain deployment manifests, Helm charts, and CI/CD pipelines
+- Ensure infrastructure changes are reproducible and version-controlled
+- Monitor deployment health and troubleshoot operational issues
+- Collaborate with Observability Engineer on collector and pipeline configuration
+- Collaborate with Developer on build and deployment workflows
+
+## Authority
+
+- Approve infrastructure changes before they go live
+- Require deployment manifests for any new service or component
+- Block deployments that lack health checks or rollback strategies
+- Recommend infrastructure arcs when operational risk accumulates
+
+## Standard
+
+Infrastructure must be declarative, reproducible, and observable.
+If it can't be redeployed from source, it doesn't exist.
+
+---
+
 # Shared Responsibility
 
 Every role is responsible for:
