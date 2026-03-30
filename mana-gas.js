@@ -109,6 +109,7 @@
     stopBtn.addEventListener("click", () => {
       paused = !paused;
       stopBtn.classList.toggle("stopped", paused);
+      window.dispatchEvent(new CustomEvent('mana-gas-stop', { detail: { paused } }));
       if (paused) {
         stopBtn.innerHTML = `<svg width="32" height="32" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)" stroke="none">
           <polygon points="7,4 20,12 7,20"/>
@@ -124,6 +125,7 @@
 
   if (fanBtn) {
     fanBtn.addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent('mana-gas-fan'));
       const svg = fanBtn.querySelector("svg");
       svg.classList.remove("spinning");
       void svg.offsetWidth;

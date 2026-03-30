@@ -78,6 +78,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Mana gas stop/fan telemetry — fired from mana-gas.js when pause or fan button is clicked
+  window.addEventListener('mana-gas-stop', ((e: CustomEvent) => {
+    const { paused } = e.detail;
+    recordEvent('home.gas_stop', { 'gas.paused': String(paused) });
+  }) as EventListener);
+
+  window.addEventListener('mana-gas-fan', () => {
+    recordEvent('home.gas_fan');
+  });
+
   // Mana gas drag telemetry — fired from mana-gas.js when a symbol is dragged and released
   window.addEventListener('mana-gas-drag', ((e: CustomEvent) => {
     const { color, duration_ms, release_vx, release_vy } = e.detail;
