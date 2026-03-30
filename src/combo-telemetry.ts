@@ -38,8 +38,21 @@ function getSessionId(): string {
   return id;
 }
 
+// Player ID — same pattern as main telemetry.ts (persists across sessions via localStorage)
+function getPlayerId(): string {
+  const key = 'mtg-sparrow.player.id';
+  const stored = localStorage.getItem(key);
+  if (stored) return stored;
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  const id = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+  localStorage.setItem(key, id);
+  return id;
+}
+
 const comboId = getComboId();
 const sessionId = getSessionId();
+const playerId = getPlayerId();
 
 const sdk = new HoneycombWebSDK({
   apiKey: 'hcaik_01khj5r4wm0ffgsz59cdn42zvxn4rrt4kgny3zbc8zehs115ccwtntdsbh',
@@ -50,6 +63,7 @@ const sdk = new HoneycombWebSDK({
     'app.page': 'combo',
     'combo.id': comboId,
     'mtg-sparrow.session.id': sessionId,
+    'mtg-sparrow.player.id': playerId,
   },
 });
 
