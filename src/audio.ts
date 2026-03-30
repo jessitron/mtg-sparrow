@@ -2,6 +2,23 @@ import { storageSetItem } from './storage';
 
 const SOUND_ENABLED_KEY = 'mtg-sparrow.sound.enabled';
 
+let audioEl: HTMLAudioElement | null = null;
+
+/**
+ * Unlock audio playback on iOS Safari by playing a silent WAV
+ * synchronously from a user gesture. Must be called from a direct
+ * tap/click handler before any timer-triggered audio.
+ */
+export function unlockAudio(): void {
+  const el = new Audio(
+    'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA='
+  );
+  el.play().catch(() => {
+    // Ignore — we're just unlocking the audio context
+  });
+  audioEl = el;
+}
+
 type RecordEvent = (name: string, attrs?: Record<string, string | number | boolean>) => void;
 
 export function isSoundEnabled(): boolean {
@@ -34,8 +51,13 @@ export async function playComboAudio(comboId: string): Promise<'success' | 'disa
  */
 export async function playAudio(comboId: string): Promise<'success' | 'error'> {
   try {
-    const audio = new Audio(`/audio/${comboId}.mp3`);
-    await audio.play();
+    if (audioEl) {
+      audioEl.src = `/audio/${comboId}.mp3`;
+      await audioEl.play();
+    } else {
+      const audio = new Audio(`/audio/${comboId}.mp3`);
+      await audio.play();
+    }
     return 'success';
   } catch {
     return 'error';

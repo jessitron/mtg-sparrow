@@ -18,7 +18,7 @@ import { Familiarity } from './sparrow-deck';
 import { Span } from '@opentelemetry/api';
 import { wireMenu } from './ui/menu';
 import { wireSoundToggle } from './ui/sound-toggle';
-import { isSoundEnabled, playComboAudio } from './audio';
+import { isSoundEnabled, playComboAudio, unlockAudio } from './audio';
 import { APP_VERSION } from './version';
 import { setFeedbackContextProvider } from './ui/feedback';
 import { initDebugMode, isDebugMode } from './debug';
@@ -646,6 +646,9 @@ function showLevelIntro(subgroup: GuildSubgroup, from: string, welcomeDwellMs: n
   function dismiss(): void {
     if (dismissed) return;
     dismissed = true;
+
+    // Unlock audio on iOS Safari — must happen synchronously in the user gesture
+    unlockAudio();
 
     // Remove temporary listeners
     app!.removeEventListener('click', onIntroClick);
