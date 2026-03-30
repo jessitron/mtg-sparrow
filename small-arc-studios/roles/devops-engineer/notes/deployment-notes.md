@@ -34,7 +34,7 @@
 - **Image: otel/opentelemetry-collector-contrib** — contrib build supports more exporters including otlphttp.
 - **Pipelines: traces + logs** — mtgcolors.quest emits both. No metrics pipeline needed yet.
 - **CORS**: Allowed origin `https://mtgcolors.quest` plus `http://localhost:*` for dev.
-- **Exporter**: `otlphttp/honeycomb` → `https://api.honeycomb.io` with `x-honeycomb-team` header from secret.
+- **Exporter**: `otlp_http/honeycomb` → `https://api.honeycomb.io` with `x-honeycomb-team` header from secret. (Note: `otlphttp` alias is deprecated in collector 0.147; use `otlp_http` — corrected in values file post-first-install.)
 - **Resources**: Conservative (50m/128Mi request, 200m/256Mi limit) — low-traffic static site.
 
 ### Secrets
