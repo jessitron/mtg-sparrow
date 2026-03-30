@@ -126,21 +126,21 @@ export const guildDescriptions: GuildDescription[] = [
     description:
       "On Esper, flesh is a design flaw. The mages of this shard lace their bodies and creations with etherium to improve upon the forms nature provides. The sphinxes and artificers of Esper believe that everything can be improved with intelligence and will. They do not rule through brute force — they engineer outcomes. Gameplay includes artifacts and control (like counters and removal).",
     scryfallUrl: "https://scryfall.com/search?q=c%3Dwub+-set%3Asld+-is%3Aub+legal%3Atimeless",
-    flavor: "I like the Egyptian Zombies commander deck from Aetherdrift. ",
+    flavor: "Yshtola from Final Fantasy XIV is an Esper commander. She dinks you for 2 life and you think 'no big deal' until suddenly you're at ten life and you can't defend from it.",
   },
   {
     id: "grixis",
     description:
       "Grixis is a dying world that forgot to stop. The strong consume the weak, the dead rise, and mana is contested with savage desperation. There is only power and the will to seize it. Nihilistic, cunning, and brutally pragmatic, Grixis abandons every illusion but one: that surviving is worth any price. Gameplay includes graveyard recursion and stealing opponents' creatures.",
     scryfallUrl: "https://scryfall.com/search?q=c%3Dubr+-set%3Asld+-is%3Aub+legal%3Atimeless",
-    flavor: "Pirates are very Grixis. Steal creatures, create treasure, and reanimate Pirates from the graveyard."
+    flavor: "The pirate deck from LCI: Pirates are very Grixis. Steal creatures, create treasure, and reanimate Pirates from the graveyard."
   },
   {
     id: "jund",
     description:
       "In Jund, you eat or you are eaten. Dragons feed on everything below them in the food chain. Every creature earns its place through strength alone. Savage, direct, and honest about it all, Jund strips away pretense. Here there is no philosophy — only the predator and the prey Gameplay includes sacrificing your own permanents to fuel bigger ones.",
     scryfallUrl: "https://scryfall.com/search?q=c%3Dbrg+-set%3Asld+-is%3Aub+legal%3Atimeless",
-    flavor:"The Terraforming commander deck is Jund. It centers on sacrificing lands, replaying them from the graveyard, and then sacrificing them again. It gets complicated, with long turns, and then it wins.",
+    flavor:"The World Shaper commander deck is Jund. It centers on sacrificing lands, replaying them from the graveyard, and then sacrificing them again. It gets complicated, with long turns, and then it wins.",
   },
   {
     id: "naya",
@@ -154,7 +154,7 @@ export const guildDescriptions: GuildDescription[] = [
         deckName: "Veloci-Ramp-Tor",
         setName: "The Lost Caverns of Ixalan Commander",
         edhrecUrl: "https://edhrec.com/precon/veloci-ramp-tor",
-        description: "Full of ramp and dinosaurs that pull out other dinosaurs. \"There's not much, and then there's Pantlaza, and then suddenly there are dozens of huge dinosaurs out!\"",
+        description: "Full of ramp, big dinosaurs, and dinosaurs that pull out other dinosaurs. My friend says, \"There's not much, and then there's Pantlaza, and then suddenly there are tons of huge dinosaurs out!\"",
       },
     ],
   },
