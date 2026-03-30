@@ -554,6 +554,15 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
   }
   sessionSpan = startSpan('session', sessionAttrs);
 
+  // Layout metrics for viewport/scroll analysis
+  if (sessionSpan) {
+    const pageHeight = document.documentElement.scrollHeight;
+    const viewportHeight = window.innerHeight;
+    sessionSpan.setAttribute('session.page_height', pageHeight);
+    sessionSpan.setAttribute('session.viewport_height', viewportHeight);
+    sessionSpan.setAttribute('session.has_scrollbar', pageHeight > viewportHeight);
+  }
+
   // Store trace URL so the settings panel can display it
   if (sessionSpan) {
     const traceId = getTraceId(sessionSpan);
@@ -570,6 +579,17 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
 
   buildSessionUI();
   showCard();
+
+  // After layout settles, capture slide height percentage of viewport
+  requestAnimationFrame(() => {
+    const cardContainer = document.querySelector('.card-container');
+    if (cardContainer && sessionSpan) {
+      const cardRect = cardContainer.getBoundingClientRect();
+      const vp = window.innerHeight;
+      const pct = Math.round(cardRect.height / vp * 100);
+      sessionSpan.setAttribute('session.slide_height_pct', pct);
+    }
+  });
 }
 
 const levelNumberMap: Record<GuildSubgroup, number> = {

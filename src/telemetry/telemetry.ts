@@ -43,6 +43,12 @@ export function initTelemetry(version: string, page?: string, navigation?: strin
   if (utmId) resourceAttrs['utm.referral_session_id'] = utmId;
   resourceAttrs['app.debug'] = String(isDebugMode());
 
+  // Screen and viewport dimensions for layout analysis
+  resourceAttrs['screen.width'] = String(window.screen.width);
+  resourceAttrs['screen.height'] = String(window.screen.height);
+  resourceAttrs['viewport.width'] = String(window.innerWidth);
+  resourceAttrs['viewport.height'] = String(window.innerHeight);
+
   init(version, sessionId, resourceAttrs);
   tracer = trace.getTracer('sparrow-deck', version);
   logger = logs.getLogger('sparrow-deck', version);
