@@ -2,13 +2,13 @@
 
 ## other
 
-- on iPad, the sound does not play on the timer (usually), only when I tap.
-- on iPad, the slides are not allocating space correctly, it winds up with a scroll bar.
-- on a giant screen (Eric's ultrawide), the slide does not use the available space, not even the available height.
+- optimizing slide layout
+  - on iPad, the slides are not allocating space correctly, it winds up with a scroll bar.
+  - on a giant screen (Eric's ultrawide), the slide does not use the available space, not even the available height.
+  - added o11y, waiting for data
 - Add a progress marker to the end screen, like some dots at the left that shows where you are and that you could move up or down. I think they defined an arc for this but then we got distracted in a different direction
-- add a Combos link to the hamburger menu
 - add overview info for each group of combos, along with overall summary, on the combos index.
-- maybe add an indicator of your last self-assessment to the end page, on each level that's completed. 1-3 stars
+- add an indicator of your last self-assessment to the end page, on each level that's completed. 1-3 stars
 - a cute 404 page
 - next/previous buttons on the static combo pages
 - o11y: put the session id and player ID on every log.
