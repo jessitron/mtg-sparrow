@@ -102,7 +102,69 @@ All in `default` namespace:
 - `nginx-for-hny-tricks-ingress` → `util.jessitron.honeydemo.io`
 - `rollback-webhook` → `rollback.jessitron.honeydemo.io`
 
+---
+
+## Session: Config Lockdown — Null Out Chart Defaults (2026-03-30)
+
+### Problem
+
+The helm chart merges its own default config with the values we provide. This meant
+the deployed collector was running components we don't need: jaeger receiver, zipkin
+receiver, prometheus receiver, gRPC OTLP receiver, debug exporter, and a metrics pipeline.
+
+### What Was Nulled Out
+
+In `infra/otel-collector-values.yaml`, set these to `null` to prevent the chart from
+adding them:
+
+| Component | Chart Default | Action | Why |
+|---|---|---|---|
+| `receivers.jaeger` | Jaeger gRPC/thrift/compact | `null` | Not needed — only OTLP from browser |
+| `receivers.zipkin` | Zipkin on 9411 | `null` | Not needed |
+| `receivers.prometheus` | Self-scrape on 8888 | `null` | Not needed |
+| `receivers.otlp.protocols.grpc` | gRPC on 4317 | `null` | Browser sends HTTP only |
+| `exporters.debug` | Debug/stdout exporter | `null` | Clutters logs, not needed |
+| `connectors` | (none by default but prevent future) | `null` | Not needed |
+| `service.pipelines.metrics` | Metrics pipeline (debug exporter) | `null` | No metrics to export |
+
+### What Was Kept
+
+| Component | Config |
+|---|---|
+| `receivers.otlp.protocols.http` | Port 4318, CORS for mtgcolors.quest + localhost |
+| `exporters.otlp_http/honeycomb` | OTLP HTTP to api.honeycomb.io |
+| `extensions.health_check` | Port 13133 |
+| `service.pipelines.traces` | otlp -> memory_limiter, batch -> otlp_http/honeycomb |
+| `service.pipelines.logs` | otlp -> memory_limiter, batch -> otlp_http/honeycomb |
+
+### Ports After Lockdown
+
+| Port | Service | Purpose |
+|---|---|---|
+| 4318 | OTLP HTTP | Telemetry ingress (traces + logs) |
+| 13133 | Health check | ALB health checks + k8s probes |
+| ~~4317~~ | ~~gRPC~~ | Disabled |
+| ~~14250, 6831, 14268~~ | ~~Jaeger~~ | Disabled |
+| ~~9411~~ | ~~Zipkin~~ | Disabled |
+| ~~8888~~ | ~~Prometheus metrics~~ | Still in service.telemetry (chart internal), but not exposed |
+
+### Verification
+
+- `helm template` confirmed rendered config contains only desired components
+- Pod came up 1/1 Running, logs show only HTTP server starting (no gRPC)
+- Test trace via `curl POST https://mtg-sparrow.jessitron.honeydemo.io/v1/traces` returned HTTP 200
+- Helm revision: 4
+
+### Technique Note
+
+The helm chart docs mention a `alternateConfig` field that bypasses merging entirely.
+We chose the `null` approach instead because:
+- `alternateConfig` has NO defaults at all, so we'd lose the chart's k8s telemetry resource attributes
+- `null` is more surgical: we keep what works and remove only what we don't want
+- Easier to see intent — each null is documented
+
+If the chart is used as a subchart, `null` may not work due to a helm bug (see chart docs). In that case, switch to `alternateConfig`.
+
 ### Open Questions / Next Steps
 
-- Consider adding a metrics pipeline if the collector self-telemetry is needed.
 - If traffic grows, bump replicas and resource limits.
