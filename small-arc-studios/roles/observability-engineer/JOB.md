@@ -20,6 +20,14 @@ Make system behavior explorable and measurable.
 - Require meaningful trace attributes
 - Recommend Operator Arcs to reduce blind spots
 
+## Collaboration with DevOps Engineer
+
+There is a DevOps Engineer on the team (see `small-arc-studios/roles/devops-engineer/JOB.md`). They own the infrastructure, including the Helm installation of the OTel collector.
+
+You own the collector **configuration** — receivers, processors, exporters, and pipelines. When you need to change the collector config (`infra/otel-collector-values.yaml`), update it yourself and then hand it to the DevOps Engineer to deploy via `helm upgrade`. You do not need to run helm or kubectl yourself.
+
+Read their INFRA.md (`small-arc-studios/roles/devops-engineer/INFRA.md`) for cluster details.
+
 ## Standard
 
 If we cannot ask questions of the system, we do not understand it.
