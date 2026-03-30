@@ -143,6 +143,71 @@
   padding: 0.7rem 1.5rem;
 }
 
+/* --- Example Decks section --- */
+
+.combo-decks {
+  margin-bottom: 2.5rem;
+}
+
+.combo-decks h2 {
+  font-family: 'GoudyMediaeval', serif;
+  font-size: 1.5rem;
+  color: #e0e0e0;
+  margin-bottom: 1rem;
+}
+
+.combo-deck {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.combo-deck-card {
+  flex-shrink: 0;
+  width: 180px;
+}
+
+.combo-deck-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.combo-deck-info {
+  flex: 1;
+}
+
+.combo-deck-commander {
+  font-family: 'GoudyMediaeval', serif;
+  font-size: 1.25rem;
+  color: #e0e0e0;
+  margin-bottom: 0.4rem;
+}
+
+.combo-deck-meta {
+  font-size: 0.95rem;
+  color: #999;
+  margin-bottom: 0.75rem;
+}
+
+.combo-deck-link {
+  color: var(--bg-khaki);
+  text-decoration: none;
+}
+
+.combo-deck-link:hover {
+  text-decoration: underline;
+}
+
+.combo-deck-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #ccc;
+  font-style: italic;
+}
+
 /* --- Cards section --- */
 
 .combo-cards h2 {
@@ -370,6 +435,15 @@
   }
 
   .combo-pentagon-container {
+    width: 160px;
+  }
+
+  .combo-deck {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .combo-deck-card {
     width: 160px;
   }
 

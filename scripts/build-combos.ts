@@ -7,7 +7,7 @@
  */
 
 import { guilds, ColorCombo } from "../src/data/combos.js";
-import { guildDescriptionMap } from "../src/data/guild-descriptions.js";
+import { guildDescriptionMap, ExampleDeck } from "../src/data/guild-descriptions.js";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -128,6 +128,26 @@ ${cards.map(card => `  <figure class="combo-card">
     <figcaption>${escapeHtml(card.name)}</figcaption>
   </figure>`).join("\n")}
 </div>`;
+}
+
+function buildExampleDecks(decks?: ExampleDeck[]): string {
+  if (!decks || decks.length === 0) return "";
+
+  const deckItems = decks.map(deck => `
+      <div class="combo-deck">
+        <div class="combo-deck-card">
+          <img src="${deck.commanderImageUrl}" alt="${escapeHtml(deck.commander)}" loading="lazy" width="240" height="340" />
+        </div>
+        <div class="combo-deck-info">
+          <h3 class="combo-deck-commander">${escapeHtml(deck.commander)}</h3>
+          <p class="combo-deck-meta"><a href="${deck.edhrecUrl}" target="_blank" rel="noopener noreferrer" class="combo-deck-link">${escapeHtml(deck.deckName)}</a> &mdash; ${escapeHtml(deck.setName)}</p>
+          <p class="combo-deck-description">${escapeHtml(deck.description)}</p>
+        </div>
+      </div>`).join("\n");
+
+  return `<section class="combo-decks">
+        <h2>Example Decks</h2>${deckItems}
+      </section>`;
 }
 
 function manaPips(colors: string[], size = 24): string {
@@ -270,6 +290,8 @@ function buildPage(combo: ColorCombo): string {
       <div class="combo-cta">
         <a href="../slides?subgroup=${subgroupParam(combo)}&from=combo_page" class="combo-learn-button combo-learn-button--prominent">Learn ${subgroupLabel(combo)} names</a>
       </div>
+
+      ${buildExampleDecks(desc?.exampleDecks)}
 
       <section class="combo-cards">
         <h2>Example Cards <span class="combo-card-count">(${cardCount})</span></h2>

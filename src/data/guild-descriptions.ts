@@ -1,8 +1,18 @@
+export type ExampleDeck = {
+  commander: string; // commander card name
+  commanderImageUrl: string; // Scryfall image URL for the commander
+  deckName: string; // precon deck name
+  setName: string; // set the precon is from
+  edhrecUrl: string; // link to EDHREC precon page
+  description: string; // what the deck does / flavor
+};
+
 export type GuildDescription = {
   id: string; // matches ColorCombo.id in combos.ts
   description: string; // 3-5 sentences of philosophy and flavor
   scryfallUrl: string; // link to "More [Guild] cards"
   flavor?: string; // editorial commentary from the client
+  exampleDecks?: ExampleDeck[]; // optional precon commander decks
 };
 
 export const guildDescriptions: GuildDescription[] = [
@@ -136,8 +146,17 @@ export const guildDescriptions: GuildDescription[] = [
     id: "naya",
     description:
       "Naya is a paradise, a lush world of abundance. Leviathans walk the jungle floor and five-color mana flows freely. But paradise breeds complacency. Beautiful, exuberant, and naive, Naya celebrates the magnificent present without worrying about tomorrow. Gameplay is about big, smashy creatures.",
-      flavor: "The Dinosaur commander deck is Naya. It is full of ramp and dinosaurs that pull out other dinosaurs. I modified it, adding biggies like Gishath, Sun's Avatar. My friend says: \"There's not much, and then there's Pantlaza, and then suddenly there are dozens of huge dinosaurs out!\"",
     scryfallUrl: "https://scryfall.com/search?q=c%3Drgw+-set%3Asld+-is%3Aub+legal%3Atimeless",
+    exampleDecks: [
+      {
+        commander: "Pantlaza, Sun-Favored",
+        commanderImageUrl: "https://cards.scryfall.io/normal/front/2/5/2524645e-b066-4351-885b-10faa8d819d7.jpg?1699972737",
+        deckName: "Veloci-Ramp-Tor",
+        setName: "The Lost Caverns of Ixalan Commander",
+        edhrecUrl: "https://edhrec.com/precon/veloci-ramp-tor",
+        description: "Full of ramp and dinosaurs that pull out other dinosaurs. \"There's not much, and then there's Pantlaza, and then suddenly there are dozens of huge dinosaurs out!\"",
+      },
+    ],
   },
 ];
 
