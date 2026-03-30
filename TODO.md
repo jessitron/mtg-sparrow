@@ -10,8 +10,8 @@
 - add overview info for each group of combos, along with overall summary, on the combos index.
 - add an indicator of your last self-assessment to the end page, on each level that's completed. 1-3 stars
 - a cute 404 page
-- next/previous buttons on the static combo pages
-- o11y: put the session id and player ID on every log.
+- ~~next/previous buttons on the static combo pages~~ done (Arc 60, v0.40.0)
+- ~~o11y: put the session id and player ID on every log.~~ done (Arc 61, v0.40.0 — added to both main app logs and combo pages)
 - o11y: add the scryfall URL to the card spans
 - on the home page, pushing 'pause' or 'fan' should make a log.
 - update the end screen URL when switching between info sections, so that if someone c&p the link, it'll take the recipient to the right page.
@@ -21,7 +21,7 @@
 - Remove the instructions from the home page; replace with tutorial
 - on the home page, give players a button for each level they've unlocked. Change "learn" to "practice" for the ones they've completed.
 - VISUAL BUG: on the end screen, when it loads on Allied Guilds (the top section), the "up" arrow chevron starts visible then moves down to hide. I think both arrows should start in their hidden positions, and then the ones that need to be visible slide out. That will draw attention to them.
-- Bug on the end screen: "Next Level" button only shows below the Allied Guilds section. It should show below every section if the first level they haven't completed is below this one.
+- ~~Bug on the end screen: "Next Level" button only shows below the Allied Guilds section. It should show below every section if the first level they haven't completed is below this one.~~ fixed (Arc 63, v0.40.0 — 'shards' was missing from condition)
 - on the end screen, can we make it look a little more like a window maybe ... I want bits of the next sections to show (maybe less visible) so that people know there's more to scroll to.
 - let's talk about the color pallette. Pull all colors from everywhere in the site into variables (or make a report of them), and then let's get them standardized on fewer.
 - build a board in Honeycomb to see site usage
