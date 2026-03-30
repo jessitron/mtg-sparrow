@@ -76,7 +76,11 @@ function recordEvent(name: string, attrs?: Record<string, string | number | bool
   logger.emit({
     severityNumber: SeverityNumber.INFO,
     body: name,
-    attributes: attrs,
+    attributes: {
+      'mtg-sparrow.session.id': sessionId,
+      'mtg-sparrow.player.id': playerId,
+      ...attrs,
+    },
   });
 }
 

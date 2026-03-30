@@ -84,7 +84,11 @@ export function emitLog(
   logger.emit({
     severityNumber: SeverityNumber.INFO,
     body: name,
-    attributes,
+    attributes: {
+      'mtg-sparrow.session.id': sessionId,
+      'mtg-sparrow.player.id': playerId,
+      ...attributes,
+    },
     context: ctx,
   });
 }
