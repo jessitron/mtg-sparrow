@@ -1049,7 +1049,7 @@ export function showSessionEndColumns(
     }
 
     const nextLabel = SECTION_LABELS[reelIndex + 1];
-    const nextIsNewLevel = (nextLabel === 'allied' || nextLabel === 'enemy' || nextLabel === 'wedges') && !hasCompletedSubgroup(nextLabel);
+    const nextIsNewLevel = (nextLabel === 'allied' || nextLabel === 'enemy' || nextLabel === 'wedges' || nextLabel === 'shards') && !hasCompletedSubgroup(nextLabel);
 
     if (!atEnd && nextIsNewLevel) {
       bottomBtn.textContent = 'Next Level';
