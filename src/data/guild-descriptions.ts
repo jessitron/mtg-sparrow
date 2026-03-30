@@ -126,21 +126,48 @@ export const guildDescriptions: GuildDescription[] = [
     description:
       "On Esper, flesh is a design flaw. The mages of this shard lace their bodies and creations with etherium to improve upon the forms nature provides. The sphinxes and artificers of Esper believe that everything can be improved with intelligence and will. They do not rule through brute force — they engineer outcomes. Gameplay includes artifacts and control (like counters and removal).",
     scryfallUrl: "https://scryfall.com/search?q=c%3Dwub+-set%3Asld+-is%3Aub+legal%3Atimeless",
-    flavor: "Yshtola from Final Fantasy XIV is an Esper commander. She dinks you for 2 life and you think 'no big deal' until suddenly you're at ten life and you can't defend from it.",
+    exampleDecks: [
+      {
+        commander: "Y'shtola, Night's Blessed",
+        commanderImageUrl: "https://cards.scryfall.io/normal/front/c/7/c7f2c2d5-e052-49e8-b5de-712858c2ea78.jpg?1752052932",
+        deckName: "Scions & Spellcraft",
+        setName: "Final Fantasy Commander",
+        edhrecUrl: "https://edhrec.com/precon/scions-spellcraft",
+        description: "She dinks you for 2 life and you think 'no big deal' until suddenly you're at ten life and you can't defend from it.",
+      },
+    ],
   },
   {
     id: "grixis",
     description:
       "Grixis is a dying world that forgot to stop. The strong consume the weak, the dead rise, and mana is contested with savage desperation. There is only power and the will to seize it. Nihilistic, cunning, and brutally pragmatic, Grixis abandons every illusion but one: that surviving is worth any price. Gameplay includes graveyard recursion and stealing opponents' creatures.",
     scryfallUrl: "https://scryfall.com/search?q=c%3Dubr+-set%3Asld+-is%3Aub+legal%3Atimeless",
-    flavor: "The pirate deck from LCI: Pirates are very Grixis. Steal creatures, create treasure, and reanimate Pirates from the graveyard."
+    exampleDecks: [
+      {
+        commander: "Admiral Brass, Unsinkable",
+        commanderImageUrl: "https://cards.scryfall.io/normal/front/b/d/bdc2d492-9d1e-4543-8b9c-c66ee67992ce.jpg?1699972732",
+        deckName: "Ahoy Mateys",
+        setName: "The Lost Caverns of Ixalan Commander",
+        edhrecUrl: "https://edhrec.com/precon/ahoy-mateys",
+        description: "Pirates are very Grixis. Steal creatures, create treasure, and reanimate Pirates from the graveyard.",
+      },
+    ],
   },
   {
     id: "jund",
     description:
       "In Jund, you eat or you are eaten. Dragons feed on everything below them in the food chain. Every creature earns its place through strength alone. Savage, direct, and honest about it all, Jund strips away pretense. Here there is no philosophy — only the predator and the prey Gameplay includes sacrificing your own permanents to fuel bigger ones.",
     scryfallUrl: "https://scryfall.com/search?q=c%3Dbrg+-set%3Asld+-is%3Aub+legal%3Atimeless",
-    flavor:"The World Shaper commander deck is Jund. It centers on sacrificing lands, replaying them from the graveyard, and then sacrificing them again. It gets complicated, with long turns, and then it wins.",
+    exampleDecks: [
+      {
+        commander: "Szarel, Genesis Shepherd",
+        commanderImageUrl: "https://cards.scryfall.io/normal/front/8/9/89b61123-b10f-4bcf-b5f9-1f302f9b22d1.jpg?1754673465",
+        deckName: "World Shaper",
+        setName: "Edge of Eternities Commander",
+        edhrecUrl: "https://edhrec.com/precon/world-shaper",
+        description: "Sacrifice lands, replay them from the graveyard, sacrifice them again. It gets complicated, with long turns, and then it wins.",
+      },
+    ],
   },
   {
     id: "naya",
