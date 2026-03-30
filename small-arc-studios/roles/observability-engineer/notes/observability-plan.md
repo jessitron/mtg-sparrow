@@ -361,6 +361,6 @@ The observability strategy is intentionally focused: **one trace per session, on
 
 **Build:** esbuild handles bundling. Tree-shaking should keep the OTel footprint reasonable (~35-45KB gzipped for the SDK). We'll verify with esbuild's bundle analysis after the first build.
 
-**Pipeline:** Browser → Honeycomb Web SDK → OTLP HTTP → Honeycomb. Client provides the API key.
+**Pipeline:** Browser → Honeycomb Web SDK → OTLP HTTP → OTel Collector (`https://mtg-sparrow.jessitron.honeydemo.io`) → Honeycomb. The collector handles authentication; no `apiKey` is set in the browser SDK. The session heartbeat in `src/telemetry/telemetry.ts` bypasses the collector and goes direct to Honeycomb with its own API key — this is intentional and must not be changed.
 
 Every arc will include observability acceptance criteria. No arc ships without runtime visibility.

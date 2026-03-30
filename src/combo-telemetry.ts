@@ -55,7 +55,7 @@ const sessionId = getSessionId();
 const playerId = getPlayerId();
 
 const sdk = new HoneycombWebSDK({
-  apiKey: 'hcaik_01khj5r4wm0ffgsz59cdn42zvxn4rrt4kgny3zbc8zehs115ccwtntdsbh',
+  endpoint: 'https://mtg-sparrow.jessitron.honeydemo.io',
   serviceName: 'sparrow-deck',
   instrumentations: [new DocumentLoadInstrumentation({ ignoreNetworkEvents: true })],
   resourceAttributes: {
