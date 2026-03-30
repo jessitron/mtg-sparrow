@@ -1939,6 +1939,41 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: iPad testing revealed the exit button fell below the viewport fold; an ultrawide desktop had wasted whitespace around the slide area. Instrumenting dimensions without a board to query them provides no actionable visibility.
 - **Rationale**: The board enables ongoing monitoring of layout fit across device types. Initial panels use existing columns (available immediately); placeholder queries for new columns will populate once the instrumentation is deployed.
 
+## DEC-236: Combos Link Placement in Hamburger Menu
+- **Date**: 2026-03-30
+- **Arc**: 59
+- **Decision**: The "Combos" link in the hamburger menu is placed between "Levels" and "About".
+- **Context**: The menu needed to surface the combo reference pages (delivered earlier outside the formal arc process) so users can navigate to them from anywhere.
+- **Rationale**: "Combos" is content-adjacent to "Levels" in user intent — both deal with the MTG combinations being learned. "About" remains last as the least-used destination.
+
+## DEC-237: Combo Page Navigation Ordering Follows Index Page Group Ordering
+- **Date**: 2026-03-30
+- **Arc**: 60
+- **Decision**: Prev/next navigation on combo pages follows the same ordering as the combo index page: Allied → Enemy → Wedges → Shards.
+- **Context**: The combo index page groups combos in this order. Navigation arrows should feel consistent with that structure.
+- **Rationale**: Users who arrive from the index page will have an established mental model of the group ordering. Following the same sequence makes the navigation predictable and reinforces the MTG grouping structure.
+
+## DEC-238: First and Last Combo Pages Omit Prev/Next Respectively (No Wrapping)
+- **Date**: 2026-03-30
+- **Arc**: 60
+- **Decision**: The first combo page (Azorius) has no "← prev" link; the last combo page (Naya) has no "→ next" link. Navigation does not wrap around.
+- **Context**: Wrapping the sequence (Naya → Azorius) was considered.
+- **Rationale**: No-wrap reflects the linear, progressive structure of the combo groups. Wrapping would imply a circular relationship that doesn't match the MTG grouping intent. The "All combinations" center link is always available to return to the index.
+
+## DEC-239: player.id on Combo Pages Uses Same localStorage Key as Main App
+- **Date**: 2026-03-30
+- **Arc**: 61
+- **Decision**: `src/combo-telemetry.ts` reads and generates `player.id` using the same localStorage key (`sparrow-deck.player_id`) and `crypto.randomUUID()` pattern as the main app telemetry (`src/telemetry/telemetry.ts`).
+- **Context**: Combo pages previously had `session.id` as a resource attribute but not `player.id`. This prevented correlating combo page visits with main app sessions for the same player in Honeycomb.
+- **Rationale**: Sharing the localStorage key ensures a player who uses both the main app and combo pages gets the same `player.id` in all their traces, enabling cross-page analysis without any login or identity system.
+
+## DEC-240: "Next Level" Button Condition Was Missing 'shards'
+- **Date**: 2026-03-30
+- **Arc**: 63
+- **Decision**: Added `'shards'` to the `nextIsNewLevel` condition array in `updateNavButtons()` in `src/ui/guild-columns.ts`.
+- **Context**: The end screen "Next Level" button uses a condition to decide whether the primary navigation button should be labeled "Next Level" (vs another label). The condition checked for `'allied'`, `'enemy'`, and `'wedges'` but omitted `'shards'`, so completing a shards subgroup did not show the "Next Level" label as expected.
+- **Rationale**: All four subgroups (allied, enemy, wedges, shards) should trigger the "Next Level" treatment when moving to the next group. This was a straightforward omission — the shards group was added later and the condition was not updated.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

@@ -6,6 +6,20 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-03-30)
 
+### Arcs 59, 60, 61, 63 COMPLETE — Combos Navigation, Menu, Telemetry & Bug Fix (v0.40.0)
+
+**Arc 59** (v0.39.0): Added "Combos" link to hamburger menu (`src/ui/menu.ts`), between "Levels" and "About", linking to `/combo/`. 9/9 tests pass. DEC-236.
+
+**Arc 60** (v0.40.0): Added prev/next navigation to all 20 combo pages via `scripts/build-combos.ts`. Allied → Enemy → Wedges → Shards ordering. No wrapping on first/last pages. CSS in `combo.css`. 40/40 tests pass. DEC-237, DEC-238.
+
+**Arc 61** (v0.40.0): Added `mtg-sparrow.player.id` resource attribute to `src/combo-telemetry.ts` using same localStorage key as main app — enables cross-page player correlation in Honeycomb. 9/9 tests pass; schema confirmed. Full Honeycomb verification requires production deploy. DEC-239.
+
+**Arc 63** (v0.40.0): Fixed `updateNavButtons()` in `src/ui/guild-columns.ts` — added `'shards'` to `nextIsNewLevel` condition. 7/7 tests pass. DEC-240.
+
+**Version**: 0.40.0
+
+---
+
 ### Arc 58 COMPLETE — iOS Safari Audio Unlock Bug Fix + Viewport Instrumentation (v0.38.0)
 
 Bug fix arc triggered by real-world iPad testing. Audio worked on desktop but was silently blocked by Safari's autoplay policy on iOS. Fixed by calling `unlockAudio()` (a silent WAV played from the level intro dismiss gesture) before any timer-driven audio fires, and by reusing the unlocked `HTMLAudioElement` in `playAudio()`. Combo pages unaffected. Decisions DEC-228 through DEC-231.
@@ -155,5 +169,6 @@ Combo pages were delivered outside the formal arc process with no version bump. 
 - Cylinder unroll animation integration (using `cylinder-transition.js`)
 - Four-color combinations (deferred in DEC-004, still out of scope)
 - ~~Pronunciation audio for combo names~~ — DELIVERED (Arcs 55–57, v0.37.0, 2026-03-27; DEC-213 through DEC-227)
+- ~~o11y: put the session id and player ID on every log~~ — RESOLVED: `session.id` and `player.id` were already resource attributes on the main app; `player.id` added to combo pages in Arc 61 (v0.40.0). All pages now have both.
 - Adaptive pacing based on observability data
 - `mana-gas-encounter` CustomEvent wired to Honeycomb telemetry

@@ -592,6 +592,45 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 
 ---
 
+## Combos Menu Link, Navigation & Telemetry (Arcs 59–61, v0.39.0–0.40.0, 2026-03-30)
+
+### Arc 59: Add Combos Link to Hamburger Menu — COMPLETE (v0.39.0, 2026-03-30)
+- **Type**: User
+- **What**: Added a "Combos" link to the hamburger menu in `src/ui/menu.ts`, positioned between "Levels" and "About", linking to `/combo/`.
+- **Key decisions**: DEC-236 (placement between Levels and About).
+- **Files changed**: `src/ui/menu.ts`, `src/version.ts` (bumped to 0.39.0).
+- **Verification**: 9/9 Playwright tests pass.
+
+### Arc 60: Next/Previous Navigation on Combo Pages — COMPLETE (v0.40.0, 2026-03-30)
+- **Type**: User
+- **What**: Added prev/next navigation to all 20 combo pages via `scripts/build-combos.ts`. Each page gets a `.combo-nav` bar with up to three links: ← previous combo, "All combinations" (center), → next combo. First page (Azorius) has no prev; last page (Naya) has no next.
+- **Navigation order**: Allied → Enemy → Wedges → Shards (mirrors the combo index page group ordering).
+- **CSS**: `.combo-nav` styles added to `combo.css`.
+- **Key decisions**: DEC-237 (ordering follows index group order), DEC-238 (no wrapping on first/last pages).
+- **Files changed**: `scripts/build-combos.ts`, `combo.css`, `src/version.ts` (bumped to 0.40.0).
+- **Verification**: 40/40 Playwright tests pass.
+
+### Arc 61: Add player.id to Combo Page Telemetry — COMPLETE (v0.40.0, 2026-03-30)
+- **Type**: Operator
+- **What**: Added `mtg-sparrow.player.id` as a resource attribute to `src/combo-telemetry.ts`. Combo pages previously had `session.id` but not `player.id`, preventing cross-page player correlation in Honeycomb.
+- **Implementation**: Same localStorage key (`sparrow-deck.player_id`) and generation pattern (`crypto.randomUUID()`) as the main app telemetry in `src/telemetry/telemetry.ts`. No version bump (already on 0.40.0 from Arc 60).
+- **Key decisions**: DEC-239 (same localStorage key as main app for cross-page correlation).
+- **Files changed**: `src/combo-telemetry.ts`.
+- **Verification**: 9/9 Playwright tests pass; Honeycomb column confirmed in schema. Full end-to-end Honeycomb verification requires production deploy.
+
+---
+
+## "Next Level" Button Visibility Fix (Arc 63, v0.40.0, 2026-03-30)
+
+### Arc 63: Fix "Next Level" Button Visibility on End Screen — COMPLETE (v0.40.0, 2026-03-30)
+- **Type**: User (bug fix)
+- **What**: Fixed `updateNavButtons()` in `src/ui/guild-columns.ts` — added `'shards'` to the `nextIsNewLevel` condition. Previously only `'allied'`, `'enemy'`, and `'wedges'` were listed, so the shards→next transition incorrectly failed to show the "Next Level" button label.
+- **Key decisions**: DEC-240 (condition was missing 'shards').
+- **Files changed**: `src/ui/guild-columns.ts`.
+- **Verification**: 7/7 Playwright tests pass.
+
+---
+
 ## Search Engine & LLM Discoverability (Arc 52, v0.34.0, 2026-03-26)
 
 ### Arc 52: Search Engine & LLM Discoverability — COMPLETE (v0.34.0, 2026-03-26)
