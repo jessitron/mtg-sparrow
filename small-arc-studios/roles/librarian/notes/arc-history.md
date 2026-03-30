@@ -510,41 +510,43 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 
 ---
 
-## Audio Pronunciation Feature — Arc 55 IN PROGRESS (2026-03-27)
+## Audio Pronunciation Feature — Arcs 55–57 COMPLETE (v0.37.0, 2026-03-27)
 
-### Arc 55: Sound Toggle UI & Persistence — IN PROGRESS
+### Arc 55: Sound Toggle UI & Persistence — COMPLETE (v0.37.0, 2026-03-27)
 - **Type**: User + Structural
-- **Goal**: Add a speaker icon toggle on welcome and slides pages that persists the learner's sound preference in localStorage.
-- **Acceptance Criteria**:
-  - Speaker icon button visible on welcome page (fixed position)
-  - Speaker icon button visible on slides page (fixed position)
-  - Toggle state persists across sessions via localStorage
-  - Default: sound ON
-  - `sound.toggle` event emitted on each toggle (with on/off direction)
-  - APP_VERSION bumped
+- **What**: Speaker icon button on welcome, slides, assessment, about, and end pages. Slides page version is larger/higher-contrast, matching the pause button style. Preference stored in `localStorage` under key `mtg-sparrow.sound.enabled`, default ON. `sound.toggle` telemetry event emitted on each activation. APP_VERSION bumped to 0.37.0.
 - **Architecture**:
   - `src/audio.ts` — sound preference state + playback logic
   - `src/ui/sound-toggle.ts` — toggle button UI, accepts `recordEvent` callback
 - **Key decisions**: DEC-213 (plan approved), DEC-214 (toggle not in hamburger), DEC-215 (default ON), DEC-216 (localStorage persistence), DEC-217 (sound.toggle event), DEC-220 (module architecture)
-- **Status**: Planned — not yet started
+- **Status**: COMPLETE
 
-### Arc 56: Slides Audio on Reveal — PLANNED
+### Arc 56: Slides Audio on Reveal — COMPLETE (v0.37.0, 2026-03-27)
 - **Type**: User
-- **Goal**: Auto-play pronunciation MP3 when a combo name is revealed on the slides page, respecting the sound toggle.
-- **Acceptance Criteria**:
-  - Audio plays automatically when combo name is revealed
-  - Respects sound.enabled toggle
-  - `sound.enabled` and `sound.play_result` attributes on slide span
-  - 20 MP3 files in `audio/` directory (client records)
-- **Key decisions**: DEC-218 (attributes on slide span), DEC-219 (MP3 files, client records), DEC-221 (path: ../audio/{id}.mp3)
+- **What**: `playComboAudio()` in `src/audio.ts` called at all 3 `revealName` sites in the slides page. Respects the sound toggle — skips playback if sound is disabled. `sound.enabled` (bool) and `sound.play_result` ("success" | "error" | "skipped") added as attributes on the card span.
+- **Key decisions**: DEC-218 (attributes on slide span, not separate events), DEC-219 (20 MP3 files in `audio/`, client-recorded), DEC-221 (path: `../audio/{id}.mp3`)
+- **Note**: `playComboAudio()` checks the sound toggle — distinct from `playAudio()` which is unconditional (see Arc 57).
+- **Status**: COMPLETE
 
-### Arc 57: Combo Page Play Button — PLANNED
+### Arc 57: Combo Page Play Button — COMPLETE (v0.37.0, 2026-03-27)
 - **Type**: User
-- **Goal**: Manual play button near combo name on combo reference pages so learners can hear pronunciation on demand.
-- **Acceptance Criteria**:
-  - Play button visible near combo name on each combo page
-  - Plays correct MP3 for that combo
-  - References audio files as `../audio/{id}.mp3`
+- **What**: Play button injected inline inside the combo name `<h1>` on each combo page. Injection happens via `combo-telemetry.ts` inside a `DOMContentLoaded` listener (required because the script tag is above `.combo-name` in the DOM). Button calls `playAudio()` directly — bypasses the global sound toggle because this is an explicit user action, not auto-play.
+- **Bug fixes during delivery**:
+  - Combo index page links changed from relative paths to absolute paths (`/combo/id.html`) for local dev server compatibility.
+  - Play button moved from `afterend` (outside `<h1>`) to inside the `<h1>` (inline with name).
+  - Combo index page got `combo-telemetry.js` inclusion for hamburger menu (`data-combo-id="index"`).
+  - `DOMContentLoaded` wrapper added for play button injection (script runs before `.combo-name` is parsed).
+  - Combo play button uses `playAudio()` not `playComboAudio()` — explicit user clicks should not be gated by the auto-play toggle.
+- **Key decisions**: DEC-221 (audio path), plus new decisions below.
+- **Status**: COMPLETE
+
+**New decisions for Arcs 55–57:**
+- **DEC-222**: Combo page play button bypasses the global sound toggle — it is an explicit user action, not auto-play.
+- **DEC-223**: Sound toggle appears on all main app pages (welcome, slides, assessment, about, end) but NOT on combo/static pages.
+- **DEC-224**: Slides page sound toggle is larger/higher-contrast, matching the pause button style (fixed-position, always visible during session).
+- **DEC-225**: Two audio functions: `playComboAudio()` (respects toggle) for auto-play on slide reveal; `playAudio()` (unconditional) for explicit play buttons.
+- **DEC-226**: `combo-telemetry.ts` play button injection must be inside `DOMContentLoaded` — the script tag runs before `.combo-name` is parsed in the DOM.
+- **DEC-227**: 33 audio files provided by client (20 combos + 5 mono colors + not-colors variants + colorless + WUBRG variants), stored in `audio/` directory.
 
 ---
 

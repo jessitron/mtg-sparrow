@@ -6,24 +6,21 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-03-27)
 
-### Active Arc: Arc 55 — Sound Toggle UI & Persistence
+### Arcs 55–57 COMPLETE — Audio Pronunciation Feature Delivered (v0.37.0)
 
-**Problem**: Learners see combo names but don't know how to say them. Audio reinforces memory.
+All three audio arcs delivered and complete.
 
-**Arc 55 goal**: Speaker icon on welcome and slides pages, localStorage persistence, default ON, `sound.toggle` event.
+- **Arc 55**: Sound toggle UI on all main pages; `mtg-sparrow.sound.enabled` in localStorage; default ON; `sound.toggle` telemetry event. Version bumped to 0.37.0.
+- **Arc 56**: `playComboAudio()` in `src/audio.ts` called at 3 `revealName` sites; respects toggle; `sound.enabled` + `sound.play_result` on card span.
+- **Arc 57**: Play button injected inside combo name `<h1>` via `combo-telemetry.ts`/`DOMContentLoaded`; uses `playAudio()` (bypasses toggle — explicit user action).
 
-**Upcoming**:
-- Arc 56: Auto-play pronunciation on slide reveal (respects toggle; attributes on slide span)
-- Arc 57: Manual play button on combo reference pages
+**Key architectural notes**:
+- Two audio functions: `playComboAudio()` (toggle-aware, for auto-play) and `playAudio()` (unconditional, for explicit buttons).
+- 33 audio files in `audio/` (20 combos + mono colors + not-colors + colorless + WUBRG variants).
+- Combo index page links changed from relative to absolute paths (`/combo/id.html`) for local dev server compatibility.
+- `combo-telemetry.ts` play button injection must be inside `DOMContentLoaded`.
 
-**Architecture planned**:
-- `src/audio.ts` — preference state + playback
-- `src/ui/sound-toggle.ts` — toggle button UI
-- `audio/` directory — 20 MP3 files (client records), named `{combo-id}.mp3`
-
-**Dependency**: Client must record 20 MP3 files before Arc 56 can be verified end-to-end.
-
-**Decisions**: DEC-213 through DEC-221.
+**Decisions**: DEC-213 through DEC-227. See arc-history.md for full arc records.
 
 ---
 
@@ -129,9 +126,9 @@ The separate RFP (discovery) and SOW (arc planning) stages were merged into a si
 
 ---
 
-## Pending: Version Bump for Combo Pages
+## Version Bump for Combo Pages — RESOLVED
 
-The combo reference pages were delivered outside the formal arc process with **no version bump**. The current deployed version is v0.32.0. The next formal arc should bump `APP_VERSION` in `src/version.ts` (and `package.json`) before delivery to maintain the structural marker convention.
+Combo pages were delivered outside the formal arc process with no version bump. This was resolved by Arc 55, which bumped `APP_VERSION` to v0.37.0.
 
 ---
 
@@ -142,6 +139,6 @@ The combo reference pages were delivered outside the formal arc process with **n
 - Space-to-resume pause on slides
 - Cylinder unroll animation integration (using `cylinder-transition.js`)
 - Four-color combinations (deferred in DEC-004, still out of scope)
-- ~~Pronunciation audio for combo names~~ — ACTIVE PLAN (Arcs 55–57, DEC-213 through DEC-221)
+- ~~Pronunciation audio for combo names~~ — DELIVERED (Arcs 55–57, v0.37.0, 2026-03-27; DEC-213 through DEC-227)
 - Adaptive pacing based on observability data
 - `mana-gas-encounter` CustomEvent wired to Honeycomb telemetry

@@ -1841,6 +1841,48 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: Combo pages live at `combo/<id>.html`. Audio files live at `audio/<id>.mp3`. Relative path resolves correctly from that location.
 - **Rationale**: Consistent with how combo pages already reference assets (e.g., mana pip images). Static paths that work on GitHub Pages.
 
+## DEC-222: Combo Page Play Button Bypasses Global Sound Toggle
+- **Date**: 2026-03-27
+- **Arc**: 57
+- **Decision**: The play button on combo pages calls `playAudio()` directly, bypassing the `sound.enabled` preference. Explicit user clicks on a play button should always play audio.
+- **Context**: The global sound toggle is designed for auto-play behavior (audio that fires without user intent). A user clicking a play button has declared intent to hear audio.
+- **Rationale**: Auto-play and explicit playback are semantically different. Respecting the mute toggle for an explicit button click would be surprising and counterproductive.
+
+## DEC-223: Sound Toggle Appears on All Main App Pages, Not on Combo/Static Pages
+- **Date**: 2026-03-27
+- **Arc**: 55
+- **Decision**: The speaker icon toggle appears on welcome, slides, assessment, about, and end pages. Combo and other static pages do not have a sound toggle.
+- **Context**: Combo pages have an explicit play button (Arc 57) but no auto-play. The sound toggle controls auto-play preference; it's irrelevant without auto-play.
+- **Rationale**: Only pages with auto-play behavior need the toggle. Static reference pages with explicit play buttons don't need a global mute control.
+
+## DEC-224: Slides Page Sound Toggle Is Larger/Higher-Contrast, Matching Pause Button Style
+- **Date**: 2026-03-27
+- **Arc**: 55
+- **Decision**: The sound toggle on the slides page is larger and higher-contrast than on other pages, matching the visual style of the existing pause button.
+- **Context**: The slides page is the active learning environment where learners need immediate access to in-session controls. The pause button already establishes a style for fixed, prominent in-session buttons.
+- **Rationale**: Visual consistency with existing in-session controls. Learners should be able to reach the sound toggle quickly without hunting for a small icon.
+
+## DEC-225: Two Audio Functions — playComboAudio (Toggle-Aware) vs playAudio (Unconditional)
+- **Date**: 2026-03-27
+- **Arc**: 56–57
+- **Decision**: `src/audio.ts` exports two functions: `playComboAudio(comboId)` which checks `sound.enabled` before playing (for auto-play contexts), and `playAudio(url)` which plays unconditionally (for explicit user actions).
+- **Context**: Auto-play on slide reveal should respect the learner's mute preference. Explicit play button clicks should always play.
+- **Rationale**: Separating the functions at the API level makes the intent clear at each call site. Callers don't need to know the toggle state — they just call the semantically appropriate function.
+
+## DEC-226: combo-telemetry.ts Play Button Injection Must Be in DOMContentLoaded
+- **Date**: 2026-03-27
+- **Arc**: 57
+- **Decision**: The play button injection in `combo-telemetry.ts` is wrapped in a `DOMContentLoaded` event listener.
+- **Context**: The `<script>` tag for `combo-telemetry.js` appears in the `<head>` or above `.combo-name` in the DOM. Without `DOMContentLoaded`, the script runs before the target element is parsed and `querySelector('.combo-name')` returns null.
+- **Rationale**: Standard DOM readiness pattern. `DOMContentLoaded` fires before images/styles load but after HTML is parsed — sufficient and correct here.
+
+## DEC-227: 33 Audio Files Provided — 20 Combos + Mono Colors + Variants
+- **Date**: 2026-03-27
+- **Arc**: 56–57
+- **Decision**: Client provided 33 audio files in the `audio/` directory: 20 combo pronunciation files, 5 mono color files, plus colorless, not-colors, and WUBRG variant recordings.
+- **Context**: Initial plan called for 20 files (one per combo). Client recorded additional files covering mono colors and related terms, expanding the audio coverage.
+- **Rationale**: More coverage is better for a pronunciation learning tool. The additional files can be referenced from mono color pages and related contexts in future arcs.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
