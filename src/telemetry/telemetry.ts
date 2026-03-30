@@ -19,7 +19,8 @@ function sendSessionHeartbeat(
   sid: string,
   pid: string,
 ): void {
-  const payload = {
+  const urlParams = new URLSearchParams(window.location.search);
+  const payload: Record<string, string | number> = {
     'event.type': 'session.heartbeat',
     'event.source': 'direct',
     'session.id': sid,
@@ -35,6 +36,10 @@ function sendSessionHeartbeat(
     'viewport.width': window.innerWidth,
     'viewport.height': window.innerHeight,
   };
+  const utmSource = urlParams.get('utm_source');
+  const utmId = urlParams.get('utm_id');
+  if (utmSource) payload['utm.source'] = utmSource;
+  if (utmId) payload['utm.referral_session_id'] = utmId;
 
   fetch(`https://api.honeycomb.io/1/events/${HONEYCOMB_DATASET}`, {
     method: 'POST',
