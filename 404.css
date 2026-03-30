@@ -1,0 +1,122 @@
+.not-found {
+  max-width: 600px;
+  width: 100%;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.not-found-number {
+  font-family: 'GoudyMediaeval', Georgia, serif;
+  font-size: clamp(5rem, 20vw, 9rem);
+  font-weight: bold;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(
+    135deg,
+    var(--mana-W) 0%,
+    var(--mana-U) 25%,
+    var(--mana-B) 50%,
+    var(--mana-R) 75%,
+    var(--mana-G) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.not-found-heading {
+  font-family: 'GoudyMediaeval', Georgia, serif;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  color: #f0f0f0;
+  margin-bottom: 1.25rem;
+}
+
+.not-found-flavor {
+  font-size: 0.95rem;
+  color: #999;
+  font-style: italic;
+  line-height: 1.5;
+  margin-bottom: 1.75rem;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.not-found-mana {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.mana-pip {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+.mana-W { background-color: var(--mana-W); }
+.mana-U { background-color: var(--mana-U); }
+.mana-B { background-color: var(--mana-B); }
+.mana-R { background-color: var(--mana-R); }
+.mana-G { background-color: var(--mana-G); }
+
+.not-found-message {
+  font-size: 1rem;
+  color: #bbb;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.not-found-home-link {
+  display: inline-block;
+  font-family: 'GoudyMediaeval', Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--allied-line-color);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--allied-line-color);
+  transition: color 200ms ease, border-color 200ms ease;
+  margin-bottom: 2.5rem;
+}
+
+.not-found-home-link:hover {
+  color: #f0f0f0;
+  border-bottom-color: #f0f0f0;
+}
+
+.not-found-alternatives {
+  border-top: 1px solid rgba(200, 184, 138, 0.15);
+  padding-top: 1.5rem;
+}
+
+.not-found-alternatives-label {
+  font-size: 0.85rem;
+  color: #777;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.not-found-alternatives-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.not-found-alternatives-list a {
+  font-size: 0.95rem;
+  color: #888;
+  text-decoration: none;
+  border-bottom: 1px dotted #555;
+  transition: color 200ms ease, border-color 200ms ease;
+}
+
+.not-found-alternatives-list a:hover {
+  color: #ccc;
+  border-bottom-color: #888;
+}
