@@ -57,7 +57,7 @@ function injectMenuDOM(showResetProgress: boolean, showTraceLink: boolean): void
     <h2 class="settings-title"><a href="/" class="settings-title-link">MTG Colors</a></h2>
     <div id="settings-version" class="settings-version"></div>
     <a class="settings-about-link" href="/end">Levels</a>
-    <a class="settings-about-link" href="/combo/">Combos</a>
+    <a class="settings-about-link" href="/combo/">Reference</a>
     <a class="settings-about-link" href="/about">About</a>
     <button id="settings-share-btn" class="settings-share-btn">Share \u{1F517}</button>
     <button id="settings-feedback-btn" class="settings-feedback-btn">Feedback</button>
