@@ -567,6 +567,29 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 - **Files changed**: `src/audio.ts`, `src/slides.ts`, `src/version.ts` (bumped to 0.38.0).
 - **Verification**: iOS Safari audio playback confirmed working on iPad.
 
+### Arc 58 Addition: Viewport & Screen Instrumentation (2026-03-30)
+
+Following delivery of the iOS audio fix, the Observability Engineer extended Arc 58 with viewport and screen dimension telemetry, prompted by the same iPad testing session that revealed layout issues (exit button below fold on iPad; too-small slide area on ultrawide).
+
+- **New resource attributes** (in `src/telemetry/telemetry.ts`):
+  - `screen.width`, `screen.height` — physical screen dimensions
+  - `viewport.width`, `viewport.height` — browser viewport dimensions
+  - These are resource attributes (describe the environment) and appear on every span.
+
+- **New session span attributes** (in `src/slides.ts`, added to the session span):
+  - `session.page_height` — total scrollable page height
+  - `session.viewport_height` — viewport height at session start
+  - `session.has_scrollbar` — boolean, true if page content exceeds viewport
+  - `session.slide_height_pct` — card container height as % of viewport (captured via `requestAnimationFrame` after layout renders)
+
+- **Honeycomb Board**: "Screen & Viewport Analysis" created at https://ui.honeycomb.io/modernity/environments/sparrow-deck/board/r1frVgioD4x
+  - Uses existing columns (`screen.width`, `browser.width`, `screen.height`) for immediate panels
+  - Placeholder queries for new columns (`viewport.width`, `viewport.height`, `session.slide_height_pct`) will populate after deploy
+
+- **Key decisions**: DEC-232, DEC-233, DEC-234, DEC-235.
+- **Files changed**: `src/telemetry/telemetry.ts`, `src/slides.ts`.
+- **Context**: Client's weekend iPad testing — exit button was below fold; husband's ultrawide had too-small slide area. Board enables ongoing monitoring across device types.
+
 ---
 
 ## Search Engine & LLM Discoverability (Arc 52, v0.34.0, 2026-03-26)

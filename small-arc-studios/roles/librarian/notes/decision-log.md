@@ -1911,6 +1911,34 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: Combo pages have an explicit play button that the user taps directly. That tap IS a synchronous user gesture, so Safari's autoplay policy is already satisfied at the moment `.play()` is called.
 - **Rationale**: No unlock step is needed when the play call originates directly from a gesture handler. Keeping combo pages unchanged avoids unnecessary coupling.
 
+## DEC-232: Screen/Viewport Dimensions as Resource Attributes
+- **Date**: 2026-03-30
+- **Arc**: 58 (addition)
+- **Decision**: `screen.width`, `screen.height`, `viewport.width`, and `viewport.height` are captured as resource attributes in `initTelemetry()`, not as span attributes.
+- **Context**: These values describe the device environment, not the behavior of a particular session or span.
+- **Rationale**: Resource attributes propagate to every span automatically, enabling broad analysis of layout behavior across all event types without redundant instrumentation.
+
+## DEC-233: Layout Fit Metrics as Session Span Attributes
+- **Date**: 2026-03-30
+- **Arc**: 58 (addition)
+- **Decision**: `session.page_height`, `session.viewport_height`, `session.has_scrollbar`, and `session.slide_height_pct` are captured as session span attributes in `src/slides.ts`.
+- **Context**: These describe the specific layout state when a session begins — the actual rendered state can differ from raw viewport dimensions depending on browser chrome, address bar size, etc.
+- **Rationale**: Session span attributes are the right scope: this is a property of one session's layout state, not the device environment in general. Separates environment (resource attrs) from instance (span attrs).
+
+## DEC-234: Use requestAnimationFrame for slide_height_pct Measurement
+- **Date**: 2026-03-30
+- **Arc**: 58 (addition)
+- **Decision**: `session.slide_height_pct` is measured inside a `requestAnimationFrame` callback, deferred until after the card container has rendered.
+- **Context**: Reading `offsetHeight` synchronously at script execution time returns 0 because the browser hasn't performed layout yet.
+- **Rationale**: `requestAnimationFrame` fires after the browser has laid out the DOM, guaranteeing a real height value for the card container.
+
+## DEC-235: Create "Screen & Viewport Analysis" Honeycomb Board
+- **Date**: 2026-03-30
+- **Arc**: 58 (addition)
+- **Decision**: A dedicated Honeycomb board "Screen & Viewport Analysis" was created at https://ui.honeycomb.io/modernity/environments/sparrow-deck/board/r1frVgioD4x.
+- **Context**: iPad testing revealed the exit button fell below the viewport fold; an ultrawide desktop had wasted whitespace around the slide area. Instrumenting dimensions without a board to query them provides no actionable visibility.
+- **Rationale**: The board enables ongoing monitoring of layout fit across device types. Initial panels use existing columns (available immediately); placeholder queries for new columns will populate once the instrumentation is deployed.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
