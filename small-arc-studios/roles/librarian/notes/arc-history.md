@@ -631,6 +631,70 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 
 ---
 
+## Home Page Logging, Card URLs, UX Polish & Operator Tooling (Arcs 64–71, v0.41.0–0.42.0, 2026-03-30)
+
+### Arc 64: Log Home Page Pause/Fan Buttons — COMPLETE (v0.41.0, 2026-03-30)
+- **Type**: Operator
+- **What**: Added CustomEvent dispatches in `mana-gas.js` for the pause (`mana-gas-stop`) and fan (`mana-gas-fan`) buttons. `welcome.ts` listens for these and emits `home.gas_stop` and `home.gas_fan` log events.
+- **Pattern**: Follows the existing `mana-gas-drag` CustomEvent approach — `mana-gas.js` is standalone vanilla JS and CustomEvents are the cross-boundary mechanism into the bundled telemetry layer.
+- **Key decisions**: DEC-241 (CustomEvent pattern consistent with mana-gas-drag).
+- **Files changed**: `mana-gas.js`, `src/welcome.ts`, `src/version.ts` (bumped to 0.41.0).
+- **Verification**: 8/8 Playwright tests pass.
+
+### Arc 65: Add Scryfall URL to Card Spans — COMPLETE (v0.42.0, 2026-03-30)
+- **Type**: Operator
+- **What**: Added `slide.card_scryfall_url` attribute to card spans in `slides.ts`. The URL is derived at runtime from the Scryfall image UUID already present in card data, via regex extraction — not stored separately in card data.
+- **Key decisions**: DEC-242 (URL derived from UUID at runtime).
+- **Files changed**: `src/slides.ts`, `src/version.ts` (bumped to 0.42.0).
+- **Verification**: 9/9 Playwright tests pass.
+
+### Arc 66: Space Key Resumes When Paused — COMPLETE (v0.42.0, 2026-03-30)
+- **Type**: User
+- **What**: Space keydown handler in `slides.ts` now checks `paused` state. When paused, it delegates to `pauseBtn.click()` — the same pattern used by the dialog-close handler.
+- **Key decisions**: DEC-243 (delegates to pauseBtn.click() for state consistency).
+- **Files changed**: `src/slides.ts`.
+- **Verification**: 10/10 Playwright tests pass.
+
+### Arc 67: Update End Screen URL on Section Switch — COMPLETE (v0.42.0, 2026-03-30)
+- **Type**: User
+- **What**: `history.replaceState` updates the `?subgroup=` param whenever a reel section is navigated to, and also sets the param on initial load so the default section is reflected. Deep-linking works: loading `/end?subgroup=shards` starts on Shards.
+- **Key decisions**: DEC-244 (uses existing `?subgroup=` param with history.replaceState, no hash).
+- **Files changed**: `src/ui/guild-columns.ts`.
+- **Verification**: 12/12 Playwright tests pass.
+
+### Arc 68: Combo Index Overview Text — COMPLETE (v0.42.0, 2026-03-30)
+- **Type**: User
+- **What**: Added group descriptions to the combo index page via `scripts/build-combos.ts`. Updated intro paragraph; added per-group descriptions for Allied Guilds, Enemy Guilds, Wedges, and Shards. New CSS class `.combo-index-group-description` in `combo.css`.
+- **Key decisions**: DEC-245 (descriptions hardcoded in build script, not a separate data file).
+- **Files changed**: `scripts/build-combos.ts`, `combo.css`.
+- **Verification**: 34/34 Playwright tests pass.
+
+### Arc 69: End Screen Window Peek Effect — COMPLETE (v0.42.0, 2026-03-30)
+- **Type**: User (design)
+- **What**: Reel viewport now shows 60px of adjacent sections (30px peeking on each side). First section shows bottom peek only; last section shows top peek only. CSS mask gradient widened from 5%/95% to 12%/88% to accommodate the wider fade. `PEEK_PX = 60` constant introduced in `guild-columns.ts`.
+- **Key decisions**: DEC-246 (PEEK_PX=60, edge-aware first/last, split top/bottom).
+- **Files changed**: `src/ui/guild-columns.ts`, relevant CSS.
+- **Verification**: 15/15 Playwright tests pass.
+
+### Arc 70: Honeycomb Site Usage Board — COMPLETE (v0.42.0, 2026-03-30)
+- **Type**: Operator
+- **What**: Created "Site Usage Dashboard" board via Honeycomb MCP. No code changes required.
+- **Board URL**: https://ui.honeycomb.io/modernity/environments/sparrow-deck/board/wXrwy7TBMCv
+- **6 panels**: page views by page, unique players/day, unique sessions/day, level popularity, sound usage, share/feedback actions.
+- **Key decisions**: DEC-247 (board created in sparrow-deck environment).
+- **Files changed**: none.
+- **Verification**: Board accessible and panels rendering.
+
+### Arc 71: Cute 404 Page — COMPLETE (v0.42.0, 2026-03-30)
+- **Type**: User (delight)
+- **What**: Created `404.html` and `404.css` — an MTG-themed 404 page with "Lost in the Blind Eternities" heading, five mana pip circles, gradient "404" text, flavor text, and links to home, `/combo/`, and `/about`. Static HTML/CSS only; no JS or telemetry.
+- **Implementation note**: GitHub Pages serves a `404.html` at the repo root automatically for any unmatched paths.
+- **Key decisions**: DEC-248 (static HTML/CSS only — keeps it lightweight).
+- **Files created**: `404.html`, `404.css`.
+- **Verification**: 23/23 Playwright tests pass.
+
+---
+
 ## Search Engine & LLM Discoverability (Arc 52, v0.34.0, 2026-03-26)
 
 ### Arc 52: Search Engine & LLM Discoverability — COMPLETE (v0.34.0, 2026-03-26)

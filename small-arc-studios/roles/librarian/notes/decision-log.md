@@ -1974,6 +1974,63 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: The end screen "Next Level" button uses a condition to decide whether the primary navigation button should be labeled "Next Level" (vs another label). The condition checked for `'allied'`, `'enemy'`, and `'wedges'` but omitted `'shards'`, so completing a shards subgroup did not show the "Next Level" label as expected.
 - **Rationale**: All four subgroups (allied, enemy, wedges, shards) should trigger the "Next Level" treatment when moving to the next group. This was a straightforward omission — the shards group was added later and the condition was not updated.
 
+## DEC-241: Home Page Button Logging Uses CustomEvent Pattern
+- **Date**: 2026-03-30
+- **Arc**: 64
+- **Decision**: Pause and fan button interactions on the home page are logged via CustomEvents dispatched from `mana-gas.js` (`mana-gas-stop`, `mana-gas-fan`), with `welcome.ts` listening and emitting Honeycomb log events.
+- **Context**: `mana-gas.js` is standalone vanilla JS and cannot import from the bundled telemetry layer directly. `mana-gas-drag` already used this CustomEvent cross-boundary pattern.
+- **Rationale**: Consistency with the existing `mana-gas-drag` pattern keeps the architecture clean — vanilla JS fires events, bundled code listens and records.
+
+## DEC-242: Scryfall URL Derived from Image UUID at Runtime
+- **Date**: 2026-03-30
+- **Arc**: 65
+- **Decision**: `slide.card_scryfall_url` is derived at runtime in `slides.ts` from the Scryfall image UUID already stored in card data, via regex extraction. It is not stored as a separate field in card data.
+- **Context**: Card data already contains a Scryfall image URL with a UUID embedded. The card's Scryfall page URL follows a predictable pattern from that UUID.
+- **Rationale**: Deriving at runtime avoids duplicating data in card records while still providing operators a direct link for investigating specific cards in Honeycomb traces.
+
+## DEC-243: Space-to-Resume Delegates to pauseBtn.click()
+- **Date**: 2026-03-30
+- **Arc**: 66
+- **Decision**: When the space key is pressed while the deck is paused, the handler delegates to `pauseBtn.click()` rather than directly manipulating the `paused` flag.
+- **Context**: The dialog-close handler already used this delegation pattern. Direct manipulation risked state drift.
+- **Rationale**: Single source of truth for resume logic — all resume paths go through the same button handler, ensuring all side effects (telemetry, UI state) fire consistently.
+
+## DEC-244: End Screen URL Uses ?subgroup= Param with history.replaceState
+- **Date**: 2026-03-30
+- **Arc**: 67
+- **Decision**: The end screen updates the browser URL using `history.replaceState` with the existing `?subgroup=` query parameter when navigating between reel sections. No hash-based routing.
+- **Context**: The end screen already used `?subgroup=` on initial navigation. Deep-linking (e.g. `/end?subgroup=shards`) was broken because the param wasn't set on initial load for the default section, and wasn't updated on section switch.
+- **Rationale**: `history.replaceState` is non-disruptive (no history entry). The `?subgroup=` param was already the right approach — the fix simply made it consistent on all transitions including initial load.
+
+## DEC-245: Combo Index Descriptions Hardcoded in Build Script
+- **Date**: 2026-03-30
+- **Arc**: 68
+- **Decision**: Group descriptions on the combo index page are hardcoded in `scripts/build-combos.ts`, not stored in a separate data file.
+- **Context**: A separate JSON/YAML data file was considered as a cleaner separation.
+- **Rationale**: The descriptions are stable, few in number (4 groups), and tightly coupled to the build script's output. A separate data file adds indirection without meaningful benefit at this scale.
+
+## DEC-246: Reel Peek Uses PEEK_PX=60, Edge-Aware, Split Top/Bottom
+- **Date**: 2026-03-30
+- **Arc**: 69
+- **Decision**: The end screen reel shows 60px of adjacent sections (30px peeking each side). The first section shows bottom peek only; the last shows top peek only. A `PEEK_PX = 60` named constant is used in `guild-columns.ts`. The CSS mask gradient was widened to 12%/88%.
+- **Context**: The reel previously clipped hard at section boundaries, giving no affordance that more sections existed.
+- **Rationale**: 60px provides a clear "there's more here" signal without disrupting the current section's layout. Edge-awareness ensures the first and last sections don't show phantom peek space. The mask gradient widening ensures the fade is proportionate to the peek amount.
+
+## DEC-247: Site Usage Board Created in Honeycomb sparrow-deck Environment
+- **Date**: 2026-03-30
+- **Arc**: 70
+- **Decision**: A "Site Usage Dashboard" board was created via Honeycomb MCP in the `sparrow-deck` environment (workspace: modernity).
+- **Board URL**: https://ui.honeycomb.io/modernity/environments/sparrow-deck/board/wXrwy7TBMCv
+- **Context**: No high-level usage overview existed. The team had individual queries but no consolidated operator view.
+- **Rationale**: A single board makes it easy to monitor site health and engagement trends without running ad-hoc queries. Six panels cover the key dimensions: page traffic, player retention, session activity, feature usage.
+
+## DEC-248: 404 Page Is Static HTML/CSS Only
+- **Date**: 2026-03-30
+- **Arc**: 71
+- **Decision**: The 404 page (`404.html`, `404.css`) contains no JavaScript and no telemetry.
+- **Context**: Adding OTel/Honeycomb instrumentation to a 404 page was considered.
+- **Rationale**: 404 pages should be lightweight and load reliably regardless of JS availability or bundle state. Tracking 404 hits via server-level analytics or Honeycomb's CDN instrumentation is a future option, but adding client-side telemetry here adds complexity for minimal gain.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

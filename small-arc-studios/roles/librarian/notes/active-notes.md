@@ -6,6 +6,28 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-03-30)
 
+### Arcs 64–71 COMPLETE — Button Logging, Card URLs, UX Polish, Operator Tooling (v0.41.0–0.42.0)
+
+**Arc 64** (v0.41.0): Home page pause/fan button logging via CustomEvent dispatches in `mana-gas.js`; `welcome.ts` emits `home.gas_stop` and `home.gas_fan`. 8/8 tests pass. DEC-241.
+
+**Arc 65** (v0.42.0): `slide.card_scryfall_url` attribute added to card spans in `slides.ts`. URL derived from Scryfall image UUID at runtime. 9/9 tests pass. DEC-242.
+
+**Arc 66** (v0.42.0): Space key now resumes a paused deck by delegating to `pauseBtn.click()`. 10/10 tests pass. DEC-243.
+
+**Arc 67** (v0.42.0): End screen URL updated via `history.replaceState` on section switch and initial load. Deep-linking (e.g. `/end?subgroup=shards`) works. 12/12 tests pass. DEC-244.
+
+**Arc 68** (v0.42.0): Group descriptions added to combo index page via `scripts/build-combos.ts`. New `.combo-index-group-description` CSS class. 34/34 tests pass. DEC-245.
+
+**Arc 69** (v0.42.0): End screen reel shows 60px window peek of adjacent sections. Edge-aware (first/last). CSS mask gradient widened. `PEEK_PX = 60` constant. 15/15 tests pass. DEC-246.
+
+**Arc 70** (v0.42.0): "Site Usage Dashboard" Honeycomb board created — no code changes. 6 panels: page views, unique players/day, unique sessions/day, level popularity, sound usage, share/feedback. Board URL: https://ui.honeycomb.io/modernity/environments/sparrow-deck/board/wXrwy7TBMCv. DEC-247.
+
+**Arc 71** (v0.42.0): `404.html` + `404.css` — MTG-themed 404 page ("Lost in the Blind Eternities"). Static HTML/CSS, no JS/telemetry. GitHub Pages serves automatically. 23/23 tests pass. DEC-248.
+
+**Version**: 0.42.0
+
+---
+
 ### Arcs 59, 60, 61, 63 COMPLETE — Combos Navigation, Menu, Telemetry & Bug Fix (v0.40.0)
 
 **Arc 59** (v0.39.0): Added "Combos" link to hamburger menu (`src/ui/menu.ts`), between "Levels" and "About", linking to `/combo/`. 9/9 tests pass. DEC-236.
@@ -165,7 +187,7 @@ Combo pages were delivered outside the formal arc process with no version bump. 
 
 - ~~Progress dots for reel navigation~~ — replaced by Arc 47 progress bar
 - Combo reference pages — DELIVERED (outside formal arc, 2026-03-26) — 20 static pages at `combo/<id>.html` + index. Scryfall links now go through combo pages first.
-- Space-to-resume pause on slides
+- ~~Space-to-resume pause on slides~~ — DELIVERED (Arc 66, v0.42.0)
 - Cylinder unroll animation integration (using `cylinder-transition.js`)
 - Four-color combinations (deferred in DEC-004, still out of scope)
 - ~~Pronunciation audio for combo names~~ — DELIVERED (Arcs 55–57, v0.37.0, 2026-03-27; DEC-213 through DEC-227)
