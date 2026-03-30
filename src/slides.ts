@@ -761,7 +761,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'TEXTAREA' || tag === 'INPUT') return;
       e.preventDefault();
-      handleAdvance();
+      if (paused) {
+        const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement | null;
+        if (pauseBtn) pauseBtn.click();
+      } else {
+        handleAdvance();
+      }
     }
   });
 
