@@ -926,6 +926,14 @@ async function reelAdvance(
   reelSpinning = true;
   reelIndex = nextIndex;
 
+  // Update URL so copy-pasted links land on the correct section
+  const sectionLabel = SECTION_LABELS[nextIndex];
+  if (sectionLabel) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('subgroup', sectionLabel);
+    history.replaceState(null, '', url.toString());
+  }
+
   // Update nav buttons immediately so arrows animate alongside the reel
   onNavigate?.();
 
@@ -954,6 +962,14 @@ export function showSessionEndColumns(
     : initialSubgroup === 'shards' ? 3
     : 0;
   reelIndex = initialIndex;
+
+  // Ensure URL reflects the initial section (even when defaulting to 'allied' with no param)
+  const initialLabel = SECTION_LABELS[initialIndex];
+  if (initialLabel) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('subgroup', initialLabel);
+    history.replaceState(null, '', url.toString());
+  }
 
   // Start the first section span; interactions nest under it
   const sectionSpanRef: SpanRef = { current: startSectionSpan(pageSpan, initialIndex) };
