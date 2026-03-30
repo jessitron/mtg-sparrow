@@ -258,11 +258,31 @@ function buildPage(combo: ColorCombo): string {
 }
 
 function buildIndexPage(): string {
-  const groups: { label: string; subgroup: string; combos: ColorCombo[] }[] = [
-    { label: "Allied Guilds", subgroup: "allied", combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "allied") },
-    { label: "Enemy Guilds", subgroup: "enemy", combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "enemy") },
-    { label: "Wedges", subgroup: "wedges", combos: guilds.filter(g => g.tier === "wedge") },
-    { label: "Shards", subgroup: "shards", combos: guilds.filter(g => g.tier === "shard") },
+  const groups: { label: string; subgroup: string; description: string; combos: ColorCombo[] }[] = [
+    {
+      label: "Allied Guilds",
+      subgroup: "allied",
+      description: "Two-color pairs where the colors are neighbors on the color wheel. Allied colors share fundamental values, making their combination feel natural and harmonious.",
+      combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "allied"),
+    },
+    {
+      label: "Enemy Guilds",
+      subgroup: "enemy",
+      description: "Two-color pairs where the colors are opposites on the color wheel. Enemy colors have conflicting philosophies, creating dynamic tension in their combination.",
+      combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "enemy"),
+    },
+    {
+      label: "Wedges",
+      subgroup: "wedges",
+      description: "Three-color combinations named after the clans of Tarkir. Each wedge centers on one color and adds its two enemy colors, creating an unusual alliance.",
+      combos: guilds.filter(g => g.tier === "wedge"),
+    },
+    {
+      label: "Shards",
+      subgroup: "shards",
+      description: "Three-color combinations named after the shards of Alara. Each shard centers on one color and adds its two allied neighbors, forming a natural extension.",
+      combos: guilds.filter(g => g.tier === "shard"),
+    },
   ];
 
   const sections = groups.map(group => {
@@ -282,6 +302,7 @@ function buildIndexPage(): string {
         <h2>${group.label}</h2>
         <a href="../slides?subgroup=${group.subgroup}&from=combo_index" class="combo-learn-button">Learn these names</a>
       </div>
+      <p class="combo-index-group-description">${escapeHtml(group.description)}</p>
       <ul class="combo-index-list">
 ${items}
       </ul>
@@ -319,7 +340,7 @@ ${items}
   <main id="app">
     <div class="combo-page">
       <h1 class="combo-name">Color Combinations</h1>
-      <p class="combo-index-intro">All 20 Magic: The Gathering color combinations, organized by type.</p>
+      <p class="combo-index-intro">In Magic: The Gathering, every color pair and triple has a name. These 20 combinations — drawn from Ravnica&#39;s guilds and Alara/Tarkir&#39;s three-color factions — each represent a distinct philosophy and play style.</p>
 
 ${sections}
 

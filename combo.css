@@ -301,6 +301,13 @@
   background: color-mix(in srgb, var(--card-back-turquoise) 35%, transparent);
 }
 
+.combo-index-group-description {
+  font-size: 0.95rem;
+  color: #999;
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
 .combo-index-list {
   list-style: none;
   display: grid;
