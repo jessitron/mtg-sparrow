@@ -510,7 +510,6 @@ export const guilds: ColorCombo[] = [
   {
     id: "naya", name: "Naya", colors: ["R", "G", "W"], tier: "shard",
     cards: [
-      { name: "Pantlaza, Sun-Favored", imageUrl: "https://cards.scryfall.io/normal/front/2/5/2524645e-b066-4351-885b-10faa8d819d7.jpg?1699972737" },
       { name: "Rith, the Awakener", imageUrl: "https://cards.scryfall.io/normal/front/e/1/e1a75961-39a3-4221-9367-a763cf871d42.jpg?1675200740" },
       { name: "Zacama, Primal Calamity", imageUrl: "https://cards.scryfall.io/normal/front/0/5/05c5a9a8-badd-43ab-8408-a13e75407681.jpg?1755609538" },
       { name: "Gishath, Sun's Avatar", imageUrl: "https://cards.scryfall.io/normal/front/b/c/bc4a65de-23b5-48f0-b8b7-94608eaced3e.jpg?1699044539" },
