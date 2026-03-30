@@ -2,7 +2,13 @@
 
 ## other
 
+- on iPad, the sound does not play on the timer (usually), only when I tap.
+- on iPad, the slides are not allocating space correctly, it winds up with a scroll bar.
+- on a giant screen (Eric's ultrawide), the slide does not use the available space, not even the available height.
 - Add a progress marker to the end screen, like some dots at the left that shows where you are and that you could move up or down. I think they defined an arc for this but then we got distracted in a different direction
+- add a Combos link to the hamburger menu
+- add overview info for each group of combos, along with overall summary, on the combos index.
+- maybe add an indicator of your last self-assessment to the end page, on each level that's completed. 1-3 stars
 - a cute 404 page
 - next/previous buttons on the static combo pages
 - o11y: put the session id and player ID on every log.
@@ -27,6 +33,7 @@
 - a changelog
 - add feedback and share to the about page, as sections
 - add something to the about page that this site provides info on the color combinations, which links to /combo
+- once per session, send a separate event straight to Honeycomb using the Honeycomb events API. Then when we move to a collector, I'll have an indication of whether the collector is working.
 
 ## Expanding features
 
