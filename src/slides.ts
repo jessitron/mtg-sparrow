@@ -333,6 +333,10 @@ function showCard(): void {
   };
   if (combo.selectedCard) {
     cardAttrs['slide.card_name'] = combo.selectedCard.name;
+    const uuidMatch = combo.selectedCard.imageUrl.match(/\/([0-9a-f-]{36})\.jpg/);
+    if (uuidMatch) {
+      cardAttrs['slide.card_scryfall_url'] = `https://scryfall.com/card/${uuidMatch[1]}`;
+    }
   }
   currentCardName = combo.selectedCard?.name ?? combo.name;
   cardSpan = sessionSpan
