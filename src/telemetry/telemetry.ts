@@ -44,7 +44,7 @@ function sendSessionHeartbeat(
   fetch(`https://api.honeycomb.io/1/events/${HONEYCOMB_DATASET}`, {
     method: 'POST',
     headers: {
-      'Authorization': HONEYCOMB_API_KEY,
+      'X-Honeycomb-Team': HONEYCOMB_API_KEY,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
