@@ -10,6 +10,44 @@ let playerId: string;
 
 const PLAYER_ID_KEY = 'mtg-sparrow.player.id';
 
+const HONEYCOMB_API_KEY = 'hcaik_01khj5r4wm0ffgsz59cdn42zvxn4rrt4kgny3zbc8zehs115ccwtntdsbh';
+const HONEYCOMB_DATASET = 'sparrow-deck';
+
+function sendSessionHeartbeat(
+  version: string,
+  page: string | undefined,
+  sid: string,
+  pid: string,
+): void {
+  const payload = {
+    'event.type': 'session.heartbeat',
+    'event.source': 'direct',
+    'session.id': sid,
+    'player.id': pid,
+    'page.hostname': window.location.hostname,
+    'page.url': window.location.href,
+    'page.path': window.location.pathname,
+    'app.version': version,
+    'app.page': page ?? '',
+    'browser.language': navigator.language,
+    'screen.width': window.screen.width,
+    'screen.height': window.screen.height,
+    'viewport.width': window.innerWidth,
+    'viewport.height': window.innerHeight,
+  };
+
+  fetch(`https://api.honeycomb.io/1/events/${HONEYCOMB_DATASET}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': HONEYCOMB_API_KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  }).catch((err) => {
+    console.warn('session heartbeat failed:', err);
+  });
+}
+
 function generateId(): string {
   const bytes = new Uint8Array(8);
   crypto.getRandomValues(bytes);
@@ -27,6 +65,10 @@ export function initTelemetry(version: string, page?: string, navigation?: strin
   playerId = storedPlayer ?? generateId();
   if (!storedPlayer) {
     localStorage.setItem(PLAYER_ID_KEY, playerId);
+  }
+
+  if (!storedSession) {
+    sendSessionHeartbeat(version, page, sessionId, playerId);
   }
 
   const resourceAttrs: Record<string, string> = {
