@@ -145,6 +145,34 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#039;");
 }
 
+// Ordered list of all combos matching the index page group order
+const orderedCombos: ColorCombo[] = [
+  ...guilds.filter(g => g.tier === "guild" && g.subgroup === "allied"),
+  ...guilds.filter(g => g.tier === "guild" && g.subgroup === "enemy"),
+  ...guilds.filter(g => g.tier === "wedge"),
+  ...guilds.filter(g => g.tier === "shard"),
+];
+
+function buildNavigation(combo: ColorCombo): string {
+  const idx = orderedCombos.findIndex(c => c.id === combo.id);
+  const prev = idx > 0 ? orderedCombos[idx - 1] : null;
+  const next = idx < orderedCombos.length - 1 ? orderedCombos[idx + 1] : null;
+
+  const prevLink = prev
+    ? `<a href="${prev.id}.html" class="combo-nav-link combo-nav-link--prev">&larr; ${escapeHtml(prev.name)}</a>`
+    : `<span class="combo-nav-placeholder"></span>`;
+
+  const nextLink = next
+    ? `<a href="${next.id}.html" class="combo-nav-link combo-nav-link--next">${escapeHtml(next.name)} &rarr;</a>`
+    : `<span class="combo-nav-placeholder"></span>`;
+
+  return `<nav class="combo-nav" aria-label="Browse combos">
+        ${prevLink}
+        <a href="./" class="combo-nav-index">All combinations</a>
+        ${nextLink}
+      </nav>`;
+}
+
 function buildPage(combo: ColorCombo): string {
   const desc = guildDescriptionMap[combo.id];
   const description = desc?.description ?? "";
@@ -215,6 +243,8 @@ function buildPage(combo: ColorCombo): string {
         <h2>Example Cards <span class="combo-card-count">(${cardCount})</span></h2>
         ${buildCardGallery(combo)}
       </section>
+
+      ${buildNavigation(combo)}
 
       <footer class="combo-footer">
         <a href="${scryfallUrl}" target="_blank" rel="noopener noreferrer" class="combo-scryfall-link">Browse more ${combo.name} cards on Scryfall &rarr;</a>
