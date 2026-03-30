@@ -550,6 +550,25 @@ Research prototype for a scroll-unroll animation — not yet integrated into the
 
 ---
 
+## iOS Safari Audio Unlock (Arc 58, v0.38.0, 2026-03-30)
+
+### Arc 58: iOS Safari Audio Unlock — COMPLETE (v0.38.0, 2026-03-30)
+- **Type**: Bug Fix
+- **What**: Fixed audio playback on iPad/iOS Safari, where `new Audio().play()` from timer callbacks is blocked by Safari's autoplay policy. Audio worked on desktop but silently failed on iPad.
+- **Root cause**: Safari requires the first `.play()` call on an Audio element to originate from a synchronous user gesture. Timer callbacks (which fire the combo name reveal) don't qualify.
+- **Solution**:
+  1. `unlockAudio()` added to `src/audio.ts` — creates a module-level `HTMLAudioElement` and plays a silent WAV data URI to "unlock" it for Safari during a user gesture.
+  2. `playAudio()` now reuses that unlocked element (mutates `.src` + calls `.play()`) instead of creating `new Audio()` each time.
+  3. Falls back gracefully to `new Audio()` if `unlockAudio()` was never called (combo pages continue to work — their play button IS a direct user gesture).
+  4. `unlockAudio()` called synchronously in the level intro dismiss handler (`src/slides.ts`) — the user's tap to start the session, which happens before any timers fire.
+- **Historical note**: A similar Audio element reuse approach was added in commit 3bec583, then removed as "unnecessary" in commit add51a3. It turns out iOS needs it. Arc 58 restores the pattern with a clear rationale.
+- **Context**: Bug discovered during client's weekend iPad testing. The level intro screen (Arc 44) serendipitously provided the perfect user gesture hook.
+- **Key decisions**: DEC-228, DEC-229, DEC-230, DEC-231.
+- **Files changed**: `src/audio.ts`, `src/slides.ts`, `src/version.ts` (bumped to 0.38.0).
+- **Verification**: iOS Safari audio playback confirmed working on iPad.
+
+---
+
 ## Search Engine & LLM Discoverability (Arc 52, v0.34.0, 2026-03-26)
 
 ### Arc 52: Search Engine & LLM Discoverability — COMPLETE (v0.34.0, 2026-03-26)

@@ -4,7 +4,15 @@ Current state, in-progress work, and upcoming arcs.
 
 ---
 
-## Current Status (2026-03-27)
+## Current Status (2026-03-30)
+
+### Arc 58 COMPLETE — iOS Safari Audio Unlock Bug Fix (v0.38.0)
+
+Bug fix arc triggered by real-world iPad testing. Audio worked on desktop but was silently blocked by Safari's autoplay policy on iOS. Fixed by calling `unlockAudio()` (a silent WAV played from the level intro dismiss gesture) before any timer-driven audio fires, and by reusing the unlocked `HTMLAudioElement` in `playAudio()`. Combo pages unaffected. Decisions DEC-228 through DEC-231. See arc-history.md for full record.
+
+---
+
+## Previous Status (2026-03-27)
 
 ### Arcs 55–57 COMPLETE — Audio Pronunciation Feature Delivered (v0.37.0)
 

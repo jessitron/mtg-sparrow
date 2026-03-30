@@ -1883,6 +1883,34 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: Initial plan called for 20 files (one per combo). Client recorded additional files covering mono colors and related terms, expanding the audio coverage.
 - **Rationale**: More coverage is better for a pronunciation learning tool. The additional files can be referenced from mono color pages and related contexts in future arcs.
 
+## DEC-228: Unlock Audio via Silent WAV Data URI Played from User Gesture
+- **Date**: 2026-03-30
+- **Arc**: 58
+- **Decision**: `unlockAudio()` plays a silent WAV data URI (`data:audio/wav;base64,...`) from a user gesture handler to satisfy Safari's autoplay policy.
+- **Context**: Safari/WebKit requires the first `.play()` call to originate from a synchronous user gesture. Subsequent calls on the same element are allowed even from timer callbacks.
+- **Rationale**: A silent WAV is the smallest valid audio content that satisfies Safari's unlock requirement. Playing it during the level intro dismiss (a user tap) primes the element before any timers fire.
+
+## DEC-229: Reuse Single Audio Element — Mutate .src Rather Than Creating New Elements
+- **Date**: 2026-03-30
+- **Arc**: 58
+- **Decision**: `playAudio()` mutates the `.src` of the single module-level `HTMLAudioElement` created in `unlockAudio()` rather than constructing `new Audio()` for each playback call.
+- **Context**: Safari's autoplay unlock applies to a specific element instance, not to `Audio` construction in general. Creating a new element bypasses the unlock.
+- **Rationale**: Reusing the unlocked element is required for Safari compatibility. It also avoids unnecessary element accumulation across a session.
+
+## DEC-230: Place unlockAudio() Call in Level Intro Dismiss Handler
+- **Date**: 2026-03-30
+- **Arc**: 58
+- **Decision**: `unlockAudio()` is called synchronously inside the level intro dismiss handler in `src/slides.ts`.
+- **Context**: The level intro dismiss (click/tap/spacebar) is the first user gesture on the slides page and is guaranteed to occur before any timer-triggered audio fires.
+- **Rationale**: The level intro (Arc 44) serendipitously provides the ideal hook — it's a deliberate user action that precedes all quiz activity. No new user gesture is needed; the existing flow naturally satisfies Safari's requirement.
+
+## DEC-231: Combo Pages Do Not Need unlockAudio() — Play Button IS a Direct Gesture
+- **Date**: 2026-03-30
+- **Arc**: 58
+- **Decision**: `unlockAudio()` is not called on combo pages, and no changes were made to combo page audio logic.
+- **Context**: Combo pages have an explicit play button that the user taps directly. That tap IS a synchronous user gesture, so Safari's autoplay policy is already satisfied at the moment `.play()` is called.
+- **Rationale**: No unlock step is needed when the play call originates directly from a gesture handler. Keeping combo pages unchanged avoids unnecessary coupling.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
