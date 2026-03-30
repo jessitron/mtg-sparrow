@@ -371,11 +371,14 @@ ${items}
   <a href="../" class="home-spiral" title="Home"></a>
   <main id="app">
     <div class="combo-page">
-      <h1 class="combo-name">Color Combinations</h1>
-      <p class="combo-index-intro">In Magic: The Gathering, every color pair and triple has a name. These 20 combinations — drawn from Ravnica&#39;s guilds and Alara/Tarkir&#39;s three-color factions — each represent a distinct philosophy and play style.</p>
-
-      <div class="combo-pentagon-container">
-        ${buildOverviewPentagonSvg()}
+      <div class="combo-header">
+        <div class="combo-pentagon-container">
+          ${buildOverviewPentagonSvg()}
+        </div>
+        <div class="combo-title-block">
+          <h1 class="combo-name">Color Combinations</h1>
+          <p class="combo-index-intro">In Magic: The Gathering, every color pair and triple has a name. These 20 combinations — drawn from Ravnica&#39;s guilds and Alara/Tarkir&#39;s three-color factions — each represent a distinct philosophy and play style.</p>
+        </div>
       </div>
 
 ${sections}
