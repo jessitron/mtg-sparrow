@@ -77,19 +77,19 @@
   position: relative;
   transition: height 600ms cubic-bezier(0.2, 0.8, 0.3, 1.05);
   animation: reelFadeIn 300ms ease-out;
-  /* Gradient mask: fade at top/bottom edges */
+  /* Gradient mask: fade at top/bottom edges to blend peeked adjacent sections */
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 5%,
-    black 95%,
+    black 12%,
+    black 88%,
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 5%,
-    black 95%,
+    black 12%,
+    black 88%,
     transparent 100%
   );
 }

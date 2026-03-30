@@ -868,6 +868,7 @@ function buildShardColumn(
 
 const REEL_TRANSITION = 'transform 600ms cubic-bezier(0.2, 0.8, 0.3, 1.05)';
 const WHEEL_DELTA_THRESHOLD = 700;
+const PEEK_PX = 60; // pixels of adjacent sections visible above/below active section
 
 let reelIndex = 0;
 let reelSpinning = false;
@@ -886,11 +887,20 @@ function reelSpinTo(
       targetY += sections[i].offsetHeight;
     }
 
-    reel.style.transition = REEL_TRANSITION;
-    reel.style.transform = `translateY(${-targetY}px)`;
+    // Peek: show partial adjacent sections above/below.
+    // At first section: peek below only. At last section: peek above only. Otherwise both.
+    const isFirst = index === 0;
+    const isLast = index === sections.length - 1;
+    const peekTop = isFirst ? 0 : PEEK_PX / 2;
+    const peekBottom = isLast ? 0 : PEEK_PX / 2;
+    const peekHeight = peekTop + peekBottom;
 
-    // Animate viewport height to match the target section
-    viewport.style.height = `${sections[index].offsetHeight}px`;
+    // Shift reel up by peekTop so the peek is split evenly top/bottom
+    reel.style.transition = REEL_TRANSITION;
+    reel.style.transform = `translateY(${-(targetY - peekTop)}px)`;
+
+    // Animate viewport height to match the target section plus peek
+    viewport.style.height = `${sections[index].offsetHeight + peekHeight}px`;
 
     reel.addEventListener('transitionend', function handler(e: TransitionEvent) {
       if (e.target !== reel) return;
@@ -1101,7 +1111,10 @@ export function showSessionEndColumns(
 
   // Show Allied section immediately, then scroll to target after page loads
   requestAnimationFrame(() => {
-    viewport.style.height = `${sections[0].offsetHeight}px`;
+    // Index 0: no peek above, peek below only (unless there's only one section)
+    const initialPeekBottom = sections.length > 1 ? PEEK_PX / 2 : 0;
+    viewport.style.height = `${sections[0].offsetHeight + initialPeekBottom}px`;
+    // No translateY offset at index 0 — nothing above to peek at
     updateNavButtons();
 
     if (initialIndex > 0) {
@@ -1172,9 +1185,13 @@ export function showSessionEndColumns(
     for (let i = 0; i < reelIndex; i++) {
       targetY += sections[i].offsetHeight;
     }
+    const isFirst = reelIndex === 0;
+    const isLast = reelIndex === sections.length - 1;
+    const peekTop = isFirst ? 0 : PEEK_PX / 2;
+    const peekBottom = isLast ? 0 : PEEK_PX / 2;
     reel.style.transition = 'none';
-    reel.style.transform = `translateY(${-targetY}px)`;
-    viewport.style.height = `${sections[reelIndex].offsetHeight}px`;
+    reel.style.transform = `translateY(${-(targetY - peekTop)}px)`;
+    viewport.style.height = `${sections[reelIndex].offsetHeight + peekTop + peekBottom}px`;
   });
 
   // Return cleanup: end the current section span when the page is done
