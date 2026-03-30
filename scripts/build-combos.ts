@@ -118,42 +118,6 @@ ${nodes}
 </svg>`;
 }
 
-function buildIndexColorWheel(): string {
-  const lineColor = "#c8b88a";
-  const enemyColor = "#c8b88a";
-
-  // Allied (edge) lines — thicker
-  let alliedLines = "";
-  for (const [a, b] of alliedPairs) {
-    const na = colorNodes.find(n => n.id === a)!;
-    const nb = colorNodes.find(n => n.id === b)!;
-    alliedLines += `  <line x1="${na.cx}" y1="${na.cy}" x2="${nb.cx}" y2="${nb.cy}" stroke="${lineColor}" stroke-width="10" opacity="0.7" />\n`;
-  }
-
-  // Enemy (star) lines — thinner and more subtle
-  let enemyLines = "";
-  for (const [a, b] of enemyPairs) {
-    const na = colorNodes.find(n => n.id === a)!;
-    const nb = colorNodes.find(n => n.id === b)!;
-    enemyLines += `  <line x1="${na.cx}" y1="${na.cy}" x2="${nb.cx}" y2="${nb.cy}" stroke="${enemyColor}" stroke-width="3" opacity="0.25" stroke-dasharray="8 6" />\n`;
-  }
-
-  // Color circles with letter labels
-  let nodes = "";
-  for (const node of colorNodes) {
-    const fill = manaColors[node.id];
-    // Dark text on light colors (W), light text on dark colors
-    const textFill = node.id === "W" ? "#3a3020" : "#f0ead0";
-    nodes += `  <circle cx="${node.cx}" cy="${node.cy}" r="34" fill="${fill}" stroke="#1a1a1a" stroke-width="3" />\n`;
-    nodes += `  <text x="${node.cx}" y="${node.cy}" text-anchor="middle" dominant-baseline="central" font-family="'GoudyMediaeval', serif" font-size="26" font-weight="bold" fill="${textFill}">${node.id}</text>\n`;
-  }
-
-  return `<div class="color-wheel-container">
-  <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" class="color-wheel-svg" role="img" aria-label="MTG color wheel: White, Blue, Black, Red, Green arranged as a pentagon">
-${enemyLines}${alliedLines}${nodes}  </svg>
-</div>`;
-}
-
 function buildCardGallery(combo: ColorCombo): string {
   const cards = combo.cards ?? [];
   if (cards.length === 0) return `<p class="combo-no-cards">No example cards yet.</p>`;
@@ -377,8 +341,6 @@ ${items}
     <div class="combo-page">
       <h1 class="combo-name">Color Combinations</h1>
       <p class="combo-index-intro">In Magic: The Gathering, every color pair and triple has a name. These 20 combinations — drawn from Ravnica&#39;s guilds and Alara/Tarkir&#39;s three-color factions — each represent a distinct philosophy and play style.</p>
-
-${buildIndexColorWheel()}
 
 ${sections}
 

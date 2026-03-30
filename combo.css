@@ -259,19 +259,6 @@
   text-decoration: underline;
 }
 
-/* --- Color wheel (index page) --- */
-
-.color-wheel-container {
-  display: flex;
-  justify-content: center;
-  margin: 0 auto 2.5rem;
-}
-
-.color-wheel-svg {
-  width: 200px;
-  height: 200px;
-}
-
 /* --- Index page --- */
 
 .combo-index-intro {
