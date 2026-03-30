@@ -7,6 +7,7 @@
   - on a giant screen (Eric's ultrawide), the slide does not use the available space, not even the available height.
   - added o11y, waiting for data
 - Add a progress marker to the end screen, like some dots at the left that shows where you are and that you could move up or down. I think they defined an arc for this but then we got distracted in a different direction
+- bug: on the slides page, when an image does not load, then the slide changes shape. It should present the card back in that case - or an empty box with the right shape. No layout change.
 - ~~add overview info for each group of combos, along with overall summary, on the combos index.~~ done (Arc 68, v0.42.0)
 - add an indicator of your last self-assessment to the end page, on each level that's completed. 1-3 stars
 - ~~a cute 404 page~~ done (Arc 71, v0.42.0 — "Lost in the Blind Eternities")
