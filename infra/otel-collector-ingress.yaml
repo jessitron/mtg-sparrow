@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: otel-collector-ingress
+  namespace: mtg-sparrow
+  labels:
+    app.kubernetes.io/component: otel-collector-ingress
+    app.kubernetes.io/instance: otel-collector
+    app.kubernetes.io/name: otel-collector
+  annotations:
+    # ALB group — must match existing ingresses to share the ALB
+    alb.ingress.kubernetes.io/group.name: only-one-alb-please
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443},{"HTTP":80}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/load-balancer-attributes: >-
+      access_logs.s3.enabled=true,access_logs.s3.bucket=orion-alb-access-logs,access_logs.s3.prefix=orion-alb
+    # Health check against the collector's health_check extension
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-port: "13133"
+    # DNS auto-registration via external-dns
+    external-dns.alpha.kubernetes.io/hostname: mtg-sparrow.jessitron.honeydemo.io
+spec:
+  ingressClassName: alb
+  rules:
+    - host: mtg-sparrow.jessitron.honeydemo.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: otel-collector-opentelemetry-collector
+                port:
+                  number: 4318
+  tls:
+    - hosts:
+        - mtg-sparrow.jessitron.honeydemo.io

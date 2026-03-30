@@ -54,8 +54,55 @@ kubectl --context orion -n mtg-sparrow logs -l app.kubernetes.io/name=openteleme
 
 Look for: collector starting up, pipelines initialized, no exporter errors.
 
+---
+
+## Session: Health Check Extension + Ingress (2026-03-30)
+
+### What Was Done
+
+1. Added `health_check` extension to collector config (endpoint `0.0.0.0:13133`).
+2. Exposed port 13133 on the helm service.
+3. Committed and applied via `helm upgrade` (revision 3). Verified pod healthy.
+4. Created `infra/otel-collector-ingress.yaml` — ALB ingress for public access.
+5. Committed and applied via `kubectl apply`. Verified it joined the existing ALB.
+
+### Ingress Details
+
+- **Hostname**: `mtg-sparrow.jessitron.honeydemo.io`
+- **Backend**: `otel-collector-opentelemetry-collector:4318` (OTLP HTTP)
+- **ALB group**: `only-one-alb-please` — shares the cluster's single ALB with 6 other ingresses
+- **ALB hostname**: `k8s-onlyonealbplease-5cf2ceb8df-527308216.us-west-2.elb.amazonaws.com`
+- **Health check**: Port 13133 (collector health_check extension), path `/`
+- **TLS**: ACM wildcard cert auto-discovered (no certificate-arn needed)
+- **DNS**: Auto-registered by external-dns via annotation
+
+### ALB Sharing — Critical Notes
+
+The cluster has ONE shared ALB. All ingresses MUST include these annotations to share it:
+
+```yaml
+alb.ingress.kubernetes.io/group.name: only-one-alb-please
+alb.ingress.kubernetes.io/scheme: internet-facing
+alb.ingress.kubernetes.io/target-type: ip
+alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443},{"HTTP":80}]'
+alb.ingress.kubernetes.io/ssl-redirect: "443"
+```
+
+**WARNING**: Omitting or changing `group.name` will spin up a NEW ALB. Do not do this.
+
+The `load-balancer-attributes` annotation (S3 access logging) is present on most existing ingresses.
+
+### Other Ingresses in the Cluster (for reference)
+
+All in `default` namespace:
+- `collectron-ingress` → `collector.jessitron.honeydemo.io` (another OTel collector on 4318)
+- `fake-saml-idp-ingress` → `instruqt.jessitron.honeydemo.io`
+- `jaeger-all-in-one-query` → `jaeger.jessitron.honeydemo.io`
+- `mtg-deck-shuffler-ingress` → `mtg.jessitron.honeydemo.io`
+- `nginx-for-hny-tricks-ingress` → `util.jessitron.honeydemo.io`
+- `rollback-webhook` → `rollback.jessitron.honeydemo.io`
+
 ### Open Questions / Next Steps
 
-- The collector service is ClusterIP only. If the web browser (client-side JS) needs to send OTLP directly, we need an Ingress or LoadBalancer. Current assumption: a backend proxy or the site SDK sends to this collector — confirm with Observability Engineer.
 - Consider adding a metrics pipeline if the collector self-telemetry is needed.
 - If traffic grows, bump replicas and resource limits.

@@ -47,14 +47,30 @@ kubectl --context orion -n mtg-sparrow create secret generic honeycomb-api-key \
 
 The API key is an ingest key from the Honeycomb `modernity` workspace, `sparrow-deck` environment.
 
+## Ingresses
+
+| Ingress Name | Namespace | Hostname | Backend | Manifest |
+|---|---|---|---|---|
+| `otel-collector-ingress` | `mtg-sparrow` | `mtg-sparrow.jessitron.honeydemo.io` | `otel-collector-opentelemetry-collector:4318` | `infra/otel-collector-ingress.yaml` |
+
+The ingress shares the cluster's single ALB via `alb.ingress.kubernetes.io/group.name: only-one-alb-please`.
+ALB health checks target the collector's `health_check` extension on port 13133.
+DNS is auto-managed by external-dns.
+
 ## OTel Collector Endpoints
 
-Within the cluster, the collector is reachable at:
+### From within the cluster
 
-- gRPC: `otel-collector.mtg-sparrow.svc.cluster.local:4317`
-- HTTP: `otel-collector.mtg-sparrow.svc.cluster.local:4318`
+- gRPC: `otel-collector-opentelemetry-collector.mtg-sparrow.svc.cluster.local:4317`
+- HTTP: `otel-collector-opentelemetry-collector.mtg-sparrow.svc.cluster.local:4318`
+- Health check: `otel-collector-opentelemetry-collector.mtg-sparrow.svc.cluster.local:13133`
 
-The collector accepts OTLP from `https://mtgcolors.quest` (CORS configured).
+### From the public internet (via ALB ingress)
+
+- OTLP HTTP: `https://mtg-sparrow.jessitron.honeydemo.io`
+- Example: `POST https://mtg-sparrow.jessitron.honeydemo.io/v1/traces`
+
+The collector accepts OTLP from `https://mtgcolors.quest` and `http://localhost:*` (CORS configured).
 
 ## Useful Commands
 
@@ -89,6 +105,15 @@ kubectl --context orion -n mtg-sparrow get svc
 helm --kube-context orion -n mtg-sparrow list
 ```
 
+### Check ingress status
+
+```bash
+kubectl --context orion -n mtg-sparrow get ingress
+```
+
+Verify the ADDRESS column shows the existing ALB hostname (`k8s-onlyonealbplease-*.elb.amazonaws.com`).
+If it shows a different hostname or is empty for a long time, something went wrong.
+
 ## How to Update
 
 ### Update collector configuration
@@ -113,6 +138,18 @@ helm --kube-context orion upgrade otel-collector open-telemetry/opentelemetry-co
   -f infra/otel-collector-values.yaml
 ```
 
+### Update ingress
+
+1. Edit `infra/otel-collector-ingress.yaml`
+2. Commit the change
+3. Apply:
+
+```bash
+kubectl --context orion apply -f infra/otel-collector-ingress.yaml
+```
+
+WARNING: Do NOT change `alb.ingress.kubernetes.io/group.name` — it must remain `only-one-alb-please` to share the existing ALB. Changing or removing it will create a new ALB.
+
 ### Apply namespace manifest
 
 ```bash
@@ -133,4 +170,7 @@ kubectl --context orion -n mtg-sparrow create secret generic honeycomb-api-key \
 helm --kube-context orion install otel-collector open-telemetry/opentelemetry-collector \
   -n mtg-sparrow \
   -f infra/otel-collector-values.yaml
+
+# 4. Create ingress (shares existing ALB)
+kubectl --context orion apply -f infra/otel-collector-ingress.yaml
 ```
