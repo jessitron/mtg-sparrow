@@ -68,6 +68,14 @@ config:
       check_interval: 1s
       limit_mib: 200
       spike_limit_mib: 50
+    resource/provenance:
+      attributes:
+        - key: collector.name
+          value: mtg-sparrow.jessitron.honeydemo.io
+          action: upsert
+        - key: collector.cluster
+          value: orion
+          action: upsert
 
   extensions:
     health_check:
@@ -89,11 +97,11 @@ config:
     pipelines:
       traces:
         receivers: [otlp]
-        processors: [memory_limiter, batch]
+        processors: [memory_limiter, resource/provenance, batch]
         exporters: [otlp_http/honeycomb]
       logs:
         receivers: [otlp]
-        processors: [memory_limiter, batch]
+        processors: [memory_limiter, resource/provenance, batch]
         exporters: [otlp_http/honeycomb]
       # Nulled default: metrics pipeline (we don't export metrics)
       metrics: null
