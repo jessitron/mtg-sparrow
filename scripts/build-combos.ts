@@ -173,6 +173,38 @@ function buildNavigation(combo: ColorCombo): string {
       </nav>`;
 }
 
+function buildOverviewPentagonSvg(): string {
+  const alliedLineColor = "#6C9FB0";
+  const enemyLineColor = "#c8b88a";
+
+  let lines = "";
+
+  // Allied (edge) lines — bolder, teal
+  for (const [a, b] of alliedPairs) {
+    const na = colorNodes.find(n => n.id === a)!;
+    const nb = colorNodes.find(n => n.id === b)!;
+    lines += `<line x1="${na.cx}" y1="${na.cy}" x2="${nb.cx}" y2="${nb.cy}" stroke="${alliedLineColor}" stroke-width="8" opacity="0.85" />\n`;
+  }
+
+  // Enemy (star) lines — lighter, thinner
+  for (const [a, b] of enemyPairs) {
+    const na = colorNodes.find(n => n.id === a)!;
+    const nb = colorNodes.find(n => n.id === b)!;
+    lines += `<line x1="${na.cx}" y1="${na.cy}" x2="${nb.cx}" y2="${nb.cy}" stroke="${enemyLineColor}" stroke-width="4" opacity="0.35" />\n`;
+  }
+
+  // All five mana pip images at full opacity
+  let nodes = "";
+  for (const node of colorNodes) {
+    nodes += `<image href="../images/${node.id}.svg" x="${node.imgX}" y="${node.imgY}" width="68" height="68" opacity="1" />\n`;
+  }
+
+  return `<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" class="combo-pentagon" role="img" aria-label="Five-color pentagon showing all color connections">
+${lines}
+${nodes}
+</svg>`;
+}
+
 function buildPage(combo: ColorCombo): string {
   const desc = guildDescriptionMap[combo.id];
   const description = desc?.description ?? "";
@@ -341,6 +373,10 @@ ${items}
     <div class="combo-page">
       <h1 class="combo-name">Color Combinations</h1>
       <p class="combo-index-intro">In Magic: The Gathering, every color pair and triple has a name. These 20 combinations — drawn from Ravnica&#39;s guilds and Alara/Tarkir&#39;s three-color factions — each represent a distinct philosophy and play style.</p>
+
+      <div class="combo-pentagon-container">
+        ${buildOverviewPentagonSvg()}
+      </div>
 
 ${sections}
 
