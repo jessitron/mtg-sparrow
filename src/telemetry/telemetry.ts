@@ -132,6 +132,7 @@ export function emitLog(
     severityNumber: SeverityNumber.INFO,
     body: name,
     attributes: {
+      message: name,
       'mtg-sparrow.session.id': sessionId,
       'mtg-sparrow.player.id': playerId,
       ...attributes,
