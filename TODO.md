@@ -43,8 +43,6 @@
 - internationalization. add German
 - and maybe Canadian? that's mostly Audio, what if I got Jim to record the words
 
-- audio!
-
 ## Require external setup by the client
 
 - o11y: run an OTel Collector so that sendBeacon works for span export. Currently the SDK falls back to XHR because Honeycomb needs auth headers, which sendBeacon can't send. A collector on same-origin (or localhost) removes the need for auth headers in the browser — the collector adds them server-side. This would make pre-navigation spans (like debug.mode_changed) reliable without UI delays.
