@@ -9,24 +9,18 @@
 - Add a progress marker to the end screen, like some dots at the left that shows where you are and that you could move up or down. I think they defined an arc for this but then we got distracted in a different direction
 - on the combo reference pages, move the 'next' and 'previous' links to the same row as the "Learn Names" button
 - bug: on the slides page, when an image does not load, then the slide changes shape. It should present the card back in that case - or an empty box with the right shape. No layout change.
-- ~~add overview info for each group of combos, along with overall summary, on the combos index.~~ done (Arc 68, v0.42.0)
 - add an indicator of your last self-assessment to the end page, on each level that's completed. 1-3 stars
-- ~~a cute 404 page~~ done (Arc 71, v0.42.0 — "Lost in the Blind Eternities")
-- ~~next/previous buttons on the static combo pages~~ done (Arc 60, v0.40.0)
-- ~~o11y: put the session id and player ID on every log.~~ done (Arc 61, v0.40.0 — added to both main app logs and combo pages)
-- ~~o11y: add the scryfall URL to the card spans~~ done (Arc 65, v0.42.0 — `slide.card_scryfall_url` derived from image UUID)
-- ~~on the home page, pushing 'pause' or 'fan' should make a log.~~ done (Arc 64, v0.41.0 — `home.gas_stop` and `home.gas_fan` events)
-- ~~update the end screen URL when switching between info sections, so that if someone c&p the link, it'll take the recipient to the right page.~~ done (Arc 67, v0.42.0 — `?subgroup=` param via replaceState)
 - make the logo into a game? On the About page, I wanna click it and it spins clockwise, and as the end of the spiral hits mana symbols they light up (with their usual color), and then it stops somewhere randomly, settles on one mana symbol and leaves that one lit. The harder I click (hold, or click repeatedly) the faster it goes.
-- ~~on the slides page: when paused, make the space key resume. (Space doesn't pause, because it advances when the slideshow is running.)~~ done (Arc 66, v0.42.0)
 - on the slides page: make tapping the slide when paused advance but not start playing
 - Remove the instructions from the home page; replace with tutorial
 - on the home page, give players a button for each level they've unlocked. Change "learn" to "practice" for the ones they've completed.
 - VISUAL BUG: on the end screen, when it loads on Allied Guilds (the top section), the "up" arrow chevron starts visible then moves down to hide. I think both arrows should start in their hidden positions, and then the ones that need to be visible slide out. That will draw attention to them.
-- ~~Bug on the end screen: "Next Level" button only shows below the Allied Guilds section. It should show below every section if the first level they haven't completed is below this one.~~ fixed (Arc 63, v0.40.0 — 'shards' was missing from condition)
-- ~~on the end screen, can we make it look a little more like a window maybe ... I want bits of the next sections to show (maybe less visible) so that people know there's more to scroll to.~~ done (Arc 69, v0.42.0 — 60px peek with gradient fade)
+- Bug on the end screen: "Next Level" button only shows below the Allied Guilds section. It should show below every section if the first level they haven't completed is below this one.
+  - in theory, fixed (Arc 63, v0.40.0 — 'shards' was missing from condition)
+  - but it is not working; now it shows "Next Level" below every section. It should only point to the first incomplete level.
+- on the end screen, can we make it look a little more like a window maybe ... I want bits of the next sections to show (maybe less visible) so that people know there's more to scroll to.
+  - In theory, done (Arc 69, v0.42.0 — 60px peek with gradient fade) ... but it doesn't work. I want to see faintly the rest of the info sections, all the way to the top and bottom of the page.
 - let's talk about the color pallette. Pull all colors from everywhere in the site into variables (or make a report of them), and then let's get them standardized on fewer.
-- ~~build a board in Honeycomb to see site usage~~ done (Arc 70 — [Site Usage Dashboard](https://ui.honeycomb.io/modernity/environments/sparrow-deck/board/wXrwy7TBMCv))
 - get email alerts to jessitron@gmail.com if
   - someone fills out the newsletter form
   - someone sends feedback
