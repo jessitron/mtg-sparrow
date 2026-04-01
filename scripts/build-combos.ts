@@ -178,12 +178,21 @@ function buildNavigation(combo: ColorCombo): string {
   const prev = idx > 0 ? orderedCombos[idx - 1] : null;
   const next = idx < orderedCombos.length - 1 ? orderedCombos[idx + 1] : null;
 
+  function navContent(c: ColorCombo, direction: "prev" | "next"): string {
+    const arrow = direction === "prev" ? "&larr;" : "&rarr;";
+    if (c.tier === "guild") {
+      const img = `<img src="../images/${c.id}.png" alt="${escapeHtml(c.name)}" class="combo-nav-logo" width="28" height="28" />`;
+      return direction === "prev" ? `${arrow} ${img}` : `${img} ${arrow}`;
+    }
+    return direction === "prev" ? `${arrow} ${escapeHtml(c.name)}` : `${escapeHtml(c.name)} ${arrow}`;
+  }
+
   const prevLink = prev
-    ? `<a href="${prev.id}.html" class="combo-nav-link combo-nav-link--prev">&larr; ${escapeHtml(prev.name)}</a>`
+    ? `<a href="${prev.id}.html" class="combo-nav-link combo-nav-link--prev" title="${escapeHtml(prev.name)}">${navContent(prev, "prev")}</a>`
     : `<span class="combo-nav-placeholder"></span>`;
 
   const nextLink = next
-    ? `<a href="${next.id}.html" class="combo-nav-link combo-nav-link--next">${escapeHtml(next.name)} &rarr;</a>`
+    ? `<a href="${next.id}.html" class="combo-nav-link combo-nav-link--next" title="${escapeHtml(next.name)}">${navContent(next, "next")}</a>`
     : `<span class="combo-nav-placeholder"></span>`;
 
   const learnLink = `<a href="../slides?subgroup=${subgroupParam(combo)}&from=combo_page" class="combo-learn-button combo-learn-button--prominent">Learn ${subgroupLabel(combo)} names</a>`;
