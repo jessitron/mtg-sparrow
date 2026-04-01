@@ -1058,6 +1058,50 @@ export function showSessionEndColumns(
   bottomBtn.classList.add('reel-nav-btn', 'reel-nav-btn--bottom');
   bottomBtn.setAttribute('aria-label', 'Scroll down');
 
+  // Progress dots — one per section, clickable for direct navigation
+  const dotsContainer = document.createElement('div');
+  dotsContainer.classList.add('reel-progress-dots');
+
+  const dotButtons = sections.map((_, dotIndex) => {
+    const dot = document.createElement('button');
+    dot.classList.add('reel-progress-dot');
+    dot.setAttribute('aria-label', `Section ${dotIndex + 1} of 5`);
+    if (dotIndex === initialIndex) {
+      dot.classList.add('reel-progress-dot--active');
+    }
+    dot.addEventListener('click', async (e: MouseEvent) => {
+      e.stopPropagation();
+      if (dotIndex === reelIndex) return;
+      if (reelSpinning) return;
+
+      reelSpinning = true;
+      reelIndex = dotIndex;
+
+      const sectionLabel = SECTION_LABELS[dotIndex];
+      if (sectionLabel) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('subgroup', sectionLabel);
+        history.replaceState(null, '', url.toString());
+      }
+
+      updateNavButtons();
+
+      endSpan(sectionSpanRef.current);
+      sectionSpanRef.current = startSectionSpan(pageSpan, dotIndex);
+
+      emitLog('end.progress_dot_click', pageSpan, {
+        'end.target_section': SECTION_LABELS[dotIndex],
+        'end.target_index': dotIndex,
+      });
+
+      await reelSpinTo(reel, viewport, sections, dotIndex);
+
+      reelSpinning = false;
+    });
+    dotsContainer.appendChild(dot);
+    return dot;
+  });
+
   function updateNavButtons() {
     const atTop = reelIndex <= 0;
     const atEnd = reelIndex >= sections.length - 1;
@@ -1084,6 +1128,15 @@ export function showSessionEndColumns(
       bottomBtn.textContent = '';
       bottomBtn.classList.remove('reel-nav-btn--has-label');
     }
+
+    // Sync active dot to current section
+    for (let i = 0; i < dotButtons.length; i++) {
+      if (i === reelIndex) {
+        dotButtons[i].classList.add('reel-progress-dot--active');
+      } else {
+        dotButtons[i].classList.remove('reel-progress-dot--active');
+      }
+    }
   }
 
   topBtn.addEventListener('click', (e: MouseEvent) => {
@@ -1106,6 +1159,7 @@ export function showSessionEndColumns(
   });
 
   app.appendChild(topBtn);
+  app.appendChild(dotsContainer);
   app.appendChild(viewport);
   app.appendChild(bottomBtn);
 
