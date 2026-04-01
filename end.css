@@ -172,9 +172,9 @@
 /* Reel progress dots */
 .reel-progress-dots {
   position: fixed;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  left: 28px;           /* center of .home-spiral (left 12px + half of 32px) */
+  top: 56px;            /* below .home-spiral (12px top + 32px height + 12px gap) */
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   gap: 16px;
