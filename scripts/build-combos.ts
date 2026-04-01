@@ -289,14 +289,14 @@ function buildPage(combo: ColorCombo): string {
         <p class="combo-flavor">${escapeHtml(flavor)}</p>` : ""}
       </section>
 
+      ${buildNavigation(combo)}
+
       ${buildExampleDecks(desc?.exampleDecks)}
 
       <section class="combo-cards">
         <h2>Example Cards <span class="combo-card-count">(${cardCount})</span></h2>
         ${buildCardGallery(combo)}
       </section>
-
-      ${buildNavigation(combo)}
 
       <footer class="combo-footer">
         <a href="${scryfallUrl}" target="_blank" rel="noopener noreferrer" class="combo-scryfall-link">Browse more ${combo.name} cards on Scryfall &rarr;</a>
