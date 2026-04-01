@@ -2031,6 +2031,20 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: Adding OTel/Honeycomb instrumentation to a 404 page was considered.
 - **Rationale**: 404 pages should be lightweight and load reliably regardless of JS availability or bundle state. Tracking 404 hits via server-level analytics or Honeycomb's CDN instrumentation is a future option, but adding client-side telemetry here adds complexity for minimal gain.
 
+## DEC-249: Progress Dots Are Pure Visual — No Labels or Tooltips
+- **Date**: 2026-04-01
+- **Arc**: 72
+- **Decision**: The reel progress dots on the end screen are plain visual dots with no text labels, section names, or tooltips.
+- **Context**: Labeled dots (e.g. "Allied", "Enemy", "Wedges", "Shards", "Share") were considered to make each dot's destination explicit.
+- **Rationale**: Client chose pure dots. Labels add visual noise and are redundant — the sections are experienced sequentially and the active state provides orientation. Simplicity wins.
+
+## DEC-250: Progress Dots Position — Horizontal Alignment with Home-Spiral, Vertical Center of Screen
+- **Date**: 2026-04-01
+- **Arc**: 72
+- **Decision**: The progress dots are positioned at `left: 28px` (horizontally aligned with the home-spiral logo) and `top: 50%` (vertically centered on the screen).
+- **Context**: The initial instruction "centered under the home-link logo" was misread as "directly below the logo" (i.e., low on the screen). The client intended horizontal alignment only — the dots should sit at screen-center vertically, in the margin alongside the reel content.
+- **Rationale**: Vertical centering puts the dots in a natural navigation position beside the main content, consistent with side-navigation conventions. Horizontal alignment with the home-spiral groups them visually with the site chrome.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

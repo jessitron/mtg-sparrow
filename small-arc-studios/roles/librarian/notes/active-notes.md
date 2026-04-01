@@ -4,7 +4,17 @@ Current state, in-progress work, and upcoming arcs.
 
 ---
 
-## Current Status (2026-03-30)
+## Current Status (2026-04-01)
+
+### Arc 72 COMPLETE — Reel Progress Dots (v0.44.0)
+
+**Arc 72** (v0.44.0): 5 progress dots added to end screen reel — one per section (Allied, Enemy, Wedges, Shards, Share). Horizontally aligned with home-spiral logo (`left: 28px`), vertically centered on screen (`top: 50%`). Clicking a dot navigates to that section with reel animation. Active dot syncs with chevrons, scroll, dot clicks, and deep links. Telemetry: `end.progress_dot_click` event. Hidden on mobile (< 700px). DEC-249, DEC-250.
+
+**Version**: 0.44.0
+
+---
+
+## Previous Status (2026-03-30)
 
 ### Arcs 64–71 COMPLETE — Button Logging, Card URLs, UX Polish, Operator Tooling (v0.41.0–0.42.0)
 

@@ -693,6 +693,15 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 - **Files created**: `404.html`, `404.css`.
 - **Verification**: 23/23 Playwright tests pass.
 
+### Arc 72: Reel Progress Dots — COMPLETE (v0.44.0, 2026-04-01)
+- **Type**: User (navigation/UX)
+- **What**: Added 5 progress dots to the end screen reel — one per section (Allied, Enemy, Wedges, Shards, Share). Dots are horizontally centered under the home-spiral logo (`left: 28px`) and vertically centered on screen (`top: 50%`). Clicking a dot navigates directly to that section with full reel animation. Active dot stays in sync with all navigation methods: chevrons, scroll wheel, dot clicks, and deep links.
+- **Implementation detail**: `background-clip: content-box` trick — 10px visual dot size, 18px click target via transparent padding. Hidden on mobile (< 700px width).
+- **Telemetry**: `end.progress_dot_click` event with `end.target_section` and `end.target_index` attributes.
+- **Key decisions**: DEC-249 (pure visual dots, no labels or tooltips), DEC-250 (position: horizontal alignment with home-spiral logo, vertical centering on screen — not directly below the logo).
+- **Files changed**: `src/ui/guild-columns.ts`, `end.css`, `src/version.ts` (0.43.0 → 0.44.0).
+- **Verification**: Tests pass; active dot syncs confirmed across all navigation methods.
+
 ---
 
 ## Search Engine & LLM Discoverability (Arc 52, v0.34.0, 2026-03-26)
