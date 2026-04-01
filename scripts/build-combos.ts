@@ -323,25 +323,25 @@ function buildIndexPage(): string {
     {
       label: "Allied Guilds",
       subgroup: "allied",
-      description: "Two-color pairs where the colors are neighbors on the color wheel. Allied colors share fundamental values, making their combination feel natural and harmonious.",
+      description: "Two-color pairs where the colors are neighbors on the color wheel.",
       combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "allied"),
     },
     {
       label: "Enemy Guilds",
       subgroup: "enemy",
-      description: "Two-color pairs where the colors are opposites on the color wheel. Enemy colors have conflicting philosophies, creating dynamic tension in their combination.",
+      description: "Two-color pairs where the colors are opposites on the color wheel.",
       combos: guilds.filter(g => g.tier === "guild" && g.subgroup === "enemy"),
     },
     {
       label: "Wedges",
       subgroup: "wedges",
-      description: "Three-color combinations named after the clans of Tarkir. Each wedge centers on one color and adds its two enemy colors, creating an unusual alliance.",
+      description: "Three-color combinations named after the clans of Tarkir. Each wedge centers on one color and adds its two enemy colors.",
       combos: guilds.filter(g => g.tier === "wedge"),
     },
     {
       label: "Shards",
       subgroup: "shards",
-      description: "Three-color combinations named after the shards of Alara. Each shard centers on one color and adds its two allied neighbors, forming a natural extension.",
+      description: "Three-color combinations named after the shards of Alara. Each shard centers on one color and adds its two allied neighbors.",
       combos: guilds.filter(g => g.tier === "shard"),
     },
   ];
@@ -403,7 +403,7 @@ ${items}
       <div class="combo-header">
         <div class="combo-title-block">
           <h1 class="combo-name">Color Combinations</h1>
-          <p class="combo-index-intro">In Magic: The Gathering, every color pair and triple has a name. These 20 combinations — drawn from Ravnica&#39;s guilds and Alara/Tarkir&#39;s three-color factions — each represent a distinct philosophy and play style.</p>
+          <p class="combo-index-intro">In the Magic: The Gathering community, every color pair and triple has a name. These twenty combinations — drawn from Ravnica&#39;s guilds and Alara/Tarkir&#39;s three-color factions — each represent a distinct philosophy and play style.</p>
         </div>
         <div class="combo-pentagon-container">
           ${buildOverviewPentagonSvg()}
