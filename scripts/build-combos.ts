@@ -186,9 +186,11 @@ function buildNavigation(combo: ColorCombo): string {
     ? `<a href="${next.id}.html" class="combo-nav-link combo-nav-link--next">${escapeHtml(next.name)} &rarr;</a>`
     : `<span class="combo-nav-placeholder"></span>`;
 
+  const learnLink = `<a href="../slides?subgroup=${subgroupParam(combo)}&from=combo_page" class="combo-learn-button combo-learn-button--prominent">Learn ${subgroupLabel(combo)} names</a>`;
+
   return `<nav class="combo-nav" aria-label="Browse combos">
         ${prevLink}
-        <a href="./" class="combo-nav-index">All combinations</a>
+        ${learnLink}
         ${nextLink}
       </nav>`;
 }
@@ -286,10 +288,6 @@ function buildPage(combo: ColorCombo): string {
         <p>${escapeHtml(description)}</p>${flavor ? `
         <p class="combo-flavor">${escapeHtml(flavor)}</p>` : ""}
       </section>
-
-      <div class="combo-cta">
-        <a href="../slides?subgroup=${subgroupParam(combo)}&from=combo_page" class="combo-learn-button combo-learn-button--prominent">Learn ${subgroupLabel(combo)} names</a>
-      </div>
 
       ${buildExampleDecks(desc?.exampleDecks)}
 

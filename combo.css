@@ -131,16 +131,11 @@
   color: var(--bg-khaki);
 }
 
-/* --- Learn CTA --- */
-
-.combo-cta {
-  text-align: center;
-  margin-bottom: 2.5rem;
-}
+/* --- Learn CTA (in nav row) --- */
 
 .combo-learn-button.combo-learn-button--prominent {
-  font-size: 1.5rem;
-  padding: 0.7rem 1.5rem;
+  font-size: 1.1rem;
+  padding: 0.5rem 1.2rem;
 }
 
 /* --- Example Decks section --- */
@@ -282,18 +277,6 @@
 .combo-nav-link:hover {
   border-color: rgba(200, 184, 138, 0.6);
   background: rgba(200, 184, 138, 0.08);
-}
-
-.combo-nav-index {
-  color: #aaa;
-  text-decoration: none;
-  font-size: 0.85rem;
-  text-align: center;
-}
-
-.combo-nav-index:hover {
-  color: #e0e0e0;
-  text-decoration: underline;
 }
 
 .combo-nav-placeholder {
