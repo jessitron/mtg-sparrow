@@ -169,6 +169,50 @@
   width: 100%;
 }
 
+/* Reel progress dots */
+.reel-progress-dots {
+  position: fixed;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  z-index: 10;
+}
+
+.reel-progress-dot {
+  width: 10px;
+  height: 10px;
+  padding: 4px;
+  background-clip: content-box;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: background-color 200ms ease;
+  box-sizing: content-box;
+}
+
+.reel-progress-dot:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.reel-progress-dot--active {
+  background-color: var(--card-back-turquoise);
+}
+
+.reel-progress-dot--active:hover {
+  background-color: var(--card-back-turquoise);
+}
+
+@media (max-width: 700px) {
+  .reel-progress-dots {
+    display: none;
+  }
+}
+
 @keyframes reelFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
