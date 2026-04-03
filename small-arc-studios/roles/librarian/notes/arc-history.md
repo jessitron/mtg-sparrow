@@ -719,3 +719,17 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 - **Files created**: `robots.txt`, `sitemap.xml`, `llms.txt`.
 - **Files modified**: `README.md`, `src/version.ts` (bumped to v0.34.0).
 - **Verification**: All three files present and well-formed. sitemap covers all 27 user-facing URLs. llms.txt lists all 20 combo names with color identities.
+
+---
+
+## Golgari Example Deck (Arc 73, IN PROGRESS, 2026-04-03)
+
+### Arc 73: Golgari Example Deck — IN PROGRESS
+- **Type**: User (Content Enhancement)
+- **Goal**: Give the Golgari combo page a real example deck entry instead of guild flavor text in a flavor field.
+- **What**:
+  - Moves the Golgari flavor text (about Ygra and squirrels) from a guild `flavor` field into a proper `ExampleDeck` entry
+  - Links to the client's personal Archidekt deck: https://archidekt.com/decks/15406376/ygra_especially_likes_to_eat_squirrels
+  - Also renames `edhrecUrl` field to `deckUrl` in the `ExampleDeck` type (DEC-251), since example decks can now link to any deck site (not just EDHREC)
+- **Key decisions**: DEC-251 (rename edhrecUrl → deckUrl)
+- **Status**: IN PROGRESS

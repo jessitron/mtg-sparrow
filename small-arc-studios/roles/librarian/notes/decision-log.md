@@ -2045,6 +2045,15 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: The initial instruction "centered under the home-link logo" was misread as "directly below the logo" (i.e., low on the screen). The client intended horizontal alignment only — the dots should sit at screen-center vertically, in the margin alongside the reel content.
 - **Rationale**: Vertical centering puts the dots in a natural navigation position beside the main content, consistent with side-navigation conventions. Horizontal alignment with the home-spiral groups them visually with the site chrome.
 
+## DEC-251: Rename ExampleDeck.edhrecUrl to ExampleDeck.deckUrl
+- **Date**: 2026-04-03
+- **Arc**: 73 (Golgari Example Deck)
+- **Decision**: Rename the `edhrecUrl` field on the `ExampleDeck` type to `deckUrl`.
+- **Context**: The Golgari example deck links to an Archidekt personal deck (not an EDHREC precon). The field name `edhrecUrl` would be misleading for decks hosted on other sites.
+- **Rationale**: A generic `deckUrl` field supports any deck hosting site — EDHREC, Archidekt, Moxfield, etc. — without implying a specific platform.
+- **Proposed by**: Client
+- **Approved by**: Project Lead
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
