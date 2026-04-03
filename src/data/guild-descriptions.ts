@@ -3,7 +3,7 @@ export type ExampleDeck = {
   commanderImageUrl: string; // Scryfall image URL for the commander
   deckName: string; // precon deck name
   setName: string; // set the precon is from
-  edhrecUrl: string; // link to EDHREC precon page
+  deckUrl: string; // link to deck page (EDHREC, Archidekt, etc.)
   description: string; // what the deck does / flavor
 };
 
@@ -67,7 +67,16 @@ export const guildDescriptions: GuildDescription[] = [
     description:
       "Patient, pragmatic, and unashamed of death, the Golgari understand: decay is generative, death feeds life, and nothing is wasted. They sustain Ravnica's food supply through rot, reclamation, and reanimation. Grim but not cruel, they find power in what everyone else throws away.",
     scryfallUrl: "https://scryfall.com/search?q=c%3Dbg+-set%3Asld+-is%3Aub+legal%3Atimeless",
-    flavor: "There is no life without death. Golgari makes sense to me. I know there's more to this guild than making squirrels and eating them, but I'm not tired of Ygra yet.",
+    exampleDecks: [
+      {
+        commander: "Ygra, Eater of All",
+        commanderImageUrl: "https://cards.scryfall.io/normal/front/b/9/b9ac7673-eae8-4c4b-889e-5025213a6151.jpg?1721427242",
+        deckName: "Ygra Especially Likes to Eat Squirrels",
+        setName: "Duskmourn: House of Horror",
+        deckUrl: "https://archidekt.com/decks/15406376/ygra_especially_likes_to_eat_squirrels",
+        description: "There is no life without death. I know there's more to this guild than making squirrels and eating them, but I'm not tired of Ygra yet.",
+      },
+    ],
   },
   {
     id: "boros",
@@ -132,7 +141,7 @@ export const guildDescriptions: GuildDescription[] = [
         commanderImageUrl: "https://cards.scryfall.io/normal/front/c/7/c7f2c2d5-e052-49e8-b5de-712858c2ea78.jpg?1752052932",
         deckName: "Scions & Spellcraft",
         setName: "Final Fantasy",
-        edhrecUrl: "https://edhrec.com/precon/scions-spellcraft",
+        deckUrl: "https://edhrec.com/precon/scions-spellcraft",
         description: "She dinks you for 2 life and you think 'no big deal' until suddenly you're at ten life and you can't defend from it.",
       },
     ],
@@ -148,7 +157,7 @@ export const guildDescriptions: GuildDescription[] = [
         commanderImageUrl: "https://cards.scryfall.io/normal/front/b/d/bdc2d492-9d1e-4543-8b9c-c66ee67992ce.jpg?1699972732",
         deckName: "Ahoy Mateys",
         setName: "The Lost Caverns of Ixalan",
-        edhrecUrl: "https://edhrec.com/precon/ahoy-mateys",
+        deckUrl: "https://edhrec.com/precon/ahoy-mateys",
         description: "Pirates are very Grixis. Steal creatures, create treasure, and reanimate Pirates from the graveyard.",
       },
     ],
@@ -164,7 +173,7 @@ export const guildDescriptions: GuildDescription[] = [
         commanderImageUrl: "https://cards.scryfall.io/normal/front/8/9/89b61123-b10f-4bcf-b5f9-1f302f9b22d1.jpg?1754673465",
         deckName: "World Shaper",
         setName: "Edge of Eternities",
-        edhrecUrl: "https://edhrec.com/precon/world-shaper",
+        deckUrl: "https://edhrec.com/precon/world-shaper",
         description: "Sacrifice lands, replay them from the graveyard, sacrifice them again. It gets complicated, with long turns, and then it wins.",
       },
     ],
@@ -180,7 +189,7 @@ export const guildDescriptions: GuildDescription[] = [
         commanderImageUrl: "https://cards.scryfall.io/normal/front/2/5/2524645e-b066-4351-885b-10faa8d819d7.jpg?1699972737",
         deckName: "Veloci-Ramp-Tor",
         setName: "The Lost Caverns of Ixalan",
-        edhrecUrl: "https://edhrec.com/precon/veloci-ramp-tor",
+        deckUrl: "https://edhrec.com/precon/veloci-ramp-tor",
         description: "Full of ramp, big dinosaurs, and dinosaurs that pull out other dinosaurs. My friend says, \"There's not much, and then there's Pantlaza, and then suddenly there are tons of huge dinosaurs out!\"",
       },
     ],

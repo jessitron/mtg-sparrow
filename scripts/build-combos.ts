@@ -140,7 +140,7 @@ function buildExampleDecks(decks?: ExampleDeck[]): string {
         </div>
         <div class="combo-deck-info">
           <h3 class="combo-deck-commander">${escapeHtml(deck.commander)}</h3>
-          <p class="combo-deck-meta"><a href="${deck.edhrecUrl}" target="_blank" rel="noopener noreferrer" class="combo-deck-link">${escapeHtml(deck.deckName)}</a> &mdash; ${escapeHtml(deck.setName)}</p>
+          <p class="combo-deck-meta"><a href="${deck.deckUrl}" target="_blank" rel="noopener noreferrer" class="combo-deck-link">${escapeHtml(deck.deckName)}</a> &mdash; ${escapeHtml(deck.setName)}</p>
           <p class="combo-deck-description">${escapeHtml(deck.description)}</p>
         </div>
       </div>`).join("\n");
