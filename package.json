@@ -12,6 +12,7 @@
     "build:harness": "esbuild src/sequence-harness.ts --bundle --outfile=dist/sequence-harness.js --sourcemap --format=esm",
     "test:sequence": "esbuild tests/sequence-properties.test.ts --bundle --outfile=tests/sequence-properties.test.mjs --format=esm --platform=node && node tests/sequence-properties.test.mjs",
     "test:e2e": "node",
+    "test:contrast": "npm run test:e2e -- tests/contrast-check.mjs",
     "summarize:combos": "scripts/summarize-combos.sh",
     "build:combos": "scripts/build-combos.sh"
   },
