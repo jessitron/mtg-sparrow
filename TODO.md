@@ -6,8 +6,6 @@
   - on iPad, the slides are not allocating space correctly, it winds up with a scroll bar.
   - on a giant screen (Eric's ultrawide), the slide does not use the available space, not even the available height.
   - added o11y, waiting for data
-- Add a progress marker to the end screen, like some dots at the left that shows where you are and that you could move up or down. I think they defined an arc for this but then we got distracted in a different direction
-- on the combo reference pages, move the 'next' and 'previous' links to the same row as the "Learn Names" button
 - bug: on the slides page, when an image does not load, then the slide changes shape. It should present the card back in that case - or an empty box with the right shape. No layout change.
 - add an indicator of your last self-assessment to the end page, on each level that's completed. 1-3 stars
 - make the logo into a game? On the About page, I wanna click it and it spins clockwise, and as the end of the spiral hits mana symbols they light up (with their usual color), and then it stops somewhere randomly, settles on one mana symbol and leaves that one lit. The harder I click (hold, or click repeatedly) the faster it goes.
@@ -30,6 +28,8 @@
 - add feedback and share to the about page, as sections
 - add something to the about page that this site provides info on the color combinations, which links to /combo
 - once per session, send a separate event straight to Honeycomb using the Honeycomb events API. Then when we move to a collector, I'll have an indication of whether the collector is working.
+- On the reference pages, I want the description at the top to be a consistent height, so that the next/prev buttons are in the same place from page to page. This works (on my screen) if we move the flavor out of that box, and down.
+  - currently there's only one combo with flavor (Golgari) and what I want to say would be better as an Example Deck description anyway. but I need a deck to link to. Client: get the current contents of Ygra deck into Archidekt, and link to that.  
 
 ## Expanding features
 
