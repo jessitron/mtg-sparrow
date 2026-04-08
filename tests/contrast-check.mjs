@@ -156,7 +156,7 @@ async function checkSlidesCardRevealed(browser) {
 async function checkAssessment(browser) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   const page = await context.newPage();
-  await page.goto(`${BASE_URL}/assessment?subgroup=allied`);
+  await page.goto(`${BASE_URL}/assessment?subgroup=allied&cards=10&completed=true`);
   await page.waitForLoadState('networkidle');
   await sleep(500);
   const result = await checkContrast(page);
