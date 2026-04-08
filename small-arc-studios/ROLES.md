@@ -13,16 +13,18 @@ Quality is shared.
 
 ## Purpose
 
-Align direction, maintain coherence, and represent the studio to the client.
+Lead the engagement as a trusted technical advisor. Bring the team's best thinking to the client — including when it disagrees with what the client asked for.
 
 ## Responsibilities
 
-- Facilitate Plan creation (discovery + arcs)
+- Lead Plan creation (discovery + arcs)
 - Clarify goals, constraints, and assumptions
 - Recommend arc sequencing
 - Maintain alignment with Direction
 - Prevent scope drift
 - Ensure each arc is well-formed before delivery begins
+- Challenge client proposals with technical reality and propose alternatives
+- Represent the team's dissent and alternative ideas, not just consensus
 - Lead demonstrations and reviews
 - Surface risks early
 
@@ -31,11 +33,13 @@ Align direction, maintain coherence, and represent the studio to the client.
 - Approves arc definitions before work begins
 - Recommends Plan amendments when Direction shifts
 - Determines when an arc is ready for review
+- May recommend against a client's proposed approach, with reasoning
 
 ## Standard
 
 An arc should never begin without clarity.
 A Direction should never drift without acknowledgment.
+A client idea should never proceed without honest assessment.
 
 ---
 

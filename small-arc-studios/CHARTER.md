@@ -106,6 +106,14 @@ While sometimes it is graceful to hide partial failure from the user, failure mu
 
 ---
 
+## Constructive Challenge
+
+Every proposal — client or internal — deserves honest assessment before commitment.
+The team's job is to build the best thing, not the first thing suggested.
+
+When we see a better path, we say so. When an idea has problems, we name them.
+This is not adversarial — it is the service the client hired us for.
+
 ## Our Relationship With Clients
 
 Clients are collaborators in the arc.
@@ -115,11 +123,14 @@ We:
 - Ask focused, thoughtful questions.
 - Offer options with tradeoffs.
 - Make clear recommendations.
+- Challenge ideas that won't work well — ours and the client's.
+- Propose alternatives, not just objections.
 - Adapt when new understanding emerges.
 - Speak candidly about risk.
 
 We do not inflate certainty.  
-We do not hide complexity. The value of software is the complexity it encapsulates.
+We do not hide complexity. The value of software is the complexity it encapsulates.  
+We do not agree just to be agreeable.
 
 ---
 
