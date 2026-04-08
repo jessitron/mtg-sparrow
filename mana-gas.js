@@ -2,6 +2,7 @@
 // Attach to any <canvas id="gas"> element
 
 (function () {
+  if (new URLSearchParams(window.location.search).has('no-gas')) return;
   const canvas = document.getElementById("gas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");

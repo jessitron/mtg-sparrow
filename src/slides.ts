@@ -57,6 +57,7 @@ let cardShowTime = 0;
 let revealTimer: ReturnType<typeof setTimeout> | null = null;
 let advanceTimer: ReturnType<typeof setTimeout> | null = null;
 let paused = false;
+let startInPausedState = false;
 let dialogOpenCount = 0;
 let pausedByDialog = false;
 let nameRevealed = false;
@@ -584,6 +585,11 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
   buildSessionUI();
   showCard();
 
+  if (startInPausedState) {
+    const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement | null;
+    if (pauseBtn) pauseBtn.click();
+  }
+
   // After layout settles, capture slide height percentage of viewport
   requestAnimationFrame(() => {
     const cardContainer = document.querySelector('.card-container');
@@ -749,6 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const subgroup = (urlParams.get('subgroup') || 'allied') as GuildSubgroup;
   const from = urlParams.get('from') || 'welcome';
   const welcomeDwellMs = parseInt(urlParams.get('welcome_dwell_ms') || '0', 10) || 0;
+  startInPausedState = urlParams.has('paused');
 
   // Click/tap to advance early
   app.addEventListener('click', () => {
