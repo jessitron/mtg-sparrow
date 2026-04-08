@@ -722,9 +722,7 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 
 ---
 
-## Golgari Example Deck (Arc 73, IN PROGRESS, 2026-04-03)
-
-### Arc 73: Golgari Example Deck — IN PROGRESS
+### Arc 73: Golgari Example Deck — COMPLETE (v0.44.0, 2026-04-03)
 - **Type**: User (Content Enhancement)
 - **Goal**: Give the Golgari combo page a real example deck entry instead of guild flavor text in a flavor field.
 - **What**:
@@ -732,4 +730,36 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
   - Links to the client's personal Archidekt deck: https://archidekt.com/decks/15406376/ygra_especially_likes_to_eat_squirrels
   - Also renames `edhrecUrl` field to `deckUrl` in the `ExampleDeck` type (DEC-251), since example decks can now link to any deck site (not just EDHREC)
 - **Key decisions**: DEC-251 (rename edhrecUrl → deckUrl)
+- **Verification**: Confirmed by tester.
+
+---
+
+## Testing Infrastructure (Arcs 74–75, v0.45.0, 2026-04-08)
+
+### Arc 74: Test Affordances — COMPLETE (v0.45.0, 2026-04-08)
+- **Type**: Structural
+- **Goal**: Make visual states stable and addressable for automated testing.
+- **What**:
+  - `?no-gas` URL parameter on welcome page — when present, the mana gas canvas animation IIFE early-returns, skipping the animation entirely without removing the element
+  - `?paused` URL parameter on slides page — programmatically clicks the pause button after the first card appears, starting the session in a paused state immediately after level intro is dismissed
+  - Version bumped to 0.45.0
+- **Implementation note**: URL params were chosen over environment variables or config flags because they are simple, composable, and useful for both automated tests and manual debugging.
+- **Key decisions**: DEC-252, DEC-253, DEC-254
+- **Files changed**: `mana-gas.js`, `src/slides.ts`, `src/version.ts`
+- **Verification**: `tests/arc74-test-affordances.mjs` — 12/12 checks pass.
+
+### Arc 75: Contrast Check — COMPLETE (v0.45.0, 2026-04-08)
+- **Type**: Operator (Tooling / Accessibility Audit)
+- **Goal**: First-pass accessibility audit of color contrast across the site.
+- **What**:
+  - `@axe-core/playwright` added as dev dependency
+  - `tests/contrast-check.mjs` — standalone Playwright script running WCAG AA contrast checks across 12 page+state combinations
+  - `npm run test:contrast` script added to `package.json`
+- **Results**:
+  - 1 definite violation: About page `.about-signup-blurb` — 3.2:1 contrast ratio (WCAG AA requires 4.5:1 for normal text)
+  - 12 "incomplete" results — axe-core cannot determine background color on elements with gradient or semi-transparent backgrounds; this affects nearly every page due to the site's visual design
+  - Assessment page auto-redirects to end page, so contrast results reflect end page state (known limitation, not a contrast issue)
+- **Key decisions**: DEC-255, DEC-256, DEC-257
+- **Files changed**: `package.json` (dev dependency + `test:contrast` script), `tests/contrast-check.mjs`
+- **Verification**: Script runs end-to-end; findings documented above.
 - **Status**: IN PROGRESS

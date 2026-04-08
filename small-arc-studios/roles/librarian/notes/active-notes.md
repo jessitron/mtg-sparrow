@@ -4,7 +4,25 @@ Current state, in-progress work, and upcoming arcs.
 
 ---
 
-## Current Status (2026-04-01)
+## Current Status (2026-04-08)
+
+### Arcs 73–75 COMPLETE — Example Deck, Test Affordances, Contrast Check (v0.44.0–v0.45.0)
+
+**Arc 73** (v0.44.0): Golgari example deck added — Ygra squirrel deck on Archidekt. `edhrecUrl` field renamed to `deckUrl` on `ExampleDeck` type (DEC-251). Version stayed at 0.44.0.
+
+**Arc 74** (v0.45.0): Test affordances — `?no-gas` on welcome page (skips canvas animation IIFE), `?paused` on slides page (clicks pause button after first card appears). Makes visual states stable for automated testing. DEC-252, DEC-253, DEC-254. 12/12 tests pass.
+
+**Arc 75** (v0.45.0): Contrast check — `@axe-core/playwright` dev dependency, `tests/contrast-check.mjs` checks WCAG AA across 12 page+state combinations, `npm run test:contrast` added. Key findings:
+- 1 definite violation: About page `.about-signup-blurb` — 3.2:1 contrast (needs 4.5:1). **Candidate for a quick fix arc.**
+- 12 "incomplete" results — axe-core can't compute contrast through gradient/transparent backgrounds (expected limitation of the site's visual design).
+- Assessment page check actually checks end page (auto-redirect) — known, not worth special-casing (DEC-257).
+- A screenshot-diff approach remains a candidate follow-up arc for full gradient coverage (DEC-256).
+
+**Version**: 0.45.0
+
+---
+
+## Previous Status (2026-04-01)
 
 ### Arc 72 COMPLETE — Reel Progress Dots (v0.44.0)
 

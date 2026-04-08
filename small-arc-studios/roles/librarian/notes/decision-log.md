@@ -2054,6 +2054,50 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Proposed by**: Client
 - **Approved by**: Project Lead
 
+## DEC-252: Add `?no-gas` URL Parameter to Welcome Page for Test Stability
+- **Date**: 2026-04-08
+- **Arc**: 74 (Test Affordances)
+- **Decision**: Add a `?no-gas` URL parameter to the welcome page that disables the mana gas canvas animation without removing the canvas element from the DOM.
+- **Implementation**: The mana gas IIFE early-returns when `?no-gas` is present, leaving the element in place but inert.
+- **Context**: The canvas animation is non-deterministic, making screenshot-based tests flaky. Removing the element would change DOM structure; early-returning preserves it.
+- **Rationale**: Test stability without altering production DOM shape. Also useful for manual debugging when the animation is a distraction.
+
+## DEC-253: Add `?paused` URL Parameter to Slides Page
+- **Date**: 2026-04-08
+- **Arc**: 74 (Test Affordances)
+- **Decision**: Add a `?paused` URL parameter to the slides page that programmatically clicks the pause button after the first card appears, putting the session into a paused state immediately after level intro is dismissed.
+- **Implementation**: Uses existing pause infrastructure — no new pause state logic; the affordance simply triggers the existing pause button click at the right moment.
+- **Context**: Automated tests need a stable, non-advancing state to inspect slides page DOM. Without this, cards auto-advance and tests race the timer.
+- **Rationale**: Reusing the pause button click ensures the pause path exercised in tests matches the pause path users actually take.
+
+## DEC-254: Test Affordances as URL Parameters (Not Environment Variables or Config Flags)
+- **Date**: 2026-04-08
+- **Arc**: 74 (Test Affordances)
+- **Decision**: Implement test affordances (`?no-gas`, `?paused`) as URL parameters rather than build-time environment variables or runtime config flags.
+- **Alternatives considered**: `process.env.TEST_MODE` (build-time), a separate test config file, a global `window.__testMode` flag.
+- **Rationale**: URL params are simple, require no build configuration, are composable (multiple params can be combined), work in both automated Playwright tests and manual browser debugging, and are visible in the address bar for transparency. No special build variants needed.
+
+## DEC-255: Use axe-core as First-Pass Contrast Checker
+- **Date**: 2026-04-08
+- **Arc**: 75 (Contrast Check)
+- **Decision**: Use `@axe-core/playwright` as the initial automated contrast checker before considering custom screenshot-diff tooling.
+- **Context**: The team was considering a custom screenshot-diff approach to handle gradient backgrounds. axe-core was evaluated as a zero-custom-code first pass.
+- **Rationale**: axe-core validates the 90% case with no custom code. It immediately surfaced one real violation (`.about-signup-blurb`) and quantified the scope of the gradient/transparency challenge. That's useful signal before investing in custom tooling.
+
+## DEC-256: axe-core "Incomplete" Results Are Expected Due to Gradient Backgrounds
+- **Date**: 2026-04-08
+- **Arc**: 75 (Contrast Check)
+- **Decision**: Accept that axe-core reports most elements as "incomplete" (cannot determine background color) and treat this as a known limitation, not a failure mode.
+- **Context**: The site uses gradient and semi-transparent backgrounds extensively. axe-core's contrast algorithm requires a solid background color to compute ratios; it reports "incomplete" rather than guessing.
+- **Rationale**: This is an expected behavior of axe-core on gradient-heavy designs, not a bug in the tests or the site. The "incomplete" results confirm that a screenshot-diff approach (which can see the rendered pixels) would be needed for full coverage. That is a candidate for a future arc.
+
+## DEC-257: Assessment Page Contrast Test Shows End Page Results (Known Limitation)
+- **Date**: 2026-04-08
+- **Arc**: 75 (Contrast Check)
+- **Decision**: Accept that the contrast check for the assessment page path actually checks the end page, because the assessment page auto-redirects.
+- **Context**: The Playwright contrast script navigates to the assessment page; the page immediately redirects to the end page. axe-core then checks end page contrast.
+- **Rationale**: Not worth special-casing. The end page is checked elsewhere in the script. This is a documentation note, not an action item.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
