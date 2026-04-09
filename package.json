@@ -13,6 +13,7 @@
     "test:sequence": "esbuild tests/sequence-properties.test.ts --bundle --outfile=tests/sequence-properties.test.mjs --format=esm --platform=node && node tests/sequence-properties.test.mjs",
     "test:e2e": "node",
     "test:contrast": "npm run test:e2e -- tests/contrast-check.mjs",
+    "test:contrast-diff": "npm run test:e2e -- tests/contrast-screenshot-diff.mjs",
     "summarize:combos": "scripts/summarize-combos.sh",
     "build:combos": "scripts/build-combos.sh"
   },
@@ -24,6 +25,7 @@
     "@axe-core/playwright": "^4.11.1",
     "esbuild": "^0.24.0",
     "playwright": "^1.58.2",
+    "pngjs": "^7.0.0",
     "serve": "^14.2.5",
     "typescript": "^5.7.0"
   }
