@@ -105,7 +105,7 @@
   border: 1px solid var(--bg-brown-dark);
   border-radius: 4px;
   padding: 1.25rem;
-  background: var(--bg-khaki);
+  background: var(--bg-brown-light);
   color: white;
   margin-left: calc(-1.25rem + 1px);
   margin-right: calc(-1.25rem + 1px);
