@@ -762,4 +762,50 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 - **Key decisions**: DEC-255, DEC-256, DEC-257
 - **Files changed**: `package.json` (dev dependency + `test:contrast` script), `tests/contrast-check.mjs`
 - **Verification**: Script runs end-to-end; findings documented above.
+
+---
+
+## Screenshot-Diff Contrast Technique (Arc 76, 2026-04-08)
+
+### Arc 76: Screenshot-Diff Contrast Technique — COMPLETE (internal product, 2026-04-08)
+- **Type**: Operator (Internal Product — Testing Technique)
+- **Goal**: Fill the gap left by axe-core's "incomplete" results on gradient/transparent backgrounds. Produce real contrast ratios for every visible element by analyzing rendered pixel colors.
+- **Context**: Arc 75 found that axe-core reports "incomplete" for nearly every element on the site due to gradient/transparent backgrounds. The client considers testing techniques an **internal product** for Small Arc Studios — not throwaway scripts. This was formalized in the Charter.
+- **What was built**:
+  - `tests/contrast-screenshot-diff.mjs` — standalone Playwright script implementing the two-screenshot diff technique
+  - `pngjs` added as dev dependency for PNG decoding
+  - `npm run test:contrast-diff` script
+  - HTML report output at `tests/contrast-report.html` with:
+    - Cropped element screenshots
+    - Stacked color swatches (text color on top of background color, touching)
+    - Annotated full-page screenshots with red/green rectangles on fail/pass elements
+    - Plain/Annotated toggle via radio buttons
+    - Collapsible full-page screenshots at top of each page section
+  - `data-contrast-check` attribute support for labeling elements and opting in non-text elements (SVG icons)
+    - Added to menu button (`menu-icon`) and sound toggle button (`sound-icon`) in `src/ui/menu.ts` and `src/ui/sound-toggle.ts`
+  - Per-page `setup` callback for reaching specific visual states before checking
+  - Testing technique docs in `small-arc-studios/testing/` (`README.md`, `contrast-screenshot-diff.md`)
+  - Internal products section added to `CHARTER.md`
+  - Reference in `CLAUDE.md`
+  - Fixed the one real axe-core violation: `.about-signup-blurb` background changed from `--bg-khaki` to `--bg-brown-light` for 5.3:1 contrast ratio
+- **Three bugs found during development** (all fixed):
+  1. `visibility: hidden` removes backgrounds — elements with semi-transparent backgrounds (like the BEGIN button) showed wrong colors because hiding the parent removed the background. Fixed: use `color: transparent` instead (DEC-258).
+  2. Below-fold elements skipped — viewport-only screenshots missed 25/30 elements on the About page. Fixed: use `page.screenshot({ fullPage: true })` (DEC-260).
+  3. CSS transitions defeat instant hiding — links with `transition: color 200ms ease` still showed text in the "hidden" screenshot mid-animation. Fixed: inject `* { transition: none !important }` (DEC-259).
+- **Results across 4 pages** (welcome, slides intro, about, 404):
+  - 56 elements checked, 0 skipped
+  - 20 passing, 36 failing
+  - Icons now checked too — menu icon as low as 1.5:1 on some pages
+  - Report passed its own contrast check (meta-test): 370 elements, all passing after opacity fixes
+- **Key finding**: The About page and 404 page have widespread contrast issues (body text, links, icons). The slides level intro subtitle and CTA fail even for large text.
+- **Known limitations**:
+  - Gradient backgrounds produce one contrast number (mode), but contrast varies across the element
+  - SVG icons require explicit `data-contrast-check` labeling
+  - Collapsed content needs a `setup` callback to open
+  - Color quantization (nearest-8) may introduce small error
+- **Process change**: Testing techniques are now formally an internal product per the Charter. Wrong output is a bug, not a footnote.
+- **Key decisions**: DEC-258, DEC-259, DEC-260, DEC-261, DEC-262, DEC-263, DEC-264, DEC-265
+- **Files changed**: `tests/contrast-screenshot-diff.mjs` (new), `package.json`, `src/ui/menu.ts`, `src/ui/sound-toggle.ts`, `about.css`, `.gitignore`, `CLAUDE.md`, `small-arc-studios/CHARTER.md`, `small-arc-studios/testing/README.md` (new), `small-arc-studios/testing/contrast-screenshot-diff.md` (new)
+- **Version**: NOT bumped — technique is internal tooling, though `data-contrast-check` attributes and `about.css` fix did change production code. Consider whether version should be bumped in a future arc.
+- **Verification**: Report self-checked (meta-test), 370 elements all passing. Contrast findings documented above.
 - **Status**: IN PROGRESS

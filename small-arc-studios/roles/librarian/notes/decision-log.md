@@ -2100,4 +2100,80 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 
 ---
 
+## DEC-258: Use `color: transparent` Not `visibility: hidden` for Screenshot Diff
+- **Date**: 2026-04-08
+- **Arc**: 76 (Screenshot-Diff Contrast Technique)
+- **Decision**: To capture background color in the two-screenshot diff technique, hide text by setting `color: transparent` instead of `visibility: hidden` on elements.
+- **Context**: The technique works by taking two screenshots — one with text visible, one with text hidden — then diffing the pixels to find text color and background color. When `visibility: hidden` was used on elements with semi-transparent backgrounds (like the BEGIN button), the browser removed the background rendering entirely, giving a wrong background sample.
+- **Rationale**: `color: transparent` makes the text invisible but keeps all other rendering intact, including semi-transparent backgrounds that depend on parent element visibility. This preserves the background pixel values needed for contrast calculation.
+- **Alternatives considered**: `opacity: 0` on text (also works but harder to target precisely), `visibility: hidden` (broken for semi-transparent backgrounds).
+
+## DEC-259: Disable CSS Transitions Before Hiding Text in Screenshot Diff
+- **Date**: 2026-04-08
+- **Arc**: 76 (Screenshot-Diff Contrast Technique)
+- **Decision**: Inject `* { transition: none !important }` into the page before taking the "hidden text" screenshot, to prevent mid-animation screenshots.
+- **Context**: Some elements (e.g. links) have CSS transitions like `transition: color 200ms ease`. When the script set `color: transparent`, the transition was still mid-animation when the screenshot was taken, so text was partially visible in the "background" screenshot, corrupting the background pixel sample.
+- **Rationale**: Disabling all transitions globally ensures that style changes take effect synchronously before the screenshot is captured. `!important` overrides any specificity. This is a common pattern for screenshot-based testing.
+- **Alternatives considered**: Adding a wait/sleep after setting styles (fragile, timing-dependent), only targeting known transition properties (incomplete).
+
+## DEC-260: Full-Page Screenshots Instead of Viewport-Only
+- **Date**: 2026-04-08
+- **Arc**: 76 (Screenshot-Diff Contrast Technique)
+- **Decision**: Use `page.screenshot({ fullPage: true })` instead of viewport-only screenshots when capturing pages for contrast analysis.
+- **Context**: Initial implementation used viewport-only screenshots. On the About page, 25 of 30 elements were below the fold and missed entirely, producing an incomplete report.
+- **Rationale**: Full-page screenshots capture all content regardless of scroll position. Playwright's `fullPage: true` option renders the entire document height. This ensures no elements are skipped due to viewport clipping.
+- **Alternatives considered**: Scrolling to each element before screenshotting (complex, slow, and coordinate-sensitive), viewport-only (misses below-fold content).
+
+## DEC-261: `data-contrast-check` Attribute for Element Labeling and Non-Text Opt-In
+- **Date**: 2026-04-08
+- **Arc**: 76 (Screenshot-Diff Contrast Technique)
+- **Decision**: Add a `data-contrast-check` HTML attribute to mark elements for contrast checking, including non-text elements like SVG icons that wouldn't otherwise be selected.
+- **Context**: The contrast checker selects elements by querying text-bearing nodes. SVG icons (menu button, sound toggle) have meaningful contrast requirements but contain no text — they're invisible to CSS text selectors.
+- **Rationale**: `data-contrast-check` provides an explicit opt-in mechanism. The attribute value serves as a label in the report (e.g. `"menu-icon"`, `"sound-icon"`). This is preferable to guessing at icon contrast or special-casing SVG element types.
+- **Usage**: Added to menu button in `src/ui/menu.ts` and sound toggle button in `src/ui/sound-toggle.ts`.
+
+## DEC-262: Per-Page `setup` Callback for Reaching Specific Visual States
+- **Date**: 2026-04-08
+- **Arc**: 76 (Screenshot-Diff Contrast Technique)
+- **Decision**: Each page entry in the contrast checker accepts an optional `setup` callback (async function) that runs after navigation and before element scanning, allowing the script to reach specific visual states.
+- **Context**: Some pages have content that is only visible after user interaction (e.g. accordion panels, menus that need to be opened). Without a setup step, these states would be invisible to the checker.
+- **Rationale**: A `setup` callback is a minimal, composable extension point. It keeps page-specific logic out of the core scanning loop while enabling full coverage of interactive states.
+- **Alternatives considered**: Hardcoding page-specific steps inline (not reusable), skipping interactive states (incomplete coverage).
+
+## DEC-263: HTML Report as Primary Output
+- **Date**: 2026-04-08
+- **Arc**: 76 (Screenshot-Diff Contrast Technique)
+- **Decision**: The contrast checker produces an HTML report at `tests/contrast-report.html` as its primary output. Console output is secondary/summary only.
+- **Context**: Raw console output cannot convey color swatches, screenshots, or annotated images. Human review of contrast results requires visual context — you need to see the element, its colors, and its surroundings.
+- **Report contents**:
+  - Cropped element screenshots
+  - Stacked color swatches (text color on top of background, touching — for direct visual contrast assessment)
+  - Annotated full-page screenshots with red/green rectangles on fail/pass elements
+  - Plain/Annotated toggle via radio buttons
+  - Collapsible full-page screenshots at top of each page section
+- **Rationale**: The report is the deliverable. Console output tells you pass/fail counts; the report tells you *what* failed and *why*. For an internal product, the report quality is part of the product quality.
+
+## DEC-264: Testing Techniques Formalized as Internal Product
+- **Date**: 2026-04-08
+- **Arc**: 76 (Screenshot-Diff Contrast Technique)
+- **Decision**: Testing techniques (scripts in `tests/`, technique documentation in `small-arc-studios/testing/`) are formally classified as internal products for Small Arc Studios, subject to the same quality standards as client deliverables.
+- **Context**: The contrast-screenshot-diff technique was the first testing tool complex enough to warrant this designation. The client expressed that they are more interested in the techniques themselves than in the specific findings.
+- **Implications**:
+  - Wrong output is a bug, not a footnote
+  - Documentation is required
+  - The report must pass its own contrast check (DEC-265)
+  - Code quality and maintainability standards apply equally
+- **Rationale**: Internal tools that are poorly built become technical debt. Tools that are well-built become reusable assets. Formalizing this distinction sets the expectation early.
+- **Charter change**: An "Internal Products" section was added to `small-arc-studios/CHARTER.md`.
+
+## DEC-265: Report Must Pass Its Own Contrast Check (Self-Referential Quality Standard)
+- **Date**: 2026-04-08
+- **Arc**: 76 (Screenshot-Diff Contrast Technique)
+- **Decision**: The contrast-report.html output must itself pass the contrast checker (meta-test). If the report has contrast violations, that is a bug in the report.
+- **Context**: The first version of the report had opacity issues that caused contrast failures in the swatches themselves. Running the checker on its own output revealed these.
+- **Rationale**: A contrast tool that produces inaccessible output would be embarrassing and would undermine trust in its findings. Self-checking the report is both a quality gate and a demonstration that the tool works correctly. After fixes, the meta-test showed 370 elements, all passing.
+- **Process**: `npm run test:contrast-diff` should be run against `tests/contrast-report.html` after any changes to the report template.
+
+---
+
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

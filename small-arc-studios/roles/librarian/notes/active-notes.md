@@ -6,19 +6,39 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-04-08)
 
-### Arcs 73–75 COMPLETE — Example Deck, Test Affordances, Contrast Check (v0.44.0–v0.45.0)
+### Arcs 73–76 COMPLETE — Example Deck, Test Affordances, Contrast Check, Screenshot-Diff Contrast Technique
 
 **Arc 73** (v0.44.0): Golgari example deck added — Ygra squirrel deck on Archidekt. `edhrecUrl` field renamed to `deckUrl` on `ExampleDeck` type (DEC-251). Version stayed at 0.44.0.
 
 **Arc 74** (v0.45.0): Test affordances — `?no-gas` on welcome page (skips canvas animation IIFE), `?paused` on slides page (clicks pause button after first card appears). Makes visual states stable for automated testing. DEC-252, DEC-253, DEC-254. 12/12 tests pass.
 
 **Arc 75** (v0.45.0): Contrast check — `@axe-core/playwright` dev dependency, `tests/contrast-check.mjs` checks WCAG AA across 12 page+state combinations, `npm run test:contrast` added. Key findings:
-- 1 definite violation: About page `.about-signup-blurb` — 3.2:1 contrast (needs 4.5:1). **Candidate for a quick fix arc.**
+- 1 definite violation: About page `.about-signup-blurb` — 3.2:1 contrast (needs 4.5:1). Fixed in Arc 76.
 - 12 "incomplete" results — axe-core can't compute contrast through gradient/transparent backgrounds (expected limitation of the site's visual design).
 - Assessment page check actually checks end page (auto-redirect) — known, not worth special-casing (DEC-257).
-- A screenshot-diff approach remains a candidate follow-up arc for full gradient coverage (DEC-256).
 
-**Version**: 0.45.0
+**Arc 76** (version NOT bumped — see below): Screenshot-diff contrast technique. Internal product. Fills the gap where axe-core reports "incomplete" for gradient/transparent backgrounds.
+- `tests/contrast-screenshot-diff.mjs` — two-screenshot pixel-diff technique
+- `npm run test:contrast-diff`, HTML report at `tests/contrast-report.html`
+- Report shows cropped element screenshots, color swatches, annotated full-page screenshots, plain/annotated toggle
+- `data-contrast-check` attribute added to menu and sound toggle buttons for SVG icon coverage
+- `.about-signup-blurb` fixed: background changed from `--bg-khaki` to `--bg-brown-light` (5.3:1 contrast)
+- **Results**: 56 elements, 20 passing / 36 failing across 4 pages — widespread issues on About and 404 pages
+- Report meta-tested against itself: 370 elements, all passing
+- **Process change**: Testing techniques are now formally an internal product per the Charter (DEC-264)
+- Decisions: DEC-258 through DEC-265
+
+**Version**: 0.45.0 (Arc 76 did not bump version — the technique is internal tooling. However, `data-contrast-check` attributes and the `about.css` fix did change production code. Consider bumping version in the next user-facing arc, or as a standalone structural bump if needed.)
+
+### Contrast findings — open work
+
+Arc 76 found widespread contrast failures:
+- About page: body text, links, icons — multiple failures
+- 404 page: body text, links, icons — multiple failures
+- Slides level intro: subtitle and CTA fail even for large text
+- Icons: menu icon as low as 1.5:1 on some pages
+
+These are documented but not yet acted on. Future arc(s) should address contrast remediation.
 
 ---
 
