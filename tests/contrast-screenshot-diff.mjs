@@ -86,6 +86,63 @@ function cropPng(png, x, y, w, h) {
   return PNG.sync.write(cropped);
 }
 
+/**
+ * Draw a rectangle outline onto a PNG's pixel data (mutates in place).
+ * Color is [r, g, b, a] where a is 0-255.
+ */
+function drawRect(png, x, y, w, h, [r, g, b, a], thickness = 2) {
+  const x0 = Math.max(0, x);
+  const y0 = Math.max(0, y);
+  const x1 = Math.min(png.width - 1, x + w - 1);
+  const y1 = Math.min(png.height - 1, y + h - 1);
+
+  function blendPixel(px, py) {
+    if (px < 0 || py < 0 || px >= png.width || py >= png.height) return;
+    const off = (py * png.width + px) * 4;
+    const alpha = a / 255;
+    png.data[off]     = Math.round(r * alpha + png.data[off]     * (1 - alpha));
+    png.data[off + 1] = Math.round(g * alpha + png.data[off + 1] * (1 - alpha));
+    png.data[off + 2] = Math.round(b * alpha + png.data[off + 2] * (1 - alpha));
+  }
+
+  for (let t = 0; t < thickness; t++) {
+    // Top and bottom edges
+    for (let px = x0 - t; px <= x1 + t; px++) {
+      blendPixel(px, y0 - t);
+      blendPixel(px, y1 + t);
+    }
+    // Left and right edges
+    for (let py = y0 - t; py <= y1 + t; py++) {
+      blendPixel(x0 - t, py);
+      blendPixel(x1 + t, py);
+    }
+  }
+}
+
+/**
+ * Create an annotated copy of a full-page PNG with colored rectangles
+ * around each checked element. Red = fail, green = pass, yellow = skip.
+ */
+function annotateScreenshot(pngOriginal, elementResults) {
+  // Clone the PNG data
+  const annotated = new PNG({ width: pngOriginal.width, height: pngOriginal.height });
+  pngOriginal.data.copy(annotated.data);
+
+  const colors = {
+    fail: [255, 80, 80, 200],
+    pass: [80, 220, 80, 160],
+    skip: [255, 200, 40, 120],
+  };
+
+  for (const { element, analysis } of elementResults) {
+    const color = colors[analysis.status] || colors.skip;
+    const { x, y, width, height } = element.rect;
+    drawRect(annotated, x, y, width, height, color, 2);
+  }
+
+  return PNG.sync.write(annotated);
+}
+
 // ─── Mode color helper ────────────────────────────────────────────────────────
 
 /**
@@ -371,10 +428,12 @@ async function checkPage(browser, label, url, viewportWidth = 1280, viewportHeig
       });
     }
 
-    // Full-page Screenshot A as base64 for the report
+    // Full-page screenshots for the report: original + annotated
     const fullPageBase64 = bufA.toString('base64');
+    const annotatedBuf = annotateScreenshot(pngA, elementResults);
+    const annotatedBase64 = annotatedBuf.toString('base64');
 
-    return { label, url, elementResults, fullPageBase64, width: pngA.width, height: pngA.height };
+    return { label, url, elementResults, fullPageBase64, annotatedBase64, width: pngA.width, height: pngA.height };
   } finally {
     await context.close();
   }
@@ -444,8 +503,11 @@ function generateHtmlReport(allResults, totals) {
 
   .page-section { margin-bottom: 3rem; }
   .page-screenshot { margin: 1rem 0; }
-  .page-screenshot img { max-width: 100%; border: 1px solid #333; border-radius: 4px; }
+  .page-screenshot img { max-width: 100%; border: 1px solid #333; border-radius: 4px; margin-top: 0.5rem; }
   .page-screenshot summary { cursor: pointer; opacity: 0.7; font-size: 0.85rem; }
+  .screenshot-toggle { display: flex; gap: 1rem; margin-top: 0.5rem; font-size: 0.85rem; }
+  .screenshot-toggle label { cursor: pointer; opacity: 0.7; }
+  .screenshot-toggle label:has(:checked) { opacity: 1; font-weight: 600; }
 
   .element-list { display: flex; flex-direction: column; gap: 0.75rem; }
   .element-card { background: #16213e; border-radius: 8px; padding: 1rem; display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: center; border-left: 4px solid #333; }
@@ -484,7 +546,7 @@ function generateHtmlReport(allResults, totals) {
 `;
 
   for (const pageResult of allResults) {
-    const { label, url, elementResults, fullPageBase64, width, height } = pageResult;
+    const { label, url, elementResults, fullPageBase64, annotatedBase64, width, height } = pageResult;
     const fails = elementResults.filter(r => r.analysis.status === 'fail');
     const passes = elementResults.filter(r => r.analysis.status === 'pass');
     const skips = elementResults.filter(r => r.analysis.status === 'skip');
@@ -495,7 +557,12 @@ function generateHtmlReport(allResults, totals) {
 
 <details class="page-screenshot" style="margin-bottom:1rem">
 <summary>Full page screenshot (${width}×${height})</summary>
-<img src="data:image/png;base64,${fullPageBase64}" alt="Full page screenshot of ${escHtml(label)}">
+<div class="screenshot-toggle">
+  <label><input type="radio" name="ss-${escHtml(label).replace(/\s/g, '-')}" value="annotated" checked onchange="this.closest('.screenshot-toggle').querySelector('.ss-annotated').style.display='';this.closest('.screenshot-toggle').querySelector('.ss-plain').style.display='none'"> Annotated</label>
+  <label><input type="radio" name="ss-${escHtml(label).replace(/\s/g, '-')}" value="plain" onchange="this.closest('.screenshot-toggle').querySelector('.ss-plain').style.display='';this.closest('.screenshot-toggle').querySelector('.ss-annotated').style.display='none'"> Plain</label>
+</div>
+<img class="ss-annotated" src="data:image/png;base64,${annotatedBase64}" alt="Annotated screenshot of ${escHtml(label)}">
+<img class="ss-plain" src="data:image/png;base64,${fullPageBase64}" alt="Plain screenshot of ${escHtml(label)}" style="display:none">
 </details>
 
 <div class="element-list">
