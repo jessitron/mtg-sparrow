@@ -385,7 +385,7 @@ function analyzeElement(pngA, pngB, element) {
 
 // ─── Page checker ─────────────────────────────────────────────────────────────
 
-async function checkPage(browser, label, url, viewportWidth = 1280, viewportHeight = 800) {
+async function checkPage(browser, label, url, viewportWidth = 1280, viewportHeight = 800, setup = null) {
   const context = await browser.newContext({
     viewport: { width: viewportWidth, height: viewportHeight },
     deviceScaleFactor: 1,
@@ -395,6 +395,9 @@ async function checkPage(browser, label, url, viewportWidth = 1280, viewportHeig
   try {
     await page.goto(url);
     await page.waitForLoadState('networkidle');
+
+    // Optional per-page setup (e.g. opening collapsed sections)
+    if (setup) await setup(page);
 
     const elements = await collectElements(page);
 
@@ -638,8 +641,8 @@ async function main() {
   const allResults = [];
 
   try {
-    for (const { label, url } of pages) {
-      const pageResult = await checkPage(browser, label, url);
+    for (const { label, url, setup } of pages) {
+      const pageResult = await checkPage(browser, label, url, 1280, 800, setup);
       allResults.push(pageResult);
       const counts = printPageResults(pageResult);
       totalChecked += counts.checked;
