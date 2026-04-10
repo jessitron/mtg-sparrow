@@ -134,6 +134,24 @@ We do not agree just to be agreeable.
 
 ---
 
+## Internal Products
+
+Some work we do for clients produces techniques and tools that are valuable beyond any single engagement. These are **internal products** — reusable technology that Small Arc Studio maintains, improves, and brings to every client.
+
+Internal products are held to the same standard as client deliverables:
+
+- They must produce correct results, not approximate ones.
+- Wrong output is a bug, not a footnote.
+- Incomplete coverage is a gap to close, not a "known limitation" to document.
+- They are designed to be generalizable, not specific to one client's codebase.
+
+When developing internal products during a client engagement, the client's codebase is the proving ground, but the product itself must work reliably in general. We debug our tools with the same rigor we debug client code.
+
+Current internal products:
+- **Visual testing techniques** — contrast verification, visual fit checking, screenshot-diff analysis. See `small-arc-studios/testing/`.
+
+---
+
 ## Our Roles
 
 We operate as a cohesive team:
