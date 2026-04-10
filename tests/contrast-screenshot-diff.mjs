@@ -462,9 +462,12 @@ function generateHtmlReport(allResults, totals) {
   .element-ratio.fail { color: #f87171; }
   .element-details { font-size: 0.8rem; opacity: 0.7; }
 
-  .color-swatches { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.25rem; }
-  .swatch { width: 24px; height: 24px; border-radius: 4px; border: 1px solid #555; display: inline-block; }
-  .swatch-label { font-size: 0.75rem; opacity: 0.6; }
+  .color-swatches { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem; }
+  .swatch-stack { display: flex; flex-direction: column; }
+  .swatch { width: 28px; height: 16px; border: 1px solid #555; display: block; }
+  .swatch-top { border-radius: 4px 4px 0 0; border-bottom: none; }
+  .swatch-bottom { border-radius: 0 0 4px 4px; }
+  .swatch-labels { font-size: 0.75rem; opacity: 0.6; display: flex; flex-direction: column; gap: 0; }
   .swatch-pair { display: flex; align-items: center; gap: 0.25rem; }
 </style>
 </head>
@@ -489,6 +492,11 @@ function generateHtmlReport(allResults, totals) {
     html += `<div class="page-section">
 <h2>${escHtml(label)} <span style="font-weight:normal;opacity:0.5;font-size:0.85rem">(${fails.length} fail, ${passes.length} pass, ${skips.length} skip)</span></h2>
 <p style="font-size:0.8rem;opacity:0.5;margin-bottom:0.75rem">${escHtml(url)}</p>
+
+<details class="page-screenshot" style="margin-bottom:1rem">
+<summary>Full page screenshot (${width}×${height})</summary>
+<img src="data:image/png;base64,${fullPageBase64}" alt="Full page screenshot of ${escHtml(label)}">
+</details>
 
 <div class="element-list">
 `;
@@ -524,9 +532,8 @@ function generateHtmlReport(allResults, totals) {
           const tHex = toHex(analysis.textColor);
           const bHex = toHex(analysis.bgColor);
           html += `<div class="color-swatches">
-  <div class="swatch-pair"><span class="swatch" style="background:${tHex}"></span><span class="swatch-label">text ${tHex}</span></div>
-  <span style="opacity:0.3">on</span>
-  <div class="swatch-pair"><span class="swatch" style="background:${bHex}"></span><span class="swatch-label">bg ${bHex}</span></div>
+  <div class="swatch-stack"><span class="swatch swatch-top" style="background:${tHex}"></span><span class="swatch swatch-bottom" style="background:${bHex}"></span></div>
+  <div class="swatch-labels"><span>text ${tHex}</span><span>bg ${bHex}</span></div>
 </div>`;
         }
       }
@@ -535,13 +542,7 @@ function generateHtmlReport(allResults, totals) {
     }
 
     html += `</div>\n`;
-
-    // Full page screenshot in a collapsible details
-    html += `<details class="page-screenshot">
-<summary>Full page screenshot (${width}×${height})</summary>
-<img src="data:image/png;base64,${fullPageBase64}" alt="Full page screenshot of ${escHtml(label)}">
-</details>
-</div>\n`;
+    html += `</div>\n`;
   }
 
   html += `</body></html>`;
