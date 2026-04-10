@@ -57,7 +57,21 @@ Run: `npm run test:contrast-diff` (requires test server at localhost:3847)
 
 **Fix:** Inject `* { transition: none !important; }` into the page before hiding text. This ensures `color: transparent` applies in the same frame.
 
-## Open Questions
+## Known Limitations
+
+### Gradient backgrounds produce a single contrast number
+
+When text sits on a gradient, contrast varies across the element. The technique takes the mode (most common) background color under glyph pixels, which effectively picks one point on the gradient. This can report a passing ratio even though one edge of the text has poor contrast.
+
+**Example:** The "404" number on the 404 page passes at 5.3:1, but the background gradient means some parts of the text may have lower contrast than reported.
+
+**Possible fix:** Report min/max contrast across the glyph pixels, not just the mode. Or segment glyph pixels by spatial region and report per-region.
+
+### SVG icons are not checked
+
+The technique walks text nodes (`NodeFilter.SHOW_TEXT`), so it only finds text content. SVG icons (stroke, fill) are completely invisible to it. Icons often have the worst contrast on a page — e.g., the volume and hamburger icons in the top-right of mtg-sparrow pages.
+
+**Possible fix:** For SVGs, use the same screenshot-diff approach but hide via `fill: transparent; stroke: transparent` or `opacity: 0` on the SVG elements. Would need a separate walker that finds SVG elements with visible strokes/fills.
 
 ### Color quantization error
 
