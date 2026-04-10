@@ -31,49 +31,55 @@ You can't just sample the center of a text element — you might hit whitespace 
 
 Run: `npm run test:contrast-diff` (requires test server at localhost:3847)
 
-## Known Issues (to fix)
+## Bugs Found and Fixed
 
-### Wrong color readings on some elements
+### Bug 1: Wrong color readings — `visibility: hidden` removes backgrounds
 
-The BEGIN button on the welcome page reported 1.4:1 contrast with text color #404838 on bg #303018. This is clearly wrong — it's a white button on a dark background. Likely causes:
+**Symptom:** BEGIN button reported 1.4:1 contrast (text #404838 on bg #303018). Actual contrast is 7.2:1.
 
-- **Color quantization**: colors are rounded to nearest 8, which could shift values significantly for light or saturated colors
-- **Antialiasing sampling**: the glyph delta threshold (30) may be catching subpixel rendering artifacts rather than true glyph pixels
-- **Mode color calculation**: if antialiased edge pixels outnumber core glyph pixels, the mode could reflect edge colors rather than the true text color
+**Root cause:** The original technique used `visibility: hidden` on text elements' parent. For elements with semi-transparent or styled backgrounds (like buttons), this hides the entire element including its background. The diff then sees the underlying page background where the button was, and nearly every pixel in the rect "changes" — making the mode color reflect the semi-transparent fill, not the actual text.
 
-**Status: Not yet investigated.** This is the highest priority bug.
+**Fix:** Use `color: transparent` instead. This hides only the text rendering while preserving the element's background, borders, and layout.
 
-### 25 elements skipped on About page
+### Bug 2: Elements skipped — below-fold content invisible in viewport screenshots
 
-The About page reported 25 elements with "no glyph pixels found." These are likely below-the-fold elements whose bounding rects fall outside the viewport screenshot.
+**Symptom:** 25 of 30 About page elements had "0 glyph pixels." The page is 1289px tall, viewport is 800px.
 
-Current approach uses `page.screenshot()` (viewport only), but `getBoundingClientRect()` returns positions relative to the viewport — so elements scrolled out of view have rects that don't correspond to any screenshot pixels.
+**Root cause:** `page.screenshot()` captures only the viewport. `getBoundingClientRect()` returns coordinates relative to the page when scroll is at 0, so below-fold elements have rects pointing past the screenshot's pixel space.
 
-**Possible fixes:**
-- Scroll to each element before capturing
-- Use full-page screenshots with adjusted coordinate mapping
-- Capture elements in batches, scrolling between batches
+**Fix:** Use `page.screenshot({ fullPage: true })` and compare against `pngA.width/height` instead of viewport dimensions. Coordinates from `getBoundingClientRect()` at scroll=0 map directly to full-page screenshot pixel positions.
 
-**Status: Not yet investigated.** This is the second priority bug.
+### Bug 3: CSS transitions defeat instant hiding
 
-### Color quantization may introduce error
+**Symptom:** Links with `transition: color 200ms ease` still showed 0 glyph pixels even after the `color: transparent` fix.
 
-Colors are quantized to nearest-8 for mode calculation. This means a true #FFFFFF could become #F8F8F8, changing the contrast ratio. The impact on pass/fail decisions needs quantification.
+**Root cause:** Setting `color: transparent` triggers a 200ms CSS transition. The screenshot captures a mid-transition frame where text is still mostly visible, so the A/B diff is near-zero.
 
-**Status: Not yet investigated.**
+**Fix:** Inject `* { transition: none !important; }` into the page before hiding text. This ensures `color: transparent` applies in the same frame.
+
+## Open Questions
+
+### Color quantization error
+
+Colors are quantized to nearest-8 for mode calculation. This means a true #FFFFFF could become #F8F8F8, changing the contrast ratio. The impact on pass/fail decisions hasn't been quantified yet. Worst case: a color at the boundary of a quantization bucket shifts by ±4 per channel, which could change a contrast ratio by ~0.1–0.3 points. This probably doesn't flip pass/fail decisions except at the margin.
 
 ## Design Decisions
 
-- `deviceScaleFactor: 1` — keeps CSS pixel rects aligned with screenshot pixel coordinates
-- Mode color (most common) rather than average — averages blur antialiased edges
-- `GLYPH_DELTA_THRESHOLD = 30` — minimum per-channel difference to count a pixel as a glyph
-- `MIN_GLYPH_PIXELS = 3` — elements with fewer glyph pixels are skipped as too ambiguous
+- **`color: transparent`** not `visibility: hidden` — preserves element backgrounds and borders
+- **`* { transition: none !important }`** — ensures instant color changes for the diff
+- **`fullPage: true` screenshots** — captures below-fold content
+- **`deviceScaleFactor: 1`** — keeps CSS pixel rects aligned with screenshot pixel coordinates
+- **Mode color** (most common) rather than average — averages blur antialiased edges
+- **`GLYPH_DELTA_THRESHOLD = 30`** — minimum per-channel difference to count a pixel as a glyph
+- **`MIN_GLYPH_PIXELS = 3`** — elements with fewer glyph pixels are skipped as too ambiguous
 
 ## Improvement Roadmap
 
-1. Fix wrong color readings (investigate BEGIN button case)
-2. Fix element skipping (handle below-fold elements)
-3. Evaluate whether color quantization introduces meaningful error
-4. Add verbose/debug mode that saves intermediate screenshots and per-element analysis
-5. Annotated screenshot output: overlay red boxes on failing elements
-6. Generalize beyond mtg-sparrow pages — parameterize the page+state matrix
+1. ~~Fix wrong color readings (BEGIN button)~~ — FIXED: use `color: transparent`
+2. ~~Fix element skipping (below-fold)~~ — FIXED: full-page screenshots
+3. ~~Fix CSS transition interference~~ — FIXED: disable transitions
+4. Evaluate whether color quantization introduces meaningful error
+5. Add verbose/debug mode that saves intermediate screenshots and per-element analysis
+6. Annotated screenshot output: overlay red boxes on failing elements
+7. Generalize beyond mtg-sparrow pages — parameterize the page+state matrix
+8. Extend to all page+state combinations (currently 4 pages, target 12)

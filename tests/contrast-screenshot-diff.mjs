@@ -131,14 +131,38 @@ async function collectTextElements(page) {
 
 // ─── Hide / restore text ──────────────────────────────────────────────────────
 
+/**
+ * Hide text by setting `color: transparent` on each text-bearing element.
+ *
+ * Why not `visibility: hidden`? Because visibility hides the entire element,
+ * including its background. For elements with semi-transparent or styled
+ * backgrounds (like buttons), hiding the parent creates a massive false diff
+ * where the background pixels look like "glyph" pixels. `color: transparent`
+ * hides only the text rendering while preserving the element's background,
+ * borders, and layout — which is exactly what we need for the diff.
+ *
+ * Important: we also disable CSS transitions on all elements first. Without
+ * this, elements with `transition: color ...` will animate from the original
+ * color to transparent, and the screenshot captures a mid-transition frame
+ * where text is still partially visible — causing 0 glyph pixels detected.
+ */
 async function hideAllText(page) {
   await page.evaluate(() => {
+    // Disable all CSS transitions so color changes apply instantly
+    const style = document.createElement('style');
+    style.id = '__contrast-check-no-transitions';
+    style.textContent = '* { transition: none !important; }';
+    document.head.appendChild(style);
+
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
       acceptNode: (node) => node.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
     });
     while (walker.nextNode()) {
       const el = walker.currentNode.parentElement;
-      if (el) el.style.visibility = 'hidden';
+      if (el) {
+        el.dataset.origColor = el.style.color;
+        el.style.color = 'transparent';
+      }
     }
   });
 }
@@ -150,8 +174,15 @@ async function restoreAllText(page) {
     });
     while (walker.nextNode()) {
       const el = walker.currentNode.parentElement;
-      if (el) el.style.visibility = '';
+      if (el) {
+        el.style.color = el.dataset.origColor ?? '';
+        delete el.dataset.origColor;
+      }
     }
+
+    // Re-enable transitions
+    const style = document.getElementById('__contrast-check-no-transitions');
+    if (style) style.remove();
   });
 }
 
@@ -199,7 +230,7 @@ function analyzeElement(pngA, pngB, element, viewportWidth, viewportHeight) {
   }
 
   if (textColors.length < MIN_GLYPH_PIXELS) {
-    return { status: 'skip', reason: `only ${textColors.length} glyph pixels found` };
+    return { status: 'skip', reason: `only ${textColors.length} glyph pixels in ${(x1 - x0 + 1) * (y1 - y0 + 1)} total pixels (rect: ${x},${y} ${width}x${height})` };
   }
 
   const textColor = modeColor(textColors);
@@ -242,22 +273,23 @@ async function checkPage(browser, label, url, viewportWidth = 1280, viewportHeig
     // Collect text elements before any changes
     const elements = await collectTextElements(page);
 
-    // Screenshot A: page as-is
-    const bufA = await page.screenshot({ type: 'png' });
+    // Screenshot A: full page to capture below-fold elements
+    const bufA = await page.screenshot({ type: 'png', fullPage: true });
     const pngA = decodePng(bufA);
 
     // Hide all text and take Screenshot B
     await hideAllText(page);
-    const bufB = await page.screenshot({ type: 'png' });
+    const bufB = await page.screenshot({ type: 'png', fullPage: true });
     const pngB = decodePng(bufB);
 
     // Restore text (best-effort — context will be closed anyway)
     await restoreAllText(page);
 
-    // Analyze each element
+    // Analyze each element — use actual screenshot dimensions, not viewport
+    // (fullPage screenshots may be taller than viewport)
     const elementResults = [];
     for (const el of elements) {
-      const analysis = analyzeElement(pngA, pngB, el, viewportWidth, viewportHeight);
+      const analysis = analyzeElement(pngA, pngB, el, pngA.width, pngA.height);
       elementResults.push({ element: el, analysis });
     }
 
@@ -277,10 +309,14 @@ function printPageResults({ label, elementResults }) {
 
   const failLines = [];
   const passLines = [];
+  const skipLines = [];
 
   for (const { element, analysis } of elementResults) {
     if (analysis.status === 'skip') {
       skipped++;
+      skipLines.push(
+        `  ⏭️   ${element.selector}: "${element.text}" — ${analysis.reason}`
+      );
     } else {
       checked++;
       const threshold = analysis.threshold === 3.0 ? '3:1' : '4.5:1';
@@ -304,9 +340,12 @@ function printPageResults({ label, elementResults }) {
   console.log(`\n${label}:`);
   console.log(`  Checked ${checked} text elements (${skipped} skipped — no glyph pixels)`);
 
-  // Print failures first so they're easy to see
+  // Print failures first, then passes, then skips
   for (const line of failLines) console.log(line);
   for (const line of passLines) console.log(line);
+  if (skipLines.length > 0) {
+    for (const line of skipLines) console.log(line);
+  }
 
   return { checked, passing, failing, skipped };
 }
