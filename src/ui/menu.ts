@@ -19,6 +19,7 @@ function injectMenuDOM(showResetProgress: boolean, showTraceLink: boolean): void
   btn.className = 'menu-btn';
   btn.title = 'Menu';
   btn.setAttribute('aria-label', 'Menu');
+  btn.dataset.contrastCheck = 'menu-icon';
   btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
       <line x1="3" y1="6" x2="21" y2="6"/>
       <line x1="3" y1="12" x2="21" y2="12"/>

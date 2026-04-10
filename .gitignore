@@ -5,3 +5,4 @@ dist/
 .test-serve.pid
 .serve.pid
 tests/screenshots/
+tests/contrast-report.html

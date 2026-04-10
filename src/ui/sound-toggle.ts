@@ -18,6 +18,7 @@ export function wireSoundToggle(recordEvent: RecordEvent): void {
   const btn = document.createElement('button');
   btn.id = 'sound-toggle-btn';
   btn.className = 'sound-toggle-btn';
+  btn.dataset.contrastCheck = 'sound-icon';
 
   let enabled = isSoundEnabled();
 
