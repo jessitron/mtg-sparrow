@@ -518,7 +518,7 @@ function generateHtmlReport(allResults, totals) {
   .element-crop { border: 1px solid #444; border-radius: 4px; max-width: 300px; max-height: 80px; object-fit: contain; background: #000; }
   .element-info { display: flex; flex-direction: column; gap: 0.25rem; }
   .element-name { font-weight: 600; font-size: 0.95rem; }
-  .element-text { font-size: 0.8rem; opacity: 0.6; font-style: italic; }
+  .element-text { font-size: 0.8rem; opacity: 0.75; font-style: italic; }
   .element-ratio { font-size: 1.1rem; font-weight: 700; }
   .element-ratio.pass { color: #4ade80; }
   .element-ratio.fail { color: #f87171; }
@@ -552,8 +552,8 @@ function generateHtmlReport(allResults, totals) {
     const skips = elementResults.filter(r => r.analysis.status === 'skip');
 
     html += `<div class="page-section">
-<h2>${escHtml(label)} <span style="font-weight:normal;opacity:0.5;font-size:0.85rem">(${fails.length} fail, ${passes.length} pass, ${skips.length} skip)</span></h2>
-<p style="font-size:0.8rem;opacity:0.5;margin-bottom:0.75rem">${escHtml(url)}</p>
+<h2>${escHtml(label)} <span style="font-weight:normal;opacity:0.7;font-size:0.85rem">(${fails.length} fail, ${passes.length} pass, ${skips.length} skip)</span></h2>
+<p style="font-size:0.8rem;opacity:0.7;margin-bottom:0.75rem">${escHtml(url)}</p>
 
 <details class="page-screenshot" style="margin-bottom:1rem">
 <summary>Full page screenshot (${width}×${height})</summary>
