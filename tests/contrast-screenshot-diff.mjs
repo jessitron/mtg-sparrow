@@ -558,8 +558,8 @@ function generateHtmlReport(allResults, totals) {
 <details class="page-screenshot" style="margin-bottom:1rem">
 <summary>Full page screenshot (${width}×${height})</summary>
 <div class="screenshot-toggle">
-  <label><input type="radio" name="ss-${escHtml(label).replace(/\s/g, '-')}" value="annotated" checked onchange="this.closest('.screenshot-toggle').querySelector('.ss-annotated').style.display='';this.closest('.screenshot-toggle').querySelector('.ss-plain').style.display='none'"> Annotated</label>
-  <label><input type="radio" name="ss-${escHtml(label).replace(/\s/g, '-')}" value="plain" onchange="this.closest('.screenshot-toggle').querySelector('.ss-plain').style.display='';this.closest('.screenshot-toggle').querySelector('.ss-annotated').style.display='none'"> Plain</label>
+  <label><input type="radio" name="ss-${escHtml(label).replace(/\s/g, '-')}" value="annotated" checked onchange="var d=this.closest('details');d.querySelector('.ss-annotated').style.display='';d.querySelector('.ss-plain').style.display='none'"> Annotated</label>
+  <label><input type="radio" name="ss-${escHtml(label).replace(/\s/g, '-')}" value="plain" onchange="var d=this.closest('details');d.querySelector('.ss-plain').style.display='';d.querySelector('.ss-annotated').style.display='none'"> Plain</label>
 </div>
 <img class="ss-annotated" src="data:image/png;base64,${annotatedBase64}" alt="Annotated screenshot of ${escHtml(label)}">
 <img class="ss-plain" src="data:image/png;base64,${fullPageBase64}" alt="Plain screenshot of ${escHtml(label)}" style="display:none">
