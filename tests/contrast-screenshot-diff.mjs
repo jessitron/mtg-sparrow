@@ -26,6 +26,7 @@
 import { chromium } from 'playwright';
 import { PNG } from 'pngjs';
 import fs from 'fs';
+import path from 'path';
 
 const BASE_URL = 'http://localhost:3847';
 const REPORT_PATH = 'tests/contrast-report.html';
@@ -34,6 +35,32 @@ const REPORT_PATH = 'tests/contrast-report.html';
 const GLYPH_DELTA_THRESHOLD = 30;
 // Minimum number of glyph pixels before we attempt a contrast check
 const MIN_GLYPH_PIXELS = 3;
+
+// ─── CSS variable location scanning ──────────────────────────────────────────
+
+/**
+ * Scan all *.css files in the project root (not recursively) for CSS variable
+ * definitions like `--my-var: value;`. Returns a Map of varName → "filename:lineNumber".
+ */
+function buildVarLocationMap(projectRoot) {
+  const map = new Map();
+  const files = fs.readdirSync(projectRoot).filter(f => f.endsWith('.css'));
+  for (const file of files) {
+    const filePath = path.join(projectRoot, file);
+    const lines = fs.readFileSync(filePath, 'utf8').split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      // Match lines like:   --some-var-name: value;
+      const match = lines[i].match(/^\s*(--[\w-]+)\s*:/);
+      if (match) {
+        const varName = match[1];
+        if (!map.has(varName)) {
+          map.set(varName, `${file}:${i + 1}`);
+        }
+      }
+    }
+  }
+  return map;
+}
 
 // ─── WCAG math ───────────────────────────────────────────────────────────────
 
@@ -185,6 +212,47 @@ function toHex(rgb) {
  */
 async function collectElements(page) {
   return page.evaluate(() => {
+    /**
+     * Walk all matched CSS rules for an element to find the last rule that sets
+     * the `color` property. Returns { cssVarName, cssSelector, cssPropertyValue }.
+     * cssVarName is the var() name if the value uses one, else null.
+     */
+    function findColorSource(el) {
+      let cssSelector = null;
+      let cssPropertyValue = null;
+
+      for (const ss of document.styleSheets) {
+        let rules;
+        try {
+          rules = ss.cssRules;
+        } catch (e) {
+          continue; // cross-origin stylesheet — skip
+        }
+        if (!rules) continue;
+        for (const rule of rules) {
+          if (!(rule instanceof CSSStyleRule)) continue;
+          try {
+            if (!el.matches(rule.selectorText)) continue;
+          } catch (e) {
+            continue; // invalid selector
+          }
+          const colorVal = rule.style.getPropertyValue('color').trim();
+          if (colorVal) {
+            cssSelector = rule.selectorText;
+            cssPropertyValue = colorVal;
+          }
+        }
+      }
+
+      let cssVarName = null;
+      if (cssPropertyValue) {
+        const varMatch = cssPropertyValue.match(/var\((--[\w-]+)/);
+        if (varMatch) cssVarName = varMatch[1];
+      }
+
+      return { cssVarName, cssSelector, cssPropertyValue };
+    }
+
     const elements = [];
     const seen = new Set(); // avoid duplicates between text walk and labeled elements
 
@@ -211,6 +279,8 @@ async function collectElements(page) {
       const labelEl = el.closest('[data-contrast-check]');
       const label = labelEl?.dataset.contrastCheck || null;
 
+      const colorSource = findColorSource(el);
+
       elements.push({
         label,
         selector: el.tagName.toLowerCase() + (el.className ? '.' + [...el.classList].join('.') : ''),
@@ -219,6 +289,7 @@ async function collectElements(page) {
         isLargeText,
         text: textNode.textContent.trim().substring(0, 50),
         type: 'text',
+        ...colorSource,
       });
     }
 
@@ -241,6 +312,8 @@ async function collectElements(page) {
         const fontSize = parseFloat(computed.fontSize);
         const isLargeText = fontSize >= 24; // icons are treated like large text for thresholds
 
+        const colorSource = findColorSource(el);
+
         elements.push({
           label: el.dataset.contrastCheck,
           selector: el.tagName.toLowerCase() + (el.className ? '.' + [...el.classList].join('.') : ''),
@@ -249,6 +322,7 @@ async function collectElements(page) {
           isLargeText,
           text: `[${el.dataset.contrastCheck}]`,
           type: 'labeled',
+          ...colorSource,
         });
       }
     }
@@ -383,9 +457,33 @@ function analyzeElement(pngA, pngB, element) {
   };
 }
 
+// ─── Fix hint builder ─────────────────────────────────────────────────────────
+
+/**
+ * Build a human-readable fix hint for an element based on its CSS color source.
+ * Returns a string like:
+ *   "change --my-var (style.css:14)"   — when color uses a CSS variable
+ *   "change color on .my-selector (about.css:35)"  — when color is hardcoded
+ *   null if no CSS source info is available
+ */
+function buildFixHint(element, varLocationMap) {
+  const { cssVarName, cssSelector, cssPropertyValue } = element;
+  if (!cssPropertyValue && !cssSelector) return null;
+
+  if (cssVarName) {
+    const location = varLocationMap.get(cssVarName) || '(location unknown)';
+    return `change ${cssVarName} (${location})`;
+  } else if (cssSelector) {
+    // For hardcoded color, we can point to the selector but not easily to the file
+    // without a full CSS-to-file mapping. Report what we know.
+    return `change color on ${cssSelector}`;
+  }
+  return null;
+}
+
 // ─── Page checker ─────────────────────────────────────────────────────────────
 
-async function checkPage(browser, label, url, viewportWidth = 1280, viewportHeight = 800, setup = null) {
+async function checkPage(browser, label, url, viewportWidth = 1280, viewportHeight = 800, setup = null, varLocationMap = new Map()) {
   const context = await browser.newContext({
     viewport: { width: viewportWidth, height: viewportHeight },
     deviceScaleFactor: 1,
@@ -424,10 +522,14 @@ async function checkPage(browser, label, url, viewportWidth = 1280, viewportHeig
         el.rect.width + padding * 2, el.rect.height + padding * 2
       );
 
+      // Build fix hint using CSS source info from the element
+      const fixHint = buildFixHint(el, varLocationMap);
+
       elementResults.push({
         element: el,
         analysis,
         cropBase64: cropBuf ? cropBuf.toString('base64') : null,
+        fixHint,
       });
     }
 
@@ -448,7 +550,7 @@ function printPageResults({ label, elementResults }) {
   let checked = 0, passing = 0, failing = 0, skipped = 0;
   const failLines = [], passLines = [], skipLines = [];
 
-  for (const { element, analysis } of elementResults) {
+  for (const { element, analysis, fixHint } of elementResults) {
     const displayName = element.label || element.selector;
 
     if (analysis.status === 'skip') {
@@ -465,7 +567,8 @@ function printPageResults({ label, elementResults }) {
         passLines.push(`  ✅  ${displayName}: ${ratioStr}:1${largeLabel}, needs ${threshold}`);
       } else {
         failing++;
-        failLines.push(`  ⚠️   ${displayName}: ${ratioStr}:1 (needs ${threshold})${largeLabel} — text ${toHex(analysis.textColor)} on bg ${toHex(analysis.bgColor)}`);
+        const fixStr = fixHint ? ` — Fix: ${fixHint}` : '';
+        failLines.push(`  ⚠️   ${displayName}: ${ratioStr}:1 (needs ${threshold})${largeLabel} — text ${toHex(analysis.textColor)} on bg ${toHex(analysis.bgColor)}${fixStr}`);
       }
     }
   }
@@ -534,6 +637,8 @@ function generateHtmlReport(allResults, totals) {
   .swatch-bottom { border-radius: 0 0 4px 4px; }
   .swatch-labels { font-size: 0.75rem; opacity: 0.6; display: flex; flex-direction: column; gap: 0; }
   .swatch-pair { display: flex; align-items: center; gap: 0.25rem; }
+  .element-fix { font-size: 0.8rem; margin-top: 0.35rem; color: #fcd34d; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; }
+  .element-fix::before { content: 'Fix: '; opacity: 0.7; }
 </style>
 </head>
 <body>
@@ -573,7 +678,7 @@ function generateHtmlReport(allResults, totals) {
 
     // Failures first, then passes, then skips
     const sorted = [...fails, ...passes, ...skips];
-    for (const { element, analysis, cropBase64 } of sorted) {
+    for (const { element, analysis, cropBase64, fixHint } of sorted) {
       const displayName = element.label || element.selector;
       const statusClass = analysis.status;
 
@@ -606,6 +711,10 @@ function generateHtmlReport(allResults, totals) {
   <div class="swatch-labels"><span>text ${tHex}</span><span>bg ${bHex}</span></div>
 </div>`;
         }
+
+        if (analysis.status === 'fail' && fixHint) {
+          html += `<div class="element-fix">${escHtml(fixHint)}</div>`;
+        }
       }
 
       html += `</div></div>\n`;
@@ -637,12 +746,16 @@ async function main() {
 
   console.log('=== Screenshot-Diff Contrast Report ===');
 
+  // Build CSS variable location map once for the whole run
+  const projectRoot = new URL('..', import.meta.url).pathname;
+  const varLocationMap = buildVarLocationMap(projectRoot);
+
   let totalChecked = 0, totalPassing = 0, totalFailing = 0, totalSkipped = 0;
   const allResults = [];
 
   try {
     for (const { label, url, setup } of pages) {
-      const pageResult = await checkPage(browser, label, url, 1280, 800, setup);
+      const pageResult = await checkPage(browser, label, url, 1280, 800, setup, varLocationMap);
       allResults.push(pageResult);
       const counts = printPageResults(pageResult);
       totalChecked += counts.checked;
