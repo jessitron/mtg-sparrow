@@ -536,9 +536,10 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
 
   // Start session root span
   const tierLabel =
-    subgroup === 'allied' ? 'guild_allied' :
-    subgroup === 'enemy'  ? 'guild_enemy'  :
-    subgroup === 'wedges' ? 'wedge'        :
+    subgroup === 'allied'   ? 'guild_allied' :
+    subgroup === 'enemy'    ? 'guild_enemy'  :
+    subgroup === 'wedges'   ? 'wedge'        :
+    subgroup === 'colleges' ? 'college'      :
     'shard';
   const sessionAttrs: Record<string, string | number | boolean> = {
     'session.tier': tierLabel,
