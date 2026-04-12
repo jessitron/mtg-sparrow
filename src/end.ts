@@ -1,6 +1,6 @@
 import { initTelemetry, startSpan, startChildSpan, endSpan, emitLog, flushSpans, getTraceId, getSessionId } from './telemetry/telemetry';
 import { showSessionEndColumns, getEndPageContext } from './ui/guild-columns';
-import { isSubgroupUnlocked, getUnlockedSubgroups } from './progression';
+import { getUnlockedSubgroups } from './progression';
 import { wireMenu } from './ui/menu';
 import { wireSoundToggle } from './ui/sound-toggle';
 import { setStorageRecordEvent } from './storage';
@@ -53,11 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const app = document.getElementById('app');
   if (!app) return;
 
-  const alliedUnlocked = isSubgroupUnlocked('allied');
-  const enemyUnlocked = isSubgroupUnlocked('enemy');
-  const wedgesUnlocked = isSubgroupUnlocked('wedges');
-  const shardsUnlocked = isSubgroupUnlocked('shards');
-
   setFeedbackContextProvider(() => {
     const params = new URLSearchParams(window.location.search);
     return {
@@ -69,10 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const endCurrentSection = showSessionEndColumns(
     app,
-    alliedUnlocked,
-    enemyUnlocked,
-    wedgesUnlocked,
-    shardsUnlocked,
     pageSpan,
     (sub: GuildSubgroup, startedFrom: string) => {
       endCurrentSection();
