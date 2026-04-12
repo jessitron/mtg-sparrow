@@ -16,6 +16,43 @@ export type GuildDescription = {
 };
 
 export const guildDescriptions: GuildDescription[] = [
+  // Strixhaven Colleges
+  {
+    id: "silverquill",
+    description:
+      "Silverquill is the magic of words — spoken or written, sharp as a blade or soft as a benediction. Where Orzhov weaponizes debt and obligation, Silverquill weaponizes rhetoric and reputation. Ink and light manifest as spells; the pen is not mightier than the sword, it IS the sword. Their culture is fiercely competitive and eloquent, full of debate champions and published poets who treat every argument as a duel.",
+    scryfallUrl: "https://scryfall.com/search?q=set%3Astx+c%3Awb+-is%3Asplit+-is%3Adfc",
+    flavor: "Same colors as Orzhov, completely different weapons. Orzhov wants your soul as collateral. Silverquill wants to win the argument. One uses ghosts and debt; the other uses a well-timed rebuttal that ends careers.",
+  },
+  {
+    id: "prismari",
+    description:
+      "Prismari sees no line between magic and art — elemental power is their medium, and spectacle is the point. Where Izzet asks 'Does it work?', Prismari asks 'Does it WOW?' Giant fire tornadoes and choreographed water displays are not byproducts of their magic — they are the magic. Huge, showy, and unapologetic, Prismari instants and sorceries function as paintings. The bigger the mana cost, the grander the artistic statement.",
+    scryfallUrl: "https://scryfall.com/search?q=set%3Astx+c%3Aur+-is%3Asplit+-is%3Adfc",
+    flavor: "Izzet and Prismari are cut from the same Spellslinger cloth — both love casting instants and sorceries in great quantity. But Izzet are mad scientists; Prismari are performance artists. The vibe difference is enormous. I love both.",
+  },
+  {
+    id: "witherbloom",
+    description:
+      "Witherbloom studies the interchange between life and death with scholarly rigor and gothic aesthetics. Their biomancers drain life to gain it back, sacrifice creatures to fuel healing, and maintain a botanical garden that smells faintly of decay. More laboratory than swamp, more biology department than death cult — though the distinction blurs near exam season. Pests are their mascots: small, morbid, and oddly endearing.",
+    scryfallUrl: "https://scryfall.com/search?q=set%3Astx+c%3Abg+-is%3Asplit+-is%3Adfc",
+    flavor: "Golgari and Witherbloom share the life/death cycle theme, but Golgari IS the ecosystem. Witherbloom runs experiments on it. Both gross; one has a library.",
+  },
+  {
+    id: "lorehold",
+    description:
+      "Lorehold archaeomancers dig up the past and put it back to work. Where Boros charges forward with military aggression, Lorehold looks backward — animating historical spirits, recovering ancient spells, and treating history as a living discipline. Spirit Statues of historical figures walk the campus. Flashback is their mechanic, the past never truly gone. Same colors as Boros; completely opposite momentum.",
+    scryfallUrl: "https://scryfall.com/search?q=set%3Astx+c%3Arw+-is%3Asplit+-is%3Adfc",
+    flavor: "This is the sharpest guild-vs-college contrast. Boros attacks; Lorehold archives. Indiana Jones as a mage: passionate, reckless about history, and definitely going to disturb something that should have stayed buried.",
+  },
+  {
+    id: "quandrix",
+    description:
+      "Quandrix works in the mathematics of reality — fractals, patterns, theoretical systems underlying all of nature. Where Simic mutates flesh through biological experimentation, Quandrix solves equations. Their students manifest Fractal constructs as creatures, and their magic scales up through mathematical principles. Abstract, brilliant, and occasionally incomprehensible to normal people. Simic is Darwin; Quandrix is Euler.",
+    scryfallUrl: "https://scryfall.com/search?q=set%3Astx+c%3Agu+-is%3Asplit+-is%3Adfc",
+    flavor: "Both Simic and Quandrix grow things with +1/+1 counters, but for completely different reasons. Simic: 'What if this newt had four fins?' Quandrix: 'The Fibonacci sequence implies this creature should be this large.' Different kinds of terrifying.",
+  },
+
   // Allied guilds
   {
     id: "azorius",
