@@ -1,5 +1,5 @@
 import { renderPip } from './pips';
-import { alliedGuilds, enemyGuilds, wedges, shards, ColorCombo } from '../data/combos';
+import { alliedGuilds, colleges, enemyGuilds, wedges, shards, ColorCombo } from '../data/combos';
 import { guildDescriptionMap } from '../data/guild-descriptions';
 import { Span } from '@opentelemetry/api';
 import { startChildSpan, endSpan, emitLog, getSessionId, startSpan } from '../telemetry/telemetry';
@@ -743,6 +743,67 @@ function buildEnemyColumn(
   return [col, clearSelection];
 }
 
+function buildCollegesColumn(
+  unlocked: boolean,
+  onActivate: () => void,
+  sectionSpanRef: SpanRef,
+  startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
+): [HTMLElement, () => void] {
+  const col = document.createElement('div');
+  col.classList.add('level-section', 'level-section--colleges');
+  // Show full content if the user has practiced colleges at all
+  const showContent = unlocked || hasCompletedSubgroup('colleges');
+  if (!showContent) {
+    col.classList.add('level-section--locked');
+  }
+
+  let clearSelection = () => {};
+
+  if (showContent) {
+    // Summary panel (left): title, description, guild list, button
+    const summary = document.createElement('div');
+    summary.classList.add('level-section-summary');
+
+    const header = document.createElement('h2');
+    header.classList.add('level-section-header');
+    header.textContent = 'Strixhaven Colleges';
+    summary.appendChild(header);
+
+    const explanation = document.createElement('p');
+    explanation.classList.add('level-section-explanation');
+    explanation.textContent = 'Five magical schools, each built on the tension between two enemy colors.';
+    summary.appendChild(explanation);
+
+    summary.appendChild(buildGuildList(colleges));
+
+    col.appendChild(summary);
+
+    // Wheel panel (center)
+    const wheelPanel = document.createElement('div');
+    wheelPanel.classList.add('level-section-wheel');
+    const svg = buildEnemyColorWheel();
+    wheelPanel.appendChild(svg);
+    col.appendChild(wheelPanel);
+
+    // Flavor panel (right): all college descriptions pre-rendered and stacked
+    col.appendChild(buildFlavorPanel(colleges, 'colleges', sectionSpanRef, startSession));
+
+    // Wire bidirectional hover after all panels are in the DOM
+    clearSelection = wireEnemyHover(col, svg, sectionSpanRef, onActivate);
+  } else {
+    const btn = document.createElement('button');
+    btn.classList.add('next-session-button', 'level-section-button', 'next-session-button--primary');
+    btn.textContent = 'Learn Strixhaven colleges';
+    btn.addEventListener('click', (e: MouseEvent) => {
+      e.stopPropagation();
+      startSession('colleges', 'session_end_screen');
+    });
+    col.appendChild(btn);
+  }
+
+  return [col, clearSelection];
+}
+
 function buildWedgeColumn(
   unlocked: boolean,
   onActivate: () => void,
@@ -921,10 +982,11 @@ interface UILevelDefinition extends LevelDefinition {
 }
 
 const UI_LEVELS: UILevelDefinition[] = [
-  { ...LEVELS[0], buildColumn: buildAlliedColumn },
-  { ...LEVELS[1], buildColumn: buildEnemyColumn },
-  { ...LEVELS[2], buildColumn: buildWedgeColumn },
-  { ...LEVELS[3], buildColumn: buildShardColumn },
+  { ...LEVELS[0], buildColumn: buildCollegesColumn },  // colleges (new)
+  { ...LEVELS[1], buildColumn: buildAlliedColumn },    // allied (was LEVELS[0])
+  { ...LEVELS[2], buildColumn: buildEnemyColumn },     // enemy (was LEVELS[1])
+  { ...LEVELS[3], buildColumn: buildWedgeColumn },     // wedges (was LEVELS[2])
+  { ...LEVELS[4], buildColumn: buildShardColumn },     // shards (was LEVELS[3])
 ];
 
 const SECTION_LABELS = [...UI_LEVELS.map(l => l.id), 'share'];
