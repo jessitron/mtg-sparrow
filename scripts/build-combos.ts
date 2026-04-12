@@ -50,6 +50,7 @@ const enemyPairs: [string, string][] = [
 ];
 
 function tierLabel(combo: ColorCombo): string {
+  if (combo.tier === "college") return "College";
   if (combo.tier === "guild" && combo.subgroup === "allied") return "Allied Guild";
   if (combo.tier === "guild" && combo.subgroup === "enemy") return "Enemy Guild";
   if (combo.tier === "wedge") return "Wedge";
@@ -58,6 +59,7 @@ function tierLabel(combo: ColorCombo): string {
 }
 
 function subgroupParam(combo: ColorCombo): string {
+  if (combo.tier === "college") return "colleges";
   if (combo.tier === "guild" && combo.subgroup === "allied") return "allied";
   if (combo.tier === "guild" && combo.subgroup === "enemy") return "enemy";
   if (combo.tier === "wedge") return "wedges";
@@ -66,6 +68,7 @@ function subgroupParam(combo: ColorCombo): string {
 }
 
 function subgroupLabel(combo: ColorCombo): string {
+  if (combo.tier === "college") return "college";
   if (combo.tier === "guild" && combo.subgroup === "allied") return "allied guild";
   if (combo.tier === "guild" && combo.subgroup === "enemy") return "enemy guild";
   if (combo.tier === "wedge") return "wedge";
@@ -167,6 +170,7 @@ function escapeHtml(s: string): string {
 
 // Ordered list of all combos matching the index page group order
 const orderedCombos: ColorCombo[] = [
+  ...guilds.filter(g => g.tier === "college"),
   ...guilds.filter(g => g.tier === "guild" && g.subgroup === "allied"),
   ...guilds.filter(g => g.tier === "guild" && g.subgroup === "enemy"),
   ...guilds.filter(g => g.tier === "wedge"),
@@ -320,6 +324,12 @@ function buildPage(combo: ColorCombo): string {
 
 function buildIndexPage(): string {
   const groups: { label: string; subgroup: string; description: string; combos: ColorCombo[] }[] = [
+    {
+      label: "Strixhaven Colleges",
+      subgroup: "colleges",
+      description: "Two-color pairs representing the five magical schools of Strixhaven, each built on the tension between enemy colors.",
+      combos: guilds.filter(g => g.tier === "college"),
+    },
     {
       label: "Allied Guilds",
       subgroup: "allied",
