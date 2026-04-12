@@ -6,21 +6,27 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-04-11)
 
-### Engagement: Strixhaven Colleges
+### Engagement: Strixhaven Colleges — DELIVERED
 
 **Goal**: Add Strixhaven colleges as a new level in the app for the *Secrets of Strixhaven* set releasing April 24, 2026.
 
 **Plan**:
 - Arc 77: Level Abstraction (structural prerequisite) — **COMPLETE** (v0.46.0)
-- Arc 78: Strixhaven Colleges content (user-facing new level) — **NEXT**
+- Arc 78: Strixhaven Colleges Level (user-facing) — **COMPLETE** (v0.47.0)
 
-**Domain research**: Complete. See `small-arc-studios/roles/domain-expert/notes/strixhaven-colleges-research.md`.
+**Domain research**: `small-arc-studios/roles/domain-expert/notes/strixhaven-colleges-research.md`
+
+### Arc 78: Strixhaven Colleges Level — COMPLETE (v0.47.0, 2026-04-11)
+
+5 college combos (Silverquill, Prismari, Witherbloom, Lorehold, Quandrix) with ~17 cards each. Colleges placed as Level 1 for set launch timing. Reuses enemy color wheel. `session.tier = "college"` in telemetry. 5 combo reference pages generated. 70/70 Playwright checks passed. Honeycomb confirmed `app.version = 0.47.0`. Decisions DEC-270 through DEC-273.
 
 ### Arc 77: Level Abstraction — COMPLETE (v0.46.0, 2026-04-11)
 
 Replaced hardcoded parallel maps with a data-driven `LEVELS` array. New file `src/levels.ts` is the single source of truth. `slides.ts`, `session.ts`, `guild-columns.ts`, and `end.ts` all simplified. 48/48 Playwright checks passed. Honeycomb confirmed `app.version = 0.46.0`. Decisions DEC-266 through DEC-269.
 
-Adding Arc 78 (Strixhaven colleges) is now a ~3-file change instead of ~10.
+### Open follow-up: Update college card images with SOS cards
+
+Card images currently use original STX set cards (DEC-272). After *Secrets of Strixhaven* releases April 24 and cards appear on Scryfall, update card references in `combos.ts` with SOS cards. Data-only change, no code changes needed.
 
 ---
 

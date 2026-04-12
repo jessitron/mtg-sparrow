@@ -781,6 +781,22 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 - **Verification**: 48/48 Playwright checks passed. Honeycomb traces confirmed `app.version = 0.46.0`.
 - **Impact**: Adding a new level (Arc 78) is now a ~3-file change instead of ~10.
 
+### Arc 78: Strixhaven Colleges Level — COMPLETE (v0.47.0, 2026-04-11)
+- **Type**: User
+- **Goal**: Add Strixhaven colleges as a playable level for the *Secrets of Strixhaven* set release (April 24, 2026).
+- **What was built**:
+  - 5 college combos added to `combos.ts`: Silverquill (WB), Prismari (UR), Witherbloom (BG), Lorehold (RW), Quandrix (GU) — ~17 cards each from the STX set.
+  - College descriptions added to `guild-descriptions.ts` with flavor text.
+  - `'colleges'` added to `GuildSubgroup` union type; placed as `LEVELS[0]` (Level 1) in `levels.ts`.
+  - `buildCollegesColumn` added to `guild-columns.ts`, reusing enemy color wheel visualization (same color pairs, different names). `UI_LEVELS` expanded to 5 entries.
+  - 5 combo reference pages generated at `combo/`; combo index updated with "Strixhaven Colleges" group.
+  - `build-combos.ts` updated: `tierLabel`, `subgroupParam`, `subgroupLabel`, `orderedCombos`, and index page groups all handle colleges.
+  - Telemetry: `session.tier` correctly shows `"college"` for college sessions.
+  - Version bumped to 0.47.0 in `src/version.ts`.
+- **Key decisions**: DEC-270, DEC-271, DEC-272, DEC-273
+- **Verification**: 70/70 Playwright checks passed. Honeycomb traces confirmed `app.version = 0.47.0`.
+- **Follow-up**: Card images currently use original STX set cards since SOS isn't on Scryfall yet. Update with SOS card images after April 24 release.
+
 ---
 
 ## Screenshot-Diff Contrast Technique (Arc 76, 2026-04-08)

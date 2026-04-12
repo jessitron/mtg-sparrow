@@ -2206,6 +2206,36 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: An early draft of the refactor put both types in levels.ts. This would have created a circular dependency: levels.ts → guild-columns.ts → levels.ts.
 - **Rationale**: Proper layering. Domain data (`levels.ts`) has no dependency on presentation (`guild-columns.ts`). Presentation extends the domain type locally. This is standard dependency-inversion practice and keeps `levels.ts` importable from any module without risk.
 
+## DEC-270: Colleges Reuse the Enemy Color Wheel Visualization
+- **Date**: 2026-04-11
+- **Arc**: 78 (Strixhaven Colleges Level)
+- **Decision**: `buildCollegesColumn` reuses the enemy color wheel visualization (star pattern) rather than creating a new one.
+- **Context**: Strixhaven colleges map to the same enemy color pairs (WB, UR, BG, RW, GU) — just with different names. The star-pattern wheel correctly shows the same geometric relationships.
+- **Rationale**: The visualization is accurate for colleges. Building a new wheel would be pure duplication with no informational benefit. If colleges ever need distinct visual identity, it can be differentiated through styling rather than geometry.
+
+## DEC-271: College Combos Use tier: "college" (Not tier: "guild")
+- **Date**: 2026-04-11
+- **Arc**: 78 (Strixhaven Colleges Level)
+- **Decision**: College combos use `tier: "college"` as their tier value, not `tier: "guild"` with a different subgroup.
+- **Context**: Colleges are enemy-color pairs but are not guilds. Reusing the "guild" tier would conflate two distinct flavor concepts and make telemetry ambiguous — `session.tier = "guild"` would mean either Ravnica guilds or Strixhaven colleges depending on the subgroup.
+- **Rationale**: Cleaner type separation. Telemetry queries can filter on `session.tier = "college"` without ambiguity. The type system reflects the domain: guilds are guilds, colleges are colleges.
+
+## DEC-272: Card Images Use Original STX Set Cards (SOS Not Yet on Scryfall)
+- **Date**: 2026-04-11
+- **Arc**: 78 (Strixhaven Colleges Level)
+- **Decision**: Card images for college combos use cards from the original Strixhaven (STX) set because *Secrets of Strixhaven* (SOS) cards are not yet available on Scryfall.
+- **Context**: SOS releases April 24, 2026. Scryfall card data and images typically become available around release date. The level needs to be ready before then.
+- **Follow-up**: Update card references with SOS cards after April 24 when Scryfall has them. This is a data-only change (no code changes needed).
+- **Rationale**: Ship the level now with correct cards from the original set rather than wait. STX cards are thematically correct — same colleges, same color pairs.
+
+## DEC-273: Colleges Placed as LEVELS[0] (Level 1) for Set Launch Timing
+- **Date**: 2026-04-11
+- **Arc**: 78 (Strixhaven Colleges Level)
+- **Decision**: Colleges are positioned as LEVELS[0], making them Level 1 — the first level new players encounter.
+- **Context**: *Secrets of Strixhaven* releases April 24. Placing colleges first ensures players arriving from the new set land on relevant content immediately. The Level Abstraction (Arc 77) makes reordering trivial.
+- **Alternatives considered**: Placing colleges after guilds (LEVELS[4] or [5]) — rejected because new set traffic should hit college content first.
+- **Rationale**: Timely relevance. The LEVELS array can be reordered later once the set launch window passes and guilds should return to the default starting position.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
