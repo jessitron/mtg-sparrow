@@ -4,7 +4,27 @@ Current state, in-progress work, and upcoming arcs.
 
 ---
 
-## Current Status (2026-04-08)
+## Current Status (2026-04-11)
+
+### Engagement: Strixhaven Colleges
+
+**Goal**: Add Strixhaven colleges as a new level in the app for the *Secrets of Strixhaven* set releasing April 24, 2026.
+
+**Plan**:
+- Arc 77: Level Abstraction (structural prerequisite) — **COMPLETE** (v0.46.0)
+- Arc 78: Strixhaven Colleges content (user-facing new level) — **NEXT**
+
+**Domain research**: Complete. See `small-arc-studios/roles/domain-expert/notes/strixhaven-colleges-research.md`.
+
+### Arc 77: Level Abstraction — COMPLETE (v0.46.0, 2026-04-11)
+
+Replaced hardcoded parallel maps with a data-driven `LEVELS` array. New file `src/levels.ts` is the single source of truth. `slides.ts`, `session.ts`, `guild-columns.ts`, and `end.ts` all simplified. 48/48 Playwright checks passed. Honeycomb confirmed `app.version = 0.46.0`. Decisions DEC-266 through DEC-269.
+
+Adding Arc 78 (Strixhaven colleges) is now a ~3-file change instead of ~10.
+
+---
+
+## Previous Status (2026-04-08)
 
 ### Arcs 73–76 COMPLETE — Example Deck, Test Affordances, Contrast Check, Screenshot-Diff Contrast Technique
 

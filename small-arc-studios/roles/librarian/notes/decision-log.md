@@ -2174,6 +2174,38 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Rationale**: A contrast tool that produces inaccessible output would be embarrassing and would undermine trust in its findings. Self-checking the report is both a quality gate and a demonstration that the tool works correctly. After fixes, the meta-test showed 370 elements, all passing.
 - **Process**: `npm run test:contrast-diff` should be run against `tests/contrast-report.html` after any changes to the report template.
 
+## DEC-266: GuildSubgroup Stays an Explicit Union Type
+- **Date**: 2026-04-11
+- **Arc**: 77 (Level Abstraction)
+- **Decision**: `GuildSubgroup` remains a hand-written union type (`'guild-allied' | 'guild-enemy' | 'wedges' | 'shards'`) rather than being derived from the `LEVELS` array.
+- **Context**: TypeScript cannot narrow `as const` through object arrays when fields have non-literal types. Attempting to derive `GuildSubgroup` from `LEVELS` via template literal or mapped types produced inference that resolved to `string` rather than the desired union.
+- **Rationale**: The explicit union preserves exhaustiveness checking in switch statements and type safety throughout the codebase. The minor duplication (four strings appear in both the type and the array) is the correct tradeoff.
+
+## DEC-267: Column Builders Stay as Separate Functions, Registered via UILevelDefinition
+- **Date**: 2026-04-11
+- **Arc**: 77 (Level Abstraction)
+- **Decision**: Each level's column-building logic remains as a dedicated function (e.g., `buildAlliedColumn`, `buildEnemyColumn`) but is now registered on `UILevelDefinition` as a `buildColumn` property instead of being called through a switch.
+- **Context**: The column builders have genuinely different visualization logic (allied pentagon wheel, enemy star wheel, wedge/shard layouts). Collapsing them into a single function would conflate distinct responsibilities.
+- **Rationale**: Registration via UILevelDefinition is the right abstraction: the data-driven iteration stays clean, and the visualization differences stay explicit. This is the registry pattern applied to the UI layer.
+
+## DEC-268: showSessionEndColumns Calls isSubgroupUnlocked Internally (Option C)
+- **Date**: 2026-04-11
+- **Arc**: 77 (Level Abstraction)
+- **Decision**: `showSessionEndColumns()` calls `isSubgroupUnlocked()` internally for each level rather than receiving 4 separate boolean flags as arguments.
+- **Context**: The original signature was `showSessionEndColumns(alliedDone, enemyDone, wedgesDone, shardsDone)` — a parallel array of booleans that had to be kept in sync with the LEVELS array. The Architect proposed Option C: collapse them into one internal lookup.
+- **Alternatives considered**:
+  - Option A: Keep 4 booleans (rejected — brittle, won't scale to Strixhaven)
+  - Option B: Pass a map of subgroup→boolean (better, but still caller's responsibility)
+  - Option C: Internal lookup (chosen — encapsulates the knowledge of what needs checking)
+- **Rationale**: Encapsulation. The call site in `end.ts` now passes only the current subgroup; `showSessionEndColumns` knows what to check. Adding a new level requires no changes to the call site.
+
+## DEC-269: levels.ts Has No UI Imports — Circular Dependency Avoided by Layer Split
+- **Date**: 2026-04-11
+- **Arc**: 77 (Level Abstraction)
+- **Decision**: `src/levels.ts` imports nothing from UI modules. `LevelDefinition` (data shape, lives in levels.ts) is separate from `UILevelDefinition` (UI-extended shape, lives in guild-columns.ts).
+- **Context**: An early draft of the refactor put both types in levels.ts. This would have created a circular dependency: levels.ts → guild-columns.ts → levels.ts.
+- **Rationale**: Proper layering. Domain data (`levels.ts`) has no dependency on presentation (`guild-columns.ts`). Presentation extends the domain type locally. This is standard dependency-inversion practice and keeps `levels.ts` importable from any module without risk.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

@@ -765,6 +765,24 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 
 ---
 
+## Strixhaven Colleges Engagement (Arcs 77–78+)
+
+### Arc 77: Level Abstraction — COMPLETE (v0.46.0, 2026-04-11)
+- **Type**: Structural
+- **Goal**: Replace hardcoded parallel maps with a data-driven LEVELS array so new levels (starting with Strixhaven colleges) can be added or reordered with minimal code changes. This is Arc 1 of the Strixhaven Colleges engagement.
+- **What was built**:
+  - `src/levels.ts` — new file, single source of truth. Defines `GuildSubgroup` union type, `LevelDefinition` interface (id, title, subtitle, pool, nextId), and `LEVELS` array covering all six current levels (guild-allied, guild-enemy, wedges, shards, plus the two guild unlock levels).
+  - `src/session.ts` — re-exports `GuildSubgroup`, uses `LEVELS.find()` for pool lookup instead of a hardcoded map.
+  - `src/slides.ts` — removed 4 parallel maps (`levelNumberMap`, `subtitleMap`, `comboPoolMap`, `nextSubgroupMap`); all derived from LEVELS array at runtime.
+  - `src/ui/guild-columns.ts` — introduced `UILevelDefinition` (extends `LevelDefinition` with a `buildColumn` function); `showSessionEndColumns` now iterates `UI_LEVELS` and takes 4 arguments (down from 8); calls `isSubgroupUnlocked()` internally.
+  - `src/end.ts` — simplified; no longer passes 4 separate boolean flags.
+  - Version bumped to 0.46.0 in `src/version.ts`.
+- **Key decisions**: DEC-266, DEC-267, DEC-268, DEC-269
+- **Verification**: 48/48 Playwright checks passed. Honeycomb traces confirmed `app.version = 0.46.0`.
+- **Impact**: Adding a new level (Arc 78) is now a ~3-file change instead of ~10.
+
+---
+
 ## Screenshot-Diff Contrast Technique (Arc 76, 2026-04-08)
 
 ### Arc 76: Screenshot-Diff Contrast Technique — COMPLETE (internal product, 2026-04-08)
