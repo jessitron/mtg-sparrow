@@ -115,10 +115,11 @@ function endSessionSpan(actualCount: number): void {
 
 async function navigateToAssessment(actualCount: number): Promise<void> {
   if (!session) return;
+  const currentSession = session;
 
   // Record progression while session span is still open
-  if (session.completed) {
-    const currentIndex = LEVELS.findIndex(l => l.id === session.subgroup);
+  if (currentSession.completed) {
+    const currentIndex = LEVELS.findIndex(l => l.id === currentSession.subgroup);
     const nextSubgroup = currentIndex >= 0 && currentIndex < LEVELS.length - 1
       ? LEVELS[currentIndex + 1].id
       : null;
@@ -131,7 +132,7 @@ async function navigateToAssessment(actualCount: number): Promise<void> {
       }
     }
   }
-  markSubgroupCompleted(session.subgroup);
+  markSubgroupCompleted(currentSession.subgroup);
 
   // End session span (no self_assessment — that belongs to assessment page)
   endSessionSpan(actualCount);
@@ -140,7 +141,7 @@ async function navigateToAssessment(actualCount: number): Promise<void> {
   await flushSpans();
 
   // Navigate to assessment page
-  window.location.href = `assessment?subgroup=${session.subgroup}&cards=${actualCount}&completed=${session.completed}`;
+  window.location.href = `assessment?subgroup=${currentSession.subgroup}&cards=${actualCount}&completed=${currentSession.completed}`;
 }
 
 function stopSession(): void {
@@ -180,7 +181,8 @@ function buildSessionUI(): void {
   const namesRow = document.createElement('div');
   namesRow.classList.add('footer-names');
 
-  const comboNames = comboPoolMap[session.subgroup].map(c => c.name).join(' \u00B7 ');
+  const sessionLevel = LEVELS.find(l => l.id === session!.subgroup);
+  const comboNames = (sessionLevel?.pool ?? []).map(c => c.name).join(' \u00B7 ');
   const namesText = document.createElement('span');
   namesText.classList.add('footer-names-text');
   namesText.textContent = comboNames;

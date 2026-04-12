@@ -1,6 +1,6 @@
 import { ColorCombo, CardReference } from './data/combos';
 import { buildDeck, Familiarity } from './sparrow-deck';
-import { LEVELS } from './levels';
+import { LEVELS, GuildSubgroup } from './levels';
 
 export type { GuildSubgroup } from './levels';
 
