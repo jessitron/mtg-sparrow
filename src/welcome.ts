@@ -6,6 +6,7 @@ import { setFeedbackContextProvider } from './ui/feedback';
 import { wireSoundToggle } from './ui/sound-toggle';
 import { getUnlockedSubgroups } from './progression';
 import { initDebugMode, isDebugMode } from './debug';
+import { LEVELS } from './levels';
 
 let welcomeScreenLoadTime = 0;
 
@@ -49,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
       pageSpan.setAttribute('welcome.dwell_ms', dwellMs);
       endSpan(pageSpan);
       flushSpans();
-      window.location.href = `slides?subgroup=allied&from=welcome&welcome_dwell_ms=${dwellMs}`;
+      window.location.href = `slides?subgroup=${LEVELS[0].id}&from=welcome&welcome_dwell_ms=${dwellMs}`;
     });
   });
 
