@@ -48,9 +48,9 @@ Add a `GuildDescription` entry for each combo:
 ```typescript
 {
   id: "lorehold",  // must match ColorCombo.id
-  description: "3-5 sentences of philosophy and flavor.",
+  description: "3-5 sentences of philosophy and flavor. Include guild/college comparisons here if the new combos share colors with existing ones — those contrasts help players learn.",
   scryfallUrl: "https://scryfall.com/search?q=...",
-  flavor: "Optional editorial commentary from the client.",
+  flavor: "Optional editorial commentary — CLIENT ONLY. Do not generate flavor text. The 'flavor' field uses first person ('I') and is the client's personal voice. Leave it empty; the client will add it by hand.",
   exampleDecks: [  // optional
     {
       commander: "Commander Name",
