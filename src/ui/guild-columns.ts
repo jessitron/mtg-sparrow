@@ -3,8 +3,9 @@ import { alliedGuilds, enemyGuilds, wedges, shards, ColorCombo } from '../data/c
 import { guildDescriptionMap } from '../data/guild-descriptions';
 import { Span } from '@opentelemetry/api';
 import { startChildSpan, endSpan, emitLog, getSessionId, startSpan } from '../telemetry/telemetry';
-import { hasCompletedSubgroup } from '../progression';
+import { hasCompletedSubgroup, isSubgroupUnlocked } from '../progression';
 import { GuildSubgroup } from '../session';
+import { LEVELS, LevelDefinition } from '../levels';
 
 // Mutable ref so hover handlers always use the current section span
 type SpanRef = { current: Span };
@@ -910,7 +911,23 @@ function reelSpinTo(
   });
 }
 
-const SECTION_LABELS = ['allied', 'enemy', 'wedges', 'shards', 'share'];
+interface UILevelDefinition extends LevelDefinition {
+  buildColumn: (
+    unlocked: boolean,
+    onActivate: () => void,
+    sectionSpanRef: SpanRef,
+    startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
+  ) => [HTMLElement, () => void];
+}
+
+const UI_LEVELS: UILevelDefinition[] = [
+  { ...LEVELS[0], buildColumn: buildAlliedColumn },
+  { ...LEVELS[1], buildColumn: buildEnemyColumn },
+  { ...LEVELS[2], buildColumn: buildWedgeColumn },
+  { ...LEVELS[3], buildColumn: buildShardColumn },
+];
+
+const SECTION_LABELS = [...UI_LEVELS.map(l => l.id), 'share'];
 
 function startSectionSpan(pageSpan: Span, index: number): Span {
   return startChildSpan('end.section_view', pageSpan, {
@@ -959,17 +976,12 @@ async function reelAdvance(
 /** Returns a cleanup function that ends the current section span. */
 export function showSessionEndColumns(
   app: HTMLElement,
-  alliedUnlocked: boolean,
-  enemyUnlocked: boolean,
-  wedgesUnlocked: boolean,
-  shardsUnlocked: boolean,
   pageSpan: Span,
   startSession: (subgroup: GuildSubgroup, startedFrom: string) => void,
   initialSubgroup?: GuildSubgroup,
 ): () => void {
-  const initialIndex = initialSubgroup === 'enemy' ? 1
-    : initialSubgroup === 'wedges' ? 2
-    : initialSubgroup === 'shards' ? 3
+  const initialIndex = initialSubgroup
+    ? Math.max(0, UI_LEVELS.findIndex(l => l.id === initialSubgroup))
     : 0;
   reelIndex = initialIndex;
 
@@ -985,20 +997,16 @@ export function showSessionEndColumns(
   const sectionSpanRef: SpanRef = { current: startSectionSpan(pageSpan, initialIndex) };
 
   // Placeholders for cross-column clear functions; filled in after all columns are built
-  let clearAllied = () => {};
-  let clearEnemy = () => {};
-  let clearWedge = () => {};
-  let clearShard = () => {};
+  const clearFns: (() => void)[] = new Array(UI_LEVELS.length).fill(() => {});
 
-  const [alliedCol, clearAlliedFn] = buildAlliedColumn(alliedUnlocked, () => { clearEnemy(); clearWedge(); clearShard(); }, sectionSpanRef, startSession);
-  const [enemyCol, clearEnemyFn] = buildEnemyColumn(enemyUnlocked, () => { clearAllied(); clearWedge(); clearShard(); }, sectionSpanRef, startSession);
-  const [wedgeCol, clearWedgeFn] = buildWedgeColumn(wedgesUnlocked, () => { clearAllied(); clearEnemy(); clearShard(); }, sectionSpanRef, startSession);
-  const [shardCol, clearShardFn] = buildShardColumn(shardsUnlocked, () => { clearAllied(); clearEnemy(); clearWedge(); }, sectionSpanRef, startSession);
+  const levelCols = UI_LEVELS.map((level, i) => {
+    const unlocked = isSubgroupUnlocked(level.id);
+    const onActivate = () => clearFns.forEach((fn, j) => { if (j !== i) fn(); });
+    const [el, clearFn] = level.buildColumn(unlocked, onActivate, sectionSpanRef, startSession);
+    return { el, clearFn };
+  });
 
-  clearAllied = clearAlliedFn;
-  clearEnemy = clearEnemyFn;
-  clearWedge = clearWedgeFn;
-  clearShard = clearShardFn;
+  levelCols.forEach(({ clearFn }, i) => { clearFns[i] = clearFn; });
 
   // Build share section
   const shareSection = document.createElement('div');
@@ -1036,7 +1044,7 @@ export function showSessionEndColumns(
   shareSection.appendChild(shareBtn);
 
   // Build reel structure: viewport clips to one section, reel translates
-  const sections = [alliedCol, enemyCol, wedgeCol, shardCol, shareSection];
+  const sections = [...levelCols.map(c => c.el), shareSection];
 
   const reel = document.createElement('div');
   reel.classList.add('level-sections-reel');
@@ -1152,10 +1160,7 @@ export function showSessionEndColumns(
 
   // Clicking anywhere that isn't a line or guild item clears all selections.
   document.addEventListener('click', () => {
-    clearAllied();
-    clearEnemy();
-    clearWedge();
-    clearShard();
+    clearFns.forEach(fn => fn());
   });
 
   app.appendChild(topBtn);
