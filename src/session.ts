@@ -1,5 +1,8 @@
-import { ColorCombo, CardReference, alliedGuilds, enemyGuilds, wedges, shards } from './data/combos';
+import { ColorCombo, CardReference } from './data/combos';
 import { buildDeck, Familiarity } from './sparrow-deck';
+import { LEVELS } from './levels';
+
+export type { GuildSubgroup } from './levels';
 
 export type Slide = ColorCombo & { selectedCard?: CardReference };
 
@@ -7,8 +10,6 @@ export type Slide = ColorCombo & { selectedCard?: CardReference };
 export const SESSION_CARD_COUNT = 25;
 export const REVEAL_DELAY_MS = 3000;   // Time pips show before name fades in
 export const ADVANCE_DELAY_MS = 2000;  // Time name stays visible before next card
-
-export type GuildSubgroup = "allied" | "enemy" | "wedges" | "shards";
 
 export type SessionState = {
   deck: Slide[];
@@ -20,13 +21,7 @@ export type SessionState = {
 };
 
 export function createSession(subgroup: GuildSubgroup = "allied", familiarity: Familiarity = 'new'): SessionState {
-  const poolMap: Record<GuildSubgroup, typeof alliedGuilds> = {
-    allied: alliedGuilds,
-    enemy: enemyGuilds,
-    wedges,
-    shards,
-  };
-  const pool = poolMap[subgroup];
+  const pool = LEVELS.find(l => l.id === subgroup)!.pool;
   const deck = buildDeck(pool, SESSION_CARD_COUNT, familiarity);
   return {
     deck,
