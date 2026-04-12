@@ -11,7 +11,8 @@ import {
   REVEAL_DELAY_MS,
   ADVANCE_DELAY_MS,
 } from './session';
-import { colorEmojiMap, alliedGuilds, enemyGuilds, wedges, shards } from './data/combos';
+import { colorEmojiMap } from './data/combos';
+import { LEVELS } from './levels';
 import { isSubgroupUnlocked, markSubgroupUnlocked, markSubgroupCompleted, getUnlockedSubgroups } from './progression';
 import { getAssessment } from './self-assessment-store';
 import { Familiarity } from './sparrow-deck';
@@ -117,13 +118,10 @@ async function navigateToAssessment(actualCount: number): Promise<void> {
 
   // Record progression while session span is still open
   if (session.completed) {
-    const nextSubgroupMap: Record<GuildSubgroup, GuildSubgroup | null> = {
-      allied:  'enemy',
-      enemy:   'wedges',
-      wedges:  'shards',
-      shards:  null,
-    };
-    const nextSubgroup = nextSubgroupMap[session.subgroup];
+    const currentIndex = LEVELS.findIndex(l => l.id === session.subgroup);
+    const nextSubgroup = currentIndex >= 0 && currentIndex < LEVELS.length - 1
+      ? LEVELS[currentIndex + 1].id
+      : null;
     if (nextSubgroup !== null) {
       const justUnlocked = markSubgroupUnlocked(nextSubgroup);
       if (justUnlocked) {
@@ -602,34 +600,15 @@ function startSession(subgroup: GuildSubgroup, startedFrom: string, welcomeDwell
   });
 }
 
-const levelNumberMap: Record<GuildSubgroup, number> = {
-  allied: 1,
-  enemy:  2,
-  wedges: 3,
-  shards: 4,
-};
-
-const subtitleMap: Record<GuildSubgroup, string> = {
-  allied: 'Allied Guilds',
-  enemy:  'Enemy Guilds',
-  wedges: 'Wedges',
-  shards: 'Shards',
-};
-
-const comboPoolMap: Record<GuildSubgroup, { name: string }[]> = {
-  allied: alliedGuilds,
-  enemy:  enemyGuilds,
-  wedges: wedges,
-  shards: shards,
-};
-
 function showLevelIntro(subgroup: GuildSubgroup, from: string, welcomeDwellMs: number): void {
   if (!app) return;
 
   const introShowTime = Date.now();
-  const levelNum = levelNumberMap[subgroup];
-  const subtitle = subtitleMap[subgroup];
-  const comboNames = comboPoolMap[subgroup].map(c => c.name).join(' · ');
+  const levelIndex = LEVELS.findIndex(l => l.id === subgroup);
+  const levelNum = levelIndex >= 0 ? levelIndex + 1 : 0;
+  const level = LEVELS[levelIndex];
+  const subtitle = level?.title ?? subgroup;
+  const comboNames = (level?.pool ?? []).map(c => c.name).join(' · ');
   const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
   const ctaText = isTouchDevice ? 'tap to begin' : 'tap anywhere · or press space';
 
