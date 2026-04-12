@@ -8,7 +8,7 @@ export type ColorCombo = {
   id: string;
   name: string;
   colors: string[];
-  tier: "guild" | "shard" | "wedge";
+  tier: "guild" | "shard" | "wedge" | "college";
   subgroup?: "allied" | "enemy";
   cards?: CardReference[];
 };
@@ -22,6 +22,118 @@ export const colorEmojiMap: Record<string, string> = {
 };
 
 export const guilds: ColorCombo[] = [
+  // Strixhaven Colleges (enemy color pairs, academic focus)
+  {
+    id: "silverquill", name: "Silverquill", colors: ["W", "B"], tier: "college",
+    cards: [
+      { name: "Shadrix Silverquill", imageUrl: "https://cards.scryfall.io/normal/front/b/e/be7a42a3-e55e-483a-9c77-6e59b0df9f1b.jpg?1624742513" },
+      { name: "Silverquill Command", imageUrl: "https://cards.scryfall.io/normal/front/5/e/5e5d67b5-a0d0-4144-9598-56fed88f8c80.jpg?1624741987" },
+      { name: "Silverquill Silencer", imageUrl: "https://cards.scryfall.io/normal/front/a/3/a330ca85-9716-4f27-8b60-3bab5d8bd6af.jpg?1624742100" },
+      { name: "Killian, Ink Duelist", imageUrl: "https://cards.scryfall.io/normal/front/1/f/1fc2f7e8-60a3-4222-af44-f91bd70a9e3e.jpg?1624741829" },
+      { name: "Silverquill Pledgemage", imageUrl: "https://cards.scryfall.io/normal/front/e/6/e6b3e4cf-7a5a-40d3-b33e-3b6c8f0ce3eb.jpg?1624742076" },
+      { name: "Silverquill Apprentice", imageUrl: "https://cards.scryfall.io/normal/front/3/4/34b93b2d-0498-446d-b7e4-7c0f62d7cfee.jpg?1624742005" },
+      { name: "Inkshield", imageUrl: "https://cards.scryfall.io/normal/front/a/7/a79e01bb-ce82-4dbb-b5d3-40e1bb8dfe31.jpg?1624741778" },
+      { name: "Poet's Quill", imageUrl: "https://cards.scryfall.io/normal/front/0/1/015eec59-3b3c-48df-99e2-0f32e6c6c060.jpg?1624741924" },
+      { name: "Humiliate", imageUrl: "https://cards.scryfall.io/normal/front/7/5/75d3a8a3-caab-4f3b-aac1-3e4d24c65a6a.jpg?1624741775" },
+      { name: "Inkling Summoning", imageUrl: "https://cards.scryfall.io/normal/front/0/a/0a7e7bde-96c7-4523-a3f2-9c08b1d10c83.jpg?1624741790" },
+      { name: "Professor Onyx", imageUrl: "https://cards.scryfall.io/normal/front/c/3/c30c7da4-5e45-47e6-b6c3-e70e6b49f8ad.jpg?1640795753" },
+      { name: "Vanishing Verse", imageUrl: "https://cards.scryfall.io/normal/front/3/0/30b7f461-1464-4bce-8313-a2c9be94f4cc.jpg?1624742152" },
+      { name: "Witherbloom Apprentice", flavor: "A Witherbloom student in a Silverquill card? Only in Strixhaven.", imageUrl: "https://cards.scryfall.io/normal/front/1/9/1934d7c5-9b37-4e82-8a5e-f46dab78c038.jpg?1624742177" },
+      { name: "Expressive Iteration", imageUrl: "https://cards.scryfall.io/normal/front/4/5/45e92d69-0684-4a57-8c1c-bbf742bd8a23.jpg?1743207125" },
+      { name: "Silverquill Campus", imageUrl: "https://cards.scryfall.io/normal/front/f/b/fb0c3b74-3a47-4fe3-a3ef-d7ec05abff96.jpg?1624742327" },
+      { name: "Plumb the Forbidden", imageUrl: "https://cards.scryfall.io/normal/front/0/f/0f35cdf2-0b41-43e7-9060-f1f1c64f1ba1.jpg?1624741931" },
+      { name: "Show of Confidence", imageUrl: "https://cards.scryfall.io/normal/front/a/9/a97fe978-0dce-4a0a-a70e-7c3a92254e48.jpg?1624742074" },
+    ],
+  },
+  {
+    id: "prismari", name: "Prismari", colors: ["U", "R"], tier: "college",
+    cards: [
+      { name: "Galazeth Prismari", imageUrl: "https://cards.scryfall.io/normal/front/3/2/3258a9d2-c3f7-4516-8c29-b72f3ffb4b72.jpg?1624741697" },
+      { name: "Prismari Command", imageUrl: "https://cards.scryfall.io/normal/front/1/5/15e291f4-068a-441c-8b43-05055199aca4.jpg?1743207195" },
+      { name: "Rootha, Mercurial Artist", imageUrl: "https://cards.scryfall.io/normal/front/b/9/b97e6c59-eda6-41bf-9e5f-f9e64a0a1d7b.jpg?1624741965" },
+      { name: "Elemental Masterpiece", imageUrl: "https://cards.scryfall.io/normal/front/3/a/3ae8b2ff-0fe9-490e-8ea1-51f5bede1dc6.jpg?1624741673" },
+      { name: "Prismari Pledgemage", imageUrl: "https://cards.scryfall.io/normal/front/9/d/9da97a36-5c66-466b-97b2-9cb77b8e23ef.jpg?1624741960" },
+      { name: "Prismari Apprentice", imageUrl: "https://cards.scryfall.io/normal/front/1/9/19c8a34b-9073-4e91-aa1e-d0f0ec3c7c6a.jpg?1624741945" },
+      { name: "Creative Outburst", imageUrl: "https://cards.scryfall.io/normal/front/f/0/f07a75f9-0888-4bc4-8adf-e23abef5dada.jpg?1624741643" },
+      { name: "Expressive Iteration", imageUrl: "https://cards.scryfall.io/normal/front/4/5/45e92d69-0684-4a57-8c1c-bbf742bd8a23.jpg?1743207125" },
+      { name: "Dramatic Finale", imageUrl: "https://cards.scryfall.io/normal/front/3/7/37a7ee35-cce0-4625-b434-ce59df64daeb.jpg?1624741667" },
+      { name: "Prismari Campus", imageUrl: "https://cards.scryfall.io/normal/front/f/b/fb2a42b0-8d4f-4e74-be7a-65e2a3c9c7aa.jpg?1624742323" },
+      { name: "Heated Debate", imageUrl: "https://cards.scryfall.io/normal/front/5/6/56fe45ab-0fe3-412e-8aad-85bbb7e94bcd.jpg?1624741754" },
+      { name: "Mizzix's Mastery", imageUrl: "https://cards.scryfall.io/normal/front/2/1/21cbf0c9-4041-4818-9f62-ce1e0c5fb54c.jpg?1673148954" },
+      { name: "Solve the Equation", imageUrl: "https://cards.scryfall.io/normal/front/7/2/72e7f2f5-0b32-4f2f-a6e0-ed93bfd97bc9.jpg?1624742084" },
+      { name: "Mentor's Guidance", imageUrl: "https://cards.scryfall.io/normal/front/2/8/28a4e7e0-6e40-4600-8c5c-37d78e5e5c0a.jpg?1624741896" },
+      { name: "Serpentine Curve", imageUrl: "https://cards.scryfall.io/normal/front/7/3/73e4b8c6-8cf4-45f9-a3d5-7f66a4d2c0ea.jpg?1624742063" },
+      { name: "Teach by Example", imageUrl: "https://cards.scryfall.io/normal/front/5/a/5ac38f9e-7f36-41e3-94ac-24bf57b5f77f.jpg?1624742134" },
+      { name: "Quandrix Apprentice", flavor: "A Quandrix student visiting Prismari? Campus life at its finest.", imageUrl: "https://cards.scryfall.io/normal/front/4/e/4e16e875-e82f-4e14-8ff5-cf0b4e1e9867.jpg?1624741968" },
+    ],
+  },
+  {
+    id: "witherbloom", name: "Witherbloom", colors: ["B", "G"], tier: "college",
+    cards: [
+      { name: "Beledros Witherbloom", imageUrl: "https://cards.scryfall.io/normal/front/b/1/b1a2c46f-7baf-4c06-b50b-6fb5f6c51ab0.jpg?1624741621" },
+      { name: "Witherbloom Command", imageUrl: "https://cards.scryfall.io/normal/front/0/6/06df6da6-89f5-4cd1-be66-d66b28af2b64.jpg?1624742175" },
+      { name: "Dina, Soul Steeper", imageUrl: "https://cards.scryfall.io/normal/front/1/9/1934d7c5-9b37-4e82-8a5e-f46dab78c038.jpg?1624742177" },
+      { name: "Witherbloom Pledgemage", imageUrl: "https://cards.scryfall.io/normal/front/a/b/ab2e6c31-72ca-4a59-8e63-97b3e0d773d4.jpg?1624742186" },
+      { name: "Witherbloom Apprentice", imageUrl: "https://cards.scryfall.io/normal/front/1/9/1934d7c5-9b37-4e82-8a5e-f46dab78c038.jpg?1624742177" },
+      { name: "Mortality Spear", imageUrl: "https://cards.scryfall.io/normal/front/d/0/d0d35f40-8fa3-4ab1-8e33-3fe474c2c69a.jpg?1624741905" },
+      { name: "Tend the Pests", imageUrl: "https://cards.scryfall.io/normal/front/9/4/9465e1c1-f5a0-4bab-840e-7879c4b0bb67.jpg?1624742135" },
+      { name: "Witherbloom Campus", imageUrl: "https://cards.scryfall.io/normal/front/2/1/2189949a-e63c-4e84-ba99-a8b9bbd74879.jpg?1624742335" },
+      { name: "Pest Summoning", imageUrl: "https://cards.scryfall.io/normal/front/2/1/21b4e80e-14f6-4f2c-8899-2a98e8b19ec0.jpg?1624741919" },
+      { name: "Sedgemoor Witch", imageUrl: "https://cards.scryfall.io/normal/front/f/5/f5a5ab3b-24ae-4af7-ba33-c4db62b98ade.jpg?1624742020" },
+      { name: "Basic Conjuration", imageUrl: "https://cards.scryfall.io/normal/front/9/8/985d7b9a-c0c5-48dc-8abb-7fca18c1be27.jpg?1624741613" },
+      { name: "Approached from Below", imageUrl: "https://cards.scryfall.io/normal/front/d/3/d369cc0d-7012-4a27-a7e8-f8b12e5e4028.jpg?1624741602" },
+      { name: "Culling Ritual", imageUrl: "https://cards.scryfall.io/normal/front/9/0/9014e3e0-3a67-4d6a-b6dc-d94b2e07e67a.jpg?1624741651" },
+      { name: "Springmane Cervin", imageUrl: "https://cards.scryfall.io/normal/front/c/6/c6b9e30a-a02e-4699-aa5e-9bb4c4a48929.jpg?1624742101" },
+      { name: "Biomathematician", imageUrl: "https://cards.scryfall.io/normal/front/f/7/f7d55162-9756-43de-9ccc-3db89e9099a7.jpg?1624741624" },
+      { name: "Hunt for Specimens", imageUrl: "https://cards.scryfall.io/normal/front/0/2/02e26440-1af8-46be-b88a-a6beb0fb7e99.jpg?1624741777" },
+      { name: "Necrotic Fumes", imageUrl: "https://cards.scryfall.io/normal/front/1/d/1d7d4d04-78d9-4a7e-b11e-fd5d0d2c0dc6.jpg?1624741908" },
+    ],
+  },
+  {
+    id: "lorehold", name: "Lorehold", colors: ["R", "W"], tier: "college",
+    cards: [
+      { name: "Velomachus Lorehold", imageUrl: "https://cards.scryfall.io/normal/front/c/2/c204bb1b-9e1f-42d1-96ae-f79c3e26cfe7.jpg?1624742148" },
+      { name: "Lorehold Command", imageUrl: "https://cards.scryfall.io/normal/front/1/f/1fbf0516-e6f8-4e08-b3c0-47543ef8d820.jpg?1624741856" },
+      { name: "Quintorius, Field Historian", imageUrl: "https://cards.scryfall.io/normal/front/8/0/803e33c1-3e8d-4fd2-877b-e4cde22bb46f.jpg?1624741974" },
+      { name: "Lorehold Pledgemage", imageUrl: "https://cards.scryfall.io/normal/front/f/7/f7c9f10e-e2c1-4f22-be4a-f6fcc8cf53b4.jpg?1624741869" },
+      { name: "Lorehold Apprentice", imageUrl: "https://cards.scryfall.io/normal/front/a/8/a8e5f15d-92ad-430f-8bec-a4c1f08ce1c3.jpg?1624741852" },
+      { name: "Reconstruct History", imageUrl: "https://cards.scryfall.io/normal/front/6/c/6c4e5f6d-fa5b-42ae-8a61-7f5bcfe7eeab.jpg?1624741988" },
+      { name: "Reckless Amplimancer", imageUrl: "https://cards.scryfall.io/normal/front/3/e/3e61b01c-1b37-4da0-869d-90b2c3e63ae8.jpg?1624741985" },
+      { name: "Lorehold Campus", imageUrl: "https://cards.scryfall.io/normal/front/b/8/b8b4f7ae-3c7e-46c6-8bb8-7fa65979fad8.jpg?1624742317" },
+      { name: "Excavation Explosion", imageUrl: "https://cards.scryfall.io/normal/front/e/2/e2ef1db3-0e2f-43b1-b3e1-ec0e8e3f7cd7.jpg?1624741684" },
+      { name: "Study Break", imageUrl: "https://cards.scryfall.io/normal/front/4/7/47bacc93-b2ea-435d-9b01-3ca9b97de4c1.jpg?1624742118" },
+      { name: "Owlin Shieldmage", imageUrl: "https://cards.scryfall.io/normal/front/6/e/6e35f5df-3e81-4059-b35e-a0c17e84abd2.jpg?1624741917" },
+      { name: "Ingenious Mastery", imageUrl: "https://cards.scryfall.io/normal/front/7/5/7506e4d8-be1b-42e2-818a-76429b9e14cb.jpg?1624741779" },
+      { name: "Accumulated Knowledge", imageUrl: "https://cards.scryfall.io/normal/front/6/5/655c28d6-a9e1-432e-8073-bc4e024a37ee.jpg?1562783481" },
+      { name: "Returned Pastcaller", imageUrl: "https://cards.scryfall.io/normal/front/e/d/ed37fe62-d5da-4c4f-8fc1-9e5bae89c625.jpg?1624742003" },
+      { name: "Fractal Summoning", imageUrl: "https://cards.scryfall.io/normal/front/0/c/0c6b5d28-5462-4e68-9a0d-2d61c1fc8c54.jpg?1624741712" },
+      { name: "Fuming Effigy", imageUrl: "https://cards.scryfall.io/normal/front/8/2/82bad5ae-79c1-49e9-a97e-f87649a44696.jpg?1624741717" },
+      { name: "Thunderous Orator", imageUrl: "https://cards.scryfall.io/normal/front/0/0/004f0765-76c5-4f0c-aa96-c0c3d0c26c3f.jpg?1624742142" },
+    ],
+  },
+  {
+    id: "quandrix", name: "Quandrix", colors: ["G", "U"], tier: "college",
+    cards: [
+      { name: "Tanazir Quandrix", imageUrl: "https://cards.scryfall.io/normal/front/0/6/06fa5d33-7f38-41a7-9d71-4b90c14b7c59.jpg?1624742130" },
+      { name: "Quandrix Command", imageUrl: "https://cards.scryfall.io/normal/front/e/d/ed67e47a-0e31-4e52-8ff0-f437e71ee02e.jpg?1624741971" },
+      { name: "Zimone, Quandrix Prodigy", imageUrl: "https://cards.scryfall.io/normal/front/e/4/e4e9d04c-7b5d-4a0b-ae7e-0a6e82fbb0f1.jpg?1624742201" },
+      { name: "Quandrix Pledgemage", imageUrl: "https://cards.scryfall.io/normal/front/f/3/f3ac53de-2b44-4e97-b7c2-7e1f85e0dac8.jpg?1624741977" },
+      { name: "Quandrix Apprentice", imageUrl: "https://cards.scryfall.io/normal/front/4/e/4e16e875-e82f-4e14-8ff5-cf0b4e1e9867.jpg?1624741968" },
+      { name: "Quandrix Cultivator", imageUrl: "https://cards.scryfall.io/normal/front/9/b/9b3b5b28-c8e8-4c7f-a6ff-29d1a1b32aec.jpg?1624741973" },
+      { name: "Eureka Moment", imageUrl: "https://cards.scryfall.io/normal/front/8/5/853a5d23-0e2d-4a37-aaee-14b4a67ccdf8.jpg?1624741685" },
+      { name: "Quandrix Campus", imageUrl: "https://cards.scryfall.io/normal/front/4/6/467c99f8-04c9-43cd-8f7b-89ea2cf9ed06.jpg?1624742321" },
+      { name: "Fractal Summoning", imageUrl: "https://cards.scryfall.io/normal/front/0/c/0c6b5d28-5462-4e68-9a0d-2d61c1fc8c54.jpg?1624741712" },
+      { name: "Ecological Appreciation", imageUrl: "https://cards.scryfall.io/normal/front/6/4/643e9d89-7843-4af4-8df9-4a84a1607462.jpg?1624741671" },
+      { name: "Multiple Choice", imageUrl: "https://cards.scryfall.io/normal/front/9/5/956a7e04-8697-4406-8ee2-d28e12e90b7d.jpg?1624741907" },
+      { name: "Sequence Engine", imageUrl: "https://cards.scryfall.io/normal/front/1/a/1a24af3e-0ad5-4d54-80bf-4e3da8f16d46.jpg?1624742065" },
+      { name: "Square Up", imageUrl: "https://cards.scryfall.io/normal/front/1/b/1b96cccb-c4e6-49be-a0d1-fb9a99f1f87c.jpg?1624742105" },
+      { name: "Leyline Invocation", imageUrl: "https://cards.scryfall.io/normal/front/0/d/0df4f4f4-5b23-48b0-9d57-5f7c24b7f9f4.jpg?1624741843" },
+      { name: "Paradox Zone", imageUrl: "https://cards.scryfall.io/normal/front/2/d/2da98ecd-5ab5-4494-a940-24f17ef51c3b.jpg?1624741918" },
+      { name: "Solve the Equation", imageUrl: "https://cards.scryfall.io/normal/front/7/2/72e7f2f5-0b32-4f2f-a6e0-ed93bfd97bc9.jpg?1624742084" },
+      { name: "Wandering Archaic", imageUrl: "https://cards.scryfall.io/normal/front/e/3/e3ba6a4d-1e5e-4f5c-be7c-75d3d15bf4a8.jpg?1624742158" },
+    ],
+  },
+
   // Allied guilds
   {
     id: "azorius", name: "Azorius", colors: ["W", "U"], tier: "guild", subgroup: "allied",
@@ -534,6 +646,7 @@ export const guilds: ColorCombo[] = [
   },
 ];
 
+export const colleges = guilds.filter(g => g.tier === "college");
 export const alliedGuilds = guilds.filter(g => g.subgroup === "allied");
 export const enemyGuilds = guilds.filter(g => g.subgroup === "enemy");
 export const wedges = guilds.filter(g => g.tier === "wedge");
