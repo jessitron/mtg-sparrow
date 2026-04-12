@@ -1,6 +1,6 @@
-import { ColorCombo, alliedGuilds, enemyGuilds, wedges, shards } from './data/combos';
+import { ColorCombo, colleges, alliedGuilds, enemyGuilds, wedges, shards } from './data/combos';
 
-export type GuildSubgroup = 'allied' | 'enemy' | 'wedges' | 'shards';
+export type GuildSubgroup = 'allied' | 'enemy' | 'wedges' | 'shards' | 'colleges';
 
 export interface LevelDefinition {
   id: GuildSubgroup;
@@ -10,6 +10,12 @@ export interface LevelDefinition {
 }
 
 export const LEVELS: LevelDefinition[] = [
+  {
+    id: 'colleges',
+    title: 'Strixhaven Colleges',
+    description: 'Five magical schools, each built on the tension between two enemy colors.',
+    pool: colleges,
+  },
   {
     id: 'allied',
     title: 'Allied Guilds',
