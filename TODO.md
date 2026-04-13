@@ -1,7 +1,10 @@
 # Client notes
 
+- for the client: edit the descriptions of the colleges. Shorten and customize them.
+
 ## other
 
+- make the cards on the combo page link to the card on Scryfall.
 - optimizing slide layout
   - on iPad, the slides are not allocating space correctly, it winds up with a scroll bar.
   - on a giant screen (Eric's ultrawide), the slide does not use the available space, not even the available height.
@@ -29,7 +32,7 @@
 - add something to the about page that this site provides info on the color combinations, which links to /combo
 - once per session, send a separate event straight to Honeycomb using the Honeycomb events API. Then when we move to a collector, I'll have an indication of whether the collector is working.
 - On the reference pages, I want the description at the top to be a consistent height, so that the next/prev buttons are in the same place from page to page. This works (on my screen) if we move the flavor out of that box, and down.
-  - currently there's only one combo with flavor (Golgari) and what I want to say would be better as an Example Deck description anyway. but I need a deck to link to. Client: get the current contents of Ygra deck into Archidekt, and link to that.  
+  - currently there's only one combo with flavor (Golgari) and what I want to say would be better as an Example Deck description anyway. but I need a deck to link to. Client: get the current contents of Ygra deck into Archidekt, and link to that.
 
 ## Expanding features
 
