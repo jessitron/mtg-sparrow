@@ -378,7 +378,9 @@ function buildTriangleWheel(
  * @param pairs - the color pairs corresponding to lines in the SVG
  * @param lineClass - CSS class for line groups (e.g. 'ally-line')
  * @param crestId - id of the crest image element within the SVG
+ * @param sectionSpanRef - telemetry span reference
  * @param onActivate - callback invoked when a selection is made (used to clear the sibling column)
+ * @param pairToIdMap - optional override for color-pair → combo-id lookup (e.g. for colleges)
  */
 function wireColorWheelHover(
   col: HTMLElement,
@@ -388,6 +390,7 @@ function wireColorWheelHover(
   crestId: string,
   sectionSpanRef: SpanRef,
   onActivate: () => void = () => {},
+  pairToIdMap?: Record<string, string>,
 ): () => void {
   // Track tap-selected pair for mobile (null = nothing selected)
   let selectedPair: [string, string] | null = null;
@@ -400,7 +403,8 @@ function wireColorWheelHover(
     const lineEl = svg.getElementById(`line-${aId}-${bId}`);
     const nodeA  = svg.getElementById(`node-${aId}`);
     const nodeB  = svg.getElementById(`node-${bId}`);
-    const guildId = colorPairToGuildId[[colorNodeToCode[aId], colorNodeToCode[bId]].sort().join('')];
+    const lookupMap = pairToIdMap ?? colorPairToGuildId;
+    const guildId = lookupMap[[colorNodeToCode[aId], colorNodeToCode[bId]].sort().join('')];
     const listItem = col.querySelector<HTMLElement>(`.level-section-item[data-guild-id="${guildId}"]`);
 
     if (on) {
@@ -506,6 +510,18 @@ function wireAlliedHover(col: HTMLElement, svg: SVGSVGElement, sectionSpanRef: S
 
 function wireEnemyHover(col: HTMLElement, svg: SVGSVGElement, sectionSpanRef: SpanRef, onActivate?: () => void): () => void {
   return wireColorWheelHover(col, svg, enemyPairs, 'enemy-line', 'crest-image-enemy', sectionSpanRef, onActivate);
+}
+
+function wireCollegesHover(col: HTMLElement, svg: SVGSVGElement, sectionSpanRef: SpanRef, onActivate?: () => void): () => void {
+  // Build a college-specific pair-to-ID map so lookups resolve to college IDs (e.g. "silverquill")
+  // rather than the enemy guild IDs that share the same color pairs (e.g. "orzhov").
+  const collegePairToId: Record<string, string> = {};
+  for (const college of colleges) {
+    const key = [...college.colors].sort().join('');
+    collegePairToId[key] = college.id;
+  }
+  // Pass empty string for crestId so getElementById('') returns null and no crest image is shown.
+  return wireColorWheelHover(col, svg, enemyPairs, 'enemy-line', '', sectionSpanRef, onActivate, collegePairToId);
 }
 
 /**
@@ -789,7 +805,7 @@ function buildCollegesColumn(
     col.appendChild(buildFlavorPanel(colleges, 'colleges', sectionSpanRef, startSession));
 
     // Wire bidirectional hover after all panels are in the DOM
-    clearSelection = wireEnemyHover(col, svg, sectionSpanRef, onActivate);
+    clearSelection = wireCollegesHover(col, svg, sectionSpanRef, onActivate);
   } else {
     const btn = document.createElement('button');
     btn.classList.add('next-session-button', 'level-section-button', 'next-session-button--primary');
