@@ -484,7 +484,7 @@ function wireColorWheelHover(
 
   // Wire hover and click on each guild list item
   for (const [aId, bId] of pairs) {
-    const guildId = colorPairToGuildId[[colorNodeToCode[aId], colorNodeToCode[bId]].sort().join('')];
+    const guildId = (pairToIdMap ?? colorPairToGuildId)[[colorNodeToCode[aId], colorNodeToCode[bId]].sort().join('')];
     const listItem = col.querySelector<HTMLElement>(`[data-guild-id="${guildId}"]`);
     if (!listItem) continue;
     listItem.addEventListener('mouseenter', () => {
