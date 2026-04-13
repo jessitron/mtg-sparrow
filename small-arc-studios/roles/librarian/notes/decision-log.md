@@ -2236,6 +2236,14 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Alternatives considered**: Placing colleges after guilds (LEVELS[4] or [5]) — rejected because new set traffic should hit college content first.
 - **Rationale**: Timely relevance. The LEVELS array can be reordered later once the set launch window passes and guilds should return to the default starting position.
 
+## DEC-274: Custom pairToIdMap Parameter Instead of Adding Colleges to Global Map
+- **Date**: 2026-04-12
+- **Arc**: 79 (Fix Colleges End Page — Descriptions and Crest Lookup)
+- **Decision**: `wireColorWheelHover` was extended with an optional `pairToIdMap` parameter. `wireCollegesHover` builds a college-specific color-pair→id map and passes it, along with an empty crest ID string.
+- **Context**: Colleges share color pairs with enemy guilds — both are enemy color pairs (e.g., WB = Orzhov for guilds, Silverquill for colleges). Adding colleges to the global `colorPairToGuildId` map would overwrite enemy guild entries, breaking enemy guild hover behavior.
+- **Alternatives rejected**: Adding colleges to global map — would require keying by subgroup context, adding significant complexity. Separate hover wiring function without shared infrastructure — more duplication.
+- **Rationale**: The optional parameter is the minimal change that preserves enemy guild behavior and allows colleges to provide their own lookup. The empty crest ID string is an explicit signal that colleges have no crest, not an accidental omission.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

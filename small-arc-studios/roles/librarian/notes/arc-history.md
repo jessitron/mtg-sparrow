@@ -797,6 +797,19 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 - **Verification**: 70/70 Playwright checks passed. Honeycomb traces confirmed `app.version = 0.47.0`.
 - **Follow-up**: Card images currently use original STX set cards since SOS isn't on Scryfall yet. Update with SOS card images after April 24 release.
 
+### Arc 79: Fix Colleges End Page — Descriptions and Crest Lookup — COMPLETE (v0.48.0, 2026-04-12)
+- **Type**: Bug Fix
+- **Goal**: Fix two bugs on the colleges level end page: missing combo descriptions and incorrect guild crest symbols appearing in the color wheel.
+- **Root cause**: `colorPairToGuildId` map in `guild-columns.ts` was built only from `alliedGuilds` and `enemyGuilds`, not `colleges`. Since colleges share color pairs with enemy guilds (both are enemy color pairs), the lookup returned enemy guild IDs (e.g., "orzhov") instead of college IDs (e.g., "silverquill"). This caused (1) descriptions not found — college descriptions are keyed by college ID, not guild ID — and (2) enemy guild crest SVGs appearing in the star center — colleges have no crests.
+- **What was built**:
+  - Added optional `pairToIdMap` parameter to `wireColorWheelHover` for custom pair-to-ID lookups.
+  - Created `wireCollegesHover` function that builds a college-specific pair→id map and passes an empty string as crest ID (colleges have no crest).
+  - Changed `buildCollegesColumn` to call `wireCollegesHover` instead of `wireEnemyHover`.
+  - Version bumped to 0.48.0.
+- **Key decisions**: DEC-274 (custom pairToIdMap param instead of adding colleges to global map)
+- **Files changed**: `src/ui/guild-columns.ts`, `src/version.ts`
+- **Verification**: 24/24 Playwright tests passed. College descriptions appear on hover/click; no crest shown for colleges; enemy guilds still work correctly.
+
 ---
 
 ## Screenshot-Diff Contrast Technique (Arc 76, 2026-04-08)
