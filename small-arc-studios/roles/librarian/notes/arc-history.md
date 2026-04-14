@@ -810,6 +810,21 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 - **Files changed**: `src/ui/guild-columns.ts`, `src/version.ts`
 - **Verification**: 24/24 Playwright tests passed. College descriptions appear on hover/click; no crest shown for colleges; enemy guilds still work correctly.
 
+### Arc 80: Fix Slide Width Leak — Name Stacking — COMPLETE (v0.49.0, 2026-04-13)
+- **Type**: Bug Fix
+- **Goal**: Fix layout width leaking the hidden answer name on the slides page — "Witherbloom" being wider than other college names made the card wider before reveal.
+- **Root cause**: The hidden answer name, though invisible, still participated in layout width, causing the card to be wider when the answer was a long name.
+- **What was built**:
+  - `fillCard()` in `src/ui/render.ts` now accepts a `poolNames` parameter and builds a `.card-name-stack` element with all pool names stacked in the same CSS grid cell (`grid-area: 1/1`)
+  - All names are `visibility: hidden` except the active one
+  - `slides.css` — `.card-name-stack` grid styles with visibility rules
+  - `src/slides.ts` — passes pool names from `LEVELS` to `fillCard()`
+  - Version bumped to 0.49.0
+- **Key decisions**: DEC-275 (stack all pool names in hidden grid cells — self-adjusting, client-proposed)
+- **Files changed**: `src/ui/render.ts`, `slides.css`, `src/slides.ts`, `src/version.ts`
+- **Verification**: 10/10 Playwright checks passed. Card width was 557px on every slide (consistent). Name reveal still works after 3-second delay. Version 0.49.0 confirmed in Honeycomb traces.
+- **Test script**: `tests/arc-080-slide-width.mjs`
+
 ---
 
 ## Screenshot-Diff Contrast Technique (Arc 76, 2026-04-08)

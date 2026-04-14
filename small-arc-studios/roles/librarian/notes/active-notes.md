@@ -4,7 +4,23 @@ Current state, in-progress work, and upcoming arcs.
 
 ---
 
-## Current Status (2026-04-11)
+## Current Status (2026-04-13)
+
+### Arc 80: Fix Slide Width Leak — Name Stacking — COMPLETE (v0.49.0, 2026-04-13)
+
+Bug fix: hidden answer name was affecting layout width on the slides page. "Witherbloom" being wider than other college names made the card wider before reveal, leaking the answer.
+
+Fix: `fillCard()` now accepts `poolNames` and renders all pool names stacked in the same CSS grid cell (`grid-area: 1/1`). All names `visibility: hidden` except active one. Card is always as wide as the widest name in the pool. Client-proposed approach — self-adjusting, no hardcoded widths. DEC-275.
+
+10/10 Playwright checks passed. 557px card width consistent across all slides. Version 0.49.0 confirmed in Honeycomb.
+
+### Open follow-up: Update college card images with SOS cards
+
+Card images currently use original STX set cards (DEC-272). After *Secrets of Strixhaven* releases April 24 and cards appear on Scryfall, update card references in `combos.ts` with SOS cards. Data-only change, no code changes needed.
+
+---
+
+## Previous Status (2026-04-11)
 
 ### Engagement: Strixhaven Colleges — DELIVERED
 
@@ -13,6 +29,8 @@ Current state, in-progress work, and upcoming arcs.
 **Plan**:
 - Arc 77: Level Abstraction (structural prerequisite) — **COMPLETE** (v0.46.0)
 - Arc 78: Strixhaven Colleges Level (user-facing) — **COMPLETE** (v0.47.0)
+- Arc 79: Fix Colleges End Page — **COMPLETE** (v0.48.0)
+- Arc 80: Fix Slide Width Leak — **COMPLETE** (v0.49.0)
 
 **Domain research**: `small-arc-studios/roles/domain-expert/notes/strixhaven-colleges-research.md`
 
@@ -23,10 +41,6 @@ Current state, in-progress work, and upcoming arcs.
 ### Arc 77: Level Abstraction — COMPLETE (v0.46.0, 2026-04-11)
 
 Replaced hardcoded parallel maps with a data-driven `LEVELS` array. New file `src/levels.ts` is the single source of truth. `slides.ts`, `session.ts`, `guild-columns.ts`, and `end.ts` all simplified. 48/48 Playwright checks passed. Honeycomb confirmed `app.version = 0.46.0`. Decisions DEC-266 through DEC-269.
-
-### Open follow-up: Update college card images with SOS cards
-
-Card images currently use original STX set cards (DEC-272). After *Secrets of Strixhaven* releases April 24 and cards appear on Scryfall, update card references in `combos.ts` with SOS cards. Data-only change, no code changes needed.
 
 ---
 

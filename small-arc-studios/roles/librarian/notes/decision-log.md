@@ -2244,6 +2244,13 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Alternatives rejected**: Adding colleges to global map — would require keying by subgroup context, adding significant complexity. Separate hover wiring function without shared infrastructure — more duplication.
 - **Rationale**: The optional parameter is the minimal change that preserves enemy guild behavior and allows colleges to provide their own lookup. The empty crest ID string is an explicit signal that colleges have no crest, not an accidental omission.
 
+## DEC-275: Stack All Pool Names in Hidden Grid Cells for Consistent Slide Width
+- **Date**: 2026-04-13
+- **Arc**: 80 (Fix Slide Width Leak — Name Stacking)
+- **Decision**: All names from the current level's pool are rendered into the card simultaneously, stacked in the same CSS grid cell (`grid-area: 1/1`). All names are `visibility: hidden` except the active one. The card is always as wide as the widest name in the pool.
+- **Context**: The hidden answer name was affecting layout width. "Witherbloom" being wider than other college names made the card wider before reveal, leaking the answer. Alternative approaches considered: fixed widths (fragile — breaks when names change) and collapsing the hidden element (loses size contribution).
+- **Rationale**: Stacking all pool names is self-adjusting — as new levels or names are added, the card automatically sizes to the widest name without any hardcoded values. Client-proposed approach. Elegant because it requires no maintenance.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
