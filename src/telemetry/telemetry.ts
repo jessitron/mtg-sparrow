@@ -133,6 +133,8 @@ export function emitLog(
     body: name,
     attributes: {
       message: name,
+      'page.url': window.location.href,
+      'app.debug': String(isDebugMode()),
       'mtg-sparrow.session.id': sessionId,
       'mtg-sparrow.player.id': playerId,
       ...attributes,
