@@ -20,31 +20,31 @@ export const guildDescriptions: GuildDescription[] = [
   {
     id: "silverquill",
     description:
-      "Silverquill is the magic of words — spoken or written, sharp as a blade or soft as a benediction. Same colors as Orzhov, completely different weapons: Orzhov wants your soul as collateral, Silverquill wants to win the argument. One uses ghosts and debt; the other uses a well-timed rebuttal that ends careers. Ink and light manifest as spells; the pen is not mightier than the sword, it IS the sword. Their culture is fiercely competitive and eloquent, full of debate champions and published poets who treat every argument as a duel.",
+      "Silverquill is the magic of words. Ink and light manifest as spells; the pen IS the sword. Debate champions and published poets treat every argument as a duel. Same colors as Orzhov, completely different weapons: Orzhov wants your soul as collateral, Silverquill wants to win the argument.",
     scryfallUrl: "https://scryfall.com/search?q=set%3Astx+c%3Awb+-is%3Asplit+-is%3Adfc",
   },
   {
     id: "prismari",
     description:
-      "Prismari sees no line between magic and art — elemental power is their medium, and spectacle is the point. Izzet and Prismari are cut from the same Spellslinger cloth — both love casting instants and sorceries in great quantity — but Izzet are mad scientists while Prismari are performance artists. Giant fire tornadoes and choreographed water displays are not byproducts of their magic — they are the magic. Huge, showy, and unapologetic, Prismari instants and sorceries function as paintings. The bigger the mana cost, the grander the artistic statement.",
+      "Prismari sees magic as art — elemental power is their medium, and spectacle is the point. Giant fire tornadoes! Choreographed water displays! The bigger the mana cost, the grander the statement. Izzet and Prismari are both Spellslingers — lots of instants and sorceries — but Izzet are mad scientists while Prismari are performance artists.",
     scryfallUrl: "https://scryfall.com/search?q=set%3Astx+c%3Aur+-is%3Asplit+-is%3Adfc",
   },
   {
     id: "witherbloom",
     description:
-      "Witherbloom studies the interchange between life and death with scholarly rigor and gothic aesthetics. Golgari and Witherbloom share the life/death cycle theme, but Golgari IS the ecosystem — Witherbloom runs experiments on it. Their biomancers drain life to gain it back, sacrifice creatures to fuel healing, and maintain a botanical garden that smells faintly of decay. More laboratory than swamp, more biology department than death cult — though the distinction blurs near exam season. Pests are their mascots: small, morbid, and oddly endearing.",
+      "Witherbloom studies the interchange between life and death with scholarly rigor and a goth aesthetic. Biomancers sacrifice creatures to fuel healing. The distinction between laboratory and death cult blurs near exam season. Pests are a mascot: small, morbid, and oddly endearing. Witherbloom runs experiments on Golgari's life/death ecosystem.",
     scryfallUrl: "https://scryfall.com/search?q=set%3Astx+c%3Abg+-is%3Asplit+-is%3Adfc",
   },
   {
     id: "lorehold",
     description:
-      "Lorehold archaeomancers dig up the past and put it back to work. This is the sharpest guild-vs-college contrast: Boros attacks, Lorehold archives. Think Indiana Jones as a mage — passionate, reckless about history, and definitely going to disturb something that should have stayed buried. Spirit Statues of historical figures walk the campus. Flashback is their mechanic, the past never truly gone. Same colors as Boros; completely opposite momentum.",
+      "Lorehold archaeomancers dig up the past and put it back to work. Think Indiana Jones as a mage. Flashback is their mechanic: the past never truly gone. This is the sharpest guild-vs-college contrast: Boros attacks, Lorehold archives.",
     scryfallUrl: "https://scryfall.com/search?q=set%3Astx+c%3Arw+-is%3Asplit+-is%3Adfc",
   },
   {
     id: "quandrix",
     description:
-      "Quandrix works in the mathematics of reality — fractals, patterns, theoretical systems underlying all of nature. Both Simic and Quandrix grow things with +1/+1 counters, but for completely different reasons: Simic mutates flesh through biological experimentation ('What if this newt had four fins?'), while Quandrix solves equations ('The Fibonacci sequence implies this creature should be this large'). Their students manifest Fractal constructs as creatures, and their magic scales up through mathematical principles. Abstract, brilliant, and occasionally incomprehensible to normal people. Different kinds of terrifying.",
+      "Quandrix works in the mathematics of reality — fractals, patterns, theoretical systems underlying all of nature. Both Simic and Quandrix grow things with +1/+1 counters, but Simic mutates flesh through experimentation ('What if this newt had four fins?'), while Quandrix solves equations ('The Fibonacci sequence implies this next creature should be this large').",
     scryfallUrl: "https://scryfall.com/search?q=set%3Astx+c%3Agu+-is%3Asplit+-is%3Adfc",
   },
 
