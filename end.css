@@ -94,6 +94,44 @@
   );
 }
 
+/* At the top: sharp top edge, faded bottom */
+.level-sections-viewport.at-top {
+  mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 88%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 88%,
+    transparent 100%
+  );
+}
+
+/* At the end: faded top, sharp bottom edge */
+.level-sections-viewport.at-end {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 100%
+  );
+}
+
+/* At both top and end: no fading needed on either edge */
+.level-sections-viewport.at-top.at-end {
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
 /* Reel nav buttons: top (up/Home) and bottom (down/Share) */
 .reel-nav-btn {
   display: block;

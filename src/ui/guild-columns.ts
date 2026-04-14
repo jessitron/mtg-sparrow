@@ -1192,6 +1192,9 @@ export function showSessionEndColumns(
     const atTop = reelIndex <= 0;
     const atEnd = reelIndex >= sections.length - 1;
 
+    viewport.classList.toggle('at-top', atTop);
+    viewport.classList.toggle('at-end', atEnd);
+
     if (atTop) {
       topBtn.classList.add('reel-nav-btn--hidden');
     } else {
