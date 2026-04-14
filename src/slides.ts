@@ -357,7 +357,9 @@ function showCard(): void {
   // Create new card off-screen (opacity 0)
   const oldCard = cardEl;
   const newCard = createCardShell();
-  fillCard(newCard, combo);
+  const sessionLevel = LEVELS.find(l => l.id === session!.subgroup);
+  const poolNames = (sessionLevel?.pool ?? []).map(c => c.name);
+  fillCard(newCard, combo, poolNames);
   cardEl = newCard;
 
   const isFirstCard = !oldCard;

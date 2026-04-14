@@ -60,6 +60,20 @@ html:has(.app--quiz-active) {
   gap: 0.75rem;
 }
 
+/* Stack all pool names in the same grid cell so the widest name sets the width */
+.card-name-stack {
+  display: grid;
+}
+
+.card-name-stack .card-name {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.card-name-stack .card-name[data-active="true"] {
+  visibility: visible;
+}
+
 .card-name {
   font-size: 1.75rem;
   font-weight: 700;

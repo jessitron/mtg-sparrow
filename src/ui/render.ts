@@ -7,7 +7,25 @@ export function createCardShell(): HTMLElement {
   return card;
 }
 
-export function fillCard(card: HTMLElement, slide: Slide): void {
+function buildNameStack(slide: Slide, poolNames: string[]): HTMLElement {
+  const stack = document.createElement('div');
+  stack.classList.add('card-name-stack');
+
+  for (const name of poolNames) {
+    const nameEl = document.createElement('div');
+    nameEl.classList.add('card-name');
+    nameEl.classList.add('card-name-hidden');
+    nameEl.textContent = name;
+    if (name === slide.name) {
+      nameEl.dataset.active = 'true';
+    }
+    stack.appendChild(nameEl);
+  }
+
+  return stack;
+}
+
+export function fillCard(card: HTMLElement, slide: Slide, poolNames: string[]): void {
   const newChildren: HTMLElement[] = [];
 
   if (slide.selectedCard) {
@@ -31,17 +49,11 @@ export function fillCard(card: HTMLElement, slide: Slide): void {
     imgCol.appendChild(img);
     newChildren.push(imgCol);
 
-    // Right column: pips + name
+    // Right column: pips + name stack
     const quizCol = document.createElement('div');
     quizCol.classList.add('card-quiz-column');
     quizCol.appendChild(renderPips(slide.colors));
-
-    const name = document.createElement('div');
-    name.classList.add('card-name');
-    name.classList.add('card-name-hidden');
-    name.textContent = slide.name;
-    quizCol.appendChild(name);
-
+    quizCol.appendChild(buildNameStack(slide, poolNames));
     newChildren.push(quizCol);
   } else {
     // Toggle class before replaceChildren so layout only recalculates once
@@ -49,12 +61,7 @@ export function fillCard(card: HTMLElement, slide: Slide): void {
 
     // Original layout: no card image
     newChildren.push(renderPips(slide.colors));
-
-    const name = document.createElement('div');
-    name.classList.add('card-name');
-    name.classList.add('card-name-hidden');
-    name.textContent = slide.name;
-    newChildren.push(name);
+    newChildren.push(buildNameStack(slide, poolNames));
   }
 
   // Atomically swap all children — no empty-card frame
@@ -62,7 +69,7 @@ export function fillCard(card: HTMLElement, slide: Slide): void {
 }
 
 export function revealName(card: HTMLElement): void {
-  const name = card.querySelector('.card-name');
+  const name = card.querySelector('.card-name[data-active="true"]');
   if (name) {
     name.classList.remove('card-name-hidden');
   }
