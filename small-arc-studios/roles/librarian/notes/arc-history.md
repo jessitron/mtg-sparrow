@@ -825,6 +825,19 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 - **Verification**: 10/10 Playwright checks passed. Card width was 557px on every slide (consistent). Name reveal still works after 3-second delay. Version 0.49.0 confirmed in Honeycomb traces.
 - **Test script**: `tests/arc-080-slide-width.mjs`
 
+### Arc 81: Sharp Edges at Scroll Boundaries — COMPLETE (v0.50.0, 2026-04-13)
+- **Type**: User
+- **Goal**: Remove the CSS mask gradient fade at scroll boundaries where there is no more content — the first section should have a sharp top edge, and the last section should have a sharp bottom edge.
+- **Root cause**: The end page reel viewport had a uniform CSS mask gradient fading both top and bottom edges, regardless of scroll position. At the first section, the top fade implied hidden content above when there was none; at the last section, the bottom fade implied hidden content below when there was none.
+- **What was built**:
+  - CSS modifier classes `.at-top` and `.at-end` on `.level-sections-viewport` in `end.css` — four combinations: `.at-top` (sharp top, fade bottom), `.at-end` (fade top, sharp bottom), `.at-top.at-end` (no mask at all), and neither (both edges fade, original behavior)
+  - `classList` toggles in existing `updateNavButtons()` function in `src/ui/guild-columns.ts` — reuses the `atTop` and `atEnd` booleans already computed there
+  - Version bumped to 0.50.0
+- **Key decisions**: DEC-276 (CSS class toggles over inline styles), DEC-277 (`.at-top.at-end` as `mask-image: none`), DEC-278 (reuse existing `atTop`/`atEnd` booleans)
+- **Files changed**: `end.css`, `src/ui/guild-columns.ts`, `src/version.ts`
+- **Verification**: 18/18 Playwright checks passed. Class toggling at first/middle/last sections verified. Computed `mask-image` CSS values match expectations. Nav button visibility consistent with position.
+- **Test script**: `tests/arc-081-scroll-edges.mjs`
+
 ---
 
 ## Screenshot-Diff Contrast Technique (Arc 76, 2026-04-08)

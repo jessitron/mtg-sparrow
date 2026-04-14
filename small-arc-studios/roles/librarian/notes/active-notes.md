@@ -6,6 +6,14 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-04-13)
 
+### Arc 81: Sharp Edges at Scroll Boundaries — COMPLETE (v0.50.0, 2026-04-13)
+
+UX polish: the end page reel viewport had a CSS mask gradient fading both top and bottom edges regardless of scroll position. Now the fade is contextual — first section has a sharp top edge, last section has a sharp bottom edge, middle sections fade both (original behavior).
+
+Implementation: CSS modifier classes `.at-top` and `.at-end` on `.level-sections-viewport` in `end.css`. `classList` toggles added to existing `updateNavButtons()` in `src/ui/guild-columns.ts`, reusing the `atTop`/`atEnd` booleans already computed there. `.at-top.at-end` combination uses `mask-image: none`. DEC-276, DEC-277, DEC-278.
+
+18/18 Playwright checks passed. Class toggling, computed mask-image values, and nav button state all verified. Version 0.50.0.
+
 ### Arc 80: Fix Slide Width Leak — Name Stacking — COMPLETE (v0.49.0, 2026-04-13)
 
 Bug fix: hidden answer name was affecting layout width on the slides page. "Witherbloom" being wider than other college names made the card wider before reveal, leaking the answer.

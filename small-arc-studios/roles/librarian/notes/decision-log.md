@@ -2251,6 +2251,29 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Context**: The hidden answer name was affecting layout width. "Witherbloom" being wider than other college names made the card wider before reveal, leaking the answer. Alternative approaches considered: fixed widths (fragile — breaks when names change) and collapsing the hidden element (loses size contribution).
 - **Rationale**: Stacking all pool names is self-adjusting — as new levels or names are added, the card automatically sizes to the widest name without any hardcoded values. Client-proposed approach. Elegant because it requires no maintenance.
 
+## DEC-276: CSS Class Toggles for Scroll-Edge Mask Behavior
+- **Date**: 2026-04-13
+- **Arc**: 81 (Sharp Edges at Scroll Boundaries)
+- **Decision**: Contextual mask-image behavior at scroll boundaries is controlled via CSS modifier classes (`.at-top`, `.at-end`) on the viewport element, not JavaScript-driven inline styles.
+- **Context**: The mask gradient needed to be suppressed at the top when at the first section and at the bottom when at the last section. Two implementation approaches: (1) CSS classes that override the base `mask-image` rule, or (2) JS that writes `mask-image` directly via `style`.
+- **Alternatives rejected**: Inline styles via JavaScript — harder to audit, mixes style concerns into JS, harder to test with computed CSS assertions.
+- **Rationale**: CSS classes keep style logic in CSS and behavior logic in JS. The class names (`.at-top`, `.at-end`) are semantically clear. Computed `mask-image` values can be asserted in tests.
+
+## DEC-277: `.at-top.at-end` Combination Uses `mask-image: none`
+- **Date**: 2026-04-13
+- **Arc**: 81 (Sharp Edges at Scroll Boundaries)
+- **Decision**: When both `.at-top` and `.at-end` are present simultaneously (single-section reel where first = last), `mask-image: none` is applied — no mask at all.
+- **Context**: The `.at-top` and `.at-end` rules each suppress one side of the mask. The two-class combination (both edges sharp) should produce no mask rather than competing or partial rules.
+- **Rationale**: Explicit and correct. A reel with only one section needs no fading at all — no mask is the right semantic. The specificity of the combined selector overrides the single-class rules cleanly.
+
+## DEC-278: Reuse Existing `atTop`/`atEnd` Booleans in `updateNavButtons()`
+- **Date**: 2026-04-13
+- **Arc**: 81 (Sharp Edges at Scroll Boundaries)
+- **Decision**: The `classList` toggles for `.at-top` and `.at-end` are placed inside the existing `updateNavButtons()` function in `src/ui/guild-columns.ts`, reusing the `atTop` and `atEnd` booleans already computed there for nav button visibility.
+- **Context**: `updateNavButtons()` already computed `atTop` and `atEnd` from scroll position and section count. Adding the class toggles there required no new state, no new event listeners, and no new functions.
+- **Alternatives rejected**: Separate scroll listener — would duplicate the boundary detection logic and risk inconsistency between nav button state and mask state.
+- **Rationale**: Single source of truth for boundary state. The existing function is the natural home for all scroll-position-dependent UI updates.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
