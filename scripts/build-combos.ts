@@ -184,8 +184,10 @@ function buildNavigation(combo: ColorCombo): string {
 
   function navContent(c: ColorCombo, direction: "prev" | "next"): string {
     const arrow = direction === "prev" ? "&larr;" : "&rarr;";
-    if (c.tier === "guild") {
-      const img = `<img src="../images/${c.id}.png" alt="${escapeHtml(c.name)}" class="combo-nav-logo" width="28" height="28" />`;
+    if (c.tier === "guild" || c.tier === "college") {
+      const src = c.tier === "college" ? `../images/strixhaven/${c.id}.svg` : `../images/${c.id}.png`;
+      const alt = c.tier === "college" ? `${escapeHtml(c.name)} college crest` : `${escapeHtml(c.name)} guild crest`;
+      const img = `<img src="${src}" alt="${alt}" class="combo-nav-logo" width="28" height="28" />`;
       return direction === "prev" ? `${arrow} ${img}` : `${img} ${arrow}`;
     }
     return direction === "prev" ? `${arrow} ${escapeHtml(c.name)}` : `${escapeHtml(c.name)} ${arrow}`;
@@ -250,9 +252,17 @@ function buildPage(combo: ColorCombo): string {
   const cardCount = combo.cards?.length ?? 0;
   const metaDesc = `${combo.name} — ${tier} (${colors}). ${description.slice(0, 120)}`;
   const pips = manaPips(combo.colors);
-  const hasGuildLogo = combo.tier === "guild";
+  const hasGuildLogo = combo.tier === "guild" || combo.tier === "college";
   const guildLogoHtml = hasGuildLogo
-    ? `\n          <img src="../images/${combo.id}.png" alt="${combo.name} guild crest" class="combo-guild-logo" width="80" height="80" />`
+    ? (() => {
+        const src = combo.tier === "college"
+          ? `../images/strixhaven/${combo.id}.svg`
+          : `../images/${combo.id}.png`;
+        const alt = combo.tier === "college"
+          ? `${combo.name} college crest`
+          : `${combo.name} guild crest`;
+        return `\n          <img src="${src}" alt="${alt}" class="combo-guild-logo" width="80" height="80" />`;
+      })()
     : "";
 
   return `<!DOCTYPE html>
