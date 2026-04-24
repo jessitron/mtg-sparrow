@@ -201,6 +201,32 @@ The most valuable learning asset here is the sharp distinction between each coll
 
 ---
 
+## College Crest Assets
+
+SVG watermarks for all five colleges have been downloaded to `images/watermarks/strixhaven/`.
+
+**Source**: MTG Salvation Fandom wiki (static.wikia.nocookie.net/mtgsalvation_gamepedia)
+**Format**: SVG (vector, scalable)
+**Naming**: `{college-id}.svg` (e.g., `silverquill.svg`)
+
+**How to re-download**: `scripts/download-college-crests.sh`
+
+| College | File | Source URL |
+|---------|------|-----------|
+| Silverquill | `silverquill.svg` | https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/0/05/Silverquill_watermark.svg/revision/latest?cb=20260414011843 |
+| Prismari | `prismari.svg` | https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/c/c9/Prismari_watermark.svg/revision/latest?cb=20260414011930 |
+| Witherbloom | `witherbloom.svg` | https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/f/fa/Witherbloom_watermark.svg/revision/latest?cb=20260414011945 |
+| Lorehold | `lorehold.svg` | https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/4/42/Lorehold_watermark.svg/revision/latest?cb=20260414012020 |
+| Quandrix | `quandrix.svg` | https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/d/d5/Quandrix_watermark.svg/revision/latest?cb=20260414012045 |
+
+**Investigation findings**:
+- The task brief described "Scryfall watermark SVGs" as the source for guild crests — this is incorrect. Scryfall's `svgs.scryfall.io/watermarks/` endpoint returns 404 for all watermark names (it was never live or has since been removed). The guild crests in `images/*.png` were sourced from the MTG Salvation Fandom wiki CDN, as documented in `ravnica-guilds.md`.
+- College crests are SVGs (not PNGs). SVG watermark files were found on the same Fandom wiki CDN, uploaded April 2026, confirming they are current assets.
+- Guild crests live at `images/{id}.png` (root images dir). College crests are at `images/watermarks/strixhaven/{id}.svg` since no precedent existed in the root for colleges, and the developer notes (`how-to-add-a-level.md`) noted colleges have no crests previously. This new location is documented here.
+- Arc 79 noted "colleges have no crest" — that was correct at the time of that arc (April 2026, before Secrets of Strixhaven assets were uploaded to the wiki). These SVGs were uploaded to the wiki on April 14, 2026.
+
+---
+
 ## Sources
 
 - [Variety: Secrets of Strixhaven Spoilers + Designer Interview](https://variety.com/2026/gaming/news/secrets-of-strixhaven-spoilers-new-cards-game-designer-interview-1236712396/)
