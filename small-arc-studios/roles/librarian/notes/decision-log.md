@@ -2274,6 +2274,38 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Alternatives rejected**: Separate scroll listener — would duplicate the boundary detection logic and risk inconsistency between nav button state and mask state.
 - **Rationale**: Single source of truth for boundary state. The existing function is the natural home for all scroll-position-dependent UI updates.
 
+## DEC-279: Mixed Asset Formats — Guild Crests PNG, College Crests SVG
+- **Date**: 2026-04-24
+- **Arc**: 82 (Strixhaven College Crests)
+- **Decision**: Guild crests remain as PNG files (historical); college crests are stored and served as SVG. No format conversion either direction.
+- **Context**: Guild PNG crests predated this arc. The sourced Strixhaven watermark assets were already SVG. Converting SVGs to PNG would lose quality at small sizes; converting existing PNGs to SVG would require re-sourcing or tracing.
+- **Alternatives rejected**: Normalizing all crests to one format — unnecessary work with no user-visible benefit.
+- **Rationale**: Least work, no quality loss. `crestSrcForId()` returns the correct extension per tier, so callers need not care about the distinction.
+
+## DEC-280: Asset Directory Named `images/strixhaven/` (Flat Tier-Named Pattern)
+- **Date**: 2026-04-24
+- **Arc**: 82 (Strixhaven College Crests)
+- **Decision**: College crest SVGs are stored at `images/strixhaven/` — not `images/watermarks/strixhaven/` or `images/guilds/`. The directory is named after the tier/set.
+- **Context**: Client explicitly rejected `images/watermarks/strixhaven/` as an intermediate directory name during arc delivery. The flat pattern (`images/strixhaven/`) mirrors the guild PNG convention (guild PNGs live at `images/<id>.png`, i.e., directly under `images/`).
+- **Alternatives rejected**: `images/watermarks/strixhaven/` — rejected by client. Keeping all crests at `images/` root — would mix SVGs and PNGs and make future tier additions messy.
+- **Rationale**: Clean per-tier subdirectories. If a wedge or shard level adds crests, the pattern is `images/<tier>/`. Consistent with client preference.
+
+## DEC-281: `crestSrcForId()` Resolver with `COLLEGE_IDS` Set as Precedent for Future Tiers
+- **Date**: 2026-04-24
+- **Arc**: 82 (Strixhaven College Crests)
+- **Decision**: Introduced `crestSrcForId(id: string)` in `src/ui/guild-columns.ts` — checks membership in `COLLEGE_IDS` Set to return SVG path for colleges, falls back to PNG path for guilds. This is the canonical pattern for tier-aware crest resolution.
+- **Context**: The end screen and combo reference pages both needed to resolve crest asset paths from combo IDs, with different paths per tier. A single helper avoids duplication.
+- **Alternatives rejected**: Storing the crest path on the `ColorCombo` data type — would scatter per-asset knowledge into data files. Inline ternaries at every call site — not scalable.
+- **Rationale**: Single resolution point. To add a new tier (e.g., wedges with crests), extend `crestSrcForId()` and the corresponding Set. No other call sites change.
+
+## DEC-282: `tier` Attribute Added to `end.guild_highlight` Span
+- **Date**: 2026-04-24
+- **Arc**: 82 (Strixhaven College Crests)
+- **Decision**: The `end.guild_highlight` telemetry span now carries a `tier` attribute (`"guild"` or `"college"`) on every hover event.
+- **Context**: The span fires for both guild and college hovers, but previously carried no signal indicating which type. With colleges now displaying crests, differentiating hover events by tier becomes useful for Honeycomb analysis.
+- **Alternatives rejected**: Renaming the span to `end.crest_highlight` — valid long-term, but deferred to avoid breaking existing Honeycomb queries and boards. Noted as a follow-up.
+- **Rationale**: Additive change. Existing queries that don't filter on `tier` are unaffected. New queries can break down highlight behavior by tier.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

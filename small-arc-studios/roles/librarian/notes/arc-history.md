@@ -838,6 +838,22 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 - **Verification**: 18/18 Playwright checks passed. Class toggling at first/middle/last sections verified. Computed `mask-image` CSS values match expectations. Nav button visibility consistent with position.
 - **Test script**: `tests/arc-081-scroll-edges.mjs`
 
+### Arc 82: Strixhaven College Crests — COMPLETE (v0.51.0, 2026-04-24)
+- **Type**: User
+- **Goal**: Show the correct college crest on the end-screen color wheel and on combo reference pages for Strixhaven colleges. Arc 79 had deliberately passed an empty crestId as a temporary patch (no crest assets existed). Arc 82 sources and wires the real assets.
+- **What was built**:
+  - 5 SVG watermark assets sourced from MTG Fandom wiki CDN: `images/strixhaven/{silverquill,prismari,witherbloom,lorehold,quandrix}.svg`
+  - `crestSrcForId(id: string)` helper in `src/ui/guild-columns.ts` — returns SVG path for college IDs (via `COLLEGE_IDS` Set), PNG path for guild IDs
+  - `wireCollegesHover` updated to pass `'crest-image-enemy'` as crestId (colleges reuse the enemy wheel's shared `<image>` element)
+  - `scripts/build-combos.ts` crest gate widened from `tier === "guild"` to also include `tier === "college"`, with tier-aware path resolution
+  - `end.guild_highlight` span extended with a `tier` attribute (`"guild"` or `"college"`)
+  - `about.html` attribution extended to mention Strixhaven college crests
+  - Version bumped to 0.51.0
+- **Key decisions**: DEC-279 (mixed formats: guilds stay PNG, colleges SVG), DEC-280 (`images/strixhaven/` dir name — flat tier-named pattern), DEC-281 (`crestSrcForId` tier-aware resolver precedent), DEC-282 (`tier` attribute on `end.guild_highlight` span)
+- **Files changed**: `images/strixhaven/*.svg` (5 new), `src/ui/guild-columns.ts`, `scripts/build-combos.ts`, `about.html`, `src/version.ts`
+- **Verification**: In progress (tester running in parallel at time of record).
+- **Commits**: `1d748e1`, `50b5333`, `3eec5e3`, `9dc1929`
+
 ---
 
 ## Screenshot-Diff Contrast Technique (Arc 76, 2026-04-08)

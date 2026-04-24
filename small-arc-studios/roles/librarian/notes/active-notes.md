@@ -4,7 +4,17 @@ Current state, in-progress work, and upcoming arcs.
 
 ---
 
-## Current Status (2026-04-13)
+## Current Status (2026-04-24)
+
+### Arc 82: Strixhaven College Crests — COMPLETE (v0.51.0, 2026-04-24)
+
+College crests are now visible on the end-screen color wheel and on all 5 combo reference pages. 5 SVG assets at `images/strixhaven/`. `crestSrcForId()` resolver in `src/ui/guild-columns.ts`. Tester verification was running in parallel at time of delivery.
+
+**Open follow-up**: The `end.guild_highlight` span name is now misleading — it fires for college hovers too. Renaming to `end.crest_highlight` would be a small observability arc. Deferred to avoid breaking existing Honeycomb queries (DEC-282).
+
+---
+
+## Previous Status (2026-04-13)
 
 ### Arc 81: Sharp Edges at Scroll Boundaries — COMPLETE (v0.50.0, 2026-04-13)
 
