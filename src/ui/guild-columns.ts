@@ -57,6 +57,15 @@ const colorNodeToCode: Record<string, string> = {
   green: 'G',
 };
 
+// Strixhaven college ids — used to resolve crest image paths
+const COLLEGE_IDS = new Set(['silverquill', 'prismari', 'witherbloom', 'lorehold', 'quandrix']);
+
+function crestSrcForId(id: string): string {
+  return COLLEGE_IDS.has(id)
+    ? `images/strixhaven/${id}.svg`
+    : `images/${id}.png`;
+}
+
 // Maps sorted color-code pair (e.g. "UW") → guild id
 const colorPairToGuildId: Record<string, string> = {};
 for (const guild of alliedGuilds) {
@@ -414,7 +423,7 @@ function wireColorWheelHover(
       listItem?.classList.add('highlight');
       col.classList.add('level-section--has-highlight');
       if (crestImg) {
-        const src = `images/${guildId}.png`;
+        const src = crestSrcForId(guildId);
         crestImg.setAttributeNS(XLINK_NS, 'href', src);
         crestImg.setAttribute('href', src);
         crestImg.setAttribute('opacity', '1');
@@ -423,7 +432,8 @@ function wireColorWheelHover(
       flavorEntries.forEach(entry => {
         entry.classList.toggle('active', entry.dataset.guildId === guildId);
       });
-      const hlSpan = startChildSpan('end.guild_highlight', sectionSpanRef.current, { 'guild.id': guildId });
+      const tier = COLLEGE_IDS.has(guildId) ? 'college' : 'guild';
+      const hlSpan = startChildSpan('end.guild_highlight', sectionSpanRef.current, { 'guild.id': guildId, tier });
       endSpan(hlSpan);
     } else {
       lineEl?.classList.remove('highlight');
@@ -520,8 +530,8 @@ function wireCollegesHover(col: HTMLElement, svg: SVGSVGElement, sectionSpanRef:
     const key = [...college.colors].sort().join('');
     collegePairToId[key] = college.id;
   }
-  // Pass empty string for crestId so getElementById('') returns null and no crest image is shown.
-  return wireColorWheelHover(col, svg, enemyPairs, 'enemy-line', '', sectionSpanRef, onActivate, collegePairToId);
+  // Pass the enemy crest image id so college crests display on hover/click.
+  return wireColorWheelHover(col, svg, enemyPairs, 'enemy-line', 'crest-image-enemy', sectionSpanRef, onActivate, collegePairToId);
 }
 
 /**
