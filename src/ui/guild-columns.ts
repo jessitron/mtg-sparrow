@@ -152,7 +152,7 @@ function buildFlavorPanel(
       link.textContent = `More ${guild.name} cards →`;
       link.addEventListener('click', (e: Event) => {
         e.stopPropagation();
-        const span = startChildSpan('end.combo_page_click', sectionSpanRef.current, { 'guild.id': guild.id });
+        const span = startChildSpan('end.combo_page_click', sectionSpanRef.current, { 'combo.id': guild.id });
         endSpan(span);
       });
       entry.appendChild(link);
@@ -433,7 +433,7 @@ function wireColorWheelHover(
         entry.classList.toggle('active', entry.dataset.guildId === guildId);
       });
       const tier = COLLEGE_IDS.has(guildId) ? 'college' : 'guild';
-      const hlSpan = startChildSpan('end.guild_highlight', sectionSpanRef.current, { 'guild.id': guildId, tier });
+      const hlSpan = startChildSpan('end.combo_highlight', sectionSpanRef.current, { 'combo.id': guildId, tier });
       endSpan(hlSpan);
     } else {
       lineEl?.classList.remove('highlight');
@@ -545,6 +545,7 @@ function wireTriangleWheelHover(
   triClass: string,
   sectionSpanRef: SpanRef,
   onActivate: () => void = () => {},
+  tier: string = 'tri',
 ): () => void {
   let selectedTriple: [string, string, string] | null = null;
 
@@ -571,7 +572,7 @@ function wireTriangleWheelHover(
         entry.classList.toggle('active', entry.dataset.guildId === comboId);
       });
       if (comboId) {
-        const hlSpan = startChildSpan('end.guild_highlight', sectionSpanRef.current, { 'guild.id': comboId });
+        const hlSpan = startChildSpan('end.combo_highlight', sectionSpanRef.current, { 'combo.id': comboId, tier });
         endSpan(hlSpan);
       }
     } else {
@@ -876,7 +877,7 @@ function buildWedgeColumn(
     col.appendChild(buildFlavorPanel(wedges, 'wedges', sectionSpanRef, startSession));
 
     // Wire hover after all panels are in the DOM
-    clearSelection = wireTriangleWheelHover(col, svg, wedgeTriples, 'wedge-triangle', sectionSpanRef, onActivate);
+    clearSelection = wireTriangleWheelHover(col, svg, wedgeTriples, 'wedge-triangle', sectionSpanRef, onActivate, 'wedge');
   } else {
     const btn = document.createElement('button');
     btn.classList.add('next-session-button', 'level-section-button', 'next-session-button--primary');
@@ -937,7 +938,7 @@ function buildShardColumn(
     col.appendChild(buildFlavorPanel(shards, 'shards', sectionSpanRef, startSession));
 
     // Wire hover after all panels are in the DOM
-    clearSelection = wireTriangleWheelHover(col, svg, shardTriples, 'shard-triangle', sectionSpanRef, onActivate);
+    clearSelection = wireTriangleWheelHover(col, svg, shardTriples, 'shard-triangle', sectionSpanRef, onActivate, 'shard');
   } else {
     const btn = document.createElement('button');
     btn.classList.add('next-session-button', 'level-section-button', 'next-session-button--primary');
