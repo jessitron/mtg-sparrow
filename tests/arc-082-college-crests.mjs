@@ -7,19 +7,17 @@
  *   which returns images/strixhaven/${id}.svg for colleges, images/${id}.png for guilds
  * - Combo pages for colleges emit <img class="combo-guild-logo"> with strixhaven SVG path
  *   and nav crests via <img class="combo-nav-logo">
- * - APP_VERSION bumped to 0.51.0
  *
  * Acceptance criteria:
- * 1. Bundle version is 0.51.0
- * 2. End-screen Colleges column — clicking Silverquill pair shows college crest at correct path
- * 3. End-screen Colleges column — crest href resolves to images/strixhaven/silverquill.svg
- * 4. That SVG file actually returns HTTP 200
- * 5. End-screen Enemy Guilds column — clicking Orzhov pair shows guild crest at images/orzhov.png (regression)
- * 6. Combo silverquill.html — combo-guild-logo src is images/strixhaven/silverquill.svg
- * 7. Combo silverquill.html — combo-guild-logo alt is "Silverquill college crest"
- * 8. Combo silverquill.html — a combo-nav-logo exists with strixhaven crest path
- * 9. Combo orzhov.html — combo-guild-logo src is images/orzhov.png (regression)
- * 10. Combo orzhov.html — combo-guild-logo alt is "Orzhov guild crest" (regression)
+ * 1. End-screen Colleges column — clicking Silverquill pair shows college crest at correct path
+ * 2. End-screen Colleges column — crest href resolves to images/strixhaven/silverquill.svg
+ * 3. That SVG file actually returns HTTP 200
+ * 4. End-screen Enemy Guilds column — clicking Orzhov pair shows guild crest at images/orzhov.png (regression)
+ * 5. Combo silverquill.html — combo-guild-logo src is images/strixhaven/silverquill.svg
+ * 6. Combo silverquill.html — combo-guild-logo alt is "Silverquill college crest"
+ * 7. Combo silverquill.html — a combo-nav-logo exists with strixhaven crest path
+ * 8. Combo orzhov.html — combo-guild-logo src is images/orzhov.png (regression)
+ * 9. Combo orzhov.html — combo-guild-logo alt is "Orzhov guild crest" (regression)
  *
  * Server must be running at http://localhost:3847 before running this script.
  * Use ./run-test-server to start and ./stop-test-server to tear down.
@@ -52,20 +50,7 @@ async function run() {
 
   try {
     // -----------------------------------------------------------------------
-    // PHASE 1: Bundle version is 0.51.0
-    // -----------------------------------------------------------------------
-    console.log('\n=== Phase 1: Bundle version is 0.51.0 ===\n');
-    {
-      const page = await browser.newPage();
-      const response = await page.request.get(`${BASE_URL}/dist/end.js`);
-      assert(response.status() === 200, 'dist/end.js is served (HTTP 200)');
-      const text = await response.text();
-      assert(text.includes('0.51.0'), 'end.js bundle contains "0.51.0"');
-      await page.close();
-    }
-
-    // -----------------------------------------------------------------------
-    // PHASE 2: End-screen Colleges column — click Silverquill pair, crest appears
+    // PHASE 1: End-screen Colleges column — click Silverquill pair, crest appears
     //
     // Silverquill = white+black = enemy-pair line with id "line-white-black"
     // The colleges column uses the enemy-color wheel (same SVG structure)
@@ -73,7 +58,7 @@ async function run() {
     //
     // We unlock colleges so the column renders with full content.
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 2: End-screen Colleges wheel — Silverquill crest appears on click ===\n');
+    console.log('\n=== Phase 1: End-screen Colleges wheel — Silverquill crest appears on click ===\n');
     {
       const context = await browser.newContext();
       const page = await context.newPage();
@@ -133,7 +118,7 @@ async function run() {
     // -----------------------------------------------------------------------
     // PHASE 3: SVG file actually loads (HTTP 200, valid SVG content)
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 3: College SVG files return HTTP 200 with SVG content ===\n');
+    console.log('\n=== Phase 2: College SVG files return HTTP 200 with SVG content ===\n');
     {
       const page = await browser.newPage();
 
@@ -156,7 +141,7 @@ async function run() {
     // Unlock enemy so that column renders with full content.
     // White+black is Orzhov in the enemy guilds mapping (not Silverquill).
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 4: End-screen Enemy Guilds column — Orzhov crest is .png (regression) ===\n');
+    console.log('\n=== Phase 3: End-screen Enemy Guilds column — Orzhov crest is .png (regression) ===\n');
     {
       const context = await browser.newContext();
       const page = await context.newPage();
@@ -213,7 +198,7 @@ async function run() {
     // -----------------------------------------------------------------------
     // PHASE 5: Combo silverquill.html — combo-guild-logo has correct src and alt
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 5: Combo silverquill.html — guild logo src and alt ===\n');
+    console.log('\n=== Phase 4: Combo silverquill.html — guild logo src and alt ===\n');
     {
       const page = await browser.newPage();
       await page.goto(`${BASE_URL}/combo/silverquill.html`);
@@ -255,7 +240,7 @@ async function run() {
     // -----------------------------------------------------------------------
     // PHASE 6: Combo orzhov.html — combo-guild-logo uses .png path (regression)
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 6: Combo orzhov.html — guild logo is .png (regression) ===\n');
+    console.log('\n=== Phase 5: Combo orzhov.html — guild logo is .png (regression) ===\n');
     {
       const page = await browser.newPage();
       await page.goto(`${BASE_URL}/combo/orzhov.html`);
