@@ -11,7 +11,7 @@
  * 7. Wedge section reachable by reel navigation (down from enemy section)
  * 8. initialSubgroup=wedges → reel starts at wedge section
  * 9. Locked state: no wedges progression → button shown, no triangle wheel
- * 10. Telemetry: end.guild_highlight with guild.id set on wedge highlight
+ * 10. Telemetry: end.combo_highlight with combo.id and tier='wedge' set on wedge highlight
  * 11. Span flush + Honeycomb check
  *
  * Server must be running at http://localhost:3847 before running this script.

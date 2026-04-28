@@ -12,7 +12,7 @@
  * 8. Shard section reachable by reel navigation (down from wedge section)
  * 9. initialSubgroup=shards → reel starts at shard section
  * 10. Locked state: no shards progression → button shown, no triangle wheel
- * 11. Telemetry: end.guild_highlight with guild.id set on shard highlight
+ * 11. Telemetry: end.combo_highlight with combo.id and tier='shard' set on shard highlight
  * 12. Span flush + Honeycomb check
  *
  * Server must be running at http://localhost:3847 before running this script.

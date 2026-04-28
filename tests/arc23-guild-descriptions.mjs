@@ -2,7 +2,7 @@
  * Arc 23 verification: Guild flavor descriptions, Scryfall links, telemetry
  *
  * Tests:
- * 1. Bundle contains end.guild_highlight and end.scryfall_click span names
+ * 1. Bundle contains end.combo_highlight and end.scryfall_click span names
  * 2. Hover allied guild: description text appears in flavor panel
  * 3. Hover allied guild: Scryfall link appears with correct href and "More X cards →" text
  * 4. Scryfall link has target="_blank" and rel="noopener noreferrer"
@@ -11,7 +11,7 @@
  * 7. Practice button always visible (not behind highlight)
  * 8. Iconic cards in data: Azor (Azorius), Voice of Resurgence (Selesnya), Savra (Golgari)
  * 9. Scryfall link click fires end.scryfall_click telemetry
- * 10. Span flush + Honeycomb check for end.guild_highlight and end.scryfall_click
+ * 10. Span flush + Honeycomb check for end.combo_highlight and end.scryfall_click
  *
  * Server must be running at http://localhost:3847.
  * Use ./run-test-server to start and ./stop-test-server to tear down.
@@ -49,9 +49,9 @@ async function run() {
       assert(response.status() === 200, 'dist/end.js serves HTTP 200');
 
       const bundleText = await response.text();
-      assert(bundleText.includes('end.guild_highlight'), 'Bundle contains "end.guild_highlight" span name');
+      assert(bundleText.includes('end.combo_highlight'), 'Bundle contains "end.combo_highlight" span name');
       assert(bundleText.includes('end.scryfall_click'), 'Bundle contains "end.scryfall_click" span name');
-      assert(bundleText.includes('guild.id'), 'Bundle contains "guild.id" attribute key');
+      assert(bundleText.includes('combo.id'), 'Bundle contains "combo.id" attribute key');
       // Spot-check a description phrase
       assert(
         bundleText.includes('insufferable') || bundleText.includes('Azorius'),
