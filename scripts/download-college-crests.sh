@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-DEST_DIR="/Users/jessitron/code/jessitron/mtg-sparrow/images/watermarks/strixhaven"
+DEST_DIR="/Users/jessitron/code/jessitron/mtg-sparrow/images/strixhaven"
 
 echo "=== Downloading Strixhaven college crest SVGs ==="
 echo ""
