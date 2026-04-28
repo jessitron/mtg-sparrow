@@ -854,6 +854,20 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 - **Verification**: In progress (tester running in parallel at time of record).
 - **Commits**: `1d748e1`, `50b5333`, `3eec5e3`, `9dc1929`
 
+### Arc 83: Rename `guild_highlight` → `combo_highlight` Telemetry — COMPLETE (v0.52.0, 2026-04-24)
+- **Type**: Structural (observability clean-up)
+- **Goal**: The span name `end.guild_highlight` was misleading — it fires on college, shard, and wedge hovers as well as guild hovers. Arc 82's Librarian record flagged this as a follow-up (DEC-282). Arc 83 closes it with a hard rename.
+- **What was built**:
+  - Span name `end.guild_highlight` → `end.combo_highlight` at both emission sites in `src/ui/guild-columns.ts` (pair-hover ~line 436, tri-color hover ~line 575)
+  - Attribute key `guild.id` → `combo.id` at all 3 telemetry sites: the two highlight spans and `end.combo_page_click` (~line 155)
+  - New `tier` parameter on `wireTriangleWheelHover` (default `'tri'`) — callers pass `'wedge'` or `'shard'`; the tri-color hover span now carries `tier` on every emission
+  - Test assertions updated: `tests/arc23-guild-descriptions.mjs` updated; `tests/arc30-wedge-section.mjs` and `arc31-shard-section.mjs` comment-only updates
+  - Version bumped to 0.52.0
+- **Key decisions**: DEC-283 (hard cut — no dual-emit; break old queries rather than pollute), DEC-284 (`tier` on tri-color hover span), DEC-285 (code-internal identifiers deferred)
+- **Files changed**: `src/ui/guild-columns.ts`, `tests/arc23-guild-descriptions.mjs`, `tests/arc30-wedge-section.mjs`, `tests/arc31-shard-section.mjs`, `src/version.ts`
+- **Verification**: Tester verifying in parallel at time of record.
+- **Commits**: `4937dc7`, `95f22ad`, `f0a4234`
+
 ---
 
 ## Screenshot-Diff Contrast Technique (Arc 76, 2026-04-08)

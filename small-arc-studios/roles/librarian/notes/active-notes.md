@@ -6,11 +6,17 @@ Current state, in-progress work, and upcoming arcs.
 
 ## Current Status (2026-04-24)
 
+### Arc 83: Rename `guild_highlight` → `combo_highlight` Telemetry — COMPLETE (v0.52.0, 2026-04-24)
+
+Span name `end.guild_highlight` and attribute `guild.id` renamed to `end.combo_highlight` and `combo.id` across all 3 telemetry sites in `src/ui/guild-columns.ts`. `wireTriangleWheelHover` now takes a `tier` param; wedge and shard hover spans carry `tier: 'wedge'` and `tier: 'shard'` respectively. Hard cut — no dual-emit (DEC-283). Old Honeycomb columns to be hidden manually after a few weeks. Tests updated. Version 0.52.0.
+
+**Open follow-up (low priority)**: `end.combo_page_click` span (~line 155) does not carry a `tier` attribute. Plumbing `tier` from `buildFlavorPanel` is non-trivial. If operators ever want to filter combo page clicks by tier, this would need a follow-up arc.
+
 ### Arc 82: Strixhaven College Crests — COMPLETE (v0.51.0, 2026-04-24)
 
 College crests are now visible on the end-screen color wheel and on all 5 combo reference pages. 5 SVG assets at `images/strixhaven/`. `crestSrcForId()` resolver in `src/ui/guild-columns.ts`. Tester verification was running in parallel at time of delivery.
 
-**Open follow-up**: The `end.guild_highlight` span name is now misleading — it fires for college hovers too. Renaming to `end.crest_highlight` would be a small observability arc. Deferred to avoid breaking existing Honeycomb queries (DEC-282).
+~~**Open follow-up**: The `end.guild_highlight` span name is now misleading — it fires for college hovers too. Resolved by Arc 83.~~
 
 ---
 

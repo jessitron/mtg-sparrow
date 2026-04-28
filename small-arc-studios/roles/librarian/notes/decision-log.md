@@ -2306,6 +2306,30 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Alternatives rejected**: Renaming the span to `end.crest_highlight` — valid long-term, but deferred to avoid breaking existing Honeycomb queries and boards. Noted as a follow-up.
 - **Rationale**: Additive change. Existing queries that don't filter on `tier` are unaffected. New queries can break down highlight behavior by tier.
 
+## DEC-283: Hard Cut on Telemetry Rename — No Dual-Emit
+- **Date**: 2026-04-24
+- **Arc**: 83 (Rename `guild_highlight` → `combo_highlight`)
+- **Decision**: `end.guild_highlight` and `guild.id` were renamed outright to `end.combo_highlight` and `combo.id`. No dual-emit bridge was maintained. Old Honeycomb queries/boards will need manual updates; old columns will be hidden in Honeycomb after a few weeks.
+- **Context**: Client considered dual-emit (emit both old and new names simultaneously during a transition period) to avoid breaking existing Honeycomb queries. The project is small and the query surface is limited.
+- **Alternatives rejected**: Dual-emit — keeps both names alive indefinitely and creates ongoing pollution in Honeycomb column lists. Alias approach — same problem.
+- **Rationale**: Small project, easy to fix queries by hand. Dual-emit creates permanent noise in the data and complicates future evolution. A clean cut is worth the short-term manual query updates.
+
+## DEC-284: `tier` Attribute Added to Tri-Color Hover Span via `wireTriangleWheelHover` Parameter
+- **Date**: 2026-04-24
+- **Arc**: 83 (Rename `guild_highlight` → `combo_highlight`)
+- **Decision**: `wireTriangleWheelHover` received a new `tier` parameter (default `'tri'`). Its two callers pass `'wedge'` and `'shard'` respectively. The `end.combo_highlight` span for tri-color hovers now carries `tier: 'wedge'` or `tier: 'shard'` on every emission. Pair-hover spans carry `tier` too (set in Arc 82, unchanged here).
+- **Context**: Arc 82 added `tier` to the pair-hover (guild/college) span. The tri-color hover span was touched in Arc 83 anyway for the rename; adding `tier` was effectively free.
+- **Alternatives rejected**: Inferring tier from the `comboId` at emission time — possible but requires a lookup; the caller already knows the tier.
+- **Rationale**: Operators can now filter or break down `end.combo_highlight` events by tier (guild, college, wedge, shard) across all emission sites. Future `combo_highlight` queries should assume `tier` is present on all spans.
+
+## DEC-285: Code-Internal Identifiers (`colorPairToGuildId`, `wireGuildsX`, `data-guild-id`) Deferred
+- **Date**: 2026-04-24
+- **Arc**: 83 (Rename `guild_highlight` → `combo_highlight`)
+- **Decision**: Code-internal names such as `colorPairToGuildId`, `wireGuildsX`, HTML data attributes `data-guild-id`, and similar were deliberately left unchanged in Arc 83.
+- **Context**: The arc was scoped to the telemetry boundary — what operators see in Honeycomb. Code-internal names affect developer experience but have no runtime observability impact.
+- **Alternatives rejected**: Renaming everything in the same arc — would expand scope significantly and mix two concerns (observability hygiene vs. code-internal naming), making the commit history harder to reason about.
+- **Rationale**: Telemetry boundary and code-internal naming are separate concerns and should churn separately. A future refactor arc can address the internal names without touching telemetry. Recorded here so the team does not relitigate the scope decision.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*
