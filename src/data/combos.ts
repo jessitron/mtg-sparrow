@@ -298,7 +298,7 @@ export const guilds: ColorCombo[] = [
       { name: "Gelectrode", imageUrl: "https://cards.scryfall.io/normal/front/8/3/83fa9c4a-7027-4ddd-93e0-3c5dcaa8e48b.jpg?1593272662" },
       { name: "Steam Vents", imageUrl: "https://cards.scryfall.io/normal/front/b/6/b66daa94-d367-4812-9f18-f35378c1febb.jpg?1759144847" },
       { name: "Izzet Signet", imageUrl: "https://cards.scryfall.io/normal/front/2/c/2c747a97-9070-4c1e-b7b7-52637fbb30e1.jpg?1743207322" },
-      { name: "Expressive Iteration", imageUrl: "https://cards.scryfall.io/normal/front/4/5/45e92d69-0684-4a57-8c1c-bbf742bd8a23.jpg?1743207125" },
+      { name: "Boosted Sloop", imageUrl: "https://cards.scryfall.io/normal/front/3/5/3563cb48-9dcb-4b92-af3a-4793adf03125.jpg?1738356581" },
       { name: "Mizzium Mortars", imageUrl: "https://cards.scryfall.io/normal/front/d/4/d4ded88d-2688-4f5e-a8b2-16216cf9c792.jpg?1562793745" },
       { name: "Melek, Izzet Paragon", imageUrl: "https://cards.scryfall.io/normal/front/6/6/66011fe8-8c5d-4990-a324-5839515dcacb.jpg?1690016885" },
       { name: "Stormchaser Mage", imageUrl: "https://cards.scryfall.io/normal/front/7/b/7bba1b45-d8ae-42fd-b30f-c904640ab173.jpg?1562919887" },
