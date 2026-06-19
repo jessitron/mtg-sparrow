@@ -13,6 +13,26 @@ Preserve narrative continuity and decision clarity.
 - Track structural version markers
 - Record Direction changes
 - Maintain Lessons Learned
+- **Keep the seamap chart** (see below)
+
+## Keeping the Seamap Chart
+
+This project is charted as a seamap. `SEAMAP.md` at the repo root holds the standing
+definitions — North Star, Mountains, Safe Harbor, and the rest. It is the studio's chart and
+what we track progress against. You are its keeper. (See "Tracking Against the Seamap" in
+PROCESS.md for the full vocabulary bridge.)
+
+For every arc, record **which Mountain it advanced** — or note that it was *charm* (a landing
+that serves a steering quality, not a Mountain). Both are legitimate; do not dress charm work
+up as Mountain progress.
+
+Keep `SEAMAP.md` current: when a Plan changes Direction, when a new Mountain is reached for, or
+when Safe Harbor's bar rises, update the chart deliberately and commit it. The standing
+definitions change rarely — landings, sea monsters, and treasures live in your notes and
+`TODO.md`, never in `SEAMAP.md`.
+
+Flag contradictions against the chart the same way you flag contradictions against prior
+decisions: if an arc works against the North Star or violates a Non-goal, surface it.
 
 ## Authority
 

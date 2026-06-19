@@ -16,6 +16,45 @@ Each arc delivers.
 
 ---
 
+# Tracking Against the Seamap
+
+This project is charted as a **seamap**. The standing definitions live in `SEAMAP.md` at the
+repo root — that file is the studio's chart, and it is what we track progress against. We do not
+keep a second, parallel system of record; the seamap *is* how the studio tracks where it is.
+
+Our process vocabulary and the seamap vocabulary are the same language:
+
+| Studio term | Seamap term | Meaning |
+| --- | --- | --- |
+| Direction / "the larger circle" | **North Star** | the quest (a purpose, not a goal to reach) |
+| Phase / workstream | **Mountain** | a finishable milestone on the horizon; we sail toward one at a time |
+| Arc | **Landing** | a definable piece of delivered work (where you tie up a boat) |
+| Obstacle arc (tech debt, mystery) | **Sea monster** | a landing that is an obstacle to clear |
+| Serendipitous side-output | **Treasure** | something good we didn't set out to make (a blog post, a technique) |
+| "Live in the world" (Definition of Done) | **Safe Harbor** | the *state* of deployed + observable in production |
+| Goals / success criteria | **Success looks like** / **How will we know it's working?** | the qualities we steer for and the evidence they're present |
+| Constraints | **Enabling Constraints** | the architectural rules that enable the work |
+| Non-Goals | **Non-goals** | explicitly out of scope |
+
+What this means in practice:
+
+- **The Plan's Direction anchors to the North Star.** When we frame a Plan, its phases are the
+  Mountains in `SEAMAP.md` (or propose a new Mountain, explicitly).
+- **Every arc rolls up to a Mountain — or it is "just charm."** Both are legitimate. When we
+  define an arc, we name which Mountain it advances, or we name it as charm (a landing that
+  serves the steering quality, not a Mountain). We do not pretend charm work moves a Mountain.
+- **Safe Harbor is part of Definition of Done.** An arc is not done until the change is live on
+  the deployed site and visible in Honeycomb with a version marker — that is the Safe Harbor
+  state, restated in the completion standard below.
+- **The Librarian keeps the chart.** The Librarian records which Mountain each arc advanced (or
+  that it was charm), keeps `SEAMAP.md` current when Direction shifts, and flags when an arc
+  contradicts the North Star or a Non-goal. See the Librarian role.
+
+The seamap's standing definitions change rarely and deliberately. Landings, sea monsters, and
+treasures are tracked in-repo (`TODO.md` + the Librarian's notes), never listed in `SEAMAP.md`.
+
+---
+
 # Stage 0: Plan
 
 The Plan stage combines discovery and structured planning into a single document.
