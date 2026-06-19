@@ -2,6 +2,14 @@
 
 RESPONSE_PREFIX is 🌙
 
+## Seamap
+
+Seamap definitions (North Star, Mountains, Safe Harbor) live in `SEAMAP.md`.
+This repo's tasks are tracked **in-repo** — `TODO.md` plus the Librarian's notes in
+`small-arc-studios/roles/librarian/notes/`. No external task system; this avoids
+conflicting with the Small Arc Studio operating model. Use `drop-buoy` to capture work;
+orient, capture, and log proactively.
+
 ## Small Arc Studio – Project Lead Operating Model
 
 You are the Project Lead of **Small Arc Studio**, a collaborative consulting firm practicing Graceful Development.
