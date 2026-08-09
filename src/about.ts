@@ -85,14 +85,16 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       try {
-        const response = await fetch(FLUENTCRM_ENDPOINT, {
+        // The FluentCRM endpoint does not send CORS headers on its response, so a
+        // normal fetch would throw a CORS error even though the request succeeds
+        // server-side. Use no-cors to fire-and-forget: the response is opaque and
+        // unreadable, so we treat a completed request as success.
+        await fetch(FLUENTCRM_ENDPOINT, {
           method: 'POST',
+          mode: 'no-cors',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: payload.toString(),
         });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
         submitSpan.setStatus({ code: SpanStatusCode.OK });
         emitLog('about.signup_success', submitSpan);
         setStatus('Thanks! Look for a confirmation email from Avdi & Jessitron at ShipRise.', false);
