@@ -121,8 +121,81 @@
   margin-bottom: 1rem;
 }
 
-#convertkit-form {
-  min-height: 2.5rem;
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.signup-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.signup-label {
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.signup-field input {
+  font: inherit;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--bg-brown-dark);
+  border-radius: 4px;
+  background: white;
+  color: #222;
+}
+
+.signup-field input:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 1px;
+}
+
+.signup-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.signup-submit {
+  align-self: flex-start;
+  font: inherit;
+  cursor: pointer;
+  padding: 0.5rem 1.25rem;
+  border: 1px solid var(--bg-brown-dark);
+  border-radius: 4px;
+  background: var(--bg-brown-dark);
+  color: white;
+}
+
+.signup-submit:hover {
+  filter: brightness(1.15);
+}
+
+.signup-submit:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.signup-status {
+  min-height: 1.25rem;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.signup-status.is-error {
+  color: #ffb4b4;
+}
+
+.signup-privacy {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  opacity: 0.85;
 }
 
 .about-home-link {
