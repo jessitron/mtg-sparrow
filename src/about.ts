@@ -97,8 +97,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         submitSpan.setStatus({ code: SpanStatusCode.OK });
         emitLog('about.signup_success', submitSpan);
-        setStatus('Thanks! Look for a confirmation email from Avdi & Jessitron at ShipRise.', false);
-        signupFormEl.reset();
+
+        // Replace the form (and its inline privacy disclaimer) with a
+        // confirmation echoing back the name and email the user entered.
+        const confirmation = document.createElement('div');
+        confirmation.className = 'signup-confirmation';
+
+        const heading = document.createElement('p');
+        heading.className = 'signup-confirmation-heading';
+        heading.textContent = "Thanks! You're subscribed.";
+
+        const detail = document.createElement('p');
+        detail.className = 'signup-confirmation-detail';
+        detail.textContent = `We'll send updates for ${fullName} to ${email}.`;
+
+        const note = document.createElement('p');
+        note.className = 'signup-confirmation-note';
+        note.textContent = 'Look for a confirmation email from Avdi & Jessitron at ShipRise.';
+
+        confirmation.append(heading, detail, note);
+        signupFormEl.replaceWith(confirmation);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         submitSpan.setStatus({ code: SpanStatusCode.ERROR, message });
