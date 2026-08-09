@@ -1,0 +1,9 @@
+{
+  "toolPermissions": [
+    {
+      "toolName": "terminal",
+      "shellInputRegex": "^git (add|commit|status|diff|log)\\b",
+      "permission": { "type": "allow" }
+    }
+  ]
+}
