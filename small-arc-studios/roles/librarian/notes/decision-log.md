@@ -2330,6 +2330,14 @@ This session was an unplanned exploration outside the formal SOW process. The cl
 - **Alternatives rejected**: Renaming everything in the same arc — would expand scope significantly and mix two concerns (observability hygiene vs. code-internal naming), making the commit history harder to reason about.
 - **Rationale**: Telemetry boundary and code-internal naming are separate concerns and should churn separately. A future refactor arc can address the internal names without touching telemetry. Recorded here so the team does not relitigate the scope decision.
 
+## DEC-286: Retire arc79 Phase 3 (Superseded by Arc 82)
+- **Date**: 2026-08-09
+- **Arc**: 84 (Reorder Levels — Colleges Last)
+- **Decision**: Removed Phase 3 of `tests/arc79-college-bugfixes.mjs`, which asserted that clicking a college star line shows NO crest (`crest-image-enemy` stays at opacity=0). The docstring's "Bug 2" is marked RETIRED with a pointer to Arc 82. Phase 4 (enemy-guild regression) renumbered to Phase 3.
+- **Context**: During Arc 84 validation this phase failed (opacity=1). Git history (`50b5333`, Arc 82) shows Arc 82 deliberately wired college crest images onto the end-screen wheel, so college crests now display at opacity=1 — the direct reversal of arc79's original Bug 2 fix. The crest logic lives in `wireColorWheelHover` and has no dependency on level ordering, so the failure was pre-existing, not caused by the reorder. `arc-082-college-crests.mjs` already covers the current (crests-visible) behavior and passes 21/21.
+- **Alternatives rejected**: (a) Leave arc79 as a superseded historical snapshot — rejected because it leaves a red suite. (b) Rewrite Phase 3 to assert the new crests-visible behavior — rejected as redundant with arc-082.
+- **Rationale**: When two arcs' behavioral assertions contradict, the newer authoritative arc wins and the stale assertion is retired rather than duplicated. Client approved retirement.
+
 ---
 
 *Entries added as decisions are made. Format: DEC-NNN with date, decision, context, and rationale.*

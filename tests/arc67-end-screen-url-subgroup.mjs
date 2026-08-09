@@ -6,7 +6,7 @@
  *   whenever the user navigates between sections (via reel nav buttons or scroll)
  *   and when the page first loads.
  *
- * Section labels: allied, enemy, wedges, shards, share
+ * Section labels: allied, enemy, wedges, shards, colleges, share
  *
  * Acceptance Criteria:
  * 1. Loading /end with no params shows Allied Guilds and URL updates to ?subgroup=allied
@@ -142,8 +142,8 @@ async function runTests() {
       const subgroup = getSubgroupParam(page.url());
       assert(subgroup === 'shards', `URL has ?subgroup=shards when loaded with shards param (got: "${subgroup}")`);
 
-      // Shards is index 3 (allied=0, enemy=1, wedges=2, shards=3)
-      // so top button should be visible and bottom button should not be hidden (share comes after)
+      // Shards is index 3 (allied=0, enemy=1, wedges=2, shards=3, colleges=4, share=5)
+      // so top button should be visible and bottom button should not be hidden (colleges/share come after)
       const topBtn = page.locator('.reel-nav-btn--top');
       const topBtnHidden = await topBtn.evaluate(el => el.classList.contains('reel-nav-btn--hidden'));
       assert(!topBtnHidden, 'Top nav button is visible (not at first section) when starting on shards');
@@ -187,8 +187,8 @@ async function runTests() {
 
       const bottomBtn = page.locator('.reel-nav-btn--bottom');
 
-      // Navigate through allied → enemy → wedges → shards → share (4 clicks)
-      for (let i = 0; i < 4; i++) {
+      // Navigate through allied → enemy → wedges → shards → colleges → share (5 clicks)
+      for (let i = 0; i < 6; i++) {
         const hidden = await bottomBtn.evaluate(el => el.classList.contains('reel-nav-btn--hidden'));
         if (hidden) break;
         await bottomBtn.click();

@@ -78,8 +78,8 @@ async function run() {
       await page.waitForLoadState('networkidle');
       await sleep(600);
 
-      // The colleges column is the first reel section (index 0) — it's the visible one.
-      // Find the colleges level-section and its SVG wheel
+      // Colleges is the last reel section (index 4); loading ?subgroup=colleges makes it
+      // the initial visible section. Find the colleges level-section and its SVG wheel.
       const collegesSection = page.locator('.level-section--colleges');
       await collegesSection.waitFor({ timeout: 8000 });
 

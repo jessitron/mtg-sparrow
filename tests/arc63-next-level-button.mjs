@@ -8,11 +8,12 @@
  *
  * Acceptance Criteria:
  * 1. When the next section is an uncompleted level, the bottom nav button shows "Next Level"
- * 2. This works for all four level transitions: allied→enemy, enemy→wedges, wedges→shards
+ * 2. This works for all level transitions: allied→enemy, enemy→wedges, wedges→shards, shards→colleges
  * 3. When the next section IS completed, the button should NOT show "Next Level"
- * 4. The share section (last section) should never trigger "Next Level"
+ * 4. The colleges→share transition (colleges is the last level) does NOT show "Next Level"
+ * 5. The share section (last section) should never trigger "Next Level"
  *
- * The reel sections are ordered: allied (0), enemy (1), wedges (2), shards (3), share (4)
+ * The reel sections are ordered: allied (0), enemy (1), wedges (2), shards (3), colleges (4), share (5)
  * localStorage key: 'sparrow-deck.progression'
  *   - unlockedSubgroups: which sections are accessible
  *   - completedSubgroups: which sections have been completed (determines "Next Level" label)
@@ -57,7 +58,7 @@ async function openEndPage(browser, completedSubgroups) {
   }, {
     key: STORAGE_KEY,
     value: {
-      unlockedSubgroups: ['allied', 'enemy', 'wedges', 'shards'],
+      unlockedSubgroups: ['allied', 'enemy', 'wedges', 'shards', 'colleges'],
       completedSubgroups,
     },
   });
@@ -71,7 +72,7 @@ async function openEndPage(browser, completedSubgroups) {
 
 /**
  * Navigate the end page reel to a given section index by clicking the bottom nav button.
- * Sections: 0=allied, 1=enemy, 2=wedges, 3=shards, 4=share
+ * Sections: 0=allied, 1=enemy, 2=wedges, 3=shards, 4=colleges, 5=share
  */
 async function navigateToSection(page, targetIndex) {
   const bottomBtn = page.locator('.reel-nav-btn--bottom');
@@ -152,7 +153,7 @@ async function runTests() {
     console.log('\nPhase 4 — When next section is completed, button does NOT show "Next Level"');
     {
       // All sections completed
-      const [context, page] = await openEndPage(browser, ['allied', 'enemy', 'wedges', 'shards']);
+      const [context, page] = await openEndPage(browser, ['allied', 'enemy', 'wedges', 'shards', 'colleges']);
 
       // At allied (index 0), next is enemy (index 1) — enemy IS completed
       const btnText = await getBottomBtnText(page);
@@ -168,7 +169,7 @@ async function runTests() {
     console.log('\nPhase 5 — wedges→shards: shards completed → no "Next Level"');
     {
       // All sections completed
-      const [context, page] = await openEndPage(browser, ['allied', 'enemy', 'wedges', 'shards']);
+      const [context, page] = await openEndPage(browser, ['allied', 'enemy', 'wedges', 'shards', 'colleges']);
 
       // Navigate to wedges section (index 2)
       await navigateToSection(page, 2);
@@ -183,16 +184,54 @@ async function runTests() {
       await context.close();
     }
 
-    // --- Phase 6: Share section (index 4) — never shows "Next Level" ---
-    console.log('\nPhase 6 — Share section (last): bottom button hidden or no "Next Level"');
+    // --- Phase 6: shards→colleges shows "Next Level" (colleges is now the last level) ---
+    console.log('\nPhase 6 — shards section: shards→colleges shows "Next Level"');
+    {
+      // allied, enemy, wedges, shards completed — colleges not completed
+      const [context, page] = await openEndPage(browser, ['allied', 'enemy', 'wedges', 'shards']);
+
+      // Navigate to shards section (index 3)
+      await navigateToSection(page, 3);
+
+      // At shards (index 3), next is colleges (index 4) — not completed → "Next Level"
+      const btnText = await getBottomBtnText(page);
+      assert(
+        btnText === 'Next Level',
+        `At shards section with colleges uncompleted, bottom button shows "Next Level" (got: "${btnText}")`
+      );
+
+      await context.close();
+    }
+
+    // --- Phase 7: colleges section → next is share, NOT "Next Level" ---
+    console.log('\nPhase 7 — colleges section: next is share, NOT "Next Level"');
+    {
+      // All levels completed (so we can navigate freely without "Next Level" confusion)
+      const [context, page] = await openEndPage(browser, ['allied', 'enemy', 'wedges', 'shards', 'colleges']);
+
+      // Navigate to colleges section (index 4)
+      await navigateToSection(page, 4);
+
+      // At colleges (index 4), next is share (index 5) — share is never a "level"
+      const btnText = await getBottomBtnText(page);
+      assert(
+        btnText !== 'Next Level',
+        `At colleges section, next is share (not a level), button does NOT show "Next Level" (got: "${btnText}")`
+      );
+
+      await context.close();
+    }
+
+    // --- Phase 8: Share section (index 5) — never shows "Next Level" ---
+    console.log('\nPhase 8 — Share section (last): bottom button hidden or no "Next Level"');
     {
       // Nothing completed — every level would trigger "Next Level" if visible
       const [context, page] = await openEndPage(browser, []);
 
-      // Navigate to share section (index 4)
-      await navigateToSection(page, 4);
+      // Navigate to share section (index 5)
+      await navigateToSection(page, 5);
 
-      // At share (index 4), there's no next section → bottom button hidden
+      // At share (index 5), there's no next section → bottom button hidden
       const bottomBtn = page.locator('.reel-nav-btn--bottom');
       const isHidden = await bottomBtn.evaluate(el => el.classList.contains('reel-nav-btn--hidden'));
       const btnText = await getBottomBtnText(page);
@@ -200,25 +239,6 @@ async function runTests() {
       assert(
         isHidden || btnText !== 'Next Level',
         `At share section (last), bottom button is hidden or does not show "Next Level" (hidden=${isHidden}, text="${btnText}")`
-      );
-
-      await context.close();
-    }
-
-    // --- Phase 7: shards section → next is share, NOT "Next Level" ---
-    console.log('\nPhase 7 — shards section: next is share, NOT "Next Level"');
-    {
-      // All levels completed (so we can navigate freely without "Next Level" confusion)
-      const [context, page] = await openEndPage(browser, ['allied', 'enemy', 'wedges', 'shards']);
-
-      // Navigate to shards section (index 3)
-      await navigateToSection(page, 3);
-
-      // At shards (index 3), next is share (index 4) — share is never a "level"
-      const btnText = await getBottomBtnText(page);
-      assert(
-        btnText !== 'Next Level',
-        `At shards section, next is share (not a level), button does NOT show "Next Level" (got: "${btnText}")`
       );
 
       await context.close();

@@ -7,15 +7,15 @@
  * - src/slides.ts derives level number, title, combo names from LEVELS
  * - src/ui/guild-columns.ts iterates UI_LEVELS instead of calling 4 builders by name
  * - src/end.ts simplified call, no more 4 boolean params
- * - src/version.ts bumped to 0.46.0
+ * - src/version.ts bumped to 0.53.0
  *
  * Acceptance criteria:
- * 1. All 4 levels still work: allied guilds, enemy guilds, wedges, shards
- * 2. Level intro shows correct level numbers (1-4), correct titles, correct combo names
- * 3. End page shows all 4 level sections with correct titles and descriptions
+ * 1. All 5 levels still work: allied guilds, enemy guilds, wedges, shards, colleges (last)
+ * 2. Level intro shows correct level numbers (1-5), correct titles, correct combo names
+ * 3. End page shows all 5 level sections with correct titles and descriptions
  * 4. The share section is still present at the bottom (not a level)
- * 5. Version 0.46.0 is present in the settings panel
- * 6. Build bundle contains 0.46.0 version string
+ * 5. Version 0.53.0 is present in the settings panel
+ * 6. Build bundle contains 0.53.0 version string
  *
  * Server must be running at http://localhost:3847 before running this script.
  * Use ./run-test-server to start and ./stop-test-server to tear down.
@@ -48,20 +48,20 @@ async function run() {
 
   try {
     // -----------------------------------------------------------------------
-    // PHASE 1: Build bundle contains version 0.46.0
+    // PHASE 1: Build bundle contains version 0.53.0
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 1: Bundle contains version 0.46.0 ===\n');
+    console.log('\n=== Phase 1: Bundle contains version 0.53.0 ===\n');
     {
       const page = await browser.newPage();
       const response = await page.request.get(`${BASE_URL}/dist/slides.js`);
       assert(response.status() === 200, 'dist/slides.js is served (HTTP 200)');
       const text = await response.text();
-      assert(text.includes('0.46.0'), 'slides.js bundle contains "0.46.0"');
+      assert(text.includes('0.53.0'), 'slides.js bundle contains "0.53.0"');
       await page.close();
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 2: Level intro — all 4 subgroups show correct level number and title
+    // PHASE 2: Level intro — all 5 subgroups show correct level number and title
     // -----------------------------------------------------------------------
     const levelCases = [
       {
@@ -87,6 +87,12 @@ async function run() {
         levelNum: 'LEVEL 4',
         title: 'Shards',
         names: ['Bant', 'Esper', 'Grixis', 'Jund', 'Naya'],
+      },
+      {
+        subgroup: 'colleges',
+        levelNum: 'LEVEL 5',
+        title: 'Strixhaven Colleges',
+        names: ['Silverquill', 'Prismari', 'Witherbloom', 'Lorehold', 'Quandrix'],
       },
     ];
 
@@ -124,9 +130,9 @@ async function run() {
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 3: End page — all 4 level sections + share section present
+    // PHASE 3: End page — all 5 level sections + share section present
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 3: End page — all 4 level sections + share section ===\n');
+    console.log('\n=== Phase 3: End page — all 5 level sections + share section ===\n');
     {
       const context = await browser.newContext();
       const page = await context.newPage();
@@ -137,7 +143,7 @@ async function run() {
       }, {
         key: STORAGE_KEY,
         value: {
-          unlockedSubgroups: ['allied', 'enemy', 'wedges', 'shards'],
+          unlockedSubgroups: ['allied', 'enemy', 'wedges', 'shards', 'colleges'],
           completedSubgroups: [],
         },
       });
@@ -146,8 +152,8 @@ async function run() {
       await page.waitForLoadState('networkidle');
       await sleep(500);
 
-      // Check all 4 level section headers
-      const expectedHeaders = ['Allied Guilds', 'Enemy Guilds', 'Wedges', 'Shards'];
+      // Check all 5 level section headers
+      const expectedHeaders = ['Allied Guilds', 'Enemy Guilds', 'Wedges', 'Shards', 'Strixhaven Colleges'];
       const allHeaders = await page.$$eval('.level-section-header', els =>
         els.map(el => el.textContent?.trim() ?? '')
       );
@@ -165,6 +171,7 @@ async function run() {
         'Enemy guilds pair colors from opposite sides',
         'Wedges combine one color with the two across from it',
         'Shards combine one color with the two on either side',
+        'Five magical schools, each built on the tension between two enemy colors',
       ];
       const bodyText = await page.textContent('body');
       for (const desc of descriptions) {
@@ -185,9 +192,9 @@ async function run() {
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 4: Version 0.46.0 in settings panel
+    // PHASE 4: Version 0.53.0 in settings panel
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 4: Version 0.46.0 in settings panel ===\n');
+    console.log('\n=== Phase 4: Version 0.53.0 in settings panel ===\n');
     {
       const page = await browser.newPage();
       await page.goto(`${BASE_URL}/slides?subgroup=allied`);
@@ -202,8 +209,8 @@ async function run() {
       const versionEl = page.locator('#settings-version');
       const versionText = await versionEl.textContent().catch(() => null);
       assert(
-        versionText && versionText.includes('0.46.0'),
-        `Settings panel shows version 0.46.0 (got: "${versionText?.trim()}")`,
+        versionText && versionText.includes('0.53.0'),
+        `Settings panel shows version 0.53.0 (got: "${versionText?.trim()}")`,
       );
 
       await page.close();
@@ -211,10 +218,10 @@ async function run() {
 
     // -----------------------------------------------------------------------
     // PHASE 5: Slides page actually loads cards for each subgroup
-    //          (verifies LEVELS.find() pool lookup works for all 4)
+    //          (verifies LEVELS.find() pool lookup works for all 5)
     // -----------------------------------------------------------------------
     console.log('\n=== Phase 5: Slides page loads cards after intro dismissal ===\n');
-    for (const subgroup of ['allied', 'enemy', 'wedges', 'shards']) {
+    for (const subgroup of ['allied', 'enemy', 'wedges', 'shards', 'colleges']) {
       const page = await browser.newPage();
       await page.goto(`${BASE_URL}/slides?subgroup=${subgroup}`);
       await page.waitForLoadState('domcontentloaded');

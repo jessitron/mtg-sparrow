@@ -914,3 +914,21 @@ Following delivery of the iOS audio fix, the Observability Engineer extended Arc
 - **Version**: NOT bumped — technique is internal tooling, though `data-contrast-check` attributes and `about.css` fix did change production code. Consider whether version should be bumped in a future arc.
 - **Verification**: Report self-checked (meta-test), 370 elements all passing. Contrast findings documented above.
 - **Status**: IN PROGRESS
+
+---
+
+## Phase: Level Ordering (Arc 84, v0.53.0)
+
+### Arc 84: Reorder Levels — Colleges Last — COMPLETE (v0.53.0, 2026-08-09)
+- **Type**: Structural
+- **What**: Strixhaven Colleges moved from the first level to the last. Allied Guilds is first again. New order: allied → enemy → wedges → shards → colleges. Colleges is now LEVEL 5.
+- **How**:
+  - `src/levels.ts`: reordered the `LEVELS` array so `colleges` is the final entry; `allied` leads. Level numbering and unlock chain derive from array order, so this drove all downstream numbering.
+  - `src/ui/guild-columns.ts`: remapped `UI_LEVELS` so each `LEVELS[i]` pairs with its correct `buildColumn` (allied=0 … colleges=4); added `'colleges'` to the `nextIsNewLevel` whitelist so the "Next Level" affordance survives the shards→colleges transition.
+  - `src/version.ts`: bumped `0.52.0` → `0.53.0`.
+- **Test reconciliation (full 5-level coverage)**: `arc78` (colleges=LEVEL 5, allied=LEVEL 1, version 0.53.0), `arc77` (5-level intro/end/slides, version 0.53.0), `arc63` (shards→colleges & colleges→share transitions), `arc67` (five-click navigation), `arc-082` (comment), `test-level-intro` (added Colleges=LEVEL 5 phase).
+- **Key decisions**: DEC-286 (retire arc79 Phase 3 — superseded by Arc 82).
+- **Learning**: The `UI_LEVELS` index→builder pairing and the `nextIsNewLevel` whitelist are the two spots not driven purely by `LEVELS` order — both needed manual updates. Also surfaced a pre-existing arc-vs-arc contradiction: arc79's original "Bug 2" (no college crest) was reversed by Arc 82 (crests now show); retired that stale phase with client sign-off.
+- **Verification**: All affected suites green — test-level-intro 43/43, arc77 59/59, arc78 71/71, arc63 8/8, arc67 12/12, arc-082 21/21, arc79 21/21. Typecheck clean; `0.53.0` present in `dist/slides.js` and `dist/end.js`.
+- **Observability**: `APP_VERSION = '0.53.0'` in `src/version.ts`, shipped in bundles and shown in the settings panel (`#settings-version`).
+- **Status**: COMPLETE

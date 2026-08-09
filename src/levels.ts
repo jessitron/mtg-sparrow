@@ -11,12 +11,6 @@ export interface LevelDefinition {
 
 export const LEVELS: LevelDefinition[] = [
   {
-    id: 'colleges',
-    title: 'Strixhaven Colleges',
-    description: 'Five magical schools, each built on the tension between two enemy colors.',
-    pool: colleges,
-  },
-  {
     id: 'allied',
     title: 'Allied Guilds',
     description: 'Allied guilds are pairs of neighboring colors. Hover or click for deets.',
@@ -39,5 +33,11 @@ export const LEVELS: LevelDefinition[] = [
     title: 'Shards',
     description: 'Shards combine one color with the two on either side.',
     pool: shards,
+  },
+  {
+    id: 'colleges',
+    title: 'Strixhaven Colleges',
+    description: 'Five magical schools, each built on the tension between two enemy colors.',
+    pool: colleges,
   },
 ];

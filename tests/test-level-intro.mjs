@@ -9,8 +9,9 @@
  * 2. Enemy (Level 2)  — LEVEL 2, Enemy Guilds, Orzhov/Izzet/Golgari/Boros/Simic
  * 3. Wedges (Level 3) — LEVEL 3, Wedges, Abzan/Jeskai/Sultai/Mardu/Temur
  * 4. Shards (Level 4) — LEVEL 4, Shards, Bant/Esper/Grixis/Jund/Naya
- * 5. Spacebar dismissal — Space key dismisses intro and shows card
- * 6. No card before dismissal — .card does not exist while intro is showing
+ * 5. Colleges (Level 5) — LEVEL 5, Strixhaven Colleges, Silverquill/Prismari/Witherbloom/Lorehold/Quandrix
+ * 6. Spacebar dismissal — Space key dismisses intro and shows card
+ * 7. No card before dismissal — .card does not exist while intro is showing
  *
  * Server must be running at http://localhost:3847 before running this script.
  * Use ./run-test-server to start and ./stop-test-server to tear down.
@@ -200,9 +201,43 @@ async function run() {
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 5: Spacebar dismissal
+    // PHASE 5: Colleges (Level 5)
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 5: Spacebar dismissal ===\n');
+    console.log('\n=== Phase 5: Colleges (Level 5) ===\n');
+    {
+      const page = await browser.newPage();
+      await page.goto(`${BASE_URL}/slides?subgroup=colleges`);
+      await page.waitForLoadState('domcontentloaded');
+      await page.waitForTimeout(500);
+
+      const levelNumber = await page.textContent('.level-intro-number').catch(() => null);
+      assert(
+        levelNumber && levelNumber.includes('LEVEL 5'),
+        `.level-intro-number shows "LEVEL 5" (got: "${levelNumber?.trim()}")`,
+      );
+
+      const subtitle = await page.textContent('.level-intro-subtitle').catch(() => null);
+      assert(
+        subtitle && subtitle.includes('Strixhaven Colleges'),
+        `.level-intro-subtitle shows "Strixhaven Colleges" (got: "${subtitle?.trim()}")`,
+      );
+
+      const namesText = await page.textContent('.level-intro-names').catch(() => null);
+      const collegeNames = ['Silverquill', 'Prismari', 'Witherbloom', 'Lorehold', 'Quandrix'];
+      for (const name of collegeNames) {
+        assert(
+          namesText && namesText.includes(name),
+          `.level-intro-names includes "${name}"`,
+        );
+      }
+
+      await page.close();
+    }
+
+    // -----------------------------------------------------------------------
+    // PHASE 6: Spacebar dismissal
+    // -----------------------------------------------------------------------
+    console.log('\n=== Phase 6: Spacebar dismissal ===\n');
     {
       const page = await browser.newPage();
       await page.goto(`${BASE_URL}/slides?subgroup=allied`);

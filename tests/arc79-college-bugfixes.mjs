@@ -5,9 +5,10 @@
  *   - Was: looking up enemy guild IDs (orzhov etc.) instead of college IDs
  *   - Fixed: wireCollegesHover passes collegePairToId override map
  *
- * Bug 2: Enemy guild crest symbols appearing in the star
- *   - Was: crestImg opacity set to 1 with enemy guild src
- *   - Fixed: wireCollegesHover passes '' as crestId so getElementById('') returns null
+ * Bug 2: (RETIRED) Originally asserted no crest appears for colleges. Arc 82
+ *   deliberately superseded this by wiring college crest images onto the wheel,
+ *   so college crests now show at opacity=1. That behavior is covered by
+ *   arc-082-college-crests.mjs; the old Bug 2 phase has been removed here.
  *
  * Regression: Enemy guilds section still works correctly.
  *
@@ -61,15 +62,15 @@ async function run() {
 
   try {
     // -----------------------------------------------------------------------
-    // PHASE 1: Version check — expect 0.48.0
+    // PHASE 1: Version check — expect 0.53.0
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 1: Bundle version is 0.48.0 ===\n');
+    console.log('\n=== Phase 1: Bundle version is 0.53.0 ===\n');
     {
       const page = await browser.newPage();
       const response = await page.request.get(`${BASE_URL}/dist/end.js`);
       assert(response.status() === 200, 'dist/end.js is served (HTTP 200)');
       const text = await response.text();
-      assert(text.includes('0.48.0'), 'end.js bundle contains "0.48.0"');
+      assert(text.includes('0.53.0'), 'end.js bundle contains "0.53.0"');
       await page.close();
     }
 
@@ -160,47 +161,13 @@ async function run() {
     }
 
     // -----------------------------------------------------------------------
-    // PHASE 3: No guild crest appears for colleges (Bug 2 fix)
+    // PHASE 3: Regression — enemy guilds section still works
+    //
+    // (The former Bug 2 phase — asserting no crest appears for colleges — was
+    // retired: Arc 82 intentionally wires college crests onto the wheel, so
+    // college crests now show at opacity=1. See arc-082-college-crests.mjs.)
     // -----------------------------------------------------------------------
-    console.log('\n=== Phase 3: No guild crest appears when college line is clicked (Bug 2 fix) ===\n');
-    {
-      const { context, page } = await makeCollegesPage(browser);
-      const collegeSection = page.locator('.level-section--colleges');
-
-      // Click a star line to trigger highlight
-      await collegeSection.locator('.enemy-line').first().click({ force: true });
-      await sleep(300);
-
-      // The SVG contains crest-image-enemy — it should stay at opacity=0
-      const crestImg = collegeSection.locator('[id="crest-image-enemy"]');
-      assert(await crestImg.count() > 0, 'crest-image-enemy element exists in colleges SVG');
-
-      if (await crestImg.count() > 0) {
-        const opacity = await crestImg.getAttribute('opacity');
-        assert(
-          opacity === '0',
-          `crest-image-enemy remains at opacity=0 after clicking a college line (got: "${opacity}")`,
-        );
-
-        // Verify no guild PNG was loaded into the crest element
-        const href = await crestImg.getAttribute('href');
-        const xlinkHref = await crestImg.evaluate(el =>
-          el.getAttributeNS('http://www.w3.org/1999/xlink', 'href')
-        );
-        const hasGuildImage = (href && href.includes('.png')) || (xlinkHref && xlinkHref.includes('.png'));
-        assert(
-          !hasGuildImage,
-          `crest-image-enemy has NO guild .png loaded (href="${href}", xlink:href="${xlinkHref}")`,
-        );
-      }
-
-      await context.close();
-    }
-
-    // -----------------------------------------------------------------------
-    // PHASE 4: Regression — enemy guilds section still works
-    // -----------------------------------------------------------------------
-    console.log('\n=== Phase 4: Regression — enemy guilds descriptions still work ===\n');
+    console.log('\n=== Phase 3: Regression — enemy guilds descriptions still work ===\n');
     {
       const context = await browser.newContext();
       const page = await context.newPage();

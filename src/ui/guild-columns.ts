@@ -1009,11 +1009,11 @@ interface UILevelDefinition extends LevelDefinition {
 }
 
 const UI_LEVELS: UILevelDefinition[] = [
-  { ...LEVELS[0], buildColumn: buildCollegesColumn },  // colleges (new)
-  { ...LEVELS[1], buildColumn: buildAlliedColumn },    // allied (was LEVELS[0])
-  { ...LEVELS[2], buildColumn: buildEnemyColumn },     // enemy (was LEVELS[1])
-  { ...LEVELS[3], buildColumn: buildWedgeColumn },     // wedges (was LEVELS[2])
-  { ...LEVELS[4], buildColumn: buildShardColumn },     // shards (was LEVELS[3])
+  { ...LEVELS[0], buildColumn: buildAlliedColumn },    // allied
+  { ...LEVELS[1], buildColumn: buildEnemyColumn },     // enemy
+  { ...LEVELS[2], buildColumn: buildWedgeColumn },     // wedges
+  { ...LEVELS[3], buildColumn: buildShardColumn },     // shards
+  { ...LEVELS[4], buildColumn: buildCollegesColumn },  // colleges (now last)
 ];
 
 const SECTION_LABELS = [...UI_LEVELS.map(l => l.id), 'share'];
@@ -1219,7 +1219,7 @@ export function showSessionEndColumns(
     }
 
     const nextLabel = SECTION_LABELS[reelIndex + 1];
-    const nextIsNewLevel = (nextLabel === 'allied' || nextLabel === 'enemy' || nextLabel === 'wedges' || nextLabel === 'shards') && !hasCompletedSubgroup(nextLabel);
+    const nextIsNewLevel = (nextLabel === 'allied' || nextLabel === 'enemy' || nextLabel === 'wedges' || nextLabel === 'shards' || nextLabel === 'colleges') && !hasCompletedSubgroup(nextLabel);
 
     if (!atEnd && nextIsNewLevel) {
       bottomBtn.textContent = 'Next Level';
