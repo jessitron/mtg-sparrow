@@ -210,17 +210,10 @@
   font-weight: 600;
 }
 
-.signup-confirmation-detail {
+.signup-confirmation-note {
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.5;
-}
-
-.signup-confirmation-note {
-  margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.5;
-  opacity: 0.85;
 }
 
 .about-home-link {

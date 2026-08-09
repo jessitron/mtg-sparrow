@@ -99,23 +99,19 @@ document.addEventListener('DOMContentLoaded', () => {
         emitLog('about.signup_success', submitSpan);
 
         // Replace the form (and its inline privacy disclaimer) with a
-        // confirmation echoing back the name and email the user entered.
+        // confirmation echoing back the email the user entered.
         const confirmation = document.createElement('div');
         confirmation.className = 'signup-confirmation';
 
         const heading = document.createElement('p');
         heading.className = 'signup-confirmation-heading';
-        heading.textContent = "Thanks! You're subscribed.";
-
-        const detail = document.createElement('p');
-        detail.className = 'signup-confirmation-detail';
-        detail.textContent = `We'll send updates for ${fullName} to ${email}.`;
+        heading.textContent = `Thanks! You're subscribed at ${email}.`;
 
         const note = document.createElement('p');
         note.className = 'signup-confirmation-note';
         note.textContent = 'Look for a confirmation email from Avdi & Jessitron at ShipRise.';
 
-        confirmation.append(heading, detail, note);
+        confirmation.append(heading, note);
         signupFormEl.replaceWith(confirmation);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
