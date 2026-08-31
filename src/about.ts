@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Wire the FluentCRM newsletter signup form
   if (signupFormEl) {
-    const FLUENTCRM_ENDPOINT = 'https://shiprise.com/?fluentcrm=1&route=contact&hash=31428679-dba5-4c2a-ba37-0efe38f90ec9';
+    const FLUENTCRM_ENDPOINT = 'https://jessitron.com/?fluentcrm=1&route=contact&hash=0fce84c3-23f3-4f8f-8e82-e844a249226e';
     const LEAD_SOURCE = 'mtgcolors-quest-about';
     const emailEl = document.getElementById('signup-email') as HTMLInputElement | null;
     const nameEl = document.getElementById('signup-full-name') as HTMLInputElement | null;
